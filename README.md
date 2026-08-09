@@ -9,14 +9,27 @@ This backend serves as both the live local game-radar and the data ingestion pip
 ## Key Features
 
 1. **Live Local Game Radar (WebSockets)**: 
-   - A real-time `ValorantLocalService` polls the local Riot Client `lockfile` to check the game client status.
-   - Using a central Socket.io gateway (`ValorantGateway`), it emits live game state transitions (`CLOSED`, `MENU`, `PREGAME`) and buy phase data (`buy_phase`) directly to the static web dashboard.
-2. **Synergy Selector (Drafting)**: Recommends the optimal agent to pick based on map geometry, team synergy, and teammate picks to maximize the team's historical win rate.
-3. **Economy Optimizer**: Calculates recommended weapon, armor, and ability loadouts depending on current player credits, map, and round type (Eco, Force, Full Buy).
-4. **Hybrid Data Ingestion Pipeline**:
+   - A real-time [ValorantLocalService](file:///c:/Users/chumi/OneDrive/Escritorio/LoadoutAI/valorant-ai/src/gateway/valorant-local.service.ts) polls the local Riot Client `lockfile` to check the game client status.
+   - Using a central Socket.io gateway ([ValorantGateway](file:///c:/Users/chumi/OneDrive/Escritorio/LoadoutAI/valorant-ai/src/gateway/valorant.gateway.ts)), it emits live game state transitions (`CLOSED`, `MENU`, `PREGAME`, `INGAME`) and buy phase data (`buy_phase`) directly to the static web dashboard.
+   - Automatically parses game client presence data to map queue IDs to their corresponding game mode configurations.
+2. **Interactive Agent Draft Coach & Sandbox Simulator**:
+   - A visual cyberpunk-themed offline dashboard allows mock drafting, custom map selection, and agent picks configuration.
+   - Simulates pregame lockout timers and details agent specifications, roles, and descriptions interactively.
+3. **Dynamic Game Mode Rules Engine**:
+   - Supports multiple game modes (Competitive, Unrated, Swiftplay, Spike Rush, Deathmatch, Escalation, Custom Game) with automated rules adaptations.
+   - Dynamically parses and displays mode rules such as team capacity, half-round side swaps, and custom economy features (buy allowed vs. buy disabled).
+4. **Advanced Team Synergy & Vulnerability Alerts**:
+   - Implements a real-time composition synergy calculator showing a dynamic graphical SVG gauge with percentage rating.
+   - Analyzes team roles (Duelists, Initiators, Controllers, Sentinels) to diagnose and alert for composition vulnerabilities (e.g. missing smokes/controllers, entry power, or info gathering).
+5. **Live In-game HUD & Economy Overlay**:
+   - Recommends round-by-round purchase options (weapon, shield, abilities) based on current team credits and map strategy.
+   - Generates enemy economy predictions (average credit estimation and loadout ranges) and features team ultimate tracking.
+6. **Responsive Cyberpunk Mobile UI Refactor**:
+   - Custom CSS styling and media queries optimize the draft layout, synergy indicators, and agent selection grids for mobile devices and tablets.
+7. **Hybrid Data Ingestion Pipeline**:
    - **Official Riot Games API** (`VAL-MATCH-V1`, `VAL-RANKED-V1`, and `VAL-CONTENT-V1` for acts): Dynamically ingests high-rank MMR leaderboards, live match histories, and active season act IDs.
    - **Unofficial Valorant Database** (`valorant-api.com`): Retrieves rich static game content (costs, coordinate systems, role descriptions, damage models, and ability lists) to build a highly detailed knowledge base for the ML models.
-5. **Production Safeguards**: Implements rate-limiting (`@nestjs/throttler` at 20 req/min) to adhere to Riot developer key policies.
+8. **Production Safeguards**: Implements rate-limiting (`@nestjs/throttler` at 20 req/min) to adhere to Riot developer key policies.
 
 ---
 
@@ -49,10 +62,19 @@ src/
 │   └── matches/          # Match details extraction and leaderboard MMR retrieval
 ├── utils/                # Generic type-safe CSV writer
 ├── main.ts               # Web application bootstraper
-└── app.module.ts         # Module imports and declarations
+├── app.module.ts         # Module imports and declarations
 public/                   # Static HTML and styling for the live Radar dashboard
+│   ├── index.html        # Main interactive dashboard and HUD overlay UI
+│   ├── script.js         # Websocket connection and simulation coach engine
+│   └── style.css         # Cyberpunk-themed styles and responsive layouts
 contenido/                # Python ML training pipeline (datasets & pickled models)
 ```
+
+## API & Testing Guides
+
+For more details on integrating and testing, refer to the following comprehensive guides:
+- [gateway_documentation.md](file:///c:/Users/chumi/OneDrive/Escritorio/LoadoutAI/valorant-ai/gateway_documentation.md): Comprehensive WebSockets API documentation listing all events and payloads.
+- [postman_endpoints_guide.md](file:///c:/Users/chumi/OneDrive/Escritorio/LoadoutAI/valorant-ai/postman_endpoints_guide.md): In-depth guide detailing backend REST endpoints and Postman collections instructions.
 
 ---
 
