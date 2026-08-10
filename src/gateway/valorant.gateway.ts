@@ -20,8 +20,14 @@ export class ValorantGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  readonly pregameSelect$ = new Subject<{ pregameMatchId: string; agentUuid: string }>();
-  readonly pregameLock$ = new Subject<{ pregameMatchId: string; agentUuid: string }>();
+  readonly pregameSelect$ = new Subject<{
+    pregameMatchId: string;
+    agentUuid: string;
+  }>();
+  readonly pregameLock$ = new Subject<{
+    pregameMatchId: string;
+    agentUuid: string;
+  }>();
   readonly ingameCredits$ = new Subject<{ credits: number }>();
 
   private currentStatus: string = "CLOSED";
@@ -34,7 +40,7 @@ export class ValorantGateway implements OnGatewayConnection {
     private readonly agentsService: AgentsService,
     private readonly mapsService: MapsService,
     private readonly weaponsService: WeaponsService,
-  ) { }
+  ) {}
 
   handleConnection(client: Socket) {
     client.emit("valorant_status", {
@@ -183,13 +189,23 @@ export class ValorantGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("pregame_select")
-  handlePregameSelect(client: Socket, data: { pregameMatchId: string; agentUuid: string }) {
-    this.pregameSelect$.next(data);
+  handlePregameSelect(
+    client: Socket,
+    data: { pregameMatchId?: string; agentUuid: string },
+  ) {
+    const pregameMatchId = data.pregameMatchId || (this.extraData.pregameMatchId as string);
+    console.log("RECEIVED PREGAME_SELECT:", { pregameMatchId, agentUuid: data.agentUuid });
+    this.pregameSelect$.next({ pregameMatchId, agentUuid: data.agentUuid });
   }
 
   @SubscribeMessage("pregame_lock")
-  handlePregameLock(client: Socket, data: { pregameMatchId: string; agentUuid: string }) {
-    this.pregameLock$.next(data);
+  handlePregameLock(
+    client: Socket,
+    data: { pregameMatchId?: string; agentUuid: string },
+  ) {
+    const pregameMatchId = data.pregameMatchId || (this.extraData.pregameMatchId as string);
+    console.log("RECEIVED PREGAME_LOCK:", { pregameMatchId, agentUuid: data.agentUuid });
+    this.pregameLock$.next({ pregameMatchId, agentUuid: data.agentUuid });
   }
 
   @SubscribeMessage("update_ingame_credits")

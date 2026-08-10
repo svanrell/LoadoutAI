@@ -252,7 +252,10 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async selectAgent(pregameMatchId: string, agentUuid: string): Promise<boolean> {
+  async selectAgent(
+    pregameMatchId: string,
+    agentUuid: string,
+  ): Promise<boolean> {
     const remote = await this.getRemoteConfig();
     if (!remote) return false;
 
@@ -264,7 +267,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           { headers: remote.headers },
         ),
       );
-      this.logger.log(`Selected agent ${agentUuid} in pregame match ${pregameMatchId}`);
+      this.logger.log(
+        `Selected agent ${agentUuid} in pregame match ${pregameMatchId}`,
+      );
       return true;
     } catch (error) {
       this.logger.error(
@@ -286,7 +291,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           { headers: remote.headers },
         ),
       );
-      this.logger.log(`Locked agent ${agentUuid} in pregame match ${pregameMatchId}`);
+      this.logger.log(
+        `Locked agent ${agentUuid} in pregame match ${pregameMatchId}`,
+      );
       return true;
     } catch (error) {
       this.logger.error(
@@ -425,7 +432,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               [],
             );
 
-            const mlDraftPicks = mlPred && mlPred.recommendations ? mlPred.recommendations : [];
+            const mlDraftPicks =
+              mlPred && mlPred.recommendations ? mlPred.recommendations : [];
             const queueId = privateData.matchPresenceData?.queueId || "";
             const mode = QUEUES_MAP[queueId] || "Competitive";
 
@@ -499,20 +507,29 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               ),
             );
 
-            const myPlayerInGame = coregameMatch.data.Players.find(p => p.Subject === puuid);
+            const myPlayerInGame = coregameMatch.data.Players.find(
+              (p) => p.Subject === puuid,
+            );
             const myTeamId = myPlayerInGame ? myPlayerInGame.TeamID : null;
 
-            const teammatePlayers = coregameMatch.data.Players.filter(p => p.TeamID === myTeamId);
+            const teammatePlayers = coregameMatch.data.Players.filter(
+              (p) => p.TeamID === myTeamId,
+            );
 
-            players = teammatePlayers.map(p => {
-              const playerPresence = presences.data.presences?.find(presence => presence.puuid === p.Subject);
+            players = teammatePlayers.map((p) => {
+              const playerPresence = presences.data.presences?.find(
+                (presence) => presence.puuid === p.Subject,
+              );
               let rank = 0;
               if (playerPresence && playerPresence.private) {
                 try {
-                  const decoded = Buffer.from(playerPresence.private, "base64").toString("utf8");
+                  const decoded = Buffer.from(
+                    playerPresence.private,
+                    "base64",
+                  ).toString("utf8");
                   const presenceData = JSON.parse(decoded);
                   rank = presenceData.competitiveTier || 0;
-                } catch { }
+                } catch {}
               }
 
               return {
@@ -530,7 +547,12 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
             );
           }
 
-          this.updateStatus("INGAME", { mapName, mode, players, myPuuid: puuid });
+          this.updateStatus("INGAME", {
+            mapName,
+            mode,
+            players,
+            myPuuid: puuid,
+          });
 
           const scoreAlly =
             privateData.partyOwnerMatchScoreAllyTeam ??
@@ -681,7 +703,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       }
     } catch (error) {
       this.logger.error(
-        `Error running ML prediction: ${error instanceof Error ? error.message : String(error)
+        `Error running ML prediction: ${
+          error instanceof Error ? error.message : String(error)
         }`,
       );
     }
