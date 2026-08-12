@@ -63,13 +63,13 @@ We built this with the same precision as a Vandal one-tap:
 
 ```bash
 valorant-ai/
-├── frontend/             # 🎨 Next.js React Dashboard & HUD (New UI!)
+├── frontend/             # Next.js React Dashboard & HUD (New UI!)
 ├── src/
-│   ├── gateway/          # 📡 WebSocket Gateway & Local Client Radar
-│   ├── valorant_api/     # 🔄 Hybrid API Ingestion (Agents, Maps, Gear)
-│   └── utils/            # 🛠️ Type-safe CSV builders
-├── public/               # 📦 Compiled Static Frontend (served by NestJS)
-└── contenido/            # 🧠 Python ML training pipeline & models
+│   ├── gateway/          # WebSocket Gateway & Local Client Radar
+│   ├── valorant_api/     # Hybrid API Ingestion (Agents, Maps, Gear)
+│   └── utils/            # Type-safe CSV builders
+├── public/               # Compiled Static Frontend (served by NestJS)
+└── contenido/            # Python ML training pipeline & models
 ```
 
 ---
