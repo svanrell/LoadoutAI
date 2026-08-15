@@ -15,7 +15,7 @@
 
 ---
 
-## ⚡ WHAT IS LOADOUT AI?
+## WHAT IS LOADOUT AI?
 
 **LoadoutAi** is a cutting-edge tactical assistant for VALORANT. Inspired by high-elo coaching tools, it acts as your personal in-game strategist. 
 
@@ -29,23 +29,23 @@ This is not just another tracker. It's a **Real-Time Data Pipeline & ML Engine**
 
 ---
 
-## 🚀 BADASS FEATURES
+## BADASS FEATURES
 
-### 📡 Live Local Game Radar
+### Live Local Game Radar
 Forget alt-tabbing. Our real-time **WebSocket Gateway** polls your local Riot Client `lockfile`. It knows when you are in the menu, drafting agents, or sweating in a live match.
 
-### 🔫 1:1 In-Game HUD Overlay
+### 1:1 In-Game HUD Overlay
 Experience a flawless, pixel-perfect replica of the VALORANT Buy Menu. Complete with responsive auto-scaling, dynamic credit calculations, and weapon stats exactly as they appear in the game.
 
-### 🤖 Interactive Agent Draft Coach
+### Interactive Agent Draft Coach
 A cyberpunk-themed dashboard that calculates team synergy on the fly. Missing smokes? No entry fragger? The AI will warn your team before the match even starts with our **Dynamic Synergy Gauge**.
 
-### 🧠 Python ML Data Ingestion
+### Python ML Data Ingestion
 Feeds on high-rank MMR leaderboards and match histories from the official Riot API. The backend generates clean, normalized datasets (`/infoApi`) ready for Machine Learning training.
 
 ---
 
-## 💻 THE TECH STACK
+## THE TECH STACK
 
 We built this with the same precision as a Vandal one-tap:
 
@@ -59,22 +59,22 @@ We built this with the same precision as a Vandal one-tap:
 
 ---
 
-## 📂 PROJECT STRUCTURE
+## PROJECT STRUCTURE
 
 ```bash
 valorant-ai/
-├── frontend/             # 🎨 Next.js React Dashboard & HUD (New UI!)
+├── frontend/             # Next.js React Dashboard & HUD (New UI!)
 ├── src/
-│   ├── gateway/          # 📡 WebSocket Gateway & Local Client Radar
-│   ├── valorant_api/     # 🔄 Hybrid API Ingestion (Agents, Maps, Gear)
-│   └── utils/            # 🛠️ Type-safe CSV builders
-├── public/               # 📦 Compiled Static Frontend (served by NestJS)
-└── contenido/            # 🧠 Python ML training pipeline & models
+│   ├── gateway/          # WebSocket Gateway & Local Client Radar
+│   ├── valorant_api/     # Hybrid API Ingestion (Agents, Maps, Gear)
+│   └── utils/            # Type-safe CSV builders
+├── public/               # Compiled Static Frontend (served by NestJS)
+└── contenido/            # Python ML training pipeline & models
 ```
 
 ---
 
-## 🛠️ GETTING STARTED
+## GETTING STARTED
 
 ### 1. Prerequisites
 - Node.js (v18.x+) & npm
