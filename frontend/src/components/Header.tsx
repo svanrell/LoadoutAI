@@ -1,16 +1,65 @@
 "use client";
 
 import { useGameState } from "@/hooks/useGameState";
+import { useValorantData } from "@/hooks/useValorantData";
+
+const DEFAULT_MAPS = [
+  "Ascent",
+  "Bind",
+  "Haven",
+  "Split",
+  "Breeze",
+  "Icebox",
+  "Sunset",
+  "Lotus",
+  "Abyss",
+  "Pearl",
+  "Fracture"
+];
+
+const DEFAULT_MODES = [
+  { id: "competitive", name: "Competitive" },
+  { id: "unrated", name: "Unrated" },
+  { id: "swiftplay", name: "Swiftplay" },
+  { id: "spikerush", name: "Spike Rush" },
+  { id: "deathmatch", name: "Deathmatch" },
+  { id: "hurm", name: "Team Deathmatch" },
+  { id: "escalation", name: "Escalation" },
+  { id: "premier", name: "Premier" },
+  { id: "custom", name: "Custom Game" }
+];
 
 export default function Header() {
   const { selectedMap, setSelectedMap, selectedMode, setSelectedMode, isLiveMode } = useGameState();
+  const { maps, gameModes } = useValorantData();
+
+  // Dynamic maps from API or fallback
+  const mapOptions = maps.length > 0
+    ? maps.map(m => m.displayName)
+    : DEFAULT_MAPS;
+
+  // Dynamic game modes from API or fallback
+  const modeOptions = gameModes.length > 0
+    ? gameModes.map(g => ({
+        id: g.displayName.toLowerCase().replace(/\s+/g, ""),
+        name: g.displayName
+      }))
+    : DEFAULT_MODES;
 
   return (
     <header>
-      <div className="logo-area">
-        <svg width="24" height="24" viewBox="0 0 100 100">
-          <path d="M10 20 L50 90 L90 20 L50 40 Z" />
-        </svg>
+      <div className="logo-area" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img
+          src="/favicon.png"
+          alt="LoadoutAI"
+          style={{
+            width: "32px",
+            height: "32px",
+            borderRadius: "6px",
+            objectFit: "cover",
+            filter: "drop-shadow(0 0 6px rgba(0, 240, 255, 0.4))",
+          }}
+        />
         <div className="logo-title">
           LOADOUT<span>AI</span>
         </div>
@@ -24,14 +73,11 @@ export default function Header() {
             value={selectedMap}
             onChange={(e) => setSelectedMap(e.target.value)}
           >
-            <option value="Ascent">Ascent</option>
-            <option value="Bind">Bind</option>
-            <option value="Haven">Haven</option>
-            <option value="Split">Split</option>
-            <option value="Breeze">Breeze</option>
-            <option value="Icebox">Icebox</option>
-            <option value="Sunset">Sunset</option>
-            <option value="Lotus">Lotus</option>
+            {mapOptions.map((mapName) => (
+              <option key={mapName} value={mapName}>
+                {mapName}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -42,13 +88,11 @@ export default function Header() {
             value={selectedMode}
             onChange={(e) => setSelectedMode(e.target.value)}
           >
-            <option value="competitive">Competitive</option>
-            <option value="unrated">Unrated</option>
-            <option value="swiftplay">Swiftplay</option>
-            <option value="spikerush">Spike Rush</option>
-            <option value="deathmatch">Deathmatch</option>
-            <option value="escalation">Escalation</option>
-            <option value="custom">Custom Game</option>
+            {modeOptions.map((mode) => (
+              <option key={mode.id} value={mode.id}>
+                {mode.name}
+              </option>
+            ))}
           </select>
         </div>
 

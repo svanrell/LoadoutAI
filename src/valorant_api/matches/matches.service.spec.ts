@@ -2,7 +2,6 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { MatchesService, MatchDto } from "./matches.service";
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
-import { ContentService } from "../content/content.service";
 import { of } from "rxjs";
 import * as fs from "fs";
 import * as path from "path";
@@ -155,14 +154,11 @@ describe("MatchesService - Export Matches to CSV Tests", () => {
       }),
     };
 
-    const mockContentService = {};
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MatchesService,
         { provide: HttpService, useValue: mockHttpService },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: ContentService, useValue: mockContentService },
       ],
     }).compile();
 

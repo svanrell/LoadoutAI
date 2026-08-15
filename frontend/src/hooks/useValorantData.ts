@@ -48,27 +48,56 @@ export interface Weapon {
   weaponStats: WeaponStats | null;
 }
 
+export interface GameModeInfo {
+  uuid: string;
+  displayName: string;
+  displayIcon: string | null;
+  duration?: string | null;
+}
+
+export interface MapInfo {
+  uuid: string;
+  displayName: string;
+  splash: string;
+  displayIcon: string | null;
+  coordinates: string | null;
+}
+
 export function useValorantData() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [weapons, setWeapons] = useState<Weapon[]>([]);
+  const [gameModes, setGameModes] = useState<GameModeInfo[]>([]);
+  const [maps, setMaps] = useState<MapInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [agentRes, weaponRes] = await Promise.all([
+        const [agentRes, weaponRes, modeRes, mapRes] = await Promise.all([
           fetch('https://valorant-api.com/v1/agents?isPlayableCharacter=true&language=en-US'),
-          fetch('https://valorant-api.com/v1/weapons?language=en-US')
+          fetch('https://valorant-api.com/v1/weapons?language=en-US'),
+          fetch('https://valorant-api.com/v1/gamemodes?language=en-US'),
+          fetch('https://valorant-api.com/v1/maps?language=en-US')
         ]);
         
         const agentJson = await agentRes.json();
         const weaponJson = await weaponRes.json();
+        const modeJson = await modeRes.json();
+        const mapJson = await mapRes.json();
 
         if (agentJson.status === 200) {
           setAgents(agentJson.data);
         }
         if (weaponJson.status === 200) {
           setWeapons(weaponJson.data);
+        }
+        if (modeJson.status === 200) {
+          setGameModes(modeJson.data);
+        }
+        if (mapJson.status === 200) {
+          // Filter out standard non-playable maps like Range if needed or keep standard
+          const playableMaps = mapJson.data.filter((m: any) => m.coordinates);
+          setMaps(playableMaps.length > 0 ? playableMaps : mapJson.data);
         }
       } catch (err) {
         console.error("Initialization error:", err);
@@ -79,5 +108,5 @@ export function useValorantData() {
     fetchData();
   }, []);
 
-  return { agents, weapons, loading };
+  return { agents, weapons, gameModes, maps, loading };
 }

@@ -10,10 +10,6 @@ import * as fs from "fs";
 import * as path from "path";
 import * as https from "https";
 import { firstValueFrom } from "rxjs";
-import { exec } from "child_process";
-import { promisify } from "util";
-
-const execPromise = promisify(exec);
 
 const MAPS_MAP: Record<string, string> = {
   "/Game/Maps/Ascent/Ascent": "Ascent",
@@ -27,6 +23,11 @@ const MAPS_MAP: Record<string, string> = {
   "/Game/Maps/Port/Port": "Icebox",
   "/Game/Maps/Rook/Rook": "Sunset",
   "/Game/Maps/Triad/Triad": "Haven",
+  "/Game/Maps/Kasbah/Kasbah": "Kasbah",
+  "/Game/Maps/Piazza/Piazza": "Piazza",
+  "/Game/Maps/District/District": "District",
+  "/Game/Maps/Drift/Drift": "Drift",
+  "/Game/Maps/Infinity/Infinity": "Corrode",
 };
 
 const QUEUES_MAP: Record<string, string> = {
@@ -35,8 +36,33 @@ const QUEUES_MAP: Record<string, string> = {
   swiftplay: "Swiftplay",
   spikerush: "Spike Rush",
   deathmatch: "Deathmatch",
+  hurm: "Team Deathmatch",
   ggteam: "Escalation",
+  onefa: "Replication",
+  snowball: "Snowball Fight",
+  newmap: "New Map",
+  premier: "Premier",
+  "premier-tournament": "Premier Tournament",
+  seeding: "Seeding",
+  custom: "Custom Game",
 };
+
+export function resolveMapName(mapPath: string): string {
+  if (!mapPath) return "Ascent";
+  if (MAPS_MAP[mapPath]) return MAPS_MAP[mapPath];
+  const parts = mapPath.split("/").filter(Boolean);
+  return parts.length > 0 ? parts[parts.length - 1] : "Ascent";
+}
+
+export function resolveQueueName(queueId: string): string {
+  if (!queueId) return "Custom Game";
+  const lower = queueId.toLowerCase();
+  if (QUEUES_MAP[lower]) return QUEUES_MAP[lower];
+  return lower
+    .split(/[-_]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 interface ChatSessionResponse {
   puuid: string;
@@ -259,16 +285,49 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     const remote = await this.getRemoteConfig();
     if (!remote) return false;
 
+    let matchId = pregameMatchId;
+    if (!matchId) {
+      const credentials = this.getCredentials();
+      if (credentials) {
+        try {
+          const session = await firstValueFrom(
+            this.httpService.get<ChatSessionResponse>(
+              `${credentials.url}/chat/v1/session`,
+              {
+                headers: { Authorization: credentials.token },
+                httpsAgent: this.httpsAgent,
+              },
+            ),
+          );
+          const puuid = session.data.puuid;
+          const pregamePlayer = await firstValueFrom(
+            this.httpService.get<PregamePlayerResponse>(
+              `${remote.glzUrl}/pregame/v1/players/${puuid}`,
+              { headers: remote.headers },
+            ),
+          );
+          matchId = pregamePlayer.data.MatchID;
+        } catch (e) {
+          this.logger.warn(`Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+    }
+
+    if (!matchId) {
+      this.logger.error("Cannot select agent: missing pregameMatchId");
+      return false;
+    }
+
     try {
       await firstValueFrom(
         this.httpService.post(
-          `${remote.glzUrl}/pregame/v1/matches/${pregameMatchId}/select/${agentUuid}`,
+          `${remote.glzUrl}/pregame/v1/matches/${matchId}/select/${agentUuid}`,
           {},
           { headers: remote.headers },
         ),
       );
       this.logger.log(
-        `Selected agent ${agentUuid} in pregame match ${pregameMatchId}`,
+        `Selected agent ${agentUuid} in pregame match ${matchId}`,
       );
       return true;
     } catch (error) {
@@ -283,16 +342,49 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     const remote = await this.getRemoteConfig();
     if (!remote) return false;
 
+    let matchId = pregameMatchId;
+    if (!matchId) {
+      const credentials = this.getCredentials();
+      if (credentials) {
+        try {
+          const session = await firstValueFrom(
+            this.httpService.get<ChatSessionResponse>(
+              `${credentials.url}/chat/v1/session`,
+              {
+                headers: { Authorization: credentials.token },
+                httpsAgent: this.httpsAgent,
+              },
+            ),
+          );
+          const puuid = session.data.puuid;
+          const pregamePlayer = await firstValueFrom(
+            this.httpService.get<PregamePlayerResponse>(
+              `${remote.glzUrl}/pregame/v1/players/${puuid}`,
+              { headers: remote.headers },
+            ),
+          );
+          matchId = pregamePlayer.data.MatchID;
+        } catch (e) {
+          this.logger.warn(`Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+    }
+
+    if (!matchId) {
+      this.logger.error("Cannot lock agent: missing pregameMatchId");
+      return false;
+    }
+
     try {
       await firstValueFrom(
         this.httpService.post(
-          `${remote.glzUrl}/pregame/v1/matches/${pregameMatchId}/lock/${agentUuid}`,
+          `${remote.glzUrl}/pregame/v1/matches/${matchId}/lock/${agentUuid}`,
           {},
           { headers: remote.headers },
         ),
       );
       this.logger.log(
-        `Locked agent ${agentUuid} in pregame match ${pregameMatchId}`,
+        `Locked agent ${agentUuid} in pregame match ${matchId}`,
       );
       return true;
     } catch (error) {
@@ -404,7 +496,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
             );
 
             const mapPath = pregameMatch.data.MapID || "";
-            const mapName = MAPS_MAP[mapPath] || "Ascent";
+            const mapName = resolveMapName(mapPath);
 
             const players = pregameMatch.data.AllyTeam.Players.map((p) => ({
               puuid: p.Subject,
@@ -417,25 +509,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               playerCardId: p.PlayerIdentity?.PlayerCardID,
             }));
 
-            const alliesAgentUuids = players
-              .filter((p) => p.agentId && p.agentId !== "")
-              .map((p) => p.agentId);
-
-            const mlPred = await this.runMLPrediction(
-              "PREGAME",
-              mapName,
-              1,
-              0,
-              0,
-              800,
-              alliesAgentUuids,
-              [],
-            );
-
-            const mlDraftPicks =
-              mlPred && mlPred.recommendations ? mlPred.recommendations : [];
             const queueId = privateData.matchPresenceData?.queueId || "";
-            const mode = QUEUES_MAP[queueId] || "Competitive";
+            const mode = resolveQueueName(queueId);
 
             this.updateStatus("PREGAME", {
               matchId,
@@ -443,7 +518,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               players,
               mapName,
               myPuuid: puuid,
-              mlDraftPicks,
+              mlDraftPicks: [],
               mode,
             });
           } catch (error) {
@@ -451,14 +526,14 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               `Error querying pregame selection details: ${error instanceof Error ? error.message : String(error)}`,
             );
             const queueId = privateData.matchPresenceData?.queueId || "";
-            const mode = QUEUES_MAP[queueId] || "Competitive";
+            const mode = resolveQueueName(queueId);
             this.updateStatus("PREGAME", { matchId, myPuuid: puuid, mode });
           }
         } else if (loopState === "INGAME") {
           const mapPath = privateData.matchPresenceData?.matchMap || "";
           const queueId = privateData.matchPresenceData?.queueId || "";
-          const mapName = MAPS_MAP[mapPath] || "Unknown Map";
-          const mode = QUEUES_MAP[queueId] || "Unknown Mode";
+          const mapName = resolveMapName(mapPath);
+          const mode = resolveQueueName(queueId);
 
           let players: any[] = [];
           try {
@@ -578,7 +653,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         } else {
           this.clearBuyPhase();
           const queueId = privateData.matchPresenceData?.queueId || "";
-          const mode = QUEUES_MAP[queueId] || "Competitive";
+          const mode = resolveQueueName(queueId);
           this.updateStatus("MENU", { mode });
         }
       } else {
@@ -657,84 +732,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private async runMLPrediction(
-    stage: "PREGAME" | "INGAME",
-    mapName: string,
-    round: number,
-    scoreAlly: number,
-    scoreEnemy: number,
-    userCredits: number,
-    allies: string[],
-    enemies: string[],
-  ): Promise<any> {
-    const csvHeader =
-      "stage,mapName,round,scoreAlly,scoreEnemy,userCredits,allies,enemies\n";
-    const alliesStr = allies.join(",");
-    const enemiesStr = enemies.join(",");
-    const csvContent = `${csvHeader}${stage},${mapName},${round},${scoreAlly},${scoreEnemy},${userCredits},"${alliesStr}","${enemiesStr}"\n`;
-
-    const contenidoDir = path.join(__dirname, "..", "..", "contenido");
-    const csvPath = path.join(contenidoDir, "live_match_state.csv");
-    const jsonPath = path.join(contenidoDir, "live_predictions.json");
-
-    try {
-      if (!fs.existsSync(contenidoDir)) {
-        fs.mkdirSync(contenidoDir, { recursive: true });
-      }
-
-      fs.writeFileSync(csvPath, csvContent, "utf8");
-
-      const pythonPath = path.join(
-        __dirname,
-        "..",
-        "..",
-        ".venv",
-        "Scripts",
-        "python.exe",
-      );
-      const scriptPath = path.join(contenidoDir, "predict_live.py");
-
-      const cmd = `"${pythonPath}" "${scriptPath}"`;
-      await execPromise(cmd);
-
-      if (fs.existsSync(jsonPath)) {
-        const jsonContent = fs.readFileSync(jsonPath, "utf8");
-        return JSON.parse(jsonContent);
-      }
-    } catch (error) {
-      this.logger.error(
-        `Error running ML prediction: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-      );
-    }
-    return null;
-  }
-
   async updateIngameCredits(credits: number) {
     this.currentCredits = credits;
-    if (this.currentStatus !== "INGAME") return;
-
-    const mapName = (this.currentExtraData?.mapName as string) || "Ascent";
-    const round = this.allyScore + this.enemyScore + 1;
-    const players = (this.currentExtraData?.players as any[]) || [];
-    const alliesAgentUuids = players
-      .filter((p) => p.agentId && p.agentId !== "")
-      .map((p) => p.agentId);
-
-    const mlPred = await this.runMLPrediction(
-      "INGAME",
-      mapName,
-      round,
-      this.allyScore,
-      this.enemyScore,
-      credits,
-      alliesAgentUuids,
-      [],
-    );
-
-    if (mlPred) {
-      this.gateway.emitMlBuyRecommendations(mlPred);
-    }
   }
 }

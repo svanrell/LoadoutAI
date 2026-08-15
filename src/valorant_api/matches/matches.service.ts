@@ -4,7 +4,6 @@ import { ConfigService } from "@nestjs/config";
 import { map, Observable, tap, switchMap } from "rxjs";
 import { AxiosResponse } from "axios";
 import { saveToCsv, appendToCsv } from "../../utils/csv-helper";
-import { ContentService } from "../content/content.service";
 
 export interface PlayerDto {
   puuid?: string;
@@ -112,20 +111,42 @@ export class MatchesService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    private readonly contentService: ContentService,
   ) {}
+
+  getActiveActId(): Observable<string> {
+    const apiKey =
+      this.configService.get<string>("VALORANT_API_KEY") ||
+      this.configService.get<string>("RIOT_API_KEY") ||
+      "";
+    const region = this.configService.get<string>("VALORANT_REGION") || "eu";
+    const apiUrl = `https://${region}.api.riotgames.com/val/content/v1/contents`;
+
+    return this.httpService
+      .get<{ acts?: { id: string; type?: string; isActive: boolean }[] }>(apiUrl, {
+        headers: {
+          "X-Riot-Token": apiKey,
+        },
+      })
+      .pipe(
+        map((response) => {
+          const acts = response.data?.acts || [];
+          const activeAct = acts.find(
+            (act) => act.type === "act" && act.isActive === true,
+          );
+          if (!activeAct) {
+            throw new Error("No active act was found in the Valorant content.");
+          }
+          return activeAct.id;
+        }),
+      );
+  }
 
   loadActiveLeaderboard(
     size: number = 200,
     startIndex: number = 0,
   ): Observable<LeaderboardDto> {
-    return this.contentService.getActiveAct().pipe(
-      switchMap((act) => {
-        if (!act) {
-          throw new Error("No active act was found in the Valorant content.");
-        }
-        return this.loadLeaderboard(act.id, size, startIndex);
-      }),
+    return this.getActiveActId().pipe(
+      switchMap((actId) => this.loadLeaderboard(actId, size, startIndex)),
     );
   }
 
