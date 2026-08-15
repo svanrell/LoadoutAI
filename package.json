@@ -5,6 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "main": "electron/main.js",
   "scripts": {
     "build": "npm run build:frontend && nest build",
     "build:frontend": "npm run build --prefix frontend && xcopy frontend\\out\\* public\\ /s /e /y",
@@ -13,6 +14,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "electron": "electron .",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
@@ -43,6 +45,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
+    "electron": "^43.4.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
