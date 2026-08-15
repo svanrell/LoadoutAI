@@ -59,9 +59,13 @@ export interface Translations {
   openSandbox: string;
   launchOverlay: string;
 
-  // Match History
+  // Match History & Tracker
   victory: string;
   defeat: string;
+  score: string;
+  normal: string;
+  competitive: string;
+  endOfResults: string;
   draftScore: string;
   aiMacroScore: string;
 }
@@ -118,6 +122,10 @@ const translations: Record<Language, Translations> = {
 
     victory: "Victoria",
     defeat: "Derrota",
+    score: "Score",
+    normal: "Normal",
+    competitive: "Competitivo",
+    endOfResults: "Fin de los resultados",
     draftScore: "Puntuación de draft",
     aiMacroScore: "AI Macro Score",
   },
@@ -172,6 +180,10 @@ const translations: Record<Language, Translations> = {
 
     victory: "Victory",
     defeat: "Defeat",
+    score: "Score",
+    normal: "Normal",
+    competitive: "Competitive",
+    endOfResults: "End of Results",
     draftScore: "Draft Rating",
     aiMacroScore: "AI Macro Score",
   },

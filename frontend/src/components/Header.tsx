@@ -137,21 +137,8 @@ export default function Header() {
         </button>
       </nav>
 
-      {/* Right Area: Selectors, Language, Player Profile */}
+      {/* Right Area: Selectors, Language, Discord, Player Profile */}
       <div className="header-right">
-        {/* Language Switcher */}
-        <div
-          className="compact-select-wrap"
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}
-          onClick={() => setLanguage(language === "es" ? "en" : "es")}
-          title="Change language / Cambiar idioma"
-        >
-          <GlobeIcon size={13} />
-          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-cyan)" }}>
-            {language.toUpperCase()}
-          </span>
-        </div>
-
         {/* Map & Mode Selectors */}
         <div className="header-selectors-group">
           <div className="compact-select-wrap">
@@ -183,6 +170,19 @@ export default function Header() {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Language Switcher */}
+        <div
+          className="compact-select-wrap"
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}
+          onClick={() => setLanguage(language === "es" ? "en" : "es")}
+          title="Change language / Cambiar idioma"
+        >
+          <GlobeIcon size={13} />
+          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-cyan)" }}>
+            {language.toUpperCase()}
+          </span>
         </div>
 
         {/* Discord Icon */}
@@ -224,9 +224,6 @@ export default function Header() {
             </span>
           </div>
         </div>
-
-        {/* Patch Version Tag */}
-        <span className="patch-tag">{t.patch}</span>
       </div>
     </header>
   );

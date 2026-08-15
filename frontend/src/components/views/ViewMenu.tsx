@@ -4,23 +4,14 @@ import { useState } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
-import {
-  RoleDuelistIcon,
-  RoleInitiatorIcon,
-  RoleControllerIcon,
-  RoleSentinelIcon,
-  RefreshIcon,
-  LockIcon,
-} from "@/components/Icons";
+import { RefreshIcon } from "@/components/Icons";
 
 export default function ViewMenu() {
   const { setView, connectionStatus } = useGameState();
-  const { agents, weapons } = useValorantData();
+  const { agents } = useValorantData();
   const { t } = useLanguage();
 
   const [activeSubTab, setActiveSubTab] = useState<"history" | "account" | "agents">("history");
-  const [selectedModeFilter, setSelectedModeFilter] = useState("solo");
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState("all");
   const [playerName, setPlayerName] = useState("shumi747");
   const [playerTag, setPlayerTag] = useState("2721");
   const [region, setRegion] = useState("euw");
@@ -40,109 +31,106 @@ export default function ViewMenu() {
     );
   };
 
-  const getWeaponIcon = (name: string, fallbackUuid: string) => {
-    const found = weapons.find((w) => w.displayName.toLowerCase() === name.toLowerCase());
-    return (
-      found?.displayIcon ||
-      `https://media.valorant-api.com/weapons/${fallbackUuid}/displayicon.png`
-    );
-  };
-
   const userAvatar = getAgentIcon("Jett", "add6443c-41c1-48b0-a04a-a71c8b3269a9");
+  const yoruIcon = getAgentIcon("Yoru", "7f94d92c-4234-0922-4ce0-46670fae4536");
   const omenIcon = getAgentIcon("Omen", "8e253930-4c05-31dd-1b6c-968525494517");
   const sovaIcon = getAgentIcon("Sova", "ded3520f-4264-bfed-162d-b080e2abccf9");
-  const reynaIcon = getAgentIcon("Reyna", "a3bfb85b-4241-547b-60da-05ac5ff4ba32");
-  const cloveIcon = getAgentIcon("Clove", "117ed9e3-49f3-6512-3ccf-0cada7e3823b");
-  const fadeIcon = getAgentIcon("Fade", "dade69b4-4f5a-8528-247b-219e5a1facd6");
-  const cypherIcon = getAgentIcon("Cypher", "117ed9e3-49f3-6512-3ccf-0cada7e3823b");
-  const killjoyIcon = getAgentIcon("Killjoy", "1e58de9c-4950-523e-f32c-5716974fd84b");
 
-  const vandalIcon = getWeaponIcon("Vandal", "9c82e1bc-447a-4c3b-9c49-6e64943a8042");
-  const phantomIcon = getWeaponIcon("Phantom", "ee8e8d15-496b-07ac-e5f6-8fae5d4c7b1a");
-  const sheriffIcon = getWeaponIcon("Sheriff", "e336316f-4414-0ce9-7570-58be16353066");
-  const ghostIcon = getWeaponIcon("Ghost", "1baa85b4-4c70-1284-64bb-6481dfc3bb4e");
-  const odinIcon = getWeaponIcon("Odin", "63e6c2b6-4a88-4aa8-9a13-fd812d4c73ea");
-  const bulldogIcon = getWeaponIcon("Bulldog", "ae3de142-4ee9-57ba-813d-90a37e5e4942");
-  const classicIcon = getWeaponIcon("Classic", "29a0acb5-43dc-77d8-69b6-79ba608020f5");
-
-  const matchesData = [
+  // Tracker.gg Daily Match Groups
+  const matchGroups = [
     {
-      id: "m1",
-      outcome: t.defeat,
-      isWin: false,
-      mode: t.soloRanked,
-      duration: "28:59",
-      date: "9 Ago 2026",
-      agentName: "Jett",
-      agentIcon: userAvatar,
-      rivalName: "Reyna",
-      rivalIcon: reynaIcon,
-      weapons: [vandalIcon, sheriffIcon],
-      kda: "8/7/3",
-      csm: "6.1",
-      gpm: "430",
-      aiScore: "0.3",
-      aiScoreLow: true,
+      dateTitle: "Feb 8",
+      gameCount: 1,
+      wins: 1,
+      losses: 0,
+      dailyKd: "1.4",
+      dailyKdaLine: "17 K // 12 D // 6 A",
+      dailyKdaVal: "1.42 K/D/A",
+      dailyDd: "76",
+      dailyHs: "11",
+      dailyAcs: "291",
+      matches: [
+        {
+          id: "m-yoru-1",
+          isWin: true,
+          agentName: "Yoru",
+          agentIcon: yoruIcon,
+          metaText: `6mo ago // ${t.normal}`,
+          mapName: "Bind",
+          placement: "2nd",
+          isMvp: false,
+          scoreWon: 13,
+          scoreLost: 4,
+          badges: [{ label: "3k x3", type: "default" }],
+          kd: "1.4",
+          kda: "17 / 12 / 6",
+          dd: "76",
+          hs: "11",
+          acs: "291",
+        },
+      ],
     },
     {
-      id: "m2",
-      outcome: t.victory,
-      isWin: true,
-      mode: t.soloRanked,
-      duration: "26:57",
-      date: "9 Ago 2026",
-      agentName: "Omen",
-      agentIcon: omenIcon,
-      rivalName: "Clove",
-      rivalIcon: cloveIcon,
-      weapons: [phantomIcon, ghostIcon],
-      kda: "13/2/5",
-      csm: "7.6",
-      gpm: "541",
-      aiScore: "3.9",
-      aiScoreLow: false,
-    },
-    {
-      id: "m3",
-      outcome: t.defeat,
-      isWin: false,
-      mode: t.soloRanked,
-      duration: "29:24",
-      date: "9 Ago 2026",
-      agentName: "Sova",
-      agentIcon: sovaIcon,
-      rivalName: "Fade",
-      rivalIcon: fadeIcon,
-      weapons: [odinIcon, classicIcon],
-      kda: "5/9/7",
-      csm: "1.4",
-      gpm: "322",
-      aiScore: "0.2",
-      aiScoreLow: true,
-    },
-    {
-      id: "m4",
-      outcome: t.defeat,
-      isWin: false,
-      mode: t.soloRanked,
-      duration: "31:15",
-      date: "8 Ago 2026",
-      agentName: "Cypher",
-      agentIcon: cypherIcon,
-      rivalName: "Killjoy",
-      rivalIcon: killjoyIcon,
-      weapons: [bulldogIcon, ghostIcon],
-      kda: "6/10/8",
-      csm: "4.6",
-      gpm: "295",
-      aiScore: "1.2",
-      aiScoreLow: true,
+      dateTitle: "Feb 7",
+      gameCount: 2,
+      wins: 1,
+      losses: 1,
+      dailyKd: "1.0",
+      dailyKdaLine: "35 K // 35 D // 15 A",
+      dailyKdaVal: "1.00 K/D/A",
+      dailyDd: "33",
+      dailyHs: "14",
+      dailyAcs: "270",
+      matches: [
+        {
+          id: "m-yoru-2",
+          isWin: true,
+          agentName: "Yoru",
+          agentIcon: yoruIcon,
+          metaText: `6mo ago // ${t.normal}`,
+          mapName: "Icebox",
+          placement: "MVP",
+          isMvp: true,
+          scoreWon: 13,
+          scoreLost: 8,
+          badges: [
+            { label: "Ace", type: "gold" },
+            { label: "1v3 Clutch", type: "gold" },
+            { label: "4k", type: "default" },
+            { label: "High KAST", type: "default" },
+            { label: "+2", type: "default" },
+          ],
+          kd: "1.7",
+          kda: "25 / 15 / 5",
+          dd: "87",
+          hs: "16",
+          acs: "339",
+        },
+        {
+          id: "m-sova-1",
+          isWin: false,
+          agentName: "Sova",
+          agentIcon: sovaIcon,
+          metaText: `6mo ago // ${t.normal}`,
+          mapName: "Haven",
+          placement: "6th",
+          isMvp: false,
+          scoreWon: 7,
+          scoreLost: 13,
+          badges: [{ label: "Victim", type: "red" }],
+          kd: "0.5",
+          kda: "10 / 20 / 10",
+          dd: "-23",
+          hs: "10",
+          acs: "198",
+        },
+      ],
     },
   ];
 
   return (
     <div id="viewMenu" className="state-view active">
-      {/* 1. Sub-navigation tabs (iTero style) */}
+      {/* 1. Sub-navigation tabs */}
       <div className="sub-nav-bar">
         <button
           className={`sub-nav-item ${activeSubTab === "history" ? "active" : ""}`}
@@ -236,72 +224,15 @@ export default function ViewMenu() {
       </div>
 
       {/* 3. Filter Chips Bar */}
-      <div className="filter-chips-bar">
-        <div className="mode-chips-group">
-          <button
-            className={`filter-chip ${selectedModeFilter === "solo" ? "active" : ""}`}
-            onClick={() => setSelectedModeFilter("solo")}
-          >
-            {t.soloRanked}
-          </button>
-          <button
-            className={`filter-chip ${selectedModeFilter === "flex" ? "active" : ""}`}
-            onClick={() => setSelectedModeFilter("flex")}
-          >
-            {t.flexRanked}
-          </button>
-          <button
-            className={`filter-chip ${selectedModeFilter === "unrated" ? "active" : ""}`}
-            onClick={() => setSelectedModeFilter("unrated")}
-          >
-            {t.unrated}
-          </button>
-        </div>
-
+      <div className="filter-chips-bar" style={{ justifyContent: "flex-end" }}>
         <div className="role-chips-group">
-          <button
-            className={`role-chip-btn ${selectedRoleFilter === "all" ? "active" : ""}`}
-            onClick={() => setSelectedRoleFilter("all")}
-            title={t.allRoles}
-          >
-            *
-          </button>
-          <button
-            className={`role-chip-btn ${selectedRoleFilter === "duelist" ? "active" : ""}`}
-            onClick={() => setSelectedRoleFilter("duelist")}
-            title={t.duelists}
-          >
-            <RoleDuelistIcon size={13} />
-          </button>
-          <button
-            className={`role-chip-btn ${selectedRoleFilter === "initiator" ? "active" : ""}`}
-            onClick={() => setSelectedRoleFilter("initiator")}
-            title={t.initiators}
-          >
-            <RoleInitiatorIcon size={13} />
-          </button>
-          <button
-            className={`role-chip-btn ${selectedRoleFilter === "controller" ? "active" : ""}`}
-            onClick={() => setSelectedRoleFilter("controller")}
-            title={t.controllers}
-          >
-            <RoleControllerIcon size={13} />
-          </button>
-          <button
-            className={`role-chip-btn ${selectedRoleFilter === "sentinel" ? "active" : ""}`}
-            onClick={() => setSelectedRoleFilter("sentinel")}
-            title={t.sentinels}
-          >
-            <RoleSentinelIcon size={13} />
-          </button>
-
           <select className="cyber-input" style={{ fontSize: "11px", padding: "5px 8px" }}>
             <option>{t.filterAgents}</option>
+            <option>Yoru</option>
+            <option>Sova</option>
             <option>Jett</option>
             <option>Omen</option>
             <option>Reyna</option>
-            <option>Sova</option>
-            <option>Cypher</option>
           </select>
 
           <button
@@ -317,7 +248,7 @@ export default function ViewMenu() {
         </div>
       </div>
 
-      {/* 4. Hero Stats Section (iTero 3-Column Layout) */}
+      {/* 4. Hero Stats Section (3-Column Layout) */}
       <div className="dashboard-hero-grid">
         {/* Card 1: Winrate & Match Count */}
         <div className="hero-stats-card">
@@ -479,86 +410,144 @@ export default function ViewMenu() {
               {connectionStatus === "offline" ? t.clientOfflineText : t.clientDetectedText}
             </div>
           </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <button className="dashboard-action-btn-cyan" onClick={() => setView("pregame")}>
-              <span>{t.openSandbox}</span>
-            </button>
-            <button className="dashboard-action-btn-red" onClick={() => setView("ingame")}>
-              <span>{t.launchOverlay}</span>
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* 5. Match History List (Clean Esports Cards) */}
-      <div className="match-history-section">
-        {matchesData.map((match) => (
-          <div key={match.id} className={`match-row-card ${match.isWin ? "win" : "loss"}`}>
-            {/* Outcome & Meta */}
-            <div className="match-result-group">
-              <span className={`match-outcome-text ${match.isWin ? "win" : "loss"}`}>
-                {match.outcome}
-              </span>
-              <span className="match-meta-text">{match.mode}</span>
-              <span className="match-meta-text" style={{ fontSize: "9px" }}>
-                {match.duration} • {match.date}
-              </span>
+      {/* 5. Match History List (Tracker.gg Daily Layout) */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "6px" }}>
+        {matchGroups.map((group, gIdx) => (
+          <div key={gIdx} className="daily-group-container">
+            {/* Daily Header Summary Row */}
+            <div className="daily-header-row">
+              <div className="daily-date-title">
+                <span>{group.dateTitle}</span>
+                <span className="daily-count-badge">{group.gameCount}</span>
+              </div>
+
+              <div className="daily-record-text">
+                <span className="win">{group.wins} W</span>
+                <span className="sep">//</span>
+                <span className="loss">{group.losses} L</span>
+              </div>
+
+              <div />
+
+              <div className="daily-stat-header">
+                <span>K/D</span>
+                <span className="daily-stat-value">{group.dailyKd}</span>
+              </div>
+
+              <div className="daily-stat-header" style={{ textAlign: "center" }}>
+                <span>{group.dailyKdaLine}</span>
+                <span className="daily-stat-value">{group.dailyKdaVal}</span>
+              </div>
+
+              <div className="daily-stat-header">
+                <span>DDΔ</span>
+                <span className="daily-stat-value">{group.dailyDd}</span>
+              </div>
+
+              <div className="daily-stat-header">
+                <span>HS%</span>
+                <span className="daily-stat-value">{group.dailyHs}</span>
+              </div>
+
+              <div className="daily-stat-header">
+                <span>ACS</span>
+                <span className="daily-stat-value">{group.dailyAcs}</span>
+              </div>
+
+              <div />
             </div>
 
-            {/* Agent vs Rival */}
-            <div className="match-agent-group">
-              <img
-                src={match.agentIcon}
-                alt={match.agentName}
-                className={`match-agent-avatar ${match.isWin ? "win" : "loss"}`}
-              />
-              <div>
-                <div className="match-agent-name">{match.agentName}</div>
-                <div className="match-rival-badge">
-                  <span>vs</span>
-                  <img
-                    src={match.rivalIcon}
-                    alt={match.rivalName}
-                    style={{ width: "14px", height: "14px", borderRadius: "50%" }}
-                  />
-                  <span>{match.rivalName}</span>
+            {/* Match Rows inside Group */}
+            {group.matches.map((m) => (
+              <div key={m.id} className={`tracker-match-card ${m.isWin ? "win" : "loss"}`}>
+                <div className={`tracker-left-bar ${m.isWin ? "win" : "loss"}`} />
+
+                {/* Col 1: Agent Portrait & Map Placement */}
+                <div className="tracker-agent-col">
+                  <img src={m.agentIcon} alt={m.agentName} className="tracker-agent-avatar" />
+                  <div className="tracker-agent-info">
+                    <span className="tracker-meta-sub">{m.metaText}</span>
+                    <div className="tracker-map-name">
+                      <span>{m.mapName}</span>
+                      <span className={`tracker-placement-badge ${m.isMvp ? "mvp" : ""}`}>
+                        {m.placement}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Loadout Weapon Icons */}
-            <div className="match-loadout-group">
-              {match.weapons.map((wUrl, idx) => (
-                <div key={idx} className="loadout-icon-box">
-                  <img src={wUrl} alt="Weapon" className="loadout-icon-img" />
+                {/* Col 2: Score */}
+                <div className="tracker-score-col">
+                  <span className="tracker-col-label">{t.score}</span>
+                  <div className="tracker-score-val">
+                    <span className={m.isWin ? "score-win" : "score-loss"}>{m.scoreWon}</span>
+                    <span style={{ color: "var(--text-muted)", margin: "0 4px" }}>:</span>
+                    <span className={m.isWin ? "score-loss" : "score-win"}>{m.scoreLost}</span>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            {/* KDA & Combat Stats */}
-            <div className="match-kda-group">
-              <span className="match-kda-main">{match.kda}</span>
-              <span className="match-kda-subs">
-                CS/m: {match.csm} • ACS: {match.gpm}
-              </span>
-            </div>
+                {/* Col 3: Badges / Highlights */}
+                <div className="tracker-badges-col">
+                  {m.badges.map((b, bIdx) => (
+                    <span
+                      key={bIdx}
+                      className={`tracker-tag-badge ${
+                        b.type === "gold" ? "gold" : b.type === "red" ? "red" : ""
+                      }`}
+                    >
+                      {b.label}
+                    </span>
+                  ))}
+                </div>
 
-            {/* AI Draft & Macro Score */}
-            <div className="match-ai-score-group">
-              <div className={`ai-score-circle ${match.aiScoreLow ? "low" : ""}`}>
-                {match.aiScore}
+                {/* Col 4: K/D Ratio */}
+                <div className="tracker-stat-col">
+                  <span className="tracker-col-label">K/D</span>
+                  <span
+                    className={`tracker-stat-val ${
+                      parseFloat(m.kd) >= 1.0 ? "positive" : "negative"
+                    }`}
+                  >
+                    {m.kd}
+                  </span>
+                </div>
+
+                {/* Col 5: K/D/A Numbers */}
+                <div className="tracker-stat-col" style={{ alignItems: "center" }}>
+                  <span className="tracker-col-label">K/D/A</span>
+                  <span className="tracker-stat-val">{m.kda}</span>
+                </div>
+
+                {/* Col 6: DDΔ */}
+                <div className="tracker-stat-col">
+                  <span className="tracker-col-label">DDΔ</span>
+                  <span className="tracker-stat-val">{m.dd}</span>
+                </div>
+
+                {/* Col 7: HS% */}
+                <div className="tracker-stat-col">
+                  <span className="tracker-col-label">HS%</span>
+                  <span className="tracker-stat-val">{m.hs}</span>
+                </div>
+
+                {/* Col 8: ACS */}
+                <div className="tracker-stat-col">
+                  <span className="tracker-col-label">ACS</span>
+                  <span className="tracker-stat-val">{m.acs}</span>
+                </div>
+
+                {/* Col 9: 3 dots menu */}
+                <div className="tracker-dots-menu">⋮</div>
               </div>
-              <div className="ai-score-label">
-                <span className="ai-score-title">{t.draftScore}</span>
-                <span className="ai-score-lock" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                  <LockIcon size={10} />
-                  <span>{t.aiMacroScore}</span>
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
         ))}
+
+        {/* End of Results footer */}
+        <div className="end-of-results-text">{t.endOfResults}</div>
       </div>
     </div>
   );
