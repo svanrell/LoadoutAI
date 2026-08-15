@@ -7,6 +7,8 @@ function createWindow() {
     height: 900,
     minWidth: 1024,
     minHeight: 700,
+    fullscreen: true, // Inicia la aplicación en Pantalla Completa
+    autoHideMenuBar: true,
     title: "LoadoutAI - Valorant Tactical AI Assistant",
     backgroundColor: "#05080c",
     icon: path.join(__dirname, "..", "public", "favicon.png"),
@@ -15,6 +17,14 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
     },
+  });
+
+  // Atajo F11 para alternar entre Pantalla Completa y Ventana
+  win.webContents.on("before-input-event", (event, input) => {
+    if (input.key === "F11" && input.type === "keyDown") {
+      win.setFullScreen(!win.isFullScreen());
+      event.preventDefault();
+    }
   });
 
   const targetUrl = process.env.APP_URL || "http://127.0.0.1:3000/";
