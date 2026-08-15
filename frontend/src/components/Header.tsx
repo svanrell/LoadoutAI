@@ -66,6 +66,8 @@ export default function Header() {
   const isProfileActive = view === "menu" || view === "closed";
   const isDraftActive = view === "pregame";
   const isRadarActive = view === "ingame";
+  const isTierListActive = view === "tierlist";
+  const isToolsActive = view === "tools";
 
   // Dynamic user avatar from Jett or first agent
   const userAvatar =
@@ -91,7 +93,7 @@ export default function Header() {
           <div className="logo-title">
             LOADOUT<span>AI</span>
           </div>
-          <span className="logo-version-tag">v2.5</span>
+          <span className="logo-version-tag">v1.0</span>
         </div>
       </div>
 
@@ -123,15 +125,19 @@ export default function Header() {
         </button>
 
         <button
-          className="nav-tab"
-          onClick={() => setView("menu")}
+          className={`nav-tab ${isTierListActive ? "active" : ""}`}
+          onClick={() => setView("tierlist")}
           title={t.tierList}
         >
           <TierListIcon size={15} />
           <span>{t.tierList}</span>
         </button>
 
-        <button className="nav-tab" title={t.tools}>
+        <button
+          className={`nav-tab ${isToolsActive ? "active" : ""}`}
+          onClick={() => setView("tools")}
+          title={t.tools}
+        >
           <ToolsIcon size={15} />
           <span>{t.tools}</span>
         </button>

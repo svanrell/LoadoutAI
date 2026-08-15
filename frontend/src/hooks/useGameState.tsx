@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
 
-export type ViewState = "closed" | "menu" | "pregame" | "ingame";
+export type ViewState = "closed" | "menu" | "pregame" | "ingame" | "tierlist" | "tools";
 
 export interface Player {
   puuid: string;

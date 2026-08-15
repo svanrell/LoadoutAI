@@ -68,6 +68,12 @@ export interface Translations {
   endOfResults: string;
   draftScore: string;
   aiMacroScore: string;
+
+  inDevelopment: string;
+  inDevelopmentDesc: string;
+  tierListDesc: string;
+  toolsDesc: string;
+  backToProfile: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -128,6 +134,12 @@ const translations: Record<Language, Translations> = {
     endOfResults: "Fin de los resultados",
     draftScore: "Puntuación de draft",
     aiMacroScore: "AI Macro Score",
+
+    inDevelopment: "Módulo en Desarrollo",
+    inDevelopmentDesc: "Esta funcionalidad está siendo desarrollada e integrada con los modelos de IA y la API de Valorant. Estará disponible próximamente.",
+    tierListDesc: "Tier list automática de agentes, winrates por mapa y combinaciones óptimas en el parche actual.",
+    toolsDesc: "Calculadora de economía táctica, visualizador de lineups y simulador de rondas de pistolas.",
+    backToProfile: "VOLVER AL PERFIL",
   },
   en: {
     profile: "Profile",
@@ -186,6 +198,12 @@ const translations: Record<Language, Translations> = {
     endOfResults: "End of Results",
     draftScore: "Draft Rating",
     aiMacroScore: "AI Macro Score",
+
+    inDevelopment: "Module In Development",
+    inDevelopmentDesc: "This feature is currently under development and being integrated with our AI models and the Valorant API. It will be available soon.",
+    tierListDesc: "Automated agent tier lists, win rates per map, and optimal team compositions for the current patch.",
+    toolsDesc: "Tactical economy calculator, lineup visualizer, and pistol round simulators.",
+    backToProfile: "BACK TO PROFILE",
   },
 };
 
