@@ -22,7 +22,6 @@ def load_raw_dataset(csv_path: str) -> pd.DataFrame:
         raise FileNotFoundError(f"No se encontró el archivo: {csv_path}")
 
 def parse_and_flatten_compositions(df_raw: pd.DataFrame) -> pd.DataFrame:
-    # 1. Crear una lista vacía para acumular los registros
     records = []
 
     # Recorrer cada fila del DataFrame original
@@ -33,27 +32,24 @@ def parse_and_flatten_compositions(df_raw: pd.DataFrame) -> pd.DataFrame:
         map_name = str(row["map_name"]).strip()
         win_rate = float(row["map_win_rate"])
 
-        # Emparejar cada composición con sus partidas jugadas
         for comp, count in zip(compositions, counts):
-            if len(comp) == 5:  # Asegurar que la comp tiene 5 agentes
+            if len(comp) == 5: 
                 agents_clean = [a.lower().strip() for a in comp]
                 records.append({
                     "map_name": map_name,
                     "win_rate": win_rate,
-                    "times_played": int(count),  # Este será el peso (sample_weight)
+                    "times_played": int(count),
                     "agents": agents_clean
                 })
             else:
                 print(f"Se ha omitido una composición que no tiene 5 agentes: {comp}")
                 continue
-
-    # Devolver el nuevo DataFrame limpio
+                
     return pd.DataFrame(records)
 
 
 
 def get_clean_draft_dataset(csv_path: str) -> pd.DataFrame:
-    """Función principal que une la carga y el aplanado de datos."""
     df_raw = load_raw_dataset(csv_path)
     return parse_and_flatten_compositions(df_raw)
 
