@@ -25,15 +25,15 @@ def parse_and_flatten_compositions(df_raw: pd.DataFrame) -> pd.DataFrame:
     # 1. Crear una lista vacía para acumular los registros
     records = []
 
-    # 2. Recorrer cada fila del DataFrame original
+    # Recorrer cada fila del DataFrame original
     for _, row in df_raw.iterrows():
         # Parsear las columnas de texto a listas reales de Python
-        compositions = ast.literal_eval(row["agent_composition"])
-        counts = ast.literal_eval(row["agent_composition_played"])
+        compositions = ast.literal_eval(row["agent_composition"]) # lista de listas de 5 agentes
+        counts = ast.literal_eval(row["agent_composition_played"]) # lista de números
         map_name = str(row["map_name"]).strip()
         win_rate = float(row["map_win_rate"])
 
-        # 3. Emparejar cada composición con sus partidas jugadas
+        # Emparejar cada composición con sus partidas jugadas
         for comp, count in zip(compositions, counts):
             if len(comp) == 5:  # Asegurar que la comp tiene 5 agentes
                 agents_clean = [a.lower().strip() for a in comp]
@@ -43,8 +43,11 @@ def parse_and_flatten_compositions(df_raw: pd.DataFrame) -> pd.DataFrame:
                     "times_played": int(count),  # Este será el peso (sample_weight)
                     "agents": agents_clean
                 })
+            else:
+                print(f"Se ha omitido una composición que no tiene 5 agentes: {comp}")
+                continue
 
-    # 4. Devolver el nuevo DataFrame limpio
+    # Devolver el nuevo DataFrame limpio
     return pd.DataFrame(records)
 
 
