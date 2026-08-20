@@ -495,7 +495,9 @@ export default function ViewPregame() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+              gridAutoRows: "max-content",
+              alignContent: "start",
               gap: "8px",
               flex: 1,
               overflowY: "auto",

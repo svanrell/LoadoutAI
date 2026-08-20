@@ -1373,9 +1373,12 @@ header {
 
 #viewPregame.active {
     display: grid !important;
-    grid-template-columns: 310px 1fr 420px;
+    grid-template-columns: 290px minmax(460px, 1fr) 380px;
     grid-template-areas: "team dash select";
     gap: 16px;
+    max-width: 1650px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .pregame-team-panel {
@@ -2661,6 +2664,46 @@ header {
 
     .hud-col-right {
         justify-content: flex-start;
+    }
+/* Responsive breakpoints for ViewPregame */
+@media (max-width: 1400px) {
+    #viewPregame.active {
+        grid-template-columns: 260px 1fr 340px;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+    .panel-header {
+        font-size: 11px;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 1100px) {
+    #viewPregame.active {
+        grid-template-columns: 230px 1fr 300px;
+        gap: 10px;
+        padding: 8px 10px;
+    }
+    .agents-grid-container {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        padding: 8px;
+    }
+    .tab-btn {
+        font-size: 7.5px;
+        padding: 5px 1px;
+    }
+}
+
+@media (max-width: 900px) {
+    #viewPregame.active {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "dash dash"
+            "team select";
+        gap: 12px;
+        height: auto;
+        overflow-y: auto;
     }
 }
 
