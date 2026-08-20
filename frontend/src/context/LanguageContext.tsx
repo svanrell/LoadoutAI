@@ -151,10 +151,10 @@ const translations: Record<Language, Translations> = {
     swiftplay: "Swiftplay",
 
     allRoles: "Todos",
-    duelists: "Duelistas",
-    initiators: "Iniciadores",
-    controllers: "Controladores",
-    sentinels: "Centinelas",
+    duelists: "Duelista",
+    initiators: "Iniciador",
+    controllers: "Control",
+    sentinels: "Centinela",
 
     performanceSummary: "Resumen de Rendimiento",
     matchesCount: "Partidas",

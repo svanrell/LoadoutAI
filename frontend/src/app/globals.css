@@ -1373,9 +1373,9 @@ header {
 
 #viewPregame.active {
     display: grid !important;
-    grid-template-columns: 320px 1fr 400px;
+    grid-template-columns: 310px 1fr 420px;
     grid-template-areas: "team dash select";
-    gap: 20px;
+    gap: 16px;
 }
 
 .pregame-team-panel {
@@ -2040,8 +2040,8 @@ header {
 
 .tabs-header {
     display: flex;
-    gap: 6px;
-    padding: 6px 12px;
+    gap: 4px;
+    padding: 6px 8px;
     border-bottom: 1px solid var(--border-cyber);
     background: rgba(10, 17, 25, 0.7);
 }
@@ -2053,14 +2053,15 @@ header {
     border-radius: 4px;
     color: var(--text-muted);
     font-family: 'Orbitron', sans-serif;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 8px 4px;
+    letter-spacing: 0px;
+    padding: 6px 2px;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
+    white-space: nowrap;
 }
 
 .tab-btn:hover {
