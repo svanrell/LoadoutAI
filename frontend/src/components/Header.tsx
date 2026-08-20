@@ -145,36 +145,46 @@ export default function Header() {
 
       {/* Right Area: Selectors, Language, Discord, Player Profile */}
       <div className="header-right">
-        {/* Map & Mode Selectors */}
+        {/* Live Detected Map & Mode Display Badges */}
         <div className="header-selectors-group">
-          <div className="compact-select-wrap">
+          <div
+            className="compact-select-wrap"
+            style={{ cursor: "default", userSelect: "none" }}
+            title={language === "es" ? "Mapa detectado automáticamente por el cliente" : "Map automatically detected from game client"}
+          >
             <span className="compact-select-label">{t.map}:</span>
-            <select
-              className="compact-select"
-              value={selectedMap}
-              onChange={(e) => setSelectedMap(e.target.value)}
+            <span
+              style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "var(--color-cyan)",
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+              }}
             >
-              {mapOptions.map((mapName) => (
-                <option key={mapName} value={mapName}>
-                  {mapName.toUpperCase()}
-                </option>
-              ))}
-            </select>
+              {selectedMap || "ASCENT"}
+            </span>
           </div>
 
-          <div className="compact-select-wrap">
+          <div
+            className="compact-select-wrap"
+            style={{ cursor: "default", userSelect: "none" }}
+            title={language === "es" ? "Modo detectado automáticamente por el cliente" : "Mode automatically detected from game client"}
+          >
             <span className="compact-select-label">{t.mode}:</span>
-            <select
-              className="compact-select"
-              value={selectedMode}
-              onChange={(e) => setSelectedMode(e.target.value)}
+            <span
+              style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "var(--color-cyan)",
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+              }}
             >
-              {modeOptions.map((mode) => (
-                <option key={mode.id} value={mode.id}>
-                  {mode.name.toUpperCase()}
-                </option>
-              ))}
-            </select>
+              {selectedMode || "COMPETITIVE"}
+            </span>
           </div>
         </div>
 
