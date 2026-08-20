@@ -74,6 +74,48 @@ export interface Translations {
   tierListDesc: string;
   toolsDesc: string;
   backToProfile: string;
+
+  // Pregame & Draft Coach
+  myTeamComposition: string;
+  picked: string;
+  selecting: string;
+  you: string;
+  ally: string;
+  openStatus: string;
+  lockedStatus: string;
+  prepickStatus: string;
+  lvl: string;
+  modeSpecs: string;
+  teamCapacity: string;
+  playersCount: string;
+  economyRules: string;
+  buyAllowed: string;
+  teamSynergyAnalyzer: string;
+  metaComposition: string;
+  balancedComposition: string;
+  averageComposition: string;
+  highRiskComposition: string;
+  picksLocked: string;
+  of5Agents: string;
+  aiStatus: string;
+  fullCompAnalyzed: string;
+  evaluatingSynergies: string;
+  aiDraftCoach: string;
+  top5PicksGlobal: string;
+  waitingDraftPicks: string;
+  estWinRate: string;
+  roleSynergyExplorer: string;
+  allAgentsSortedWinRate: string;
+  available: string;
+  roster: string;
+  lock: string;
+  pick: string;
+  selectHeroAgent: string;
+  loadingAgents: string;
+  noCharacterSelected: string;
+  selectAgent: string;
+  classRole: string;
+  lockAgentBtn: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -140,6 +182,48 @@ const translations: Record<Language, Translations> = {
     tierListDesc: "Tier list automática de agentes, winrates por mapa y combinaciones óptimas en el parche actual.",
     toolsDesc: "Calculadora de economía táctica, visualizador de lineups y simulador de rondas de pistolas.",
     backToProfile: "VOLVER AL PERFIL",
+
+    // Pregame
+    myTeamComposition: "Composición del Equipo",
+    picked: "Elegidos",
+    selecting: "Seleccionando...",
+    you: "Tú",
+    ally: "Aliado",
+    openStatus: "LIBRE",
+    lockedStatus: "FIJADO",
+    prepickStatus: "PRE-PICK",
+    lvl: "NIVEL",
+    modeSpecs: "Especificaciones del Modo",
+    teamCapacity: "Capacidad de Equipo:",
+    playersCount: "Jugadores",
+    economyRules: "Reglas de Economía:",
+    buyAllowed: "Compras Permitidas",
+    teamSynergyAnalyzer: "Analizador de Sinergia",
+    metaComposition: "COMPOSICIÓN META",
+    balancedComposition: "COMPOSICIÓN BALANCEADA",
+    averageComposition: "COMPOSICIÓN PROMEDIO",
+    highRiskComposition: "COMPOSICIÓN DE RIESGO",
+    picksLocked: "Bloqueados",
+    of5Agents: "de 5 Agentes",
+    aiStatus: "Estado IA",
+    fullCompAnalyzed: "Composición completa analizada.",
+    evaluatingSynergies: "Evaluando mejores sinergias...",
+    aiDraftCoach: "Entrenador de Draft IA",
+    top5PicksGlobal: "Top 5 Picks (Global)",
+    waitingDraftPicks: "Esperando selección de agentes...",
+    estWinRate: "WR EST.",
+    roleSynergyExplorer: "Explorador de Sinergias",
+    allAgentsSortedWinRate: "Todos los Agentes por Win Rate",
+    available: "Disponibles",
+    roster: "Plantel",
+    lock: "Fijar",
+    pick: "Elegir",
+    selectHeroAgent: "Seleccionar Agente Héroe",
+    loadingAgents: "Cargando agentes...",
+    noCharacterSelected: "Ningún Agente\nSeleccionado",
+    selectAgent: "Seleccionar Agente",
+    classRole: "Rol de Clase",
+    lockAgentBtn: "Bloquear Agente",
   },
   en: {
     profile: "Profile",
@@ -204,6 +288,48 @@ const translations: Record<Language, Translations> = {
     tierListDesc: "Automated agent tier lists, win rates per map, and optimal team compositions for the current patch.",
     toolsDesc: "Tactical economy calculator, lineup visualizer, and pistol round simulators.",
     backToProfile: "BACK TO PROFILE",
+
+    // Pregame
+    myTeamComposition: "My Team Composition",
+    picked: "Picked",
+    selecting: "Selecting...",
+    you: "You",
+    ally: "Ally",
+    openStatus: "OPEN",
+    lockedStatus: "LOCKED",
+    prepickStatus: "PRE-PICK",
+    lvl: "LVL",
+    modeSpecs: "Mode Specifications",
+    teamCapacity: "Team Capacity:",
+    playersCount: "Players",
+    economyRules: "Economy Rules:",
+    buyAllowed: "Buy Allowed",
+    teamSynergyAnalyzer: "Team Synergy Analyzer",
+    metaComposition: "META COMPOSITION",
+    balancedComposition: "BALANCED COMPOSITION",
+    averageComposition: "AVERAGE COMPOSITION",
+    highRiskComposition: "HIGH RISK COMPOSITION",
+    picksLocked: "Picks Locked",
+    of5Agents: "of 5 Agents",
+    aiStatus: "AI Status",
+    fullCompAnalyzed: "Full composition analyzed.",
+    evaluatingSynergies: "Evaluating best candidate synergies...",
+    aiDraftCoach: "AI Draft Coach",
+    top5PicksGlobal: "Top 5 Picks (Global)",
+    waitingDraftPicks: "Waiting for pregame draft picks...",
+    estWinRate: "EST. WR",
+    roleSynergyExplorer: "Role Synergy Explorer",
+    allAgentsSortedWinRate: "All Agents Sorted by Win Rate",
+    available: "Available",
+    roster: "Roster",
+    lock: "Lock",
+    pick: "Pick",
+    selectHeroAgent: "Select Hero Agent",
+    loadingAgents: "Loading agents...",
+    noCharacterSelected: "No Character\nSelected",
+    selectAgent: "Select Agent",
+    classRole: "Class Role",
+    lockAgentBtn: "Lock Agent",
   },
 };
 

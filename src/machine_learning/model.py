@@ -9,13 +9,10 @@ Responsabilidad:
 
 import os
 import joblib
-import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
-
-
 from typing import Any
 
 
@@ -36,7 +33,8 @@ def train_draft_model(X: pd.DataFrame, y: pd.Series, sample_weights: pd.Series):
     # 3. Predicciones y cálculo de métricas de evaluación
     y_pred = model.predict(X_test)
     r2 = r2_score(y_test, y_pred, sample_weight=w_test)
-    rmse = float(np.sqrt(mean_squared_error(y_test, y_pred, sample_weight=w_test)))
+    rmse = float(mean_squared_error(y_test, y_pred, sample_weight=w_test) ** 0.5)
+
 
     print("\n--- EVALUACIÓN DEL MODELO ---")
     print(f"R² Score: {r2:.4f}")
@@ -56,12 +54,14 @@ def save_model_artifact(bundle: dict[str, Any], output_path: str) -> None:
     print(f"\nArtefacto del modelo guardado exitosamente en: {output_path}")
 
 
-def load_model_artifact(model_path: str) -> dict[str, Any]:
+def load_model_artifact(model_path: str, verbose: bool = True) -> dict[str, Any]:
     """Carga desde disco el artefacto guardado del modelo."""
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"No se encontró el archivo del modelo en: {model_path}")
 
     bundle = joblib.load(model_path)
-    print(f"\nArtefacto del modelo cargado correctamente desde: {model_path}")
+    if verbose:
+        print(f"\nArtefacto del modelo cargado correctamente desde: {model_path}")
     return bundle
+
 

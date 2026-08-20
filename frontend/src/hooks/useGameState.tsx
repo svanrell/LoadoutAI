@@ -32,6 +32,13 @@ export interface EnemyEconomy {
   type: string;
 }
 
+export interface MLDraftRecommendation {
+  agent: string;
+  displayName: string;
+  uuid: string;
+  winRate: number;
+}
+
 interface GameStateContextProps {
   view: ViewState;
   setView: (view: ViewState) => void;
@@ -44,7 +51,8 @@ interface GameStateContextProps {
   connectionStatus: "offline" | "menu-mode" | "live";
   connectionText: string;
   myTeam: Player[];
-  mlRecommendations: string[];
+  mlRecommendations: MLDraftRecommendation[];
+  mlSynergyWinRate: number;
   currentIngameRound: number;
   buyPhaseAvailable: boolean;
   buyPhaseTime: number;
@@ -73,7 +81,8 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     }))
   );
   
-  const [mlRecommendations, setMlRecommendations] = useState<string[]>([]);
+  const [mlRecommendations, setMlRecommendations] = useState<MLDraftRecommendation[]>([]);
+  const [mlSynergyWinRate, setMlSynergyWinRate] = useState<number>(50.0);
   const [currentIngameRound, setCurrentIngameRound] = useState(1);
   const [buyPhaseAvailable, setBuyPhaseAvailable] = useState(false);
   const [buyPhaseTime, setBuyPhaseTime] = useState(0);
@@ -81,6 +90,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [enemyEconomy, setEnemyEconomy] = useState<EnemyEconomy | null>(null);
   const [myCredits, setMyCredits] = useState(3900);
   const [pregameMatchId, setPregameMatchId] = useState<string | null>(null);
+
 
   const socketRef = useRef<Socket | null>(null);
 
@@ -132,6 +142,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         if (data.mapName) setSelectedMap(data.mapName);
         if (data.mode) setSelectedMode(data.mode.toLowerCase());
         if (data.mlDraftPicks) setMlRecommendations(data.mlDraftPicks);
+        if (typeof data.mlSynergyWinRate === 'number') setMlSynergyWinRate(data.mlSynergyWinRate);
         if (data.players) {
           setMyTeam(data.players.map((p: any, i: number) => ({
             puuid: p.puuid,
@@ -207,6 +218,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         connectionText,
         myTeam,
         mlRecommendations,
+        mlSynergyWinRate,
         currentIngameRound,
         buyPhaseAvailable,
         buyPhaseTime,
@@ -223,6 +235,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     </GameStateContext.Provider>
   );
 }
+
 
 export function useGameState() {
   const context = useContext(GameStateContext);

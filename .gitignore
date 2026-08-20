@@ -1,6 +1,19 @@
 # Compiled output
 /dist
 /node_modules
+/public
+/frontend/.next
+/frontend/out
+/frontend/node_modules
+
+# Python & Machine Learning
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+src/machine_learning/__pycache__/
+src/machine_learning/models/
+test/test_ml_node.js
 
 # Logs
 logs

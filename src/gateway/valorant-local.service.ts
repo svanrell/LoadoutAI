@@ -9,7 +9,12 @@ import { ValorantGateway } from "./valorant.gateway";
 import * as fs from "fs";
 import * as path from "path";
 import * as https from "https";
+import { exec } from "child_process";
+import { promisify } from "util";
 import { firstValueFrom } from "rxjs";
+
+const execPromise = promisify(exec);
+
 
 const MAPS_MAP: Record<string, string> = {
   "/Game/Maps/Ascent/Ascent": "Ascent",
@@ -512,13 +517,25 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
             const queueId = privateData.matchPresenceData?.queueId || "";
             const mode = resolveQueueName(queueId);
 
+            // Obtener agentes bloqueados o seleccionados por el equipo
+            const alliesAgentUuids = players
+              .filter((p) => p.agentId && p.agentId !== "")
+              .map((p) => p.agentId);
+
+            // Inferencia de Machine Learning en tiempo real
+            const mlResult = await this.getMLDraftRecommendations(
+              mapName,
+              alliesAgentUuids,
+            );
+
             this.updateStatus("PREGAME", {
               matchId,
               pregameMatchId,
               players,
               mapName,
               myPuuid: puuid,
-              mlDraftPicks: [],
+              mlDraftPicks: mlResult.recommendations,
+              mlSynergyWinRate: mlResult.currentSynergy,
               mode,
             });
           } catch (error) {
@@ -527,8 +544,15 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
             );
             const queueId = privateData.matchPresenceData?.queueId || "";
             const mode = resolveQueueName(queueId);
-            this.updateStatus("PREGAME", { matchId, myPuuid: puuid, mode });
+            this.updateStatus("PREGAME", {
+              matchId,
+              myPuuid: puuid,
+              mode,
+              mlDraftPicks: [],
+              mlSynergyWinRate: 50.0,
+            });
           }
+
         } else if (loopState === "INGAME") {
           const mapPath = privateData.matchPresenceData?.matchMap || "";
           const queueId = privateData.matchPresenceData?.queueId || "";
@@ -735,4 +759,42 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   async updateIngameCredits(credits: number) {
     this.currentCredits = credits;
   }
+
+  private async getMLDraftRecommendations(
+    mapName: string,
+    alliesAgentUuids: string[],
+  ): Promise<{ recommendations: any[]; currentSynergy: number }> {
+    try {
+      const pythonPath = path.join(
+        process.cwd(),
+        ".venv",
+        "Scripts",
+        "python.exe",
+      );
+      const scriptPath = path.join(
+        process.cwd(),
+        "src",
+        "machine_learning",
+        "predict.py",
+      );
+
+      const alliesArg = alliesAgentUuids.filter(Boolean).join(",");
+      const cmd = `"${pythonPath}" "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+
+      const { stdout } = await execPromise(cmd, { timeout: 4000 });
+      const parsed = JSON.parse(stdout.trim());
+      if (parsed && parsed.success) {
+        return {
+          recommendations: parsed.recommendations || [],
+          currentSynergy: parsed.currentSynergy || 50.0,
+        };
+      }
+    } catch (error) {
+      this.logger.warn(
+        `ML Draft prediction failed or timed out: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+    return { recommendations: [], currentSynergy: 50.0 };
+  }
 }
+
