@@ -1,11 +1,3 @@
-"""
-features.py
-===========
-Responsabilidad:
-- Transformar texto categórico (nombres de mapas y agentes) en matrices numéricas (One-Hot / Multi-Hot Encoding).
-- Construir matrices X (features), y (target), pesos y metadatos de columnas.
-"""
-
 import pandas as pd
 from typing import Tuple, List, Dict, Any
 
