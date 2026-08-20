@@ -129,6 +129,27 @@ def predict_composition_win_rate(
     return round(predicted_win_rate, 2)
 
 
+def get_model_artifact_path() -> str:
+    """
+    Obtiene la ruta absoluta al archivo draft_model.joblib, soportando
+    tanto la ejecución estándar de Python como el ejecutable congelado por PyInstaller.
+    """
+    if getattr(sys, "frozen", False):
+        meipass_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+        candidate_paths = [
+            os.path.join(meipass_dir, "src", "machine_learning", "models", "draft_model.joblib"),
+            os.path.join(meipass_dir, "draft_model.joblib"),
+            os.path.join(os.path.dirname(sys.executable), "draft_model.joblib"),
+            os.path.join(os.path.dirname(sys.executable), "src", "machine_learning", "models", "draft_model.joblib"),
+        ]
+        for path_option in candidate_paths:
+            if os.path.exists(path_option):
+                return path_option
+        return candidate_paths[0]
+
+    return os.path.join(PROJECT_ROOT, "src", "machine_learning", "models", "draft_model.joblib")
+
+
 def run_json_prediction(input_json_string: str) -> None:
     """
     Lee JSON de entrada enviado por NestJS, ejecuta la inferencia de IA y responde en JSON por stdout.
@@ -138,9 +159,7 @@ def run_json_prediction(input_json_string: str) -> None:
         target_map_name = request_payload.get("mapName") or request_payload.get("map") or "Ascent"
         ally_agents_list = request_payload.get("allies") or request_payload.get("picks") or []
 
-        model_artifact_file_path = os.path.join(
-            PROJECT_ROOT, "src", "machine_learning", "models", "draft_model.joblib"
-        )
+        model_artifact_file_path = get_model_artifact_path()
         loaded_model_bundle = load_model_artifact(model_artifact_file_path, verbose=False)
 
         # 1. Obtener los mejores agentes ordenados por Win Rate

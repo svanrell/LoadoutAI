@@ -765,28 +765,43 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     alliesAgentUuids: string[],
   ): Promise<{ recommendations: any[]; currentSynergy: number }> {
     try {
-      const pythonPath = path.join(
-        process.cwd(),
-        ".venv",
-        "Scripts",
-        "python.exe",
-      );
-      const scriptPath = path.join(
-        process.cwd(),
-        "src",
-        "machine_learning",
-        "predict.py",
-      );
-
       const alliesArg = alliesAgentUuids.filter(Boolean).join(",");
-      const cmd = `"${pythonPath}" "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+
+      // 1. Detectar si existe el binario autónomo compilado (PyInstaller)
+      const electronResources = (process as any).resourcesPath || "";
+      const possibleExePaths = [
+        path.join(process.cwd(), "resources", "bin", "predict.exe"),
+        path.join(electronResources, "bin", "predict.exe"),
+        path.join(electronResources, "resources", "bin", "predict.exe"),
+        path.join(__dirname, "..", "..", "resources", "bin", "predict.exe"),
+      ];
+      const standaloneExe = possibleExePaths.find((candidatePath) => fs.existsSync(candidatePath));
+
+      let cmd: string;
+      if (standaloneExe) {
+        cmd = `"${standaloneExe}" --map "${mapName}" --allies "${alliesArg}"`;
+      } else {
+        const pythonPath = path.join(
+          process.cwd(),
+          ".venv",
+          "Scripts",
+          "python.exe",
+        );
+        const scriptPath = path.join(
+          process.cwd(),
+          "src",
+          "machine_learning",
+          "predict.py",
+        );
+        cmd = `"${pythonPath}" "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+      }
 
       const { stdout } = await execPromise(cmd, { timeout: 4000 });
       const parsed = JSON.parse(stdout.trim());
       if (parsed && parsed.success) {
         return {
           recommendations: parsed.recommendations || [],
-          currentSynergy: parsed.currentSynergy || 50.0,
+          currentSynergy: parsed.currentSynergy || 0.0,
         };
       }
     } catch (error) {

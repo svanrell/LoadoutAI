@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /public
+/release
 /frontend/.next
 /frontend/out
 /frontend/node_modules
@@ -13,6 +14,9 @@ __pycache__/
 *$py.class
 src/machine_learning/__pycache__/
 src/machine_learning/models/
+resources/bin/
+build/
+predict.spec
 test/test_ml_node.js
 
 # Logs

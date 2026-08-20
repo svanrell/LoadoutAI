@@ -1,14 +1,18 @@
 {
   "name": "valorant",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
+  "description": "Loadout AI - Tactical Valorant Radar and Draft Assistant",
+  "author": "Loadout AI",
   "private": true,
   "license": "UNLICENSED",
   "main": "electron/main.js",
   "scripts": {
     "build": "npm run build:frontend && nest build",
     "build:frontend": "npm run build --prefix frontend && xcopy frontend\\out\\* public\\ /s /e /y",
+    "build:ml": ".venv\\Scripts\\pyinstaller.exe --onefile --console --name predict --add-data \"src/machine_learning/models/draft_model.joblib;src/machine_learning/models\" src/machine_learning/predict.py --distpath resources/bin",
+    "build:all": "npm run build:ml && npm run build",
+    "dist:win": "npm run build:all && electron-builder --win",
+    "dist:portable": "npm run build:all && electron-builder --win portable",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -46,6 +50,7 @@
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
     "electron": "^43.4.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
@@ -77,5 +82,61 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "build": {
+    "appId": "com.loadoutai.app",
+    "productName": "LoadoutAI",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "public",
+        "to": "public",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/app_icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Loadout AI"
+    }
   }
 }

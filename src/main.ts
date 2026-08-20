@@ -2,17 +2,27 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { join } from "path";
+import * as fs from "fs";
 
 async function bootstrap() {
-  // Especificamos que usamos Express
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Habilitamos CORS (muy importante para WebSockets)
   app.enableCors();
 
-  // Le decimos a NestJS dónde están los archivos de la web
-  app.useStaticAssets(join(__dirname, "..", "public"));
+  // Localizar la carpeta public estática en desarrollo o empaquetado
+  const possiblePublicPaths = [
+    join(__dirname, "..", "public"),
+    join(process.cwd(), "public"),
+    join((process as any).resourcesPath || "", "public"),
+  ];
+  const publicPath =
+    possiblePublicPaths.find((p) => fs.existsSync(p)) ||
+    join(__dirname, "..", "public");
 
-  await app.listen(3000);
+  app.useStaticAssets(publicPath);
+
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
 }
 void bootstrap();
+
