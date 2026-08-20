@@ -29,8 +29,13 @@ def train_draft_model(
         features_matrix_X, target_win_rates_y, sample_weights, test_size=0.2, random_state=42
     )
 
-    # 2. Instanciar el modelo Random Forest (100 árboles de decisión)
-    trained_random_forest_model = RandomForestRegressor(n_estimators=100, random_state=42)
+    # 2. Instanciar el modelo Random Forest regularizado (100 árboles, profundidad óptima de 8)
+    trained_random_forest_model = RandomForestRegressor(
+        n_estimators=100,
+        max_depth=8,
+        min_samples_leaf=1,
+        random_state=42
+    )
     
     # 3. Ajustar el modelo usando los pesos de frecuencia de partidas
     trained_random_forest_model.fit(X_train, y_train, sample_weight=weights_train)
