@@ -181,17 +181,17 @@ export default function ViewPregame() {
       </div>
 
       {/* Column 2: Dashboard */}
-      <div className="dashboard-col">
-        <div className="ai-rec-grid">
+      <div className="dashboard-col" style={{ display: "flex", flexDirection: "column", height: "100%", gap: "12px" }}>
+        <div className="ai-rec-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", alignItems: "stretch" }}>
           {/* Team Synergy Gauge */}
-          <div className="cyber-panel synergy-card">
+          <div className="cyber-panel synergy-card" style={{ padding: "12px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div
               className="panel-header"
               style={{
                 width: "100%",
                 borderBottom: "none",
                 background: "transparent",
-                padding: "0 0 10px 0",
+                padding: "0 0 3px 0",
               }}
             >
               <span>{t.teamSynergyAnalyzer}</span>
@@ -226,12 +226,12 @@ export default function ViewPregame() {
 
               return (
                 <>
-                  <div className="synergy-gauge-container">
-                    <svg width="140" height="80" viewBox="0 0 140 80">
-                      <path className="synergy-ring-bg" d="M 15,75 A 55,55 0 0,1 125,75" />
+                  <div className="synergy-gauge-container" style={{ margin: "4px 0" }}>
+                    <svg width="140" height="75" viewBox="0 0 140 75">
+                      <path className="synergy-ring-bg" d="M 15,70 A 55,55 0 0,1 125,70" />
                       <path
                         className="synergy-ring-fill"
-                        d="M 15,75 A 55,55 0 0,1 125,75"
+                        d="M 15,70 A 55,55 0 0,1 125,70"
                         style={{
                           strokeDashoffset: strokeOffsetValue,
                           stroke: compositionThemeColor,
@@ -246,14 +246,14 @@ export default function ViewPregame() {
                     </div>
                   </div>
 
-                  <div className="synergy-feedback">
+                  <div className="synergy-feedback" style={{ marginTop: "4px" }}>
                     <div
                       className="synergy-rating"
-                      style={{ color: compositionThemeColor }}
+                      style={{ color: compositionThemeColor, fontSize: "11px" }}
                     >
                       {compositionRatingText}
                     </div>
-                    <div className="synergy-analysis-box">
+                    <div className="synergy-analysis-box" style={{ marginTop: "4px" }}>
                       <div className="synergy-analysis-item">
                         <strong className="strong-label">{t.picksLocked}</strong>
                         <span className="synergy-analysis-text">
@@ -276,15 +276,17 @@ export default function ViewPregame() {
           </div>
 
           {/* AI Recommended Picks Panel (Top 5 Global) */}
-          <div className="cyber-panel" style={{ marginTop: "12px", padding: "14px" }}>
+          <div className="cyber-panel" style={{ padding: "12px 14px", display: "flex", flexDirection: "column" }}>
             <div
               className="panel-header"
               style={{
                 width: "100%",
-                padding: "0 0 10px 0",
+                padding: "0 0 6px 0",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                borderBottom: "none",
+                background: "transparent",
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -303,7 +305,7 @@ export default function ViewPregame() {
               </span>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginTop: "4px" }}>
               {mlRecommendations && mlRecommendations.length > 0 ? (
                 mlRecommendations.slice(0, 5).map((recommendation: any, rankIndex: number) => {
                   const targetAgent =
@@ -344,7 +346,7 @@ export default function ViewPregame() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "8px 12px",
+                        padding: "6px 10px",
                         background: "rgba(15, 25, 35, 0.75)",
                         border: "1px solid rgba(0, 243, 255, 0.18)",
                         borderRadius: "4px",
@@ -360,11 +362,11 @@ export default function ViewPregame() {
                         event.currentTarget.style.background = "rgba(15, 25, 35, 0.75)";
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <span
                           style={{
                             fontFamily: "'Orbitron', sans-serif",
-                            fontSize: "11px",
+                            fontSize: "10px",
                             fontWeight: "bold",
                             color: rankIndex === 0 ? "#ffd700" : "var(--text-muted)",
                             width: "16px",
@@ -378,8 +380,8 @@ export default function ViewPregame() {
                             src={targetAgent.displayIcon}
                             alt={targetAgentName}
                             style={{
-                              width: "28px",
-                              height: "28px",
+                              width: "24px",
+                              height: "24px",
                               borderRadius: "3px",
                               objectFit: "cover",
                             }}
@@ -387,8 +389,8 @@ export default function ViewPregame() {
                         ) : (
                           <div
                             style={{
-                              width: "28px",
-                              height: "28px",
+                              width: "24px",
+                              height: "24px",
                               background: "#1b2733",
                               borderRadius: "3px",
                             }}
@@ -396,10 +398,10 @@ export default function ViewPregame() {
                         )}
 
                         <div>
-                          <div style={{ fontSize: "12px", fontWeight: "bold", color: "#fff" }}>
+                          <div style={{ fontSize: "11px", fontWeight: "bold", color: "#fff", lineHeight: 1.2 }}>
                             {targetAgentName}
                           </div>
-                          <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                          <div style={{ fontSize: "9px", color: "var(--text-muted)", lineHeight: 1.1 }}>
                             {targetRoleName}
                           </div>
                         </div>
@@ -416,14 +418,14 @@ export default function ViewPregame() {
                           <span
                             style={{
                               fontFamily: "'Orbitron', sans-serif",
-                              fontSize: "12px",
+                              fontSize: "11px",
                               fontWeight: "bold",
                               color: estimatedWinRate >= 70 ? "#00ff88" : "var(--color-cyan)",
                             }}
                           >
                             {estimatedWinRate.toFixed(1)}%
                           </span>
-                          <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>
+                          <span style={{ fontSize: "8px", color: "var(--text-muted)" }}>
                             {t.estWinRate}
                           </span>
                         </div>
@@ -451,21 +453,24 @@ export default function ViewPregame() {
         <div
           className="cyber-panel"
           style={{
-            marginTop: "16px",
-            padding: "16px",
+            flex: 1,
+            padding: "12px 14px",
             display: "flex",
             flexDirection: "column",
-            gap: "10px",
+            minHeight: 0,
+            overflow: "hidden",
           }}
         >
           <div
             className="panel-header"
             style={{
               width: "100%",
-              padding: "0 0 10px 0",
+              padding: "0 0 8px 0",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              borderBottom: "1px solid rgba(0, 243, 255, 0.15)",
+              background: "transparent",
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -491,12 +496,14 @@ export default function ViewPregame() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))",
-              gap: "10px",
-              maxHeight: "220px",
+              gap: "8px",
+              flex: 1,
               overflowY: "auto",
               paddingRight: "4px",
+              marginTop: "8px",
             }}
           >
+
             {filteredAgents.map((agent) => {
               const agentRecommendation = getAgentRecommendation(agent.uuid, agent.displayName);
               const estimatedWinRate = agentRecommendation ? agentRecommendation.winRate : null;
