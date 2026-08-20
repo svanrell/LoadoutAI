@@ -53,12 +53,4 @@ def get_clean_draft_dataset(csv_path: str) -> pd.DataFrame:
     df_raw = load_raw_dataset(csv_path)
     return parse_and_flatten_compositions(df_raw)
 
-# TEMPORAL
-if __name__ == "__main__":
-    test_csv = os.path.join("frontend", "src", "csv", "map_stat_teams_overview.csv")
-    df_clean = get_clean_draft_dataset(test_csv)
-    print("\n--- RESUMEN DEL DATASET APLANADO ---")
-    print(f"Total de composiciones individuales: {len(df_clean)}")
-    print(f"Columnas resultantes: {list(df_clean.columns)}")
-    print("\nPrimeras 3 filas:")
-    print(df_clean.head(200))
+
