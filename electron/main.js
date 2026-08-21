@@ -27,7 +27,21 @@ function checkServerReady(url, maxAttempts = 50, delayMs = 250) {
   });
 }
 
-function startBackendServer() {
+async function startBackendServer() {
+  const isAlreadyRunning = await new Promise((resolve) => {
+    const req = http.get("http://127.0.0.1:3000", () => resolve(true));
+    req.on("error", () => resolve(false));
+    req.setTimeout(500, () => {
+      req.destroy();
+      resolve(false);
+    });
+  });
+
+  if (isAlreadyRunning) {
+    console.log("Servidor backend ya en ejecución en http://127.0.0.1:3000. Reutilizando instancia.");
+    return;
+  }
+
   const possibleServerPaths = [
     path.join(__dirname, "..", "dist", "main.js"),
     path.join(process.resourcesPath || "", "app.asar", "dist", "main.js"),

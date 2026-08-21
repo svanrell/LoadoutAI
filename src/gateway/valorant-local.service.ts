@@ -210,6 +210,12 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     this.gateway.ingameCredits$.subscribe(async (data) => {
       await this.updateIngameCredits(data.credits);
     });
+
+    this.gateway.requestMlDraft$.subscribe(async ({ mapName, allies, client }) => {
+      const map = mapName || "Ascent";
+      const result = await this.getMLDraftRecommendations(map, allies || []);
+      this.gateway.emitMlDraftResult(client, result);
+    });
   }
 
   onModuleDestroy() {
@@ -760,58 +766,63 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     this.currentCredits = credits;
   }
 
-  private async getMLDraftRecommendations(
+  async getMLDraftRecommendations(
     mapName: string,
     alliesAgentUuids: string[],
   ): Promise<{ recommendations: any[]; currentSynergy: number }> {
     try {
       const alliesArg = alliesAgentUuids.filter(Boolean).join(",") || "none";
 
-      // 1. Detectar si existe el binario autónomo compilado (PyInstaller)
-      const electronResources =
-        process.env.ELECTRON_RESOURCES_PATH ||
-        (process as any).resourcesPath ||
-        "";
-      const possibleExePaths = [
-        path.join(electronResources, "bin", "predict.exe"),
-        path.join(electronResources, "resources", "bin", "predict.exe"),
-        path.join(process.cwd(), "resources", "bin", "predict.exe"),
-        path.join(
-          process.cwd(),
-          "resources",
-          "app.asar.unpacked",
-          "resources",
-          "bin",
-          "predict.exe",
-        ),
-        path.join(__dirname, "..", "..", "resources", "bin", "predict.exe"),
-        path.join(__dirname, "..", "..", "..", "resources", "bin", "predict.exe"),
-        path.join(__dirname, "..", "..", "..", "bin", "predict.exe"),
-      ];
-      const standaloneExe = possibleExePaths.find((candidatePath) =>
-        fs.existsSync(candidatePath),
+      const pythonPath = path.join(
+        process.cwd(),
+        ".venv",
+        "Scripts",
+        "python.exe",
+      );
+      const scriptPath = path.join(
+        process.cwd(),
+        "src",
+        "machine_learning",
+        "predict.py",
       );
 
+      // Priorizar el intérprete de Python del entorno virtual en desarrollo
       let cmd: string;
-      if (standaloneExe) {
-        cmd = `"${standaloneExe}" --map "${mapName}" --allies "${alliesArg}"`;
-      } else {
-        const pythonPath = path.join(
-          process.cwd(),
-          ".venv",
-          "Scripts",
-          "python.exe",
-        );
-        const scriptPath = path.join(
-          process.cwd(),
-          "src",
-          "machine_learning",
-          "predict.py",
-        );
+      if (fs.existsSync(pythonPath) && fs.existsSync(scriptPath)) {
         cmd = `"${pythonPath}" "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+      } else {
+        const electronResources =
+          process.env.ELECTRON_RESOURCES_PATH ||
+          (process as any).resourcesPath ||
+          "";
+        const possibleExePaths = [
+          path.join(electronResources, "bin", "predict.exe"),
+          path.join(electronResources, "resources", "bin", "predict.exe"),
+          path.join(process.cwd(), "resources", "bin", "predict.exe"),
+          path.join(
+            process.cwd(),
+            "resources",
+            "app.asar.unpacked",
+            "resources",
+            "bin",
+            "predict.exe",
+          ),
+          path.join(__dirname, "..", "..", "resources", "bin", "predict.exe"),
+          path.join(__dirname, "..", "..", "..", "resources", "bin", "predict.exe"),
+          path.join(__dirname, "..", "..", "..", "bin", "predict.exe"),
+        ];
+        const standaloneExe = possibleExePaths.find((candidatePath) =>
+          fs.existsSync(candidatePath),
+        );
+
+        if (standaloneExe) {
+          cmd = `"${standaloneExe}" --map "${mapName}" --allies "${alliesArg}"`;
+        } else {
+          cmd = `python "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+        }
       }
 
-      const { stdout } = await execPromise(cmd, { timeout: 4000 });
+      const { stdout } = await execPromise(cmd, { timeout: 12000 });
       const parsed = JSON.parse(stdout.trim());
       if (parsed && parsed.success) {
         return {

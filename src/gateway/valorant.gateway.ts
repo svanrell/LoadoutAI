@@ -25,6 +25,11 @@ export class ValorantGateway implements OnGatewayConnection {
     agentUuid: string;
   }>();
   readonly ingameCredits$ = new Subject<{ credits: number }>();
+  readonly requestMlDraft$ = new Subject<{
+    mapName?: string;
+    allies?: string[];
+    client: Socket;
+  }>();
 
   private currentStatus: string = "CLOSED";
   private extraData: Record<string, unknown> = {};
@@ -80,6 +85,18 @@ export class ValorantGateway implements OnGatewayConnection {
   @SubscribeMessage("update_ingame_credits")
   handleUpdateIngameCredits(client: Socket, data: { credits: number }) {
     this.ingameCredits$.next(data);
+  }
+
+  @SubscribeMessage("request_ml_draft")
+  handleRequestMlDraft(
+    client: Socket,
+    data: { mapName?: string; allies?: string[] },
+  ) {
+    this.requestMlDraft$.next({ ...data, client });
+  }
+
+  emitMlDraftResult(client: Socket, result: any) {
+    client.emit("ml_draft_result", result);
   }
 
   emitMlBuyRecommendations(data: any) {

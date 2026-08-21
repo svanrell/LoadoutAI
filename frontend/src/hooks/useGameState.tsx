@@ -63,6 +63,7 @@ interface GameStateContextProps {
   pregameMatchId: string | null;
   selectAgent: (agentUuid: string) => void;
   lockAgent: (agentUuid: string) => void;
+  requestMlDraft: (mapName?: string, allies?: string[]) => void;
 }
 
 const GameStateContext = createContext<GameStateContextProps | undefined>(undefined);
@@ -91,18 +92,55 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [myCredits, setMyCredits] = useState(3900);
   const [pregameMatchId, setPregameMatchId] = useState<string | null>(null);
 
-
   const socketRef = useRef<Socket | null>(null);
 
-  const selectAgent = (agentUuid: string) => {
+  const requestMlDraft = (mapName?: string, allies?: string[]) => {
     if (socketRef.current) {
+      const map = mapName || selectedMap || "Ascent";
+      const picked = allies || myTeam.map((p) => p.agentId).filter((id): id is string => Boolean(id));
+      socketRef.current.emit("request_ml_draft", { mapName: map, allies: picked });
+    }
+  };
+
+  const selectAgent = (agentUuid: string) => {
+    if (socketRef.current && isLiveMode) {
       socketRef.current.emit("pregame_select", { pregameMatchId, agentUuid });
+    } else {
+      // En modo simulador / offline: actualizar el equipo localmente y recalcular ML
+      setMyTeam((prevTeam) => {
+        const teamCopy = [...prevTeam];
+        const existingIndex = teamCopy.findIndex((p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase());
+        if (existingIndex !== -1) {
+          // Si ya estaba seleccionado, deseleccionar
+          teamCopy[existingIndex] = { ...teamCopy[existingIndex], agentId: null, state: "" };
+        } else {
+          // Asignar al primer slot libre
+          const freeSlot = teamCopy.findIndex((p) => !p.agentId);
+          if (freeSlot !== -1) {
+            teamCopy[freeSlot] = { ...teamCopy[freeSlot], agentId: agentUuid.toLowerCase(), state: "selected" };
+          } else {
+            teamCopy[0] = { ...teamCopy[0], agentId: agentUuid.toLowerCase(), state: "selected" };
+          }
+        }
+        const updatedAllies = teamCopy.map((p) => p.agentId).filter((id): id is string => Boolean(id));
+        requestMlDraft(selectedMap, updatedAllies);
+        return teamCopy;
+      });
     }
   };
 
   const lockAgent = (agentUuid: string) => {
-    if (socketRef.current) {
+    if (socketRef.current && isLiveMode) {
       socketRef.current.emit("pregame_lock", { pregameMatchId, agentUuid });
+    } else {
+      setMyTeam((prevTeam) => {
+        const teamCopy = [...prevTeam];
+        const slot = teamCopy.findIndex((p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase());
+        if (slot !== -1) {
+          teamCopy[slot] = { ...teamCopy[slot], state: "locked" };
+        }
+        return teamCopy;
+      });
     }
   };
 
@@ -113,6 +151,11 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     socket.on("connect", () => {
       setConnectionStatus("menu-mode");
       setConnectionText("Radar Online");
+      // Solicitar predicciones iniciales
+      socket.emit("request_ml_draft", {
+        mapName: selectedMap,
+        allies: myTeam.map((p) => p.agentId).filter(Boolean),
+      });
     });
 
     socket.on("disconnect", () => {
@@ -120,6 +163,17 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       setConnectionText("Radar Offline");
       setView("closed");
       setIsLiveMode(false);
+    });
+
+    socket.on("ml_draft_result", (data: any) => {
+      if (data) {
+        if (Array.isArray(data.recommendations)) {
+          setMlRecommendations(data.recommendations);
+        }
+        if (typeof data.currentSynergy === "number") {
+          setMlSynergyWinRate(data.currentSynergy);
+        }
+      }
     });
 
     socket.on("valorant_status", (data: any) => {
@@ -197,6 +251,13 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Solicitar cálculo de ML si se entra a la vista de draft o cambia el mapa
+  useEffect(() => {
+    if (view === "pregame" && !isLiveMode) {
+      requestMlDraft(selectedMap);
+    }
+  }, [view, selectedMap]);
+
   useEffect(() => {
     if (isLiveMode && socketRef.current) {
       socketRef.current.emit('update_ingame_credits', { credits: myCredits });
@@ -229,6 +290,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         pregameMatchId,
         selectAgent,
         lockAgent,
+        requestMlDraft,
       }}
     >
       {children}
