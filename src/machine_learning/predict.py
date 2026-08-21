@@ -204,18 +204,20 @@ def run_json_prediction(input_json_string: str) -> None:
 
 if __name__ == "__main__":
     cli_argument_parser = argparse.ArgumentParser(description="Valorant AI Draft Predictor")
-    cli_argument_parser.add_argument("--json", type=str, help="Entrada en formato JSON con mapName y allies")
-    cli_argument_parser.add_argument("--map", type=str, help="Nombre del mapa")
-    cli_argument_parser.add_argument("--allies", type=str, help="Lista de agentes aliados separados por coma")
+    cli_argument_parser.add_argument("--json", type=str, default=None, help="Entrada en formato JSON con mapName y allies")
+    cli_argument_parser.add_argument("--map", type=str, default="Ascent", help="Nombre del mapa")
+    cli_argument_parser.add_argument("--allies", type=str, default="", nargs="?", help="Lista de agentes aliados separados por coma")
     parsed_cli_arguments = cli_argument_parser.parse_args()
 
     if parsed_cli_arguments.json:
         run_json_prediction(parsed_cli_arguments.json)
-    elif parsed_cli_arguments.map is not None:
-        allies_list = (
-            [agent.strip() for agent in parsed_cli_arguments.allies.split(",")]
-            if parsed_cli_arguments.allies
-            else []
-        )
-        json_payload = json.dumps({"mapName": parsed_cli_arguments.map, "allies": allies_list})
+    else:
+        raw_allies = parsed_cli_arguments.allies or ""
+        allies_list = [
+            agent.strip()
+            for agent in raw_allies.split(",")
+            if agent.strip() and agent.strip().lower() not in ["none", "null", "undefined", ""]
+        ]
+        target_map = parsed_cli_arguments.map or "Ascent"
+        json_payload = json.dumps({"mapName": target_map, "allies": allies_list})
         run_json_prediction(json_payload)

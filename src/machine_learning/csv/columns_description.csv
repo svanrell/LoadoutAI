@@ -1,0 +1,119 @@
+file_name,column_name,description
+event_info.csv,url,URL of the event page.
+event_info.csv,title,"The full name of the tournament, 'Valorant Champions 2024'."
+event_info.csv,subtitle,A brief but informative description of the event.
+event_info.csv,dates,The dates the tournament took place.
+event_info.csv,prize_pool,The total prize money for the event.
+event_info.csv,location,The physical location of the tournament.
+matches.csv,date,The date the match was played.
+matches.csv,match_id,Unique identifier for each match.
+matches.csv,time,The time the match started.
+matches.csv,team1,Name of the first team.
+matches.csv,score1,Score of the first team.
+matches.csv,team2,Name of the second team.
+matches.csv,score2,Score of the second team.
+matches.csv,score,Overall score of the match in 'X-Y' format.
+matches.csv,winner,The winning team.
+matches.csv,status,"The match status (e.g., Completed)."
+matches.csv,week,The week or group stage of the tournament.
+matches.csv,stage,"The stage of the tournament (e.g., Group Stage, Playoffs)."
+player_stats.csv,player,Player's first name.
+player_stats.csv,player_name,Player's in-game name.
+player_stats.csv,team,The team the player belongs to.
+player_stats.csv,player_id,Unique player identifier.
+player_stats.csv,agents_count,Number of unique agents played.
+player_stats.csv,agents,A list of agents the player used.
+player_stats.csv,rounds,Total number of rounds played.
+player_stats.csv,rating,Average rating of the player across all games.
+player_stats.csv,acs,Average Combat Score.
+player_stats.csv,kd_ratio,Kill/Death ratio.
+player_stats.csv,kast,"Percentage of rounds with a Kill, Assist, Survived, or Traded."
+player_stats.csv,adr,Average Damage per Round.
+player_stats.csv,kpr,Kills per Round.
+player_stats.csv,apr,Assists per Round.
+player_stats.csv,fkpr,First Kills per Round.
+player_stats.csv,fdpr,First Deaths per Round.
+player_stats.csv,hs_percent,Headshot percentage.
+player_stats.csv,cl_percent,Clutch percentage.
+player_stats.csv,clutches,"Number of clutches won out of clutches attempted (e.g., '3/21')."
+player_stats.csv,k_max,Maximum number of kills in a single map.
+player_stats.csv,kills,Total kills.
+player_stats.csv,deaths,Total deaths.
+player_stats.csv,assists,Total assists.
+player_stats.csv,first_kills,Total first kills.
+player_stats.csv,first_deaths,Total first deaths.
+maps_stats.csv,map_name,Name of the map.
+maps_stats.csv,times_played,Number of times the map was played in the tournament.
+maps_stats.csv,attack_win_percent,Win percentage for the attacking side on this map.
+maps_stats.csv,defense_win_percent,Win percentage for the defending side on this map.
+agents_stats.csv,agent_name,Name of the agent.
+agents_stats.csv,total_utilization,The percentage of total rounds played where the agent was picked.
+agents_stats.csv,[map name],Utilization percentage of the agent on each specific map.
+economy_data.csv,map,The map name.
+economy_data.csv,Team,The team name.
+economy_data.csv,Pistol Won,The number of pistol rounds won by the team on that map.
+economy_data.csv,Eco (won),"The total number of economy rounds played, with the number won in parentheses."
+economy_data.csv,Semi-eco (won),"The total number of semi-economy rounds played, with the number won in parentheses."
+economy_data.csv,Semi-buy (won),"The total number of semi-buy rounds played, with the number won in parentheses."
+economy_data.csv,Full buy(won),"The total number of full-buy rounds played, with the number won in parentheses."
+economy_data.csv,match_id,The unique identifier for each match.
+performance_data.csv,Match ID,Unique identifier for the match.
+performance_data.csv,Map,The name of the map.
+performance_data.csv,Player,Player's in-game name.
+performance_data.csv,Team,Team name.
+performance_data.csv,Agent,The agent played.
+performance_data.csv,2K,Number of times the player got 2 kills in a single round.
+performance_data.csv,3K,Number of times the player got 3 kills in a single round.
+performance_data.csv,4K,Number of times the player got 4 kills in a single round.
+performance_data.csv,5K,Number of times the player got 5 kills in a single round.
+performance_data.csv,1v1,Number of 1v1 clutches won.
+performance_data.csv,1v2,Number of 1v2 clutches won.
+performance_data.csv,1v3,Number of 1v3 clutches won.
+performance_data.csv,1v4,Number of 1v4 clutches won.
+performance_data.csv,1v5,Number of 1v5 clutches won.
+performance_data.csv,ECON,Average Economy Rating (per round).
+performance_data.csv,PL,Number of plants.
+performance_data.csv,DE,Number of defuses.
+detailed_matches_player_stats.csv,match_id,Unique identifier for each match.
+detailed_matches_player_stats.csv,event_name,Name of the event.
+detailed_matches_player_stats.csv,event_stage,"The stage of the tournament (e.g., Grand Final)."
+detailed_matches_player_stats.csv,match_date,Date of the match.
+detailed_matches_player_stats.csv,team1,Name of the first team.
+detailed_matches_player_stats.csv,team2,Name of the second team.
+detailed_matches_player_stats.csv,score_overall,Overall match score.
+detailed_matches_player_stats.csv,player_name,Player's in-game name.
+detailed_matches_player_stats.csv,player_id,Unique player identifier.
+detailed_matches_player_stats.csv,player_team,Player's team.
+detailed_matches_player_stats.csv,stat_type,Type of statistic ('map' or 'overall').
+detailed_matches_player_stats.csv,agent,The agent played by the player on the map.
+detailed_matches_player_stats.csv,rating,Player rating for the specific map/match.
+detailed_matches_player_stats.csv,acs,Average Combat Score.
+detailed_matches_player_stats.csv,k,Total kills.
+detailed_matches_player_stats.csv,d,Total deaths.
+detailed_matches_player_stats.csv,a,Total assists.
+detailed_matches_player_stats.csv,kd_diff,Kill/Death difference.
+detailed_matches_player_stats.csv,kast,"Percentage of rounds with a Kill, Assist, Survived, or Traded."
+detailed_matches_player_stats.csv,adr,Average Damage per Round.
+detailed_matches_player_stats.csv,hs_percent,Headshot percentage.
+detailed_matches_player_stats.csv,fk,First Kills.
+detailed_matches_player_stats.csv,fd,First Deaths.
+detailed_matches_player_stats.csv,fk_fd_diff,First Kill/First Death difference.
+detailed_matches_player_stats.csv,map_name,The name of the map.
+detailed_matches_player_stats.csv,map_winner,The team that won the map.
+detailed_matches_overview.csv,match_id,Unique identifier for each match.
+detailed_matches_overview.csv,match_title,"The title of the match (e.g., 'Gen.G vs Sentinels')."
+detailed_matches_overview.csv,event,The name of the event.
+detailed_matches_overview.csv,date,Date of the match.
+detailed_matches_overview.csv,format,"Match format (e.g., Bo3)."
+detailed_matches_overview.csv,teams,A string listing the two competing teams.
+detailed_matches_overview.csv,score,The final match score.
+detailed_matches_overview.csv,maps_played,Number of maps played in the match.
+detailed_matches_overview.csv,patch,The game patch version the match was played on.
+detailed_matches_overview.csv,pick_ban_info,Details about the map pick and ban phase.
+detailed_matches_maps.csv,match_id,Unique identifier for the match.
+detailed_matches_maps.csv,map_name,Name of the map.
+detailed_matches_maps.csv,map_order,The order in which the map was played within the match.
+detailed_matches_maps.csv,score,The final score of the map.
+detailed_matches_maps.csv,winner,The team that won the map.
+detailed_matches_maps.csv,duration,The duration of the map.
+detailed_matches_maps.csv,picked_by,"The team that picked the map, or 'Decider'."

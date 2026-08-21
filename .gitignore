@@ -1,5 +1,6 @@
 # Compiled output
 /dist
+/dist_app
 /node_modules
 /public
 /release

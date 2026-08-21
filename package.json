@@ -87,7 +87,7 @@
     "appId": "com.loadoutai.app",
     "productName": "LoadoutAI",
     "directories": {
-      "output": "release"
+      "output": "dist_app"
     },
     "files": [
       "dist/**/*",

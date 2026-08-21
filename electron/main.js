@@ -41,8 +41,13 @@ function startBackendServer() {
   }
 
   try {
+    const resourcesPath = process.resourcesPath || path.join(__dirname, "..");
     serverProcess = fork(serverScript, [], {
-      env: { ...process.env, PORT: "3000" },
+      env: {
+        ...process.env,
+        PORT: "3000",
+        ELECTRON_RESOURCES_PATH: resourcesPath,
+      },
       silent: false,
     });
 

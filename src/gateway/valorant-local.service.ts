@@ -765,17 +765,32 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     alliesAgentUuids: string[],
   ): Promise<{ recommendations: any[]; currentSynergy: number }> {
     try {
-      const alliesArg = alliesAgentUuids.filter(Boolean).join(",");
+      const alliesArg = alliesAgentUuids.filter(Boolean).join(",") || "none";
 
       // 1. Detectar si existe el binario autónomo compilado (PyInstaller)
-      const electronResources = (process as any).resourcesPath || "";
+      const electronResources =
+        process.env.ELECTRON_RESOURCES_PATH ||
+        (process as any).resourcesPath ||
+        "";
       const possibleExePaths = [
-        path.join(process.cwd(), "resources", "bin", "predict.exe"),
         path.join(electronResources, "bin", "predict.exe"),
         path.join(electronResources, "resources", "bin", "predict.exe"),
+        path.join(process.cwd(), "resources", "bin", "predict.exe"),
+        path.join(
+          process.cwd(),
+          "resources",
+          "app.asar.unpacked",
+          "resources",
+          "bin",
+          "predict.exe",
+        ),
         path.join(__dirname, "..", "..", "resources", "bin", "predict.exe"),
+        path.join(__dirname, "..", "..", "..", "resources", "bin", "predict.exe"),
+        path.join(__dirname, "..", "..", "..", "bin", "predict.exe"),
       ];
-      const standaloneExe = possibleExePaths.find((candidatePath) => fs.existsSync(candidatePath));
+      const standaloneExe = possibleExePaths.find((candidatePath) =>
+        fs.existsSync(candidatePath),
+      );
 
       let cmd: string;
       if (standaloneExe) {

@@ -1,0 +1,35 @@
+date,match_id,time,team1,score1,team2,score2,score,winner,status,week,stage
+"Fri, September 12, 2025",542195,6:30 PM,Paper Rex,2,Xi Lai Gaming,0,2-0,Paper Rex,Completed,Opening (A),Group Stage
+"Fri, September 12, 2025",542196,8:55 PM,GIANTX,2,Sentinels,1,2-1,GIANTX,Completed,Opening (A),Group Stage
+"Sat, September 13, 2025",542207,6:30 PM,NRG,2,EDward Gaming,0,2-0,NRG,Completed,Opening (C),Group Stage
+"Sat, September 13, 2025",542205,9:25 PM,Team Liquid,0,DRX,2,0-2,DRX,Completed,Opening (C),Group Stage
+"Sun, September 14, 2025",542212,6:30 PM,Dragon Ranger Gaming,0,T1,2,0-2,T1,Completed,Opening (D),Group Stage
+"Sun, September 14, 2025",542211,9:50 PM,G2 Esports,0,Team Heretics,2,0-2,Team Heretics,Completed,Opening (D),Group Stage
+"Mon, September 15, 2025",542200,6:30 PM,Bilibili Gaming,0,MIBR,2,0-2,MIBR,Completed,Opening (B),Group Stage
+"Mon, September 15, 2025",542201,8:40 PM,Rex Regum Qeon,0,FNATIC,2,0-2,FNATIC,Completed,Opening (B),Group Stage
+"Wed, September 17, 2025",542197,6:30 PM,Paper Rex,2,GIANTX,1,2-1,Paper Rex,Completed,Winner's (A),Group Stage
+"Wed, September 17, 2025",542208,9:40 PM,DRX,1,NRG,2,1-2,NRG,Completed,Winner's (C),Group Stage
+"Thu, September 18, 2025",542213,6:30 PM,Team Heretics,2,T1,0,2-0,Team Heretics,Completed,Winner's (D),Group Stage
+"Thu, September 18, 2025",542202,8:55 PM,MIBR,1,FNATIC,2,1-2,FNATIC,Completed,Winner's (B),Group Stage
+"Fri, September 19, 2025",542209,6:30 PM,Team Liquid,2,EDward Gaming,1,2-1,Team Liquid,Completed,Elimination (C),Group Stage
+"Fri, September 19, 2025",542198,10:00 PM,Xi Lai Gaming,2,Sentinels,1,2-1,Xi Lai Gaming,Completed,Elimination (A),Group Stage
+"Sat, September 20, 2025",542203,6:30 PM,Bilibili Gaming,1,Rex Regum Qeon,2,1-2,Rex Regum Qeon,Completed,Elimination (B),Group Stage
+"Sat, September 20, 2025",542214,9:30 PM,G2 Esports,2,Dragon Ranger Gaming,0,2-0,G2 Esports,Completed,Elimination (D),Group Stage
+"Sun, September 21, 2025",542210,6:30 PM,DRX,2,Team Liquid,0,2-0,DRX,Completed,Decider (C),Group Stage
+"Sun, September 21, 2025",542199,8:50 PM,GIANTX,2,Xi Lai Gaming,0,2-0,GIANTX,Completed,Decider (A),Group Stage
+"Mon, September 22, 2025",542215,6:30 PM,T1,0,G2 Esports,2,0-2,G2 Esports,Completed,Decider (D),Group Stage
+"Mon, September 22, 2025",542204,8:45 PM,MIBR,2,Rex Regum Qeon,0,2-0,MIBR,Completed,Decider (B),Group Stage
+"Thu, September 25, 2025",542265,6:30 PM,Paper Rex,2,G2 Esports,1,2-1,Paper Rex,Completed,Upper Quarterfinals,Playoffs
+"Thu, September 25, 2025",542264,10:20 PM,FNATIC,2,DRX,1,2-1,FNATIC,Completed,Upper Quarterfinals,Playoffs
+"Fri, September 26, 2025",542266,6:30 PM,Team Heretics,0,MIBR,2,0-2,MIBR,Completed,Upper Quarterfinals,Playoffs
+"Fri, September 26, 2025",542267,9:05 PM,NRG,2,GIANTX,0,2-0,NRG,Completed,Upper Quarterfinals,Playoffs
+"Sat, September 27, 2025",542273,6:30 PM,DRX,2,G2 Esports,1,2-1,DRX,Completed,Lower Round 1,Playoffs
+"Sat, September 27, 2025",542274,9:50 PM,Team Heretics,2,GIANTX,1,2-1,Team Heretics,Completed,Lower Round 1,Playoffs
+"Sun, September 28, 2025",542268,6:30 PM,FNATIC,2,Paper Rex,1,2-1,FNATIC,Completed,Upper Semifinals,Playoffs
+"Sun, September 28, 2025",542269,9:50 PM,MIBR,1,NRG,2,1-2,NRG,Completed,Upper Semifinals,Playoffs
+"Mon, September 29, 2025",542277,6:30 PM,Paper Rex,2,Team Heretics,1,2-1,Paper Rex,Completed,Lower Round 2,Playoffs
+"Mon, September 29, 2025",542276,9:50 PM,MIBR,1,DRX,2,1-2,DRX,Completed,Lower Round 2,Playoffs
+"Fri, October 3, 2025",542270,4:30 PM,FNATIC,0,NRG,2,0-2,NRG,Completed,Upper Final,Playoffs
+"Fri, October 3, 2025",542278,7:05 PM,DRX,2,Paper Rex,0,2-0,DRX,Completed,Lower Round 3,Playoffs
+"Sat, October 4, 2025Yesterday",542279,4:30 PM,FNATIC,3,DRX,1,3-1,FNATIC,Completed,Lower Final,Playoffs
+"Sun, October 5, 2025Today",542272,4:30 PM,NRG,3,FNATIC,2,3-2,NRG,Completed,Grand Final,Playoffs
