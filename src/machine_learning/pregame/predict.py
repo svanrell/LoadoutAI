@@ -72,7 +72,7 @@ def recommend_agent_picks(
         pick_rate = map_pick_rates.get(candidate, 0.0)
 
         # Puntuación combinada ponderando victoria y popularidad en el meta
-        composite_score = (0.60 * predicted_win_prob) + (0.40 * pick_rate)
+        composite_score = (0.70 * predicted_win_prob) + (0.30 * pick_rate)
 
         candidate_results.append({
             "agent": candidate,
