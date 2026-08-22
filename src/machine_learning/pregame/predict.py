@@ -36,11 +36,16 @@ def recommend_agent_picks(
     already_picked_agents: list[str],
     enemy_picked_agents: list[str] = None,
     top_limit: int = 5,
-) -> list[tuple[str, float]]:
+) -> list[dict[str, Any]]:
+    """
+    Evalúa qué agentes maximizan la probabilidad de victoria y su alineación con el meta del mapa.
+    Puntuación = 60% Probabilidad de Victoria IA + 40% Tasa de Uso Real en el Mapa.
+    """
     trained_model = model_bundle["model"]
     all_available_maps = model_bundle["maps"]
     all_available_agents = model_bundle["agents"]
     feature_column_names = model_bundle["feature_cols"]
+    pick_rates = model_bundle.get("pick_rates", {})
 
     cleaned_allies = [normalize_agent_identifier(a) for a in already_picked_agents if a]
     valid_locked_allies = [a for a in cleaned_allies if a in all_available_agents]
@@ -49,7 +54,10 @@ def recommend_agent_picks(
 
     available_candidates = [a for a in all_available_agents if a not in valid_locked_allies]
 
-    candidate_scores = []
+    map_key = str(target_map_name).strip().lower()
+    map_pick_rates = pick_rates.get(map_key, {})
+
+    candidate_results = []
     for candidate in available_candidates:
         hypothetical_team = valid_locked_allies + [candidate]
         encoded_row = encode_single_composition(
@@ -60,12 +68,23 @@ def recommend_agent_picks(
             feature_column_names,
             enemy_team_agents=valid_locked_enemies,
         )
-        # Probabilidad de victoria usando la clase 1 (won = 1)
-        win_prob = float(trained_model.predict_proba(encoded_row)[0][1])
-        candidate_scores.append((candidate, round(win_prob * 100, 1)))
+        predicted_win_prob = float(trained_model.predict_proba(encoded_row)[0][1]) * 100
+        pick_rate = map_pick_rates.get(candidate, 0.0)
 
-    candidate_scores.sort(key=lambda item: item[1], reverse=True)
-    return candidate_scores[:top_limit]
+        # Puntuación combinada ponderando victoria y popularidad en el meta
+        composite_score = (0.60 * predicted_win_prob) + (0.40 * pick_rate)
+
+        candidate_results.append({
+            "agent": candidate,
+            "displayName": candidate.capitalize(),
+            "uuid": AGENT_NAME_TO_UUID_MAP.get(candidate, ""),
+            "winRate": round(composite_score, 1),
+            "rawWinRate": round(predicted_win_prob, 1),
+            "metaPickRate": round(pick_rate, 1),
+        })
+
+    candidate_results.sort(key=lambda item: item["winRate"], reverse=True)
+    return candidate_results[:top_limit]
 
 
 def predict_composition_win_rate(
@@ -123,23 +142,13 @@ def run_json_prediction(input_json_string: str) -> None:
             enemy_team_agents=enemy_agents_list,
         )
 
-        formatted_recommendations = [
-            {
-                "agent": agent_name,
-                "displayName": agent_name.capitalize(),
-                "uuid": AGENT_NAME_TO_UUID_MAP.get(agent_name, ""),
-                "winRate": win_rate,
-            }
-            for agent_name, win_rate in ranked_recommendations
-        ]
-
         response_payload = {
             "success": True,
             "mapName": target_map_name,
             "currentPicks": [normalize_agent_identifier(a) for a in ally_agents_list if a],
             "enemyPicks": [normalize_agent_identifier(a) for a in enemy_agents_list if a],
             "currentSynergy": current_synergy,
-            "recommendations": formatted_recommendations,
+            "recommendations": ranked_recommendations,
         }
         print(json.dumps(response_payload))
 

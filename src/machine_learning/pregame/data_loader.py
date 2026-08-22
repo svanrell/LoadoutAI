@@ -9,6 +9,33 @@ def load_dataset(csv_file_path: str) -> pd.DataFrame:
     return pd.read_csv(csv_file_path)
 
 
+def load_agent_pick_rates(csv_file_path: str = None) -> dict[str, dict[str, float]]:
+    """
+    Carga la tasa de uso oficial de cada agente por mapa desde agents_stats.csv.
+    Devuelve un diccionario { 'map_name': { 'agent_name': pick_rate_percentage } }
+    """
+    if csv_file_path is None:
+        csv_file_path = os.path.join(os.path.dirname(__file__), "..", "csv", "agents_stats.csv")
+    
+    if not os.path.exists(csv_file_path):
+        print(f"Aviso: no se encontró {csv_file_path}, se asumirán tasas neutras.")
+        return {}
+
+    df = pd.read_csv(csv_file_path)
+    map_columns = [col for col in df.columns if col not in ["agent_name", "total_utilization"]]
+    
+    pick_rates: dict[str, dict[str, float]] = {}
+    for _, row in df.iterrows():
+        agent = str(row["agent_name"]).strip().lower()
+        for m in map_columns:
+            m_key = m.strip().lower()
+            if m_key not in pick_rates:
+                pick_rates[m_key] = {}
+            pick_rates[m_key][agent] = float(row[m])
+
+    return pick_rates
+
+
 def parse_and_flatten_compositions(raw_dataframe: pd.DataFrame) -> pd.DataFrame:
     map_dataframe = raw_dataframe[raw_dataframe["stat_type"] == "map"].copy()
     clean_records = []

@@ -3,7 +3,6 @@ import joblib
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from sklearn.metrics import roc_auc_score, accuracy_score
 from typing import Any
 
 
@@ -11,7 +10,6 @@ def train_draft_model(
     features_matrix_X: pd.DataFrame,
     target_y: pd.Series,
 ) -> LogisticRegression:
-    # 1. Validación cruzada estratificada (5-Fold CV) para medir capacidad real de generalización
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     auc_scores = cross_val_score(
         LogisticRegression(C=1.0, random_state=42),
@@ -31,7 +29,6 @@ def train_draft_model(
     print(f"ROC-AUC Score (Capacidad predictiva): {auc_scores.mean():.4f} (+/- {auc_scores.std():.4f})")
     print(f"Accuracy (Precisión en partidas):    {acc_scores.mean() * 100:.1f}%")
 
-    # 2. Entrenar el modelo final sobre todo el dataset
     trained_model = LogisticRegression(C=1.0, random_state=42)
     trained_model.fit(features_matrix_X, target_y)
 
@@ -53,7 +50,7 @@ def load_model_artifact(model_file_path: str) -> dict[str, Any]:
 
 
 def run_training_pipeline(csv_path: str = None, output_path: str = None) -> None:
-    from .data_loader import get_clean_draft_dataset
+    from .data_loader import get_clean_draft_dataset, load_agent_pick_rates
     from .features import extract_unique_entities, build_matchup_feature_matrix
 
     current_dir = os.path.dirname(__file__)
@@ -65,6 +62,7 @@ def run_training_pipeline(csv_path: str = None, output_path: str = None) -> None
     clean_df = get_clean_draft_dataset(csv_path)
     maps, agents = extract_unique_entities(clean_df)
     X, y, feature_cols = build_matchup_feature_matrix(clean_df, maps, agents)
+    pick_rates = load_agent_pick_rates()
 
     model = train_draft_model(X, y)
 
@@ -73,6 +71,7 @@ def run_training_pipeline(csv_path: str = None, output_path: str = None) -> None
         "maps": maps,
         "agents": agents,
         "feature_cols": feature_cols,
+        "pick_rates": pick_rates,
     }
     save_model_artifact(bundle, output_path)
 
