@@ -81,10 +81,6 @@ export default function ViewMenu() {
   const { agents } = useValorantData();
   const { t } = useLanguage();
 
-  const [activeSubTab, setActiveSubTab] = useState<"history" | "account" | "agents">("history");
-  const [playerName, setPlayerName] = useState("Player");
-  const [playerTag, setPlayerTag] = useState("LIVE");
-  const [region, setRegion] = useState("euw");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<{
     point: any;
@@ -128,12 +124,6 @@ export default function ViewMenu() {
 
   // Foto de perfil oficial del juego (Player Card)
   const userAvatar = getPlayerCardUrl(playerProfile?.playerCardId);
-
-  const activeDisplayName = playerProfile?.gameName || playerName;
-  const activeTagLine = playerProfile?.tagLine || playerTag;
-  const activeRankDisplay = playerProfile
-    ? `${playerProfile.rankName.toUpperCase()} (${playerProfile.rankedRating} RR)`
-    : t.currentRank;
 
   // Historial de puntos de RR
   const competitiveUpdates = useMemo(() => {
@@ -397,111 +387,9 @@ export default function ViewMenu() {
 
   return (
     <div id="viewMenu" className="state-view active">
-      {/* 1. Sub-navigation tabs */}
-      <div className="sub-nav-bar">
-        <button
-          className={`sub-nav-item ${activeSubTab === "history" ? "active" : ""}`}
-          onClick={() => setActiveSubTab("history")}
-        >
-          {t.matchHistory}
-        </button>
-        <button
-          className={`sub-nav-item ${activeSubTab === "account" ? "active" : ""}`}
-          onClick={() => setActiveSubTab("account")}
-        >
-          {t.accountStats}
-        </button>
-        <button
-          className={`sub-nav-item ${activeSubTab === "agents" ? "active" : ""}`}
-          onClick={() => setActiveSubTab("agents")}
-        >
-          {t.agentStats}
-        </button>
-      </div>
-
-      {/* 2. Search & Player Banner */}
-      <div className="search-filter-section">
-        <div className="search-fields-group">
-          <div className="field-label-group">
-            <span className="field-label-text">{t.region}</span>
-            <select
-              className="cyber-input"
-              value={playerProfile?.region || region}
-              onChange={(e) => setRegion(e.target.value)}
-              style={{ minWidth: "150px" }}
-            >
-              <option value="eu">Europe (EU)</option>
-              <option value="na">North America (NA)</option>
-              <option value="latam">Latin America (LATAM)</option>
-              <option value="br">Brazil (BR)</option>
-              <option value="ap">Asia-Pacific (AP)</option>
-              <option value="kr">Korea (KR)</option>
-            </select>
-          </div>
-
-          <div className="field-label-group">
-            <span className="field-label-text">{t.playerName}</span>
-            <input
-              type="text"
-              className="cyber-input"
-              value={activeDisplayName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              style={{ width: "130px" }}
-            />
-          </div>
-
-          <div className="field-label-group">
-            <span className="field-label-text">{t.tag}</span>
-            <input
-              type="text"
-              className="cyber-input"
-              value={activeTagLine}
-              onChange={(e) => setPlayerTag(e.target.value)}
-              style={{ width: "65px" }}
-            />
-          </div>
-
-          <button
-            className="cyber-btn-secondary"
-            onClick={() => {
-              setPlayerName(playerProfile?.gameName || "Player");
-              setPlayerTag(playerProfile?.tagLine || "LIVE");
-            }}
-          >
-            {t.reset}
-          </button>
-
-          <button className="cyber-btn-primary" onClick={handleRefresh}>
-            {isProfileLoading ? "Sincronizando..." : t.search}
-          </button>
-        </div>
-
-        {/* Active Player Chip */}
-        <div className="active-player-chip">
-          <img
-            src={userAvatar}
-            alt="Player"
-            className="player-chip-avatar"
-          />
-          <div>
-            <div className="player-chip-name">{activeDisplayName} <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>#{activeTagLine}</span></div>
-            <div className="player-chip-rank">{activeRankDisplay}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Filter Chips Bar */}
-      <div className="filter-chips-bar" style={{ justifyContent: "flex-end" }}>
+      {/* 1. Filter Chips & Quick Refresh Bar */}
+      <div className="filter-chips-bar" style={{ justifyContent: "flex-end", marginBottom: "14px" }}>
         <div className="role-chips-group">
-          <select className="cyber-input" style={{ fontSize: "11px", padding: "5px 8px" }}>
-            <option>{t.filterAgents}</option>
-            <option>Yoru</option>
-            <option>Sova</option>
-            <option>Jett</option>
-            <option>Omen</option>
-            <option>Reyna</option>
-          </select>
-
           <button
             className="cyber-btn-secondary"
             onClick={handleRefresh}
@@ -515,7 +403,7 @@ export default function ViewMenu() {
         </div>
       </div>
 
-      {/* 4. Hero Stats Section (3-Column Layout) */}
+      {/* 2. Hero Stats Section (3-Column Layout) */}
       <div className="dashboard-hero-grid">
         {/* Card 1: Winrate & Match Count */}
         <div className="hero-stats-card">
