@@ -15,7 +15,6 @@ import { firstValueFrom } from "rxjs";
 
 const execPromise = promisify(exec);
 
-
 const MAPS_MAP: Record<string, string> = {
   "/Game/Maps/Ascent/Ascent": "Ascent",
   "/Game/Maps/Bonsai/Bonsai": "Split",
@@ -181,7 +180,10 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private isCheckingStatus: boolean = false;
   private isPredicting: boolean = false;
   private lastMlDraftKey: string = "";
-  private lastMlDraftResult: { recommendations: any[]; currentSynergy: number } = {
+  private lastMlDraftResult: {
+    recommendations: any[];
+    currentSynergy: number;
+  } = {
     recommendations: [],
     currentSynergy: 50.0,
   };
@@ -214,15 +216,17 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       await this.lockAgent(data.pregameMatchId, data.agentUuid);
     });
 
-    this.gateway.ingameCredits$.subscribe(async (data) => {
-      await this.updateIngameCredits(data.credits);
+    this.gateway.ingameCredits$.subscribe((data) => {
+      this.updateIngameCredits(data.credits);
     });
 
-    this.gateway.requestMlDraft$.subscribe(async ({ mapName, allies, client }) => {
-      const map = mapName || "Ascent";
-      const result = await this.getMLDraftRecommendations(map, allies || []);
-      this.gateway.emitMlDraftResult(client, result);
-    });
+    this.gateway.requestMlDraft$.subscribe(
+      async ({ mapName, allies, client }) => {
+        const map = mapName || "Ascent";
+        const result = await this.getMLDraftRecommendations(map, allies || []);
+        this.gateway.emitMlDraftResult(client, result);
+      },
+    );
   }
 
   onModuleDestroy() {
@@ -326,7 +330,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           );
           matchId = pregamePlayer.data.MatchID;
         } catch (e) {
-          this.logger.warn(`Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`);
+          this.logger.warn(
+            `Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`,
+          );
         }
       }
     }
@@ -383,7 +389,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           );
           matchId = pregamePlayer.data.MatchID;
         } catch (e) {
-          this.logger.warn(`Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`);
+          this.logger.warn(
+            `Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`,
+          );
         }
       }
     }
@@ -401,9 +409,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           { headers: remote.headers },
         ),
       );
-      this.logger.log(
-        `Locked agent ${agentUuid} in pregame match ${matchId}`,
-      );
+      this.logger.log(`Locked agent ${agentUuid} in pregame match ${matchId}`);
       return true;
     } catch (error) {
       this.logger.error(
@@ -568,7 +574,6 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               mlSynergyWinRate: 50.0,
             });
           }
-
         } else if (loopState === "INGAME") {
           const mapPath = privateData.matchPresenceData?.matchMap || "";
           const queueId = privateData.matchPresenceData?.queueId || "";
@@ -644,7 +649,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
                   ).toString("utf8");
                   const presenceData = JSON.parse(decoded);
                   rank = presenceData.competitiveTier || 0;
-                } catch {}
+                } catch {
+                  rank = 0;
+                }
               }
 
               return {
@@ -774,7 +781,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async updateIngameCredits(credits: number) {
+  updateIngameCredits(credits: number) {
     this.currentCredits = credits;
   }
 
@@ -791,7 +798,10 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     const cacheKey = `${normalizedMap}__${sortedAllies}`;
 
     // Si la composición y el mapa no han cambiado, reutilizar el resultado instantáneamente
-    if (this.lastMlDraftKey === cacheKey && this.lastMlDraftResult.recommendations.length > 0) {
+    if (
+      this.lastMlDraftKey === cacheKey &&
+      this.lastMlDraftResult.recommendations.length > 0
+    ) {
       return this.lastMlDraftResult;
     }
 
@@ -840,7 +850,15 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
             "predict.exe",
           ),
           path.join(__dirname, "..", "..", "resources", "bin", "predict.exe"),
-          path.join(__dirname, "..", "..", "..", "resources", "bin", "predict.exe"),
+          path.join(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "resources",
+            "bin",
+            "predict.exe",
+          ),
           path.join(__dirname, "..", "..", "..", "bin", "predict.exe"),
         ];
         const standaloneExe = possibleExePaths.find((candidatePath) =>
@@ -874,4 +892,3 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     return this.lastMlDraftResult;
   }
 }
-

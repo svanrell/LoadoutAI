@@ -77,13 +77,9 @@ export default function ViewIngame() {
                               if (!w.shopData) return null;
                               const status = getWeaponStatus(w.displayName, w.shopData.cost);
                               
-                              let border = '1px solid rgba(255,255,255,0.15)';
-                              let bg = 'rgba(20, 20, 20, 0.6)';
-                              let color = '#f5f7fa';
-
-                              if (status === 'unaffordable') {
-                                  color = 'var(--color-red)';
-                              }
+                              const border = '1px solid rgba(255,255,255,0.15)';
+                              const bg = 'rgba(20, 20, 20, 0.6)';
+                              const color = status === 'unaffordable' ? 'var(--color-red)' : '#f5f7fa';
                               
                               const isClassic = w.displayName.toUpperCase() === 'CLASSIC';
                               const costDisplay = isClassic ? 'GRATIS' : `¤${w.shopData.cost}`;
@@ -132,7 +128,7 @@ export default function ViewIngame() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {armors.map(a => {
                       const status = myCredits >= a.cost ? 'affordable' : 'unaffordable';
-                      let color = status === 'unaffordable' ? 'var(--color-red)' : '#f5f7fa';
+                      const color = status === 'unaffordable' ? 'var(--color-red)' : '#f5f7fa';
                       
                       return (
                           <div key={a.name} style={{ 

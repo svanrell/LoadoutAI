@@ -30,4 +30,3 @@ import { ValorantHistoryService } from "./gateway/valorant-history.service";
   ],
 })
 export class AppModule {}
-

@@ -843,7 +843,7 @@ export default function ViewMenu() {
 
               <div className="daily-record-text">
                 <span className="win">{group.wins} {t.winsShort}</span>
-                <span className="sep">//</span>
+                <span className="sep">{"//"}</span>
                 <span className="loss">{group.losses} {t.lossesShort}</span>
               </div>
 

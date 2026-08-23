@@ -70,8 +70,12 @@ export class ValorantGateway implements OnGatewayConnection {
     client: Socket,
     data: { pregameMatchId?: string; agentUuid: string },
   ) {
-    const pregameMatchId = data.pregameMatchId || (this.extraData.pregameMatchId as string);
-    console.log("RECEIVED PREGAME_SELECT:", { pregameMatchId, agentUuid: data.agentUuid });
+    const pregameMatchId =
+      data.pregameMatchId || (this.extraData.pregameMatchId as string);
+    console.log("RECEIVED PREGAME_SELECT:", {
+      pregameMatchId,
+      agentUuid: data.agentUuid,
+    });
     this.pregameSelect$.next({ pregameMatchId, agentUuid: data.agentUuid });
   }
 
@@ -80,8 +84,12 @@ export class ValorantGateway implements OnGatewayConnection {
     client: Socket,
     data: { pregameMatchId?: string; agentUuid: string },
   ) {
-    const pregameMatchId = data.pregameMatchId || (this.extraData.pregameMatchId as string);
-    console.log("RECEIVED PREGAME_LOCK:", { pregameMatchId, agentUuid: data.agentUuid });
+    const pregameMatchId =
+      data.pregameMatchId || (this.extraData.pregameMatchId as string);
+    console.log("RECEIVED PREGAME_LOCK:", {
+      pregameMatchId,
+      agentUuid: data.agentUuid,
+    });
     this.pregameLock$.next({ pregameMatchId, agentUuid: data.agentUuid });
   }
 
@@ -99,12 +107,11 @@ export class ValorantGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("request_player_profile")
-  async handleRequestPlayerProfile(
-    client: Socket,
-    data?: { puuid?: string },
-  ) {
+  async handleRequestPlayerProfile(client: Socket, data?: { puuid?: string }) {
     try {
-      const profile = await this.historyService.getFullSyncedProfile(data?.puuid);
+      const profile = await this.historyService.getFullSyncedProfile(
+        data?.puuid,
+      );
       client.emit("player_profile_result", {
         success: Boolean(profile),
         profile,

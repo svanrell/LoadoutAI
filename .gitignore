@@ -59,15 +59,10 @@ lerna-debug.log*
 .env.production
 
 # Local datasets or generated data
-/infoApi
 /contenido
 
-# Documentation
-pregame_documentation.md
-ml_integration_backup.md
-gatewayy_documentation.md
-postman_endpoints_guide.md
-valorant_tracker_api.md
-ECONOMY_ML_CONTEXT.md
+# Concept and learning notes
+/aprender_conceptos/
+
 
 

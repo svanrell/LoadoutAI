@@ -123,7 +123,13 @@ export function resolveQueueName(
   }
 
   // 2. Detección de partidas rápidas (Swiftplay) por tanteo (máximo 5 rondas para ganar)
-  if (roundsWonMax !== undefined && roundsWonMax <= 5 && roundsWonMax > 0 && !gm.includes("quickbomb") && !q.includes("spike")) {
+  if (
+    roundsWonMax !== undefined &&
+    roundsWonMax <= 5 &&
+    roundsWonMax > 0 &&
+    !gm.includes("quickbomb") &&
+    !q.includes("spike")
+  ) {
     return "Swiftplay";
   }
 
@@ -421,7 +427,9 @@ export class ValorantHistoryService {
         token: `Basic ${authBase64}`,
       };
     } catch (e) {
-      this.logger.warn(`Could not read lockfile: ${e instanceof Error ? e.message : String(e)}`);
+      this.logger.warn(
+        `Could not read lockfile: ${e instanceof Error ? e.message : String(e)}`,
+      );
       return null;
     }
   }
@@ -511,7 +519,9 @@ export class ValorantHistoryService {
       );
       return res.data || [];
     } catch (error) {
-      this.logger.warn(`Error al consultar name-service: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Error al consultar name-service: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return [];
     }
   }
@@ -533,7 +543,9 @@ export class ValorantHistoryService {
       );
       return res.data || null;
     } catch (error) {
-      this.logger.warn(`Error al obtener match-history: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Error al obtener match-history: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return null;
     }
   }
@@ -553,7 +565,9 @@ export class ValorantHistoryService {
       );
       return res.data || null;
     } catch (error) {
-      this.logger.warn(`Error al obtener match-details (${matchId}): ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Error al obtener match-details (${matchId}): ${error instanceof Error ? error.message : String(error)}`,
+      );
       return null;
     }
   }
@@ -571,7 +585,9 @@ export class ValorantHistoryService {
       );
       return res.data || null;
     } catch (error) {
-      this.logger.warn(`Error al obtener MMR: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Error al obtener MMR: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return null;
     }
   }
@@ -592,7 +608,7 @@ export class ValorantHistoryService {
         ),
       );
       return res.data || null;
-    } catch (error) {
+    } catch (_error) {
       try {
         const fallbackRes = await firstValueFrom(
           this.httpService.get<CompetitiveUpdatesResponse>(
@@ -667,9 +683,12 @@ export class ValorantHistoryService {
 
       if (mmrData?.LatestCompetitiveUpdate) {
         currentTier = mmrData.LatestCompetitiveUpdate.TierAfterUpdate || 0;
-        rankedRating = mmrData.LatestCompetitiveUpdate.RankedRatingAfterUpdate || 0;
+        rankedRating =
+          mmrData.LatestCompetitiveUpdate.RankedRatingAfterUpdate || 0;
       } else if (mmrData?.QueueSkills?.competitive?.SeasonalInfoBySeasonID) {
-        const seasons = Object.values(mmrData.QueueSkills.competitive.SeasonalInfoBySeasonID);
+        const seasons = Object.values(
+          mmrData.QueueSkills.competitive.SeasonalInfoBySeasonID,
+        );
         const lastSeason = seasons[seasons.length - 1];
         if (lastSeason) {
           currentTier = lastSeason.CompetitiveTier || 0;
@@ -685,7 +704,9 @@ export class ValorantHistoryService {
       const historyList = historyData?.History || [];
 
       // Descargar detalles en paralelo (limitado a 10)
-      const detailPromises = historyList.slice(0, 10).map((h) => this.getMatchDetails(h.MatchID));
+      const detailPromises = historyList
+        .slice(0, 10)
+        .map((h) => this.getMatchDetails(h.MatchID));
       const detailsList = await Promise.all(detailPromises);
 
       const agentMap: Record<string, { wins: number; total: number }> = {};
@@ -717,7 +738,8 @@ export class ValorantHistoryService {
         const deaths = player.stats?.deaths || 0;
         const assists = player.stats?.assists || 0;
         const score = player.stats?.score || 0;
-        const rounds = player.stats?.roundsPlayed || Math.max(1, scoreWon + scoreLost);
+        const rounds =
+          player.stats?.roundsPlayed || Math.max(1, scoreWon + scoreLost);
 
         const kd = deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2);
         const kda = `${kills} / ${deaths} / ${assists}`;
@@ -735,7 +757,9 @@ export class ValorantHistoryService {
 
         // Determinar MVP de la partida
         let isMvp = false;
-        const maxScoreInMatch = Math.max(...match.players.map((p) => p.stats?.score || 0));
+        const maxScoreInMatch = Math.max(
+          ...match.players.map((p) => p.stats?.score || 0),
+        );
         if (score === maxScoreInMatch && score > 0) {
           isMvp = true;
         }
@@ -745,29 +769,42 @@ export class ValorantHistoryService {
           (a, b) => (b.stats?.score || 0) - (a.stats?.score || 0),
         );
         const rankIdx = sortedPlayers.findIndex((p) => p.subject === puuid);
-        const placement = isMvp ? "MVP" : rankIdx >= 0 ? `${rankIdx + 1}º` : "Rank";
+        const placement = isMvp
+          ? "MVP"
+          : rankIdx >= 0
+            ? `${rankIdx + 1}º`
+            : "Rank";
 
         // Headshots y daño si roundResults existe
         let totalHeadshots = 0;
         let totalShots = 0;
         let totalDamageDealt = 0;
-        let totalDamageReceived = 0;
+        const totalDamageReceived = 0;
 
         if (Array.isArray(match.roundResults)) {
           for (const round of match.roundResults) {
-            const rPlayer = round.playerStats?.find((ps) => ps.subject === puuid);
+            const rPlayer = round.playerStats?.find(
+              (ps) => ps.subject === puuid,
+            );
             if (rPlayer && Array.isArray(rPlayer.damage)) {
               for (const dmg of rPlayer.damage) {
                 totalHeadshots += dmg.headshots || 0;
-                totalShots += (dmg.headshots || 0) + (dmg.bodyshots || 0) + (dmg.legshots || 0);
+                totalShots +=
+                  (dmg.headshots || 0) +
+                  (dmg.bodyshots || 0) +
+                  (dmg.legshots || 0);
                 totalDamageDealt += dmg.damage || 0;
               }
             }
           }
         }
 
-        const hsPercent = totalShots > 0 ? Math.round((totalHeadshots / totalShots) * 100) : 15;
-        const damageDelta = rounds > 0 ? Math.round((totalDamageDealt - totalDamageReceived) / rounds) : 0;
+        const hsPercent =
+          totalShots > 0 ? Math.round((totalHeadshots / totalShots) * 100) : 15;
+        const damageDelta =
+          rounds > 0
+            ? Math.round((totalDamageDealt - totalDamageReceived) / rounds)
+            : 0;
 
         // Formato de fecha
         const dateObj = new Date(match.matchInfo.gameStartMillis || Date.now());
@@ -783,7 +820,8 @@ export class ValorantHistoryService {
           (match.matchInfo as any)?.QueueID ||
           match.matchInfo.queueId ||
           "";
-        const rawGameMode = (match.matchInfo as any)?.gameMode || match.matchInfo.gameMode || "";
+        const rawGameMode =
+          (match.matchInfo as any)?.gameMode || match.matchInfo.gameMode || "";
         const maxScore = Math.max(scoreWon, scoreLost);
 
         const modeName = resolveQueueName(
@@ -830,7 +868,8 @@ export class ValorantHistoryService {
         .slice(0, 3);
 
       const totalMatches = matches.length;
-      const winRate = totalMatches > 0 ? Math.round((totalWins / totalMatches) * 100) : 0;
+      const winRate =
+        totalMatches > 0 ? Math.round((totalWins / totalMatches) * 100) : 0;
 
       // 5. Procesar historial de actualizaciones competitivas (RR)
       const competitiveUpdates: SyncedCompetitiveUpdate[] = [];
@@ -864,7 +903,7 @@ export class ValorantHistoryService {
       }
 
       let playerCardId = loadoutData?.Identity?.PlayerCardID || "";
-      let accountLevel = loadoutData?.Identity?.AccountLevel || 0;
+      const accountLevel = loadoutData?.Identity?.AccountLevel || 0;
 
       // Si no viene en el loadout, intentar sacarla de las partidas recientes
       if (!playerCardId && detailsList.length > 0) {
