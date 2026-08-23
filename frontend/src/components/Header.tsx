@@ -47,6 +47,7 @@ export default function Header() {
     selectedMode,
     setSelectedMode,
     connectionStatus,
+    playerProfile,
   } = useGameState();
 
   const { language, setLanguage, t } = useLanguage();
@@ -69,10 +70,10 @@ export default function Header() {
   const isTierListActive = view === "tierlist";
   const isToolsActive = view === "tools";
 
-  // Dynamic user avatar from Jett or first agent
-  const userAvatar =
-    agents.find((a) => a.displayName.toLowerCase() === "jett")?.displayIcon ||
-    "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
+  // Foto de perfil oficial del juego (Player Card)
+  const userAvatar = playerProfile?.playerCardId
+    ? `https://media.valorant-api.com/playercards/${playerProfile.playerCardId}/smallart.png`
+    : "https://media.valorant-api.com/playercards/9fb348bc-41a0-91ad-8a3e-818035c4e561/smallart.png";
 
   return (
     <header>

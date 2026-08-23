@@ -7,6 +7,7 @@ import { MatchesController } from "./valorant_api/matches/matches.controller";
 import { MatchesService } from "./valorant_api/matches/matches.service";
 import { ValorantGateway } from "./gateway/valorant.gateway";
 import { ValorantLocalService } from "./gateway/valorant-local.service";
+import { ValorantHistoryService } from "./gateway/valorant-history.service";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ValorantLocalService } from "./gateway/valorant-local.service";
     MatchesService,
     ValorantGateway,
     ValorantLocalService,
+    ValorantHistoryService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

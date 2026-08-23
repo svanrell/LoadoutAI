@@ -39,6 +39,70 @@ export interface MLDraftRecommendation {
   winRate: number;
 }
 
+export interface SyncedMatchItem {
+  id: string;
+  isWin: boolean;
+  agentId: string;
+  mapName: string;
+  modeName: string;
+  placement: string;
+  isMvp: boolean;
+  scoreWon: number;
+  scoreLost: number;
+  kd: string;
+  kda: string;
+  kills: number;
+  deaths: number;
+  assists: number;
+  acs: number;
+  hsPercent: number;
+  damageDelta: number;
+  gameStartTime: number;
+  dateTitle: string;
+  timeAgo: string;
+}
+
+export interface SyncedAgentStat {
+  agentId: string;
+  matchesPlayed: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+}
+
+export interface SyncedCompetitiveUpdate {
+  matchId: string;
+  mapName: string;
+  matchStartTime: number;
+  tier: number;
+  tierName: string;
+  rankedRating: number;
+  rankedRatingEarned: number;
+  performanceBonus: number;
+  movement: string;
+  dateStr: string;
+  timeAgo: string;
+}
+
+export interface SyncedPlayerProfile {
+  puuid: string;
+  gameName: string;
+  tagLine: string;
+  region: string;
+  currentTier: number;
+  rankName: string;
+  rankedRating: number;
+  leaderboardRank: number;
+  playerCardId?: string;
+  accountLevel?: number;
+  totalMatches: number;
+  winRate: number;
+  streak: Array<"W" | "L">;
+  topAgents: SyncedAgentStat[];
+  matches: SyncedMatchItem[];
+  competitiveUpdates?: SyncedCompetitiveUpdate[];
+}
+
 interface GameStateContextProps {
   view: ViewState;
   setView: (view: ViewState) => void;
@@ -64,6 +128,9 @@ interface GameStateContextProps {
   selectAgent: (agentUuid: string) => void;
   lockAgent: (agentUuid: string) => void;
   requestMlDraft: (mapName?: string, allies?: string[]) => void;
+  playerProfile: SyncedPlayerProfile | null;
+  isProfileLoading: boolean;
+  requestPlayerProfile: (puuid?: string) => void;
 }
 
 const GameStateContext = createContext<GameStateContextProps | undefined>(undefined);
@@ -92,7 +159,17 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [myCredits, setMyCredits] = useState(3900);
   const [pregameMatchId, setPregameMatchId] = useState<string | null>(null);
 
+  const [playerProfile, setPlayerProfile] = useState<SyncedPlayerProfile | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+
   const socketRef = useRef<Socket | null>(null);
+
+  const requestPlayerProfile = (puuid?: string) => {
+    if (socketRef.current) {
+      setIsProfileLoading(true);
+      socketRef.current.emit("request_player_profile", { puuid });
+    }
+  };
 
   const requestMlDraft = (mapName?: string, allies?: string[]) => {
     if (socketRef.current) {
@@ -156,6 +233,8 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         mapName: selectedMap,
         allies: myTeam.map((p) => p.agentId).filter(Boolean),
       });
+      setIsProfileLoading(true);
+      socket.emit("request_player_profile", {});
     });
 
     socket.on("disconnect", () => {
@@ -163,6 +242,14 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       setConnectionText("Radar Offline");
       setView("closed");
       setIsLiveMode(false);
+      setIsProfileLoading(false);
+    });
+
+    socket.on("player_profile_result", (data: any) => {
+      setIsProfileLoading(false);
+      if (data && data.success && data.profile) {
+        setPlayerProfile(data.profile);
+      }
     });
 
     socket.on("ml_draft_result", (data: any) => {
@@ -187,6 +274,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         setConnectionText("In Game Lobby");
         setView("menu");
         setIsLiveMode(false);
+        socket.emit("request_player_profile", {});
       } else if (data.status === "PREGAME") {
         setConnectionStatus("live");
         setConnectionText("Agent Selection");
@@ -291,6 +379,9 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         selectAgent,
         lockAgent,
         requestMlDraft,
+        playerProfile,
+        isProfileLoading,
+        requestPlayerProfile,
       }}
     >
       {children}

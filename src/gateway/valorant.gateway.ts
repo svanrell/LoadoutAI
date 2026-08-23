@@ -6,6 +6,7 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Subject } from "rxjs";
+import { ValorantHistoryService } from "./valorant-history.service";
 
 @WebSocketGateway({
   cors: {
@@ -15,6 +16,8 @@ import { Subject } from "rxjs";
 export class ValorantGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
+
+  constructor(private readonly historyService: ValorantHistoryService) {}
 
   readonly pregameSelect$ = new Subject<{
     pregameMatchId: string;
@@ -95,6 +98,25 @@ export class ValorantGateway implements OnGatewayConnection {
     this.requestMlDraft$.next({ ...data, client });
   }
 
+  @SubscribeMessage("request_player_profile")
+  async handleRequestPlayerProfile(
+    client: Socket,
+    data?: { puuid?: string },
+  ) {
+    try {
+      const profile = await this.historyService.getFullSyncedProfile(data?.puuid);
+      client.emit("player_profile_result", {
+        success: Boolean(profile),
+        profile,
+      });
+    } catch (error) {
+      client.emit("player_profile_result", {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   emitMlDraftResult(client: Socket, result: any) {
     client.emit("ml_draft_result", result);
   }
@@ -102,6 +124,15 @@ export class ValorantGateway implements OnGatewayConnection {
   emitMlBuyRecommendations(data: any) {
     if (this.server) {
       this.server.emit("ml_buy_recommendations", data);
+    }
+  }
+
+  emitPlayerProfile(profile: any) {
+    if (this.server) {
+      this.server.emit("player_profile_result", {
+        success: Boolean(profile),
+        profile,
+      });
     }
   }
 }
