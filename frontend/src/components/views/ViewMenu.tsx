@@ -79,7 +79,7 @@ function getTierShortLabel(tierName: string) {
 export default function ViewMenu() {
   const { setView, connectionStatus, playerProfile, isProfileLoading, requestPlayerProfile } = useGameState();
   const { agents } = useValorantData();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<{
@@ -92,6 +92,46 @@ export default function ViewMenu() {
     setIsRefreshing(true);
     requestPlayerProfile();
     setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
+  // Formatear tiempo transcurrido según idioma activo
+  const formatTimeAgo = (timeAgoStr: string, timestamp?: number) => {
+    if (timestamp) {
+      const diff = Math.max(0, Date.now() - timestamp);
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return language === "es" ? `Hace ${mins} min` : `${mins}m ago`;
+      const hours = Math.floor(mins / 3600000);
+      if (hours < 24) return language === "es" ? `Hace ${hours} h` : `${hours}h ago`;
+      const days = Math.floor(diff / 86400000);
+      if (days < 30) return language === "es" ? `Hace ${days} d` : `${days}d ago`;
+      const months = Math.floor(days / 30);
+      return language === "es" ? `Hace ${months} m` : `${months}mo ago`;
+    }
+    if (!timeAgoStr) return "";
+    if (language === "es") {
+      return timeAgoStr
+        .replace(/(\d+)\s*m\s*ago/i, "Hace $1 min")
+        .replace(/(\d+)\s*h\s*ago/i, "Hace $1 h")
+        .replace(/(\d+)\s*d\s*ago/i, "Hace $1 d")
+        .replace(/(\d+)\s*mo\s*ago/i, "Hace $1 m");
+    }
+    return timeAgoStr;
+  };
+
+  // Formatear nombre de modo de juego según idioma
+  const formatMode = (modeName: string) => {
+    const lower = (modeName || "").toLowerCase();
+    if (language === "es") {
+      if (lower.includes("compet") || lower.includes("comp")) return "Competitivo";
+      if (lower.includes("unrated") || lower.includes("normal") || lower.includes("standard")) return "Normal";
+      if (lower.includes("swiftplay") || lower.includes("swift")) return "Fiebre rápida";
+      if (lower.includes("spikerush") || lower.includes("spike")) return "Fiebre de la Spike";
+      if (lower.includes("deathmatch") || lower.includes("dm")) return "Combate a muerte";
+      if (lower.includes("escalation")) return "Carrera armamentística";
+      if (lower.includes("custom")) return "Personalizada";
+      return modeName;
+    }
+    return modeName;
   };
 
   const getAgentIcon = (name: string, fallbackUuid: string) => {
@@ -273,7 +313,7 @@ export default function ViewMenu() {
           isWin: true,
           agentName: "Yoru",
           agentIcon: yoruIcon,
-          metaText: `6mo ago // ${t.normal}`,
+          metaText: `${formatTimeAgo("6mo ago")} // ${t.normal}`,
           mapName: "Icebox",
           placement: "MVP",
           isMvp: true,
@@ -294,13 +334,13 @@ export default function ViewMenu() {
           isWin: false,
           agentName: "Sova",
           agentIcon: sovaIcon,
-          metaText: `6mo ago // ${t.normal}`,
+          metaText: `${formatTimeAgo("6mo ago")} // ${t.normal}`,
           mapName: "Haven",
           placement: "6th",
           isMvp: false,
           scoreWon: 7,
           scoreLost: 13,
-          badges: [{ label: "Defeat", type: "red" }],
+          badges: [{ label: t.defeat, type: "red" }],
           kd: "0.5",
           kda: "10 / 20 / 10",
           dd: "-23",
@@ -356,17 +396,17 @@ export default function ViewMenu() {
             isWin: m.isWin,
             agentName,
             agentIcon,
-            metaText: `${m.timeAgo} // ${m.modeName}`,
+            metaText: `${formatTimeAgo(m.timeAgo, m.gameStartTime)} // ${formatMode(m.modeName)}`,
             mapName: m.mapName,
-            placement: m.placement,
+            placement: m.isMvp ? "MVP" : m.placement,
             isMvp: m.isMvp,
             scoreWon: m.scoreWon,
             scoreLost: m.scoreLost,
             badges: m.isMvp
-              ? [{ label: "Match MVP", type: "gold" }]
+              ? [{ label: t.matchMvp, type: "gold" }]
               : m.isWin
-              ? [{ label: "Victory", type: "default" }]
-              : [{ label: "Defeat", type: "red" }],
+              ? [{ label: t.victory, type: "default" }]
+              : [{ label: t.defeat, type: "red" }],
             kd: m.kd,
             kda: m.kda,
             dd: `${m.damageDelta >= 0 ? "+" : ""}${m.damageDelta}`,
@@ -376,7 +416,7 @@ export default function ViewMenu() {
         }),
       };
     });
-  }, [playerProfile, agents, defaultAvatar]);
+  }, [playerProfile, agents, defaultAvatar, t, language]);
 
   const streakPills = playerProfile?.streak?.length
     ? playerProfile.streak
@@ -428,7 +468,9 @@ export default function ViewMenu() {
           <div className="streak-bar-wrap">
             <div className="streak-bar-label">
               <span>{t.last10Matches}</span>
-              <span style={{ color: "var(--color-cyan)" }}>{winCountStreak}W {lossCountStreak}L</span>
+              <span style={{ color: "var(--color-cyan)" }}>
+                {winCountStreak}{t.winsShort} {lossCountStreak}{t.lossesShort}
+              </span>
             </div>
             <div className="streak-pills-row">
               {streakPills.map((s, idx) => (
@@ -452,7 +494,7 @@ export default function ViewMenu() {
                     />
                     <div className="agent-mini-text">
                       <div style={{ color: ag.winRate >= 50 ? "var(--color-cyan)" : "var(--color-red)" }}>
-                        {ag.wins}W {ag.losses}L
+                        {ag.wins}{t.winsShort} {ag.losses}{t.lossesShort}
                       </div>
                       <div>{ag.winRate}%</div>
                     </div>
@@ -464,21 +506,21 @@ export default function ViewMenu() {
                 <div className="agent-mini-item">
                   <img src={defaultAvatar} alt="Jett" className="agent-mini-img" />
                   <div className="agent-mini-text">
-                    <div style={{ color: "var(--color-red)" }}>0W 1L</div>
+                    <div style={{ color: "var(--color-red)" }}>0{t.winsShort} 1{t.lossesShort}</div>
                     <div>0%</div>
                   </div>
                 </div>
                 <div className="agent-mini-item">
                   <img src={omenIcon} alt="Omen" className="agent-mini-img" />
                   <div className="agent-mini-text">
-                    <div style={{ color: "var(--color-cyan)" }}>1W 0L</div>
+                    <div style={{ color: "var(--color-cyan)" }}>1{t.winsShort} 0{t.lossesShort}</div>
                     <div>100%</div>
                   </div>
                 </div>
                 <div className="agent-mini-item">
                   <img src={sovaIcon} alt="Sova" className="agent-mini-img" />
                   <div className="agent-mini-text">
-                    <div style={{ color: "var(--color-red)" }}>0W 1L</div>
+                    <div style={{ color: "var(--color-red)" }}>0{t.winsShort} 1{t.lossesShort}</div>
                     <div>0%</div>
                   </div>
                 </div>
@@ -800,9 +842,9 @@ export default function ViewMenu() {
               </div>
 
               <div className="daily-record-text">
-                <span className="win">{group.wins} W</span>
+                <span className="win">{group.wins} {t.winsShort}</span>
                 <span className="sep">//</span>
-                <span className="loss">{group.losses} L</span>
+                <span className="loss">{group.losses} {t.lossesShort}</span>
               </div>
 
               <div />

@@ -62,12 +62,18 @@ export interface Translations {
   // Match History & Tracker
   victory: string;
   defeat: string;
+  matchMvp: string;
+  teamMvp: string;
+  draw: string;
   score: string;
   normal: string;
   competitive: string;
   endOfResults: string;
   draftScore: string;
   aiMacroScore: string;
+  winsShort: string;
+  lossesShort: string;
+  unrankedLabel: string;
 
   inDevelopment: string;
   inDevelopmentDesc: string;
@@ -170,12 +176,18 @@ const translations: Record<Language, Translations> = {
 
     victory: "Victoria",
     defeat: "Derrota",
-    score: "Score",
+    matchMvp: "MVP Partida",
+    teamMvp: "MVP Equipo",
+    draw: "Empate",
+    score: "SCORE",
     normal: "Normal",
     competitive: "Competitivo",
     endOfResults: "Fin de los resultados",
     draftScore: "Puntuación de draft",
     aiMacroScore: "AI Macro Score",
+    winsShort: "V",
+    lossesShort: "D",
+    unrankedLabel: "Sin clasificar",
 
     inDevelopment: "Módulo en Desarrollo",
     inDevelopmentDesc: "Esta funcionalidad está siendo desarrollada e integrada con los modelos de IA y la API de Valorant. Estará disponible próximamente.",
@@ -218,12 +230,12 @@ const translations: Record<Language, Translations> = {
     roster: "Plantel",
     lock: "Fijar",
     pick: "Elegir",
-    selectHeroAgent: "Seleccionar Agente Héroe",
+    selectHeroAgent: "Selecciona tu Agente",
     loadingAgents: "Cargando agentes...",
-    noCharacterSelected: "Ningún Agente\nSeleccionado",
-    selectAgent: "Seleccionar Agente",
-    classRole: "Rol de Clase",
-    lockAgentBtn: "Bloquear Agente",
+    noCharacterSelected: "Ningún personaje seleccionado",
+    selectAgent: "SELECCIONAR AGENTE",
+    classRole: "CLASE",
+    lockAgentBtn: "FIJAR AGENTE",
   },
   en: {
     profile: "Profile",
@@ -251,22 +263,22 @@ const translations: Record<Language, Translations> = {
     refresh: "Refresh",
     filterAgents: "Filter Agents",
 
-    soloRanked: "Competitive (Solo)",
-    flexRanked: "Competitive (Flex)",
+    soloRanked: "Solo Ranked",
+    flexRanked: "Flex Ranked",
     unrated: "Unrated",
     swiftplay: "Swiftplay",
 
-    allRoles: "All",
-    duelists: "Duelists",
-    initiators: "Initiators",
-    controllers: "Controllers",
-    sentinels: "Sentinels",
+    allRoles: "All Roles",
+    duelists: "Duelist",
+    initiators: "Initiator",
+    controllers: "Controller",
+    sentinels: "Sentinel",
 
-    performanceSummary: "Performance Overview",
+    performanceSummary: "Performance Summary",
     matchesCount: "Matches",
     winRate: "Win Rate",
     last10Matches: "Last 10 Matches",
-    rrGraphTitle: "Competitive Rank Rating (RR) Chart",
+    rrGraphTitle: "Competitive RR Chart",
     currentRank: "GOLD IV 23 RR",
     liveRadarTitle: "Live Tactical Radar",
     clientDetectedText: "Riot Client detected. Searching for match or agent draft...",
@@ -276,12 +288,18 @@ const translations: Record<Language, Translations> = {
 
     victory: "Victory",
     defeat: "Defeat",
-    score: "Score",
+    matchMvp: "Match MVP",
+    teamMvp: "Team MVP",
+    draw: "Draw",
+    score: "SCORE",
     normal: "Normal",
     competitive: "Competitive",
     endOfResults: "End of Results",
     draftScore: "Draft Rating",
     aiMacroScore: "AI Macro Score",
+    winsShort: "W",
+    lossesShort: "L",
+    unrankedLabel: "Unranked",
 
     inDevelopment: "Module In Development",
     inDevelopmentDesc: "This feature is currently under development and being integrated with our AI models and the Valorant API. It will be available soon.",
