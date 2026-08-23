@@ -3,8 +3,6 @@ import { HttpModule } from "@nestjs/axios";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
-import { MatchesController } from "./valorant_api/matches/matches.controller";
-import { MatchesService } from "./valorant_api/matches/matches.service";
 import { ValorantGateway } from "./gateway/valorant.gateway";
 import { ValorantLocalService } from "./gateway/valorant-local.service";
 import { ValorantHistoryService } from "./gateway/valorant-history.service";
@@ -20,11 +18,8 @@ import { ValorantHistoryService } from "./gateway/valorant-history.service";
       },
     ]),
   ],
-  controllers: [
-    MatchesController,
-  ],
+  controllers: [],
   providers: [
-    MatchesService,
     ValorantGateway,
     ValorantLocalService,
     ValorantHistoryService,
@@ -35,3 +30,4 @@ import { ValorantHistoryService } from "./gateway/valorant-history.service";
   ],
 })
 export class AppModule {}
+

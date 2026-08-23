@@ -130,14 +130,10 @@ valorant-ai/
 ├── src/                        # NestJS Backend Application
 │   ├── gateway/                # WebSocket Gateway & Riot Local API Service
 │   ├── machine_learning/       # Python Machine Learning Pipeline
-│   │   ├── data_loader.py      # Dataset loader and parser
-│   │   ├── features.py         # One-Hot Encoding & feature matrix generator
-│   │   ├── model.py            # Random Forest Regressor & evaluation
-│   │   ├── predict.py          # Real-time JSON/CLI inference engine
-│   │   ├── train_draft_model.py# Training pipeline orchestration script
-│   │   └── models/             # Exported draft_model.joblib artifacts
-│   ├── utils/                  # Utility helpers & CSV parsers
-│   └── valorant_api/           # REST endpoints & external API integrations
+│   │   ├── economy/            # Economy & buy recommendation ML models
+│   │   ├── pregame/            # Agent pick & draft win rate models
+│   │   └── shared/             # Shared constants, feature mappings & schemas
+│   └── main.ts                 # NestJS Application Bootstrap
 ├── pyrightconfig.json          # Python type-checking & import resolution config
 ├── requirements.txt            # Python ML dependencies
 └── package.json                # Project dependencies & build scripts
