@@ -87,7 +87,7 @@
     "appId": "com.loadoutai.app",
     "productName": "LoadoutAI",
     "directories": {
-      "output": "dist_app"
+      "output": "release"
     },
     "files": [
       "dist/**/*",
@@ -117,12 +117,6 @@
     "win": {
       "target": [
         {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
           "target": "portable",
           "arch": [
             "x64"
@@ -130,13 +124,6 @@
         }
       ],
       "icon": "public/app_icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Loadout AI"
     }
   }
 }

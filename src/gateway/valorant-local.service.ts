@@ -178,6 +178,13 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private buyPhaseSecondsRemaining: number = 0;
   private buyPhaseInterval: NodeJS.Timeout | null = null;
   private currentCredits: number = 800;
+  private isCheckingStatus: boolean = false;
+  private isPredicting: boolean = false;
+  private lastMlDraftKey: string = "";
+  private lastMlDraftResult: { recommendations: any[]; currentSynergy: number } = {
+    recommendations: [],
+    currentSynergy: 50.0,
+  };
 
   constructor(
     private readonly httpService: HttpService,
@@ -407,19 +414,22 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async checkStatus() {
-    const credentials = this.getCredentials();
-
-    if (!credentials) {
-      this.updateStatus("CLOSED");
-      return;
-    }
-
-    const config = {
-      headers: { Authorization: credentials.token },
-      httpsAgent: this.httpsAgent,
-    };
+    if (this.isCheckingStatus) return;
+    this.isCheckingStatus = true;
 
     try {
+      const credentials = this.getCredentials();
+
+      if (!credentials) {
+        this.updateStatus("CLOSED");
+        return;
+      }
+
+      const config = {
+        headers: { Authorization: credentials.token },
+        httpsAgent: this.httpsAgent,
+      };
+
       const session = await firstValueFrom(
         this.httpService.get<ChatSessionResponse>(
           `${credentials.url}/chat/v1/session`,
@@ -693,6 +703,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     } catch {
       this.clearBuyPhase();
       this.updateStatus("CLOSED");
+    } finally {
+      this.isCheckingStatus = false;
     }
   }
 
@@ -770,6 +782,26 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     mapName: string,
     alliesAgentUuids: string[],
   ): Promise<{ recommendations: any[]; currentSynergy: number }> {
+    const normalizedMap = (mapName || "Ascent").trim().toLowerCase();
+    const sortedAllies = (alliesAgentUuids || [])
+      .filter(Boolean)
+      .map((u) => u.toLowerCase().trim())
+      .sort()
+      .join(",");
+    const cacheKey = `${normalizedMap}__${sortedAllies}`;
+
+    // Si la composición y el mapa no han cambiado, reutilizar el resultado instantáneamente
+    if (this.lastMlDraftKey === cacheKey && this.lastMlDraftResult.recommendations.length > 0) {
+      return this.lastMlDraftResult;
+    }
+
+    // Evitar ejecuciones de Python simultáneas que saturen la CPU
+    if (this.isPredicting) {
+      return this.lastMlDraftResult;
+    }
+
+    this.isPredicting = true;
+
     try {
       const alliesArg = alliesAgentUuids.filter(Boolean).join(",") || "none";
 
@@ -822,20 +854,24 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         }
       }
 
-      const { stdout } = await execPromise(cmd, { timeout: 12000 });
+      const { stdout } = await execPromise(cmd, { timeout: 10000 });
       const parsed = JSON.parse(stdout.trim());
       if (parsed && parsed.success) {
-        return {
+        this.lastMlDraftKey = cacheKey;
+        this.lastMlDraftResult = {
           recommendations: parsed.recommendations || [],
           currentSynergy: parsed.currentSynergy || 0.0,
         };
+        return this.lastMlDraftResult;
       }
     } catch (error) {
       this.logger.warn(
         `ML Draft prediction failed or timed out: ${error instanceof Error ? error.message : String(error)}`,
       );
+    } finally {
+      this.isPredicting = false;
     }
-    return { recommendations: [], currentSynergy: 50.0 };
+    return this.lastMlDraftResult;
   }
 }
 
