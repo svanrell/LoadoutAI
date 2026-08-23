@@ -81,14 +81,72 @@ export function resolveMapName(mapPath: string): string {
   return parts.length > 0 ? parts[parts.length - 1] : "Ascent";
 }
 
-export function resolveQueueName(queueId: string): string {
-  if (!queueId) return "Competitive";
-  const lower = queueId.toLowerCase();
-  if (QUEUES_MAP[lower]) return QUEUES_MAP[lower];
-  return lower
-    .split(/[-_]/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+export function resolveQueueName(
+  queueId?: string,
+  gameMode?: string,
+  isRanked?: boolean,
+  roundsWonMax?: number,
+): string {
+  const q = (queueId || "").trim().toLowerCase();
+  const gm = (gameMode || "").trim().toLowerCase();
+
+  // 1. Detección por ID de cola o nombre de modo en la URL de Riot
+  if (q === "swiftplay" || gm.includes("swiftplay") || gm.includes("swift")) {
+    return "Swiftplay";
+  }
+  if (q === "spikerush" || gm.includes("quickbomb") || gm.includes("spike")) {
+    return "Spike Rush";
+  }
+  if (q === "deathmatch" || gm.includes("deathmatch")) {
+    return "Deathmatch";
+  }
+  if (q === "hurm" || gm.includes("hurm") || gm.includes("teamdeathmatch")) {
+    return "Team Deathmatch";
+  }
+  if (q === "ggteam" || gm.includes("gungame") || gm.includes("escalation")) {
+    return "Escalation";
+  }
+  if (q === "onefa" || gm.includes("oneforall") || gm.includes("replication")) {
+    return "Replication";
+  }
+  if (q === "snowball" || gm.includes("snowball")) {
+    return "Snowball Fight";
+  }
+  if (q === "premier" || gm.includes("premier")) {
+    return "Premier";
+  }
+  if (q === "custom" || gm.includes("custom")) {
+    return "Custom Game";
+  }
+  if (q === "newmap" || gm.includes("newmap")) {
+    return "New Map";
+  }
+
+  // 2. Detección de partidas rápidas (Swiftplay) por tanteo (máximo 5 rondas para ganar)
+  if (roundsWonMax !== undefined && roundsWonMax <= 5 && roundsWonMax > 0 && !gm.includes("quickbomb") && !q.includes("spike")) {
+    return "Swiftplay";
+  }
+
+  if (q === "competitive" || isRanked === true) {
+    return "Competitive";
+  }
+
+  if (q === "unrated" || isRanked === false) {
+    return "Unrated";
+  }
+
+  if (QUEUES_MAP[q]) {
+    return QUEUES_MAP[q];
+  }
+
+  if (q) {
+    return q
+      .split(/[-_]/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
+  return isRanked ? "Competitive" : "Unrated";
 }
 
 export function resolveTierName(tier: number): string {
@@ -719,12 +777,28 @@ export class ValorantHistoryService {
         });
         const timeAgo = this.formatTimeAgo(dateObj.getTime());
 
+        const rawQueue =
+          (match.matchInfo as any)?.queueID ||
+          (match.matchInfo as any)?.queueId ||
+          (match.matchInfo as any)?.QueueID ||
+          match.matchInfo.queueId ||
+          "";
+        const rawGameMode = (match.matchInfo as any)?.gameMode || match.matchInfo.gameMode || "";
+        const maxScore = Math.max(scoreWon, scoreLost);
+
+        const modeName = resolveQueueName(
+          rawQueue,
+          rawGameMode,
+          match.matchInfo.isRanked,
+          maxScore,
+        );
+
         matches.push({
           id: match.matchInfo.matchId,
           isWin,
           agentId,
           mapName: resolveMapName(match.matchInfo.mapId),
-          modeName: resolveQueueName(match.matchInfo.queueId),
+          modeName,
           placement,
           isMvp,
           scoreWon,
