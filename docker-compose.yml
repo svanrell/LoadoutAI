@@ -1,0 +1,17 @@
+services:
+  loadout-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: loadout-ai
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - VALORANT_REGION=${VALORANT_REGION:-eu}
+      - VALORANT_API_KEY=${VALORANT_API_KEY:-}
+    env_file:
+      - path: .env
+        required: false

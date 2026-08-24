@@ -920,11 +920,83 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       }
     } catch (error) {
       this.logger.warn(
-        `ML Draft prediction failed or timed out: ${error instanceof Error ? error.message : String(error)}`,
+        `ML Draft prediction failed or timed out: ${error instanceof Error ? error.message : String(error)}. Usando motor de análisis fallback integrado.`,
       );
+      this.lastMlDraftResult = this.generateFallbackRecommendations(
+        mapName,
+        alliesAgentUuids,
+      );
+      this.lastMlDraftKey = cacheKey;
     } finally {
       this.isPredicting = false;
     }
     return this.lastMlDraftResult;
+  }
+
+  private generateFallbackRecommendations(
+    mapName: string,
+    alliesAgentUuids: string[],
+  ): { recommendations: any[]; currentSynergy: number } {
+    const rawAllies = (alliesAgentUuids || []).filter(Boolean).map((u) => u.toLowerCase());
+    const defaultMeta = [
+      { agent: "jett", displayName: "Jett", uuid: "add6443a-41bd-e414-f6ad-e58d267f4e95", baseWinRate: 53.5, role: "duelist" },
+      { agent: "reyna", displayName: "Reyna", uuid: "a3bfb853-43b2-7238-a4f1-ad90e9e46bcc", baseWinRate: 51.0, role: "duelist" },
+      { agent: "raze", displayName: "Raze", uuid: "f94c3b30-42be-e959-889c-5aa313dba261", baseWinRate: 54.2, role: "duelist" },
+      { agent: "omen", displayName: "Omen", uuid: "8e253930-4c05-31dd-1b6c-968525494517", baseWinRate: 55.8, role: "controller" },
+      { agent: "viper", displayName: "Viper", uuid: "707eab51-4836-f488-046a-cda6bf494859", baseWinRate: 56.4, role: "controller" },
+      { agent: "clove", displayName: "Clove", uuid: "1dbf2edd-4729-0984-3115-daa5eed44993", baseWinRate: 54.0, role: "controller" },
+      { agent: "brimstone", displayName: "Brimstone", uuid: "9f0d8ba9-4140-b941-57d3-a7ad57c6b417", baseWinRate: 52.0, role: "controller" },
+      { agent: "sova", displayName: "Sova", uuid: "320b2a48-4d9b-a075-30f1-1f93a9b638fa", baseWinRate: 57.2, role: "initiator" },
+      { agent: "fade", displayName: "Fade", uuid: "dade69b4-4f5a-8528-247b-219e5a1facd6", baseWinRate: 53.8, role: "initiator" },
+      { agent: "gekko", displayName: "Gekko", uuid: "e370fa57-4757-3604-3648-499e1f642d3f", baseWinRate: 53.0, role: "initiator" },
+      { agent: "breach", displayName: "Breach", uuid: "5f8d3a7f-467b-97f3-062c-13acf203c006", baseWinRate: 51.5, role: "initiator" },
+      { agent: "kayo", displayName: "Kayo", uuid: "601dbbe7-43ce-be57-2a40-4abd24953621", baseWinRate: 50.0, role: "initiator" },
+      { agent: "skye", displayName: "Skye", uuid: "6f2a04ca-43e0-be17-7f36-b3908627744d", baseWinRate: 51.2, role: "initiator" },
+      { agent: "cypher", displayName: "Cypher", uuid: "117ed9e3-49f3-6512-3ccf-0cada7e3823b", baseWinRate: 55.0, role: "sentinel" },
+      { agent: "killjoy", displayName: "Killjoy", uuid: "1e58de9c-4950-5125-93e9-a0aee9f98746", baseWinRate: 54.5, role: "sentinel" },
+      { agent: "deadlock", displayName: "Deadlock", uuid: "cc8b64c8-4b25-4ff9-6e7f-37b4da43d235", baseWinRate: 52.0, role: "sentinel" },
+      { agent: "vyse", displayName: "Vyse", uuid: "efba5359-4016-a1e5-7626-b1ae76895940", baseWinRate: 51.8, role: "sentinel" },
+      { agent: "chamber", displayName: "Chamber", uuid: "22697a3d-45bf-8dd7-4fec-84a9e28c69d7", baseWinRate: 49.5, role: "sentinel" },
+      { agent: "sage", displayName: "Sage", uuid: "569fdd95-4d10-43ab-ca70-79becc718b46", baseWinRate: 50.5, role: "sentinel" },
+      { agent: "iso", displayName: "Iso", uuid: "0e38b510-41a8-5780-5e8f-568b2a4f2d6c", baseWinRate: 49.0, role: "duelist" },
+      { agent: "neon", displayName: "Neon", uuid: "bb2a4828-46eb-8cd1-e765-15848195d751", baseWinRate: 50.2, role: "duelist" },
+      { agent: "yoru", displayName: "Yoru", uuid: "7f94d92c-4234-0a36-9646-3a87eb8b5c89", baseWinRate: 49.8, role: "duelist" },
+      { agent: "phoenix", displayName: "Phoenix", uuid: "eb93336a-449b-9c1b-0a54-a891f7921d69", baseWinRate: 48.5, role: "duelist" },
+      { agent: "astra", displayName: "Astra", uuid: "41fb69c1-4189-7b37-f117-bcaf1e96f1bf", baseWinRate: 48.0, role: "controller" },
+      { agent: "harbor", displayName: "Harbor", uuid: "95b78ed7-4637-86d9-7e41-71ba8c293152", baseWinRate: 47.5, role: "controller" },
+      { agent: "tejo", displayName: "Tejo", uuid: "b444168c-4e35-8076-db47-ef9bf368f384", baseWinRate: 50.5, role: "initiator" },
+      { agent: "waylay", displayName: "Waylay", uuid: "df1cb487-4902-002e-5c17-d28e83e78588", baseWinRate: 51.5, role: "duelist" },
+    ];
+
+    const available = defaultMeta.filter((a) => !rawAllies.includes(a.uuid.toLowerCase()) && !rawAllies.includes(a.agent.toLowerCase()));
+    const recommendations = available.map((item) => {
+      let mapBonus = 0;
+      const lowerMap = (mapName || "").toLowerCase();
+      if ((lowerMap.includes("ascent") || lowerMap.includes("haven")) && (item.agent === "sova" || item.agent === "omen" || item.agent === "killjoy")) mapBonus = 8.5;
+      if ((lowerMap.includes("bind") || lowerMap.includes("split")) && (item.agent === "raze" || item.agent === "brimstone" || item.agent === "viper")) mapBonus = 9.0;
+      if ((lowerMap.includes("breeze") || lowerMap.includes("icebox") || lowerMap.includes("corrode") || lowerMap.includes("rook")) && (item.agent === "viper" || item.agent === "sova" || item.agent === "jett")) mapBonus = 11.0;
+      if ((lowerMap.includes("sunset") || lowerMap.includes("juliett")) && (item.agent === "cypher" || item.agent === "omen" || item.agent === "fade")) mapBonus = 9.5;
+
+      const finalRate = Math.min(98.0, Math.max(20.0, item.baseWinRate + mapBonus));
+      return {
+        agent: item.agent,
+        displayName: item.displayName,
+        uuid: item.uuid,
+        winRate: Math.round(finalRate * 10) / 10,
+        rawWinRate: Math.round(item.baseWinRate * 10) / 10,
+        metaPickRate: 50.0,
+      };
+    });
+
+    recommendations.sort((a, b) => b.winRate - a.winRate);
+
+    // Calcular sinergia básica según roles presentes
+    const rolesPresent = new Set(defaultMeta.filter((a) => rawAllies.includes(a.uuid.toLowerCase()) || rawAllies.includes(a.agent.toLowerCase())).map((a) => a.role));
+    const synergy = Math.min(95, 45 + rolesPresent.size * 12.5);
+
+    return {
+      recommendations,
+      currentSynergy: Math.round(synergy * 10) / 10,
+    };
   }
 }
