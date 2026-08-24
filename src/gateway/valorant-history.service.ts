@@ -10,22 +10,34 @@ import { firstValueFrom } from "rxjs";
 // ==========================================
 
 const MAPS_MAP: Record<string, string> = {
+  // Mapas Estándar
   "/Game/Maps/Ascent/Ascent": "Ascent",
   "/Game/Maps/Bonsai/Bonsai": "Split",
   "/Game/Maps/Canyon/Canyon": "Fracture",
   "/Game/Maps/Duality/Duality": "Bind",
   "/Game/Maps/Foxtrot/Foxtrot": "Breeze",
   "/Game/Maps/Jam/Jam": "Lotus",
+  "/Game/Maps/Infinity/Infinity": "Abyss",
   "/Game/Maps/Jamboree/Jamboree": "Abyss",
   "/Game/Maps/Pitt/Pitt": "Pearl",
   "/Game/Maps/Port/Port": "Icebox",
-  "/Game/Maps/Rook/Rook": "Sunset",
+  "/Game/Maps/Juliett/Juliett": "Sunset",
+  "/Game/Maps/Rook/Rook": "Corrode",
   "/Game/Maps/Triad/Triad": "Haven",
+  "/Game/Maps/Plummet/Plummet": "Summit",
+  // Mapas Team Deathmatch (HURM)
   "/Game/Maps/Kasbah/Kasbah": "Kasbah",
+  "/Game/Maps/HURM/HURM_Bowl/HURM_Bowl": "Kasbah",
   "/Game/Maps/Piazza/Piazza": "Piazza",
+  "/Game/Maps/HURM/HURM_Yard/HURM_Yard": "Piazza",
   "/Game/Maps/District/District": "District",
+  "/Game/Maps/HURM/HURM_Alley/HURM_Alley": "District",
   "/Game/Maps/Drift/Drift": "Drift",
-  "/Game/Maps/Infinity/Infinity": "Corrode",
+  "/Game/Maps/HURM/HURM_Helix/HURM_Helix": "Drift",
+  "/Game/Maps/HURM/HURM_HighTide/HURM_HighTide": "Glitch",
+  // Campo de tiro / The Range
+  "/Game/Maps/Poveglia/Range": "The Range",
+  "/Game/Maps/PovegliaV2/RangeV2": "The Range",
 };
 
 const QUEUES_MAP: Record<string, string> = {
@@ -77,8 +89,21 @@ const TIER_NAMES: Record<number, string> = {
 export function resolveMapName(mapPath: string): string {
   if (!mapPath) return "Ascent";
   if (MAPS_MAP[mapPath]) return MAPS_MAP[mapPath];
+
+  // Buscar coincidencia parcial insensible a mayúsculas
+  const lower = mapPath.toLowerCase();
+  for (const [key, name] of Object.entries(MAPS_MAP)) {
+    if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) {
+      return name;
+    }
+  }
+
   const parts = mapPath.split("/").filter(Boolean);
-  return parts.length > 0 ? parts[parts.length - 1] : "Ascent";
+  const lastPart = parts.length > 0 ? parts[parts.length - 1] : "Ascent";
+  const reconstructed = `/Game/Maps/${lastPart}/${lastPart}`;
+  if (MAPS_MAP[reconstructed]) return MAPS_MAP[reconstructed];
+
+  return lastPart;
 }
 
 export function resolveQueueName(

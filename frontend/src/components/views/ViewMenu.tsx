@@ -100,12 +100,14 @@ export default function ViewMenu() {
       const diff = Math.max(0, Date.now() - timestamp);
       const mins = Math.floor(diff / 60000);
       if (mins < 60) return language === "es" ? `Hace ${mins} min` : `${mins}m ago`;
-      const hours = Math.floor(mins / 3600000);
+      const hours = Math.floor(diff / 3600000);
       if (hours < 24) return language === "es" ? `Hace ${hours} h` : `${hours}h ago`;
       const days = Math.floor(diff / 86400000);
       if (days < 30) return language === "es" ? `Hace ${days} d` : `${days}d ago`;
       const months = Math.floor(days / 30);
-      return language === "es" ? `Hace ${months} m` : `${months}mo ago`;
+      if (months < 12) return language === "es" ? `Hace ${months} m` : `${months}mo ago`;
+      const years = Math.floor(months / 12);
+      return language === "es" ? `Hace ${years} a` : `${years}y ago`;
     }
     if (!timeAgoStr) return "";
     if (language === "es") {
@@ -113,7 +115,8 @@ export default function ViewMenu() {
         .replace(/(\d+)\s*m\s*ago/i, "Hace $1 min")
         .replace(/(\d+)\s*h\s*ago/i, "Hace $1 h")
         .replace(/(\d+)\s*d\s*ago/i, "Hace $1 d")
-        .replace(/(\d+)\s*mo\s*ago/i, "Hace $1 m");
+        .replace(/(\d+)\s*mo\s*ago/i, "Hace $1 m")
+        .replace(/(\d+)\s*y\s*ago/i, "Hace $1 a");
     }
     return timeAgoStr;
   };
@@ -557,8 +560,8 @@ export default function ViewMenu() {
                       x2="0%"
                       y2="100%"
                     >
-                      <stop offset="0%" stopColor="rgba(0, 240, 255, 0.35)" />
-                      <stop offset="100%" stopColor="rgba(0, 240, 255, 0.0)" />
+                      <stop offset="0%" stopColor="rgba(56, 189, 248, 0.18)" />
+                      <stop offset="100%" stopColor="rgba(56, 189, 248, 0.0)" />
                     </linearGradient>
                   </defs>
 
@@ -598,9 +601,9 @@ export default function ViewMenu() {
                   <path
                     d={chartData.linePath}
                     fill="none"
-                    stroke="#00f0ff"
-                    strokeWidth="2.5"
-                    filter="drop-shadow(0 0 6px rgba(0, 240, 255, 0.6))"
+                    stroke="#38bdf8"
+                    strokeWidth="2"
+                    filter="drop-shadow(0 2px 4px rgba(56, 189, 248, 0.3))"
                   />
 
                   {/* Points on Curve */}
@@ -734,7 +737,7 @@ export default function ViewMenu() {
                   <text
                     x="5"
                     y="24"
-                    fill="#00f0ff"
+                    fill="#38bdf8"
                     fontSize="9"
                     fontWeight="bold"
                   >
@@ -743,7 +746,7 @@ export default function ViewMenu() {
                   <text
                     x="5"
                     y="54"
-                    fill="#ffd000"
+                    fill="#f59e0b"
                     fontSize="9"
                     fontWeight="bold"
                   >

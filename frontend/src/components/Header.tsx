@@ -88,7 +88,6 @@ export default function Header() {
               height: "28px",
               borderRadius: "6px",
               objectFit: "cover",
-              filter: "drop-shadow(0 0 6px rgba(0, 240, 255, 0.4))",
             }}
           />
           <div className="logo-title">
