@@ -840,12 +840,6 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     try {
       const alliesArg = alliesAgentUuids.filter(Boolean).join(",") || "none";
 
-      const pythonPath = path.join(
-        process.cwd(),
-        ".venv",
-        "Scripts",
-        "python.exe",
-      );
       const scriptPath = path.join(
         process.cwd(),
         "src",
@@ -853,10 +847,19 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         "predict.py",
       );
 
+      const candidateVenvPythonPaths = [
+        path.join(process.cwd(), ".venv", "bin", "python3"),
+        path.join(process.cwd(), ".venv", "bin", "python"),
+        path.join(process.cwd(), ".venv", "Scripts", "python.exe"),
+        path.join(process.cwd(), ".venv", "Scripts", "python"),
+      ];
+
+      const venvPython = candidateVenvPythonPaths.find((p) => fs.existsSync(p));
+
       // Priorizar el intérprete de Python del entorno virtual en desarrollo
       let cmd: string;
-      if (fs.existsSync(pythonPath) && fs.existsSync(scriptPath)) {
-        cmd = `"${pythonPath}" "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+      if (venvPython && fs.existsSync(scriptPath)) {
+        cmd = `"${venvPython}" "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
       } else {
         const electronResources =
           process.env.ELECTRON_RESOURCES_PATH ||
@@ -864,8 +867,11 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           "";
         const possibleExePaths = [
           path.join(electronResources, "bin", "predict.exe"),
+          path.join(electronResources, "bin", "predict"),
           path.join(electronResources, "resources", "bin", "predict.exe"),
+          path.join(electronResources, "resources", "bin", "predict"),
           path.join(process.cwd(), "resources", "bin", "predict.exe"),
+          path.join(process.cwd(), "resources", "bin", "predict"),
           path.join(
             process.cwd(),
             "resources",
@@ -893,12 +899,17 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         if (standaloneExe) {
           cmd = `"${standaloneExe}" --map "${mapName}" --allies "${alliesArg}"`;
         } else {
-          cmd = `python "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+          const pythonCmd = process.platform === "win32" ? "python" : "python3";
+          cmd = `${process.env.PYTHON_PATH || pythonCmd} "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
         }
       }
 
       const { stdout } = await execPromise(cmd, { timeout: 10000 });
-      const parsed = JSON.parse(stdout.trim());
+      const jsonMatch = stdout.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error(`Salida de Python no contiene JSON válido: ${stdout}`);
+      }
+      const parsed = JSON.parse(jsonMatch[0]);
       if (parsed && parsed.success) {
         this.lastMlDraftKey = cacheKey;
         this.lastMlDraftResult = {
