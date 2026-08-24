@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build:frontend && nest build",
     "build:frontend": "npm run build --prefix frontend && node -e \"const fs=require('fs'); fs.cpSync('frontend/out', 'public', {recursive: true, force: true});\"",
-    "build:ml": ".venv\\Scripts\\pyinstaller.exe --onefile --console --name predict --add-data \"src/machine_learning/pregame/artifacts/draft_model.joblib;src/machine_learning/pregame/artifacts\" src/machine_learning/predict.py --distpath resources/bin",
+    "build:ml": ".venv\\Scripts\\pyinstaller.exe --onefile --console --name predict --paths . --add-data \"src/machine_learning/pregame/artifacts/draft_model.joblib;src/machine_learning/pregame/artifacts\" --hidden-import \"src.machine_learning.pregame.predict\" --hidden-import \"src.machine_learning.pregame.features\" --hidden-import \"src.machine_learning.pregame.model\" --hidden-import \"src.machine_learning.shared.constants\" src/machine_learning/predict.py --distpath resources/bin --noconfirm",
     "build:all": "npm run build:ml && npm run build",
     "dist:win": "npm run build:all && electron-builder --win",
     "dist:portable": "npm run build:all && electron-builder --win portable",
