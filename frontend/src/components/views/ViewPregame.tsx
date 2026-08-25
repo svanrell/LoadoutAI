@@ -15,11 +15,22 @@ export default function ViewPregame() {
     lockAgent,
     mlRecommendations,
     mlSynergyWinRate,
+    setView,
   } = useGameState();
   const { t } = useLanguage();
 
   const [selectedRoleCategory, setSelectedRoleCategory] = useState<string>("all");
   const [selectedAgentUuid, setSelectedAgentUuid] = useState<string | null>(null);
+
+  const pickedPlayers = myTeam.filter((player) => player.agentId && player.agentId.trim() !== "");
+  const pickedAgentsCount = pickedPlayers.length;
+  const isDraftComplete = pickedAgentsCount >= 5;
+
+  const pickedAgentsList = pickedPlayers
+    .map((player) =>
+      agents.find((agent) => agent.uuid.toLowerCase() === (player.agentId || "").toLowerCase())
+    )
+    .filter((agent): agent is NonNullable<typeof agent> => Boolean(agent));
 
   // Helper para buscar la recomendación de la IA para un agente dado (por UUID o por nombre)
   const getAgentRecommendation = (agentUuid: string, agentDisplayName: string) => {
@@ -53,8 +64,6 @@ export default function ViewPregame() {
     controller: t.controllers,
     sentinel: t.sentinels,
   };
-
-  const pickedAgentsCount = myTeam.filter((player) => player.agentId).length;
 
   return (
     <div id="viewPregame" className="state-view active">
@@ -263,7 +272,7 @@ export default function ViewPregame() {
                       <div className="synergy-analysis-item">
                         <strong className="weak-label">{t.aiStatus}</strong>
                         <span className="synergy-analysis-text">
-                          {pickedAgentsCount === 5
+                          {isDraftComplete
                             ? t.fullCompAnalyzed
                             : t.evaluatingSynergies}
                         </span>
@@ -275,7 +284,7 @@ export default function ViewPregame() {
             })()}
           </div>
 
-          {/* AI Recommended Picks Panel (Top 5 Global) */}
+          {/* AI Recommended Picks Panel OR Completed Team Summary */}
           <div className="cyber-panel" style={{ padding: "12px 14px", display: "flex", flexDirection: "column" }}>
             <div
               className="panel-header"
@@ -290,23 +299,87 @@ export default function ViewPregame() {
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ color: "#00ff88", fontWeight: "bold" }}>●</span> {t.aiDraftCoach}
+                <span style={{ color: "#00ff88", fontWeight: "bold" }}>●</span>{" "}
+                {isDraftComplete ? t.draftCompleted : t.aiDraftCoach}
               </span>
               <span
                 style={{
                   fontSize: "10px",
-                  color: "var(--color-cyan)",
+                  color: isDraftComplete ? "#00ff88" : "var(--color-cyan)",
                   textTransform: "uppercase",
                   letterSpacing: "1px",
                   fontWeight: "bold",
                 }}
               >
-                {t.top5PicksGlobal}
+                {isDraftComplete ? "DRAFT FINALIZADO" : t.top5PicksGlobal}
               </span>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginTop: "4px" }}>
-              {mlRecommendations && mlRecommendations.length > 0 ? (
+              {isDraftComplete ? (
+                /* Locked 5 Agents Summary */
+                pickedAgentsList.map((agent, rankIndex) => (
+                  <div
+                    key={agent.uuid || rankIndex}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "5px 10px",
+                      background: "rgba(15, 25, 35, 0.75)",
+                      border: "1px solid rgba(0, 255, 136, 0.25)",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span
+                        style={{
+                          fontFamily: "'Orbitron', sans-serif",
+                          fontSize: "10px",
+                          fontWeight: "bold",
+                          color: "#00ff88",
+                          width: "16px",
+                        }}
+                      >
+                        #{rankIndex + 1}
+                      </span>
+                      <img
+                        src={agent.displayIcon}
+                        alt={agent.displayName}
+                        style={{
+                          width: "24px",
+                          height: "24px",
+                          borderRadius: "3px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <div>
+                        <div style={{ fontSize: "11px", fontWeight: "bold", color: "#fff", lineHeight: 1.2 }}>
+                          {agent.displayName}
+                        </div>
+                        <div style={{ fontSize: "9px", color: "var(--text-muted)", lineHeight: 1.1 }}>
+                          {agent.role?.displayName || "Agent"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        fontWeight: 800,
+                        color: "#00ff88",
+                        padding: "2px 6px",
+                        background: "rgba(0, 255, 136, 0.12)",
+                        borderRadius: "3px",
+                        border: "1px solid rgba(0, 255, 136, 0.3)",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      FIJADO
+                    </span>
+                  </div>
+                ))
+              ) : mlRecommendations && mlRecommendations.length > 0 ? (
                 mlRecommendations.slice(0, 5).map((recommendation: any, rankIndex: number) => {
                   const targetAgent =
                     typeof recommendation === "object" && recommendation.uuid
@@ -449,7 +522,7 @@ export default function ViewPregame() {
           </div>
         </div>
 
-        {/* Panel de Explorador de Sinergia y Win Rates por Rol (Centro) */}
+        {/* Panel de Explorador de Sinergia O Mensaje de Equipo Completo */}
         <div
           className="cyber-panel"
           style={{
@@ -474,176 +547,263 @@ export default function ViewPregame() {
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--color-cyan)", fontWeight: "bold" }}>●</span>{" "}
-              {t.roleSynergyExplorer}
+              <span style={{ color: isDraftComplete ? "#00ff88" : "var(--color-cyan)", fontWeight: "bold" }}>●</span>{" "}
+              {isDraftComplete ? "ESTADO DEL EQUIPO" : t.roleSynergyExplorer}
             </span>
             <span
               style={{
                 fontSize: "10px",
-                color: "var(--color-cyan)",
+                color: isDraftComplete ? "#00ff88" : "var(--color-cyan)",
                 textTransform: "uppercase",
                 letterSpacing: "1px",
                 fontWeight: "bold",
               }}
             >
-              {selectedRoleCategory === "all"
+              {isDraftComplete
+                ? "SELECCIÓN FINALIZADA"
+                : selectedRoleCategory === "all"
                 ? t.allAgentsSortedWinRate
                 : `${roleCategoryLabels[selectedRoleCategory]} (${filteredAgents.length} ${t.available})`}
             </span>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-              gridAutoRows: "max-content",
-              alignContent: "start",
-              gap: "8px",
-              flex: 1,
-              overflowY: "auto",
-              paddingRight: "4px",
-              marginTop: "8px",
-            }}
-          >
+          {isDraftComplete ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+                gap: "14px",
+                padding: "20px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: "52px",
+                  height: "52px",
+                  borderRadius: "50%",
+                  background: "rgba(0, 255, 136, 0.12)",
+                  border: "2px solid #00ff88",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 0 20px rgba(0, 255, 136, 0.3)",
+                }}
+              >
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00ff88" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
 
-            {filteredAgents.map((agent) => {
-              const agentRecommendation = getAgentRecommendation(agent.uuid, agent.displayName);
-              const estimatedWinRate = agentRecommendation ? agentRecommendation.winRate : null;
-              const isCurrentAgentSelected = selectedAgentUuid === agent.uuid;
-
-              return (
+              <div>
                 <div
-                  key={agent.uuid}
-                  onClick={() => {
-                    setSelectedAgentUuid(agent.uuid);
-                    selectAgent(agent.uuid);
-                  }}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "8px 12px",
-                    background: isCurrentAgentSelected
-                      ? "rgba(0, 243, 255, 0.15)"
-                      : "rgba(15, 25, 35, 0.75)",
-                    border: isCurrentAgentSelected
-                      ? "1px solid var(--color-cyan)"
-                      : "1px solid rgba(0, 243, 255, 0.18)",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                  }}
-                  onMouseEnter={(event) => {
-                    if (!isCurrentAgentSelected) {
-                      event.currentTarget.style.borderColor = "var(--color-cyan)";
-                      event.currentTarget.style.background = "rgba(0, 243, 255, 0.08)";
-                    }
-                  }}
-                  onMouseLeave={(event) => {
-                    if (!isCurrentAgentSelected) {
-                      event.currentTarget.style.borderColor = "rgba(0, 243, 255, 0.18)";
-                      event.currentTarget.style.background = "rgba(15, 25, 35, 0.75)";
-                    }
+                    fontFamily: "'Orbitron', sans-serif",
+                    fontSize: "16px",
+                    fontWeight: 900,
+                    color: "#00ff88",
+                    letterSpacing: "1px",
+                    textTransform: "uppercase",
                   }}
                 >
-                  {/* Foto + Nombre + Rol */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <img
-                      src={agent.displayIcon}
-                      alt={agent.displayName}
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "4px",
-                        objectFit: "cover",
-                        border: isCurrentAgentSelected
-                          ? "1px solid var(--color-cyan)"
-                          : "1px solid transparent",
-                      }}
-                    />
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: isCurrentAgentSelected ? "var(--color-cyan)" : "#fff",
-                        }}
-                      >
-                        {agent.displayName}
-                      </div>
-                      <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
-                        {agent.role?.displayName || "Agent"}
-                      </div>
-                    </div>
-                  </div>
+                  EQUIPO COMPLETO (5/5)
+                </div>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--text-muted)",
+                    marginTop: "4px",
+                  }}
+                >
+                  Todos los agentes han sido seleccionados. La selección está cerrada.
+                </div>
+              </div>
 
-                  {/* Win Rate + Botón Pick/Lock */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    {estimatedWinRate !== null ? (
-                      <div style={{ textAlign: "right" }}>
+              <button
+                onClick={() => setView("ingame")}
+                style={{
+                  marginTop: "6px",
+                  padding: "8px 22px",
+                  background: "var(--color-cyan)",
+                  color: "#000",
+                  border: "none",
+                  borderRadius: "4px",
+                  fontFamily: "'Orbitron', sans-serif",
+                  fontSize: "11px",
+                  fontWeight: 900,
+                  letterSpacing: "1px",
+                  cursor: "pointer",
+                  boxShadow: "0 0 15px rgba(56, 189, 248, 0.35)",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.02)";
+                  e.currentTarget.style.boxShadow = "0 0 20px rgba(56, 189, 248, 0.55)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                  e.currentTarget.style.boxShadow = "0 0 15px rgba(56, 189, 248, 0.35)";
+                }}
+              >
+                IR A SELECCIÓN DE ARMAS →
+              </button>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                gridAutoRows: "max-content",
+                alignContent: "start",
+                gap: "8px",
+                flex: 1,
+                overflowY: "auto",
+                paddingRight: "4px",
+                marginTop: "8px",
+              }}
+            >
+              {filteredAgents.map((agent) => {
+                const agentRecommendation = getAgentRecommendation(agent.uuid, agent.displayName);
+                const estimatedWinRate = agentRecommendation ? agentRecommendation.winRate : null;
+                const isCurrentAgentSelected = selectedAgentUuid === agent.uuid;
+
+                return (
+                  <div
+                    key={agent.uuid}
+                    onClick={() => {
+                      setSelectedAgentUuid(agent.uuid);
+                      selectAgent(agent.uuid);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "8px 12px",
+                      background: isCurrentAgentSelected
+                        ? "rgba(0, 243, 255, 0.15)"
+                        : "rgba(15, 25, 35, 0.75)",
+                      border: isCurrentAgentSelected
+                        ? "1px solid var(--color-cyan)"
+                        : "1px solid rgba(0, 243, 255, 0.18)",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(event) => {
+                      if (!isCurrentAgentSelected) {
+                        event.currentTarget.style.borderColor = "var(--color-cyan)";
+                        event.currentTarget.style.background = "rgba(0, 243, 255, 0.08)";
+                      }
+                    }}
+                    onMouseLeave={(event) => {
+                      if (!isCurrentAgentSelected) {
+                        event.currentTarget.style.borderColor = "rgba(0, 243, 255, 0.18)";
+                        event.currentTarget.style.background = "rgba(15, 25, 35, 0.75)";
+                      }
+                    }}
+                  >
+                    {/* Foto + Nombre + Rol */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <img
+                        src={agent.displayIcon}
+                        alt={agent.displayName}
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "4px",
+                          objectFit: "cover",
+                          border: isCurrentAgentSelected
+                            ? "1px solid var(--color-cyan)"
+                            : "1px solid transparent",
+                        }}
+                      />
+                      <div>
                         <div
                           style={{
-                            fontFamily: "'Orbitron', sans-serif",
                             fontSize: "12px",
                             fontWeight: "bold",
-                            color:
-                              estimatedWinRate >= 70 ? "#00ff88" : "var(--color-cyan)",
+                            color: isCurrentAgentSelected ? "var(--color-cyan)" : "#fff",
                           }}
                         >
-                          {estimatedWinRate.toFixed(1)}%
+                          {agent.displayName}
                         </div>
-                        <div style={{ fontSize: "8px", color: "var(--text-muted)" }}>
-                          {t.estWinRate}
+                        <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                          {agent.role?.displayName || "Agent"}
                         </div>
                       </div>
-                    ) : (
-                      <span style={{ fontSize: "10px", color: "var(--text-muted)" }}>
-                        --
-                      </span>
-                    )}
+                    </div>
 
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setSelectedAgentUuid(agent.uuid);
-                        selectAgent(agent.uuid);
-                        lockAgent(agent.uuid);
-                      }}
-                      style={{
-                        padding: "5px 10px",
-                        fontSize: "10px",
-                        fontFamily: "'Orbitron', sans-serif",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                        borderRadius: "3px",
-                        border: "none",
-                        cursor: "pointer",
-                        background: isCurrentAgentSelected
-                          ? "var(--color-red)"
-                          : "rgba(255, 70, 85, 0.2)",
-                        color: "#fff",
-                        transition: "all 0.2s ease",
-                      }}
-                      onMouseEnter={(event) => {
-                        event.currentTarget.style.background = "var(--color-red)";
-                        event.currentTarget.style.boxShadow =
-                          "0 0 10px rgba(255, 70, 85, 0.5)";
-                      }}
-                      onMouseLeave={(event) => {
-                        event.currentTarget.style.background = isCurrentAgentSelected
-                          ? "var(--color-red)"
-                          : "rgba(255, 70, 85, 0.2)";
-                        event.currentTarget.style.boxShadow = "none";
-                      }}
-                    >
-                      {isCurrentAgentSelected ? t.lock : t.pick}
-                    </button>
+                    {/* Win Rate + Botón Pick/Lock */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      {estimatedWinRate !== null ? (
+                        <div style={{ textAlign: "right" }}>
+                          <div
+                            style={{
+                              fontFamily: "'Orbitron', sans-serif",
+                              fontSize: "12px",
+                              fontWeight: "bold",
+                              color:
+                                estimatedWinRate >= 70 ? "#00ff88" : "var(--color-cyan)",
+                            }}
+                          >
+                            {estimatedWinRate.toFixed(1)}%
+                          </div>
+                          <div style={{ fontSize: "8px", color: "var(--text-muted)" }}>
+                            {t.estWinRate}
+                          </div>
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                          --
+                        </span>
+                      )}
+
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSelectedAgentUuid(agent.uuid);
+                          selectAgent(agent.uuid);
+                          lockAgent(agent.uuid);
+                        }}
+                        style={{
+                          padding: "5px 10px",
+                          fontSize: "10px",
+                          fontFamily: "'Orbitron', sans-serif",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                          borderRadius: "3px",
+                          border: "none",
+                          cursor: "pointer",
+                          background: isCurrentAgentSelected
+                            ? "var(--color-red)"
+                            : "rgba(255, 70, 85, 0.2)",
+                          color: "#fff",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(event) => {
+                          event.currentTarget.style.background = "var(--color-red)";
+                          event.currentTarget.style.boxShadow =
+                            "0 0 10px rgba(255, 70, 85, 0.5)";
+                        }}
+                        onMouseLeave={(event) => {
+                          event.currentTarget.style.background = isCurrentAgentSelected
+                            ? "var(--color-red)"
+                            : "rgba(255, 70, 85, 0.2)";
+                          event.currentTarget.style.boxShadow = "none";
+                        }}
+                      >
+                        {isCurrentAgentSelected ? t.lock : t.pick}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

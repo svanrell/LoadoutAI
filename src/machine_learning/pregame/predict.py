@@ -34,7 +34,7 @@ def recommend_agent_picks(
     model_bundle: dict[str, Any],
     target_map_name: str,
     already_picked_agents: list[str],
-    enemy_picked_agents: list[str] = None,
+    enemy_picked_agents: list[str] | None = None,
     top_limit: int = 5,
 ) -> list[dict[str, Any]]:
     """
@@ -91,7 +91,7 @@ def predict_composition_win_rate(
     model_bundle: dict[str, Any],
     target_map_name: str,
     current_team_agents: list[str],
-    enemy_team_agents: list[str] = None,
+    enemy_team_agents: list[str] | None = None,
 ) -> float:
     trained_model = model_bundle["model"]
     all_available_maps = model_bundle["maps"]
@@ -133,7 +133,7 @@ def run_json_prediction(input_json_string: str) -> None:
             target_map_name,
             ally_agents_list,
             enemy_picked_agents=enemy_agents_list,
-            top_limit=25,
+            top_limit=100,
         )
         current_synergy = predict_composition_win_rate(
             loaded_model_bundle,

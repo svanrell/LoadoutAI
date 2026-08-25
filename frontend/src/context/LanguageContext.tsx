@@ -122,13 +122,20 @@ export interface Translations {
   selectAgent: string;
   classRole: string;
   lockAgentBtn: string;
+  draftCompleted: string;
+  draftCompleteSubtitle: string;
+  tacticalOverview: string;
+  tacticalStrengths: string;
+  tacticalPlaystyle: string;
+  rolesDistribution: string;
+  goToWeaponShop: string;
 }
 
 const translations: Record<Language, Translations> = {
   es: {
     profile: "Perfil",
-    draftCoach: "Entrenador de Draft",
-    tacticalRadar: "Radar Táctico",
+    draftCoach: "Selección de Agente",
+    tacticalRadar: "Selección de Armas",
     tierList: "Tier List",
     tools: "Herramientas",
     map: "MAPA",
@@ -168,11 +175,11 @@ const translations: Record<Language, Translations> = {
     last10Matches: "Últimas 10 Partidas",
     rrGraphTitle: "Gráfico de RR en Clasificatoria",
     currentRank: "GOLD IV 23 RR",
-    liveRadarTitle: "Radar Táctico en Vivo",
+    liveRadarTitle: "Radar de Partida en Vivo",
     clientDetectedText: "Cliente de Riot detectado. Buscando sala o selección de agentes...",
     clientOfflineText: "Cliente de Valorant no detectado. Abre el juego para activar el radar.",
-    openSandbox: "ENTRENADOR DE DRAFT (SANDBOX)",
-    launchOverlay: "LANZAR OVERLAY EN PARTIDA (HUD)",
+    openSandbox: "SELECCIÓN DE AGENTE (SANDBOX)",
+    launchOverlay: "SELECCIÓN DE ARMAS (HUD)",
 
     victory: "Victoria",
     defeat: "Derrota",
@@ -220,7 +227,7 @@ const translations: Record<Language, Translations> = {
     aiStatus: "Estado IA",
     fullCompAnalyzed: "Composición completa analizada.",
     evaluatingSynergies: "Evaluando mejores sinergias...",
-    aiDraftCoach: "Entrenador de Draft IA",
+    aiDraftCoach: "Selección de Agentes IA",
     top5PicksGlobal: "Top 5 Picks (Global)",
     waitingDraftPicks: "Esperando selección de agentes...",
     estWinRate: "WR EST.",
@@ -236,11 +243,18 @@ const translations: Record<Language, Translations> = {
     selectAgent: "SELECCIONAR AGENTE",
     classRole: "CLASE",
     lockAgentBtn: "FIJAR AGENTE",
+    draftCompleted: "Equipo Completo (5/5)",
+    draftCompleteSubtitle: "Todos los personajes han sido elegidos",
+    tacticalOverview: "Análisis Táctico de la Composición",
+    tacticalStrengths: "Puntos Fuertes del Equipo",
+    tacticalPlaystyle: "Estrategia Recomendada",
+    rolesDistribution: "Distribución de Roles",
+    goToWeaponShop: "IR A SELECCIÓN DE ARMAS",
   },
   en: {
     profile: "Profile",
-    draftCoach: "Draft Coach",
-    tacticalRadar: "Tactical Radar",
+    draftCoach: "Agent Selection",
+    tacticalRadar: "Weapon Selection",
     tierList: "Tier List",
     tools: "Tools",
     map: "MAP",
@@ -280,11 +294,11 @@ const translations: Record<Language, Translations> = {
     last10Matches: "Last 10 Matches",
     rrGraphTitle: "Competitive RR Chart",
     currentRank: "GOLD IV 23 RR",
-    liveRadarTitle: "Live Tactical Radar",
+    liveRadarTitle: "Live Match Radar",
     clientDetectedText: "Riot Client detected. Searching for match or agent draft...",
     clientOfflineText: "Valorant Client not detected. Launch game to activate radar.",
-    openSandbox: "OPEN DRAFT COACH (SANDBOX)",
-    launchOverlay: "LAUNCH IN-GAME OVERLAY (HUD)",
+    openSandbox: "AGENT SELECTION (SANDBOX)",
+    launchOverlay: "WEAPON SELECTION (HUD)",
 
     victory: "Victory",
     defeat: "Defeat",
@@ -332,7 +346,7 @@ const translations: Record<Language, Translations> = {
     aiStatus: "AI Status",
     fullCompAnalyzed: "Full composition analyzed.",
     evaluatingSynergies: "Evaluating best candidate synergies...",
-    aiDraftCoach: "AI Draft Coach",
+    aiDraftCoach: "AI Agent Selection",
     top5PicksGlobal: "Top 5 Picks (Global)",
     waitingDraftPicks: "Waiting for pregame draft picks...",
     estWinRate: "EST. WR",
@@ -348,6 +362,13 @@ const translations: Record<Language, Translations> = {
     selectAgent: "Select Agent",
     classRole: "Class Role",
     lockAgentBtn: "Lock Agent",
+    draftCompleted: "Team Complete (5/5)",
+    draftCompleteSubtitle: "All characters have been selected",
+    tacticalOverview: "Tactical Composition Overview",
+    tacticalStrengths: "Team Strengths",
+    tacticalPlaystyle: "Recommended Strategy",
+    rolesDistribution: "Role Distribution",
+    goToWeaponShop: "GO TO WEAPON SELECTION",
   },
 };
 
