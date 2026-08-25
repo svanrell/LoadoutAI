@@ -28,9 +28,8 @@
   - [1. Prerequisites](#1-prerequisites)
   - [2. Node.js Setup](#2-nodejs-setup)
   - [3. Python Environment Setup](#3-python-environment-setup)
-  - [4. Environment Variables](#4-environment-variables)
-  - [5. Model Training](#5-model-training)
-  - [6. Running the Application](#6-running-the-application)
+  - [4. Model Training](#4-model-training)
+  - [5. Running the Application](#5-running-the-application)
 - [Desktop Overlay (Electron)](#desktop-overlay-electron)
 - [Internationalization (i18n)](#internationalization-i18n)
 
@@ -171,22 +170,16 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 4. Environment Variables
-Create a `.env` file in the root directory:
-```env
-PORT=3000
-VALORANT_API_KEY=YOUR_RIOT_API_KEY_HERE
-VALORANT_REGION=eu
-```
-
-### 5. Model Training
+### 4. Model Training
 To train or re-train the Random Forest model on the latest dataset:
 ```bash
 .venv\Scripts\python.exe -m src.machine_learning.train_draft_model
 ```
 This generates the optimized `src/machine_learning/models/draft_model.joblib` artifact.
 
-### 6. Running the Application
+### 5. Running the Application
+
+> **Note:** No `.env` file or Riot API Key is required! Loadout AI automatically and securely connects directly to your active local Riot Client / VALORANT session via the local `lockfile` protocol.
 
 #### Development Mode (Backend + Next.js Live Reload):
 ```bash
