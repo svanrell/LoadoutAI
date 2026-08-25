@@ -43,26 +43,13 @@ export default function Header() {
     view,
     setView,
     selectedMap,
-    setSelectedMap,
     selectedMode,
-    setSelectedMode,
     connectionStatus,
     playerProfile,
   } = useGameState();
 
   const { language, setLanguage, t } = useLanguage();
-  const { maps, gameModes, agents } = useValorantData();
-
-  const mapOptions =
-    maps.length > 0 ? maps.map((m) => m.displayName) : DEFAULT_MAPS;
-
-  const modeOptions =
-    gameModes.length > 0
-      ? gameModes.map((g) => ({
-          id: g.displayName.toLowerCase().replace(/\s+/g, ""),
-          name: g.displayName,
-        }))
-      : DEFAULT_MODES;
+  const { maps, gameModes } = useValorantData();
 
   const isProfileActive = view === "menu" || view === "closed";
   const isDraftActive = view === "pregame";
@@ -79,15 +66,16 @@ export default function Header() {
     <header>
       {/* Left Area: Brand & Logo */}
       <div className="header-left">
-        <div className="header-logo-badge" onClick={() => setView("menu")}>
+        <div className="header-logo-badge" onClick={() => setView("menu")} title="Loadout AI Home">
           <img
             src="/favicon.png"
             alt="LoadoutAI"
             style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "6px",
+              width: "24px",
+              height: "24px",
+              borderRadius: "5px",
               objectFit: "cover",
+              flexShrink: 0,
             }}
           />
           <div className="logo-title">
@@ -102,26 +90,29 @@ export default function Header() {
         <button
           className={`nav-tab ${isProfileActive ? "active" : ""}`}
           onClick={() => setView("menu")}
+          title={t.profile}
         >
           <ProfileIcon size={15} />
-          <span>{t.profile}</span>
+          <span className="nav-tab-label">{t.profile}</span>
         </button>
 
         <button
           className={`nav-tab ${isDraftActive ? "active" : ""}`}
           onClick={() => setView("pregame")}
+          title={t.draftCoach}
         >
           <DraftIcon size={15} />
-          <span>{t.draftCoach}</span>
+          <span className="nav-tab-label">{t.draftCoach}</span>
           <span className="nav-tab-badge">AI</span>
         </button>
 
         <button
           className={`nav-tab ${isRadarActive ? "active" : ""}`}
           onClick={() => setView("ingame")}
+          title={t.tacticalRadar}
         >
           <RadarIcon size={15} />
-          <span>{t.tacticalRadar}</span>
+          <span className="nav-tab-label">{t.tacticalRadar}</span>
         </button>
 
         <button
@@ -130,7 +121,7 @@ export default function Header() {
           title={t.tierList}
         >
           <TierListIcon size={15} />
-          <span>{t.tierList}</span>
+          <span className="nav-tab-label">{t.tierList}</span>
         </button>
 
         <button
@@ -139,51 +130,33 @@ export default function Header() {
           title={t.tools}
         >
           <ToolsIcon size={15} />
-          <span>{t.tools}</span>
+          <span className="nav-tab-label">{t.tools}</span>
         </button>
       </nav>
 
-      {/* Right Area: Selectors, Language, Discord, Player Profile */}
+      {/* Right Area: Selectors, Language, Player Profile */}
       <div className="header-right">
         {/* Live Detected Map & Mode Display Badges (solo visible en Pregame e Ingame / Compras) */}
         {(isDraftActive || isRadarActive) && (
           <div className="header-selectors-group">
             <div
-              className="compact-select-wrap"
+              className="compact-select-wrap header-map-badge"
               style={{ cursor: "default", userSelect: "none" }}
-              title={language === "es" ? "Mapa detectado automáticamente por el cliente" : "Map automatically detected from game client"}
+              title={language === "es" ? "Mapa detectado automáticamente" : "Map automatically detected"}
             >
               <span className="compact-select-label">{t.map}:</span>
-              <span
-                style={{
-                  fontFamily: "'Orbitron', sans-serif",
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  color: "var(--color-cyan)",
-                  letterSpacing: "0.5px",
-                  textTransform: "uppercase",
-                }}
-              >
+              <span className="compact-select-value">
                 {selectedMap || "ASCENT"}
               </span>
             </div>
 
             <div
-              className="compact-select-wrap"
+              className="compact-select-wrap header-mode-badge"
               style={{ cursor: "default", userSelect: "none" }}
-              title={language === "es" ? "Modo detectado automáticamente por el cliente" : "Mode automatically detected from game client"}
+              title={language === "es" ? "Modo detectado automáticamente" : "Mode automatically detected"}
             >
               <span className="compact-select-label">{t.mode}:</span>
-              <span
-                style={{
-                  fontFamily: "'Orbitron', sans-serif",
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  color: "var(--color-cyan)",
-                  letterSpacing: "0.5px",
-                  textTransform: "uppercase",
-                }}
-              >
+              <span className="compact-select-value">
                 {selectedMode || "COMPETITIVE"}
               </span>
             </div>
@@ -192,19 +165,19 @@ export default function Header() {
 
         {/* Language Switcher */}
         <div
-          className="compact-select-wrap"
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}
+          className="compact-select-wrap header-lang-switcher"
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
           onClick={() => setLanguage(language === "es" ? "en" : "es")}
           title="Change language / Cambiar idioma"
         >
           <GlobeIcon size={13} />
-          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-cyan)" }}>
+          <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--color-cyan)" }}>
             {language.toUpperCase()}
           </span>
         </div>
 
         {/* User Profile Pill */}
-        <div className="header-user-profile" onClick={() => setView("menu")}>
+        <div className="header-user-profile" onClick={() => setView("menu")} title="Ver Perfil">
           <div className="header-avatar-wrap">
             <img
               src={userAvatar}

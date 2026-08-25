@@ -3,12 +3,19 @@
 import { useValorantData, Weapon } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { getAbilityPrice } from "@/data/agentAbilitiesData";
-import { useState } from "react";
+import {
+  ARMORS_DATA,
+  WeaponCategoryConfig,
+  getProcessedWeapons,
+  getCategoryWeapons,
+  getWeaponAffordability,
+} from "@/data/weaponsData";
+import { useState, useMemo } from "react";
 
 export type AbilityStatus = "owned" | "buy";
 
 export default function ViewIngame() {
-  const { agents, weapons } = useValorantData();
+  const { agents, weapons: rawWeapons } = useValorantData();
   const { myTeam, myCredits, buyPhaseAvailable } = useGameState();
   const [hoveredWeapon, setHoveredWeapon] = useState<Weapon | null>(null);
 
@@ -38,40 +45,10 @@ export default function ViewIngame() {
     });
   };
 
-  const banditWeapon: Weapon = {
-    uuid: "bandit-mock",
-    displayName: "BANDIT",
-    category: "EEquippableCategory::Sidearm",
-    displayIcon:
-      "https://media.valorant-api.com/weapons/44d4e95c-4157-0037-81b2-17841bf2e8e3/displayicon.png",
-    shopData: { cost: 600, category: "Sidearms", categoryText: "Arma de Mano" },
-    weaponStats: {
-      fireRate: 8.5,
-      magazineSize: 12,
-      equipTimeSeconds: 0.75,
-      reloadTimeSeconds: 1.8,
-      firstBulletAccuracy: 0.8,
-      damageRanges: [
-        { rangeStartMeters: 0, rangeEndMeters: 30, headDamage: 110, bodyDamage: 35, legDamage: 29 },
-        { rangeStartMeters: 30, rangeEndMeters: 50, headDamage: 90, bodyDamage: 30, legDamage: 25 },
-      ],
-    },
-  };
+  // Process and deduplicate weapons cleanly via our dedicated module
+  const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
 
-  // Deduplicate weapons by displayName to avoid duplicated items
-  const weaponMap = new Map<string, Weapon>();
-  weapons.forEach((w) => weaponMap.set(w.displayName.toUpperCase(), w));
-  if (!weaponMap.has("BANDIT")) {
-    weaponMap.set("BANDIT", banditWeapon);
-  }
-  const allWeapons = Array.from(weaponMap.values());
-
-  const getWeaponStatus = (wName: string, cost: number) => {
-    if (cost > myCredits) return "unaffordable";
-    return "affordable";
-  };
-
-  const renderWeaponCol = (categories: { title: string; id: string }[]) => {
+  const renderWeaponCol = (categories: WeaponCategoryConfig[]) => {
     return (
       <div
         style={{
@@ -83,41 +60,7 @@ export default function ViewIngame() {
         }}
       >
         {categories.map((cat) => {
-          const groupWeapons = allWeapons.filter(
-            (w) => w.category === cat.id && w.shopData,
-          );
-
-          const exactOrder = [
-            "CLASSIC",
-            "SHORTY",
-            "FRENZY",
-            "GHOST",
-            "BANDIT",
-            "SHERIFF", // Sidearms
-            "STINGER",
-            "SPECTRE", // SMGs
-            "BUCKY",
-            "JUDGE", // Shotguns
-            "BULLDOG",
-            "GUARDIAN",
-            "PHANTOM",
-            "VANDAL", // Rifles
-            "MARSHAL",
-            "OUTLAW",
-            "OPERATOR", // Snipers
-            "ARES",
-            "ODIN", // Heavy
-          ];
-
-          groupWeapons.sort((a, b) => {
-            const indexA = exactOrder.indexOf(a.displayName.toUpperCase());
-            const indexB = exactOrder.indexOf(b.displayName.toUpperCase());
-
-            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-            if (indexA !== -1) return -1;
-            if (indexB !== -1) return 1;
-            return (a.shopData?.cost || 0) - (b.shopData?.cost || 0);
-          });
+          const groupWeapons = getCategoryWeapons(allWeapons, cat.id);
 
           return (
             <div
@@ -148,7 +91,7 @@ export default function ViewIngame() {
               </div>
               {groupWeapons.map((w) => {
                 if (!w.shopData) return null;
-                const status = getWeaponStatus(w.displayName, w.shopData.cost);
+                const status = getWeaponAffordability(w.shopData.cost, myCredits);
 
                 const border = "1px solid rgba(255, 255, 255, 0.16)";
                 const bg = "rgba(16, 24, 38, 0.72)";
@@ -257,24 +200,6 @@ export default function ViewIngame() {
   };
 
   const renderArmorCol = () => {
-    const armors = [
-      {
-        name: "ARM. LIGERA",
-        cost: 400,
-        icon: "https://media.valorant-api.com/gear/4dec83d5-4902-9ab3-bed6-a7a390761157/displayicon.png",
-      },
-      {
-        name: "ESCUDO REGEN.",
-        cost: 650,
-        icon: "https://media.valorant-api.com/gear/b1b9086d-41bd-a516-5d29-e3b34a6f1644/displayicon.png",
-      },
-      {
-        name: "ARM. PESADA",
-        cost: 1000,
-        icon: "https://media.valorant-api.com/gear/822bcab2-40a2-324e-c137-e09195ad7692/displayicon.png",
-      },
-    ];
-
     return (
       <div
         style={{
@@ -305,8 +230,8 @@ export default function ViewIngame() {
             gap: "clamp(0.3rem, 0.6vh, 0.5rem)",
           }}
         >
-          {armors.map((a) => {
-            const status = myCredits >= a.cost ? "affordable" : "unaffordable";
+          {ARMORS_DATA.map((a) => {
+            const status = getWeaponAffordability(a.cost, myCredits);
             const color = status === "unaffordable" ? "var(--color-red)" : "#f8fafc";
 
             return (

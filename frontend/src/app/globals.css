@@ -43,29 +43,33 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 24px;
+    padding: 0 clamp(8px, 1.2vw, 20px);
+    height: 52px;
+    min-height: 52px;
     border-bottom: 1px solid var(--border-cyber);
     background-color: rgba(13, 18, 26, 0.95);
     backdrop-filter: blur(16px);
     position: relative;
     z-index: 100;
-    gap: 16px;
+    gap: clamp(6px, 1vw, 14px);
     width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-shrink: 0;
 }
 
 .header-logo-badge {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 4px 8px;
-    border-radius: 8px;
+    gap: 8px;
+    padding: 3px 7px;
+    border-radius: 6px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
@@ -79,9 +83,9 @@ header {
 
 .logo-title {
     font-family: 'Inter', sans-serif;
-    font-size: 15px;
+    font-size: clamp(12px, 1vw, 14px);
     font-weight: 800;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
     color: var(--text-main);
 }
@@ -92,12 +96,12 @@ header {
 }
 
 .logo-version-tag {
-    font-size: 9px;
+    font-size: 8.5px;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     color: var(--text-muted);
     background: rgba(255, 255, 255, 0.06);
-    padding: 2px 6px;
+    padding: 1.5px 5px;
     border-radius: 4px;
     letter-spacing: 0.5px;
 }
@@ -106,28 +110,37 @@ header {
 .header-nav {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: clamp(2px, 0.35vw, 5px);
     background: rgba(10, 14, 20, 0.8);
     padding: 3px;
     border-radius: 8px;
     border: 1px solid var(--border-cyber);
+    flex-shrink: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.header-nav::-webkit-scrollbar {
+    display: none;
 }
 
 .nav-tab {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
+    gap: 6px;
+    padding: 5px clamp(6px, 0.7vw, 12px);
     border-radius: 6px;
     border: 1px solid transparent;
     background: transparent;
     color: var(--text-muted);
     font-family: 'Inter', sans-serif;
-    font-size: 12px;
+    font-size: clamp(11px, 0.8vw, 12px);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .nav-tab:hover {
@@ -142,15 +155,11 @@ header {
     box-shadow: none;
 }
 
-.nav-tab-icon {
-    font-size: 14px;
-}
-
 .nav-tab-badge {
-    font-size: 9px;
+    font-size: 8.5px;
     background: var(--color-red);
     color: #fff;
-    padding: 1px 5px;
+    padding: 1px 4px;
     border-radius: 10px;
     font-weight: 700;
 }
@@ -159,16 +168,15 @@ header {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: clamp(4px, 0.6vw, 8px);
     flex-shrink: 0;
     margin-left: auto;
-    max-width: 100%;
 }
 
 .header-selectors-group {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 1;
     min-width: 0;
 }
@@ -179,11 +187,12 @@ header {
     gap: 4px;
     background: rgba(16, 22, 34, 0.85);
     border: 1px solid var(--border-cyber);
-    padding: 4px 8px;
+    padding: 3px clamp(5px, 0.6vw, 8px);
     border-radius: 6px;
     transition: all 0.2s ease;
-    flex-shrink: 1;
-    min-width: 0;
+    flex-shrink: 0;
+    height: 28px;
+    box-sizing: border-box;
 }
 
 .compact-select-wrap:hover {
@@ -198,6 +207,16 @@ header {
     letter-spacing: 0.5px;
     white-space: nowrap;
     text-transform: uppercase;
+}
+
+.compact-select-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-cyan);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .compact-select {
@@ -227,14 +246,16 @@ header {
 .header-user-profile {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 4px 10px 4px 6px;
+    gap: 8px;
+    padding: 2px 8px 2px 3px;
     border-radius: 20px;
     background: rgba(15, 26, 36, 0.7);
     border: 1px solid var(--border-cyber);
     cursor: pointer;
     transition: all 0.2s ease;
     flex-shrink: 0;
+    height: 32px;
+    box-sizing: border-box;
 }
 
 .header-user-profile:hover {
@@ -244,13 +265,14 @@ header {
 
 .header-avatar-wrap {
     position: relative;
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
 }
 
 .header-avatar {
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid var(--color-cyan);
@@ -260,31 +282,34 @@ header {
     position: absolute;
     bottom: -1px;
     right: -1px;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    border: 2px solid var(--bg-dark);
+    border: 1.5px solid var(--bg-dark);
 }
 
 .header-user-info {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .header-username {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--text-main);
-    line-height: 1.2;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
 }
 
 .header-user-tier {
-    font-size: 10px;
+    font-size: 9px;
     color: #ffd000;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    white-space: nowrap;
 }
 
 .header-icon-btn {
@@ -1249,37 +1274,13 @@ header {
 
 /* Tablet Portrait & Large Phones (< 1024px) */
 @media (max-width: 1024px) {
-    header {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        grid-template-areas:
-            "brand . right"
-            "nav nav nav";
-        padding: 8px 14px;
-        gap: 8px 12px;
-        align-items: center;
+    .header-logo-badge .logo-version-tag {
+        display: none;
     }
-    .header-left {
-        grid-area: brand;
-        align-self: center;
+    .header-user-tier {
+        display: none;
     }
-    .header-right {
-        grid-area: right;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        align-self: center;
-        margin-left: auto;
-    }
-    .header-nav {
-        grid-area: nav;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        justify-content: flex-start;
-        padding: 4px 2px;
-    }
-    .header-nav::-webkit-scrollbar {
+    .header-selectors-group .compact-select-label {
         display: none;
     }
     .patch-tag {
@@ -2675,14 +2676,28 @@ header {
     .state-view {
         height: auto;
         overflow-y: visible;
-        min-height: calc(100vh - 75px);
+        min-height: calc(100vh - 52px);
     }
 
-    header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-        padding: 15px;
+    .nav-tab-label {
+        display: none;
+    }
+
+    .nav-tab {
+        padding: 6px 8px;
+    }
+
+    .header-user-info {
+        display: none;
+    }
+
+    .header-user-profile {
+        padding: 2px !important;
+        border-radius: 50% !important;
+    }
+
+    .header-selectors-group {
+        display: none;
     }
 
     .status-container {
