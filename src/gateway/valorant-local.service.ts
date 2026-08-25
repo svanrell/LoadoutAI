@@ -248,7 +248,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     this.gateway.requestMlDraft$.subscribe(
       async ({ mapName, allies, client }) => {
         const map = mapName || "Ascent";
-        const result = await this.getMLDraftRecommendations(map, allies || []);
+        const mode = this.currentQueueId || "competitive";
+        const result = await this.getMLDraftRecommendations(map, allies || [], mode);
         this.gateway.emitMlDraftResult(client, result);
       },
     );

@@ -32,13 +32,17 @@ export default function ViewPregame() {
     )
     .filter((agent): agent is NonNullable<typeof agent> => Boolean(agent));
 
-  // Helper para buscar la recomendación de la IA para un agente dado (por UUID o por nombre)
+  // Helper para buscar la recomendación de la IA para un agente dado (por UUID o por nombre normalizado)
   const getAgentRecommendation = (agentUuid: string, agentDisplayName: string) => {
-    return mlRecommendations?.find(
-      (recommendation) =>
-        recommendation.uuid?.toLowerCase() === agentUuid.toLowerCase() ||
-        recommendation.agent?.toLowerCase() === agentDisplayName.toLowerCase()
-    );
+    const cleanDisplayName = agentDisplayName.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return mlRecommendations?.find((rec) => {
+      const recUuid = (rec.uuid || "").toLowerCase();
+      const recAgent = (rec.agent || rec.displayName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      return (
+        (recUuid && recUuid === agentUuid.toLowerCase()) ||
+        recAgent === cleanDisplayName
+      );
+    });
   };
 
   // Filtrar y ordenar los agentes según el porcentaje de victoria estimado por la IA
@@ -669,13 +673,18 @@ export default function ViewPregame() {
                 const agentRecommendation = getAgentRecommendation(agent.uuid, agent.displayName);
                 const estimatedWinRate = agentRecommendation ? agentRecommendation.winRate : null;
                 const isCurrentAgentSelected = selectedAgentUuid === agent.uuid;
+                const isAgentPickedByTeam = myTeam.some(
+                  (p) => (p.agentId || "").toLowerCase() === agent.uuid.toLowerCase()
+                );
 
                 return (
                   <div
                     key={agent.uuid}
                     onClick={() => {
-                      setSelectedAgentUuid(agent.uuid);
-                      selectAgent(agent.uuid);
+                      if (!isAgentPickedByTeam) {
+                        setSelectedAgentUuid(agent.uuid);
+                        selectAgent(agent.uuid);
+                      }
                     }}
                     style={{
                       display: "flex",
@@ -684,22 +693,27 @@ export default function ViewPregame() {
                       padding: "8px 12px",
                       background: isCurrentAgentSelected
                         ? "rgba(0, 243, 255, 0.15)"
+                        : isAgentPickedByTeam
+                        ? "rgba(0, 255, 136, 0.06)"
                         : "rgba(15, 25, 35, 0.75)",
                       border: isCurrentAgentSelected
                         ? "1px solid var(--color-cyan)"
+                        : isAgentPickedByTeam
+                        ? "1px solid rgba(0, 255, 136, 0.25)"
                         : "1px solid rgba(0, 243, 255, 0.18)",
                       borderRadius: "4px",
-                      cursor: "pointer",
+                      cursor: isAgentPickedByTeam ? "default" : "pointer",
                       transition: "all 0.2s ease",
+                      opacity: isAgentPickedByTeam ? 0.85 : 1,
                     }}
                     onMouseEnter={(event) => {
-                      if (!isCurrentAgentSelected) {
+                      if (!isCurrentAgentSelected && !isAgentPickedByTeam) {
                         event.currentTarget.style.borderColor = "var(--color-cyan)";
                         event.currentTarget.style.background = "rgba(0, 243, 255, 0.08)";
                       }
                     }}
                     onMouseLeave={(event) => {
-                      if (!isCurrentAgentSelected) {
+                      if (!isCurrentAgentSelected && !isAgentPickedByTeam) {
                         event.currentTarget.style.borderColor = "rgba(0, 243, 255, 0.18)";
                         event.currentTarget.style.background = "rgba(15, 25, 35, 0.75)";
                       }
@@ -717,6 +731,8 @@ export default function ViewPregame() {
                           objectFit: "cover",
                           border: isCurrentAgentSelected
                             ? "1px solid var(--color-cyan)"
+                            : isAgentPickedByTeam
+                            ? "1px solid rgba(0, 255, 136, 0.4)"
                             : "1px solid transparent",
                         }}
                       />
@@ -725,7 +741,11 @@ export default function ViewPregame() {
                           style={{
                             fontSize: "12px",
                             fontWeight: "bold",
-                            color: isCurrentAgentSelected ? "var(--color-cyan)" : "#fff",
+                            color: isCurrentAgentSelected
+                              ? "var(--color-cyan)"
+                              : isAgentPickedByTeam
+                              ? "#00ff88"
+                              : "#fff",
                           }}
                         >
                           {agent.displayName}
@@ -736,9 +756,24 @@ export default function ViewPregame() {
                       </div>
                     </div>
 
-                    {/* Win Rate + Botón Pick/Lock */}
+                    {/* Win Rate o Badge 'EN EQUIPO' + Botón Pick/Lock */}
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      {estimatedWinRate !== null ? (
+                      {isAgentPickedByTeam ? (
+                        <span
+                          style={{
+                            fontSize: "9px",
+                            fontWeight: 800,
+                            color: "#00ff88",
+                            padding: "2px 6px",
+                            background: "rgba(0, 255, 136, 0.12)",
+                            borderRadius: "3px",
+                            border: "1px solid rgba(0, 255, 136, 0.3)",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          EN EQUIPO
+                        </span>
+                      ) : estimatedWinRate !== null ? (
                         <div style={{ textAlign: "right" }}>
                           <div
                             style={{
@@ -762,11 +797,14 @@ export default function ViewPregame() {
                       )}
 
                       <button
+                        disabled={isAgentPickedByTeam}
                         onClick={(event) => {
                           event.stopPropagation();
-                          setSelectedAgentUuid(agent.uuid);
-                          selectAgent(agent.uuid);
-                          lockAgent(agent.uuid);
+                          if (!isAgentPickedByTeam) {
+                            setSelectedAgentUuid(agent.uuid);
+                            selectAgent(agent.uuid);
+                            lockAgent(agent.uuid);
+                          }
                         }}
                         style={{
                           padding: "5px 10px",
@@ -777,26 +815,36 @@ export default function ViewPregame() {
                           letterSpacing: "0.5px",
                           borderRadius: "3px",
                           border: "none",
-                          cursor: "pointer",
-                          background: isCurrentAgentSelected
+                          cursor: isAgentPickedByTeam ? "default" : "pointer",
+                          background: isAgentPickedByTeam
+                            ? "rgba(255, 255, 255, 0.08)"
+                            : isCurrentAgentSelected
                             ? "var(--color-red)"
                             : "rgba(255, 70, 85, 0.2)",
-                          color: "#fff",
+                          color: isAgentPickedByTeam ? "var(--text-muted)" : "#fff",
                           transition: "all 0.2s ease",
                         }}
                         onMouseEnter={(event) => {
-                          event.currentTarget.style.background = "var(--color-red)";
-                          event.currentTarget.style.boxShadow =
-                            "0 0 10px rgba(255, 70, 85, 0.5)";
+                          if (!isAgentPickedByTeam) {
+                            event.currentTarget.style.background = "var(--color-red)";
+                            event.currentTarget.style.boxShadow =
+                              "0 0 10px rgba(255, 70, 85, 0.5)";
+                          }
                         }}
                         onMouseLeave={(event) => {
-                          event.currentTarget.style.background = isCurrentAgentSelected
-                            ? "var(--color-red)"
-                            : "rgba(255, 70, 85, 0.2)";
-                          event.currentTarget.style.boxShadow = "none";
+                          if (!isAgentPickedByTeam) {
+                            event.currentTarget.style.background = isCurrentAgentSelected
+                              ? "var(--color-red)"
+                              : "rgba(255, 70, 85, 0.2)";
+                            event.currentTarget.style.boxShadow = "none";
+                          }
                         }}
                       >
-                        {isCurrentAgentSelected ? t.lock : t.pick}
+                        {isAgentPickedByTeam
+                          ? "FIJADO"
+                          : isCurrentAgentSelected
+                          ? t.lock
+                          : t.pick}
                       </button>
                     </div>
                   </div>

@@ -30,6 +30,7 @@ export class ValorantGateway implements OnGatewayConnection {
   readonly ingameCredits$ = new Subject<{ credits: number }>();
   readonly requestMlDraft$ = new Subject<{
     mapName?: string;
+    modeName?: string;
     allies?: string[];
     client: Socket;
   }>();

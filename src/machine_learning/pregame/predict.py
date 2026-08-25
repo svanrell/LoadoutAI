@@ -35,7 +35,7 @@ def recommend_agent_picks(
     target_map_name: str,
     already_picked_agents: list[str],
     enemy_picked_agents: list[str] | None = None,
-    top_limit: int = 5,
+    top_limit: int | None = None,
 ) -> list[dict[str, Any]]:
     """
     Evalúa qué agentes maximizan la probabilidad de victoria y su alineación con el meta del mapa.
@@ -54,7 +54,7 @@ def recommend_agent_picks(
 
     available_candidates = [a for a in all_available_agents if a not in valid_locked_allies]
 
-    map_key = str(target_map_name).strip().lower()
+    map_key = target_map_name.strip().lower()
     map_pick_rates = pick_rates.get(map_key, {})
 
     candidate_results = []
@@ -84,7 +84,7 @@ def recommend_agent_picks(
         })
 
     candidate_results.sort(key=lambda item: item["winRate"], reverse=True)
-    return candidate_results[:top_limit]
+    return candidate_results if top_limit is None else candidate_results[:top_limit]
 
 
 def predict_composition_win_rate(
@@ -122,8 +122,12 @@ def run_json_prediction(input_json_string: str) -> None:
     try:
         request_payload = json.loads(input_json_string)
         target_map_name = request_payload.get("mapName") or request_payload.get("map") or "Ascent"
+        mode_name = str(request_payload.get("mode") or request_payload.get("modeName") or "").strip().lower()
         ally_agents_list = request_payload.get("allies") or request_payload.get("picks") or []
-        enemy_agents_list = request_payload.get("enemies") or []
+
+        # Solo procesar agentes enemigos si el modo es Premier o Torneo (donde no hay selección a ciegas)
+        is_premier_mode = "premier" in mode_name or "tournament" in mode_name
+        enemy_agents_list = (request_payload.get("enemies") or []) if is_premier_mode else []
 
         model_artifact_path = get_model_artifact_path()
         loaded_model_bundle = load_model_artifact(model_artifact_path)
@@ -133,7 +137,7 @@ def run_json_prediction(input_json_string: str) -> None:
             target_map_name,
             ally_agents_list,
             enemy_picked_agents=enemy_agents_list,
-            top_limit=100,
+            top_limit=None,
         )
         current_synergy = predict_composition_win_rate(
             loaded_model_bundle,
@@ -145,6 +149,7 @@ def run_json_prediction(input_json_string: str) -> None:
         response_payload = {
             "success": True,
             "mapName": target_map_name,
+            "mode": mode_name or "competitive",
             "currentPicks": [normalize_agent_identifier(a) for a in ally_agents_list if a],
             "enemyPicks": [normalize_agent_identifier(a) for a in enemy_agents_list if a],
             "currentSynergy": current_synergy,
@@ -166,6 +171,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Valorant Pre-game Draft Predictor")
     parser.add_argument("--json", type=str, default=None, help="Input JSON")
     parser.add_argument("--map", type=str, default="Ascent", help="Map name")
+    parser.add_argument("--mode", type=str, default="competitive", help="Game mode name")
     parser.add_argument("--allies", type=str, default="", nargs="?", help="Allies list comma-separated")
     parser.add_argument("--enemies", type=str, default="", nargs="?", help="Enemies list comma-separated")
     args = parser.parse_args()
@@ -186,5 +192,10 @@ if __name__ == "__main__":
             if a.strip() and a.strip().lower() not in ["none", "null", "undefined", ""]
         ]
         target_map = args.map or "Ascent"
-        payload = json.dumps({"mapName": target_map, "allies": allies_list, "enemies": enemies_list})
+        payload = json.dumps({
+            "mapName": target_map,
+            "mode": args.mode or "competitive",
+            "allies": allies_list,
+            "enemies": enemies_list,
+        })
         run_json_prediction(payload)
