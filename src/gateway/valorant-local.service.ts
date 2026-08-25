@@ -208,9 +208,11 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private lastMlDraftResult: {
     recommendations: any[];
     currentSynergy: number;
+    agentImpacts?: any[];
   } = {
     recommendations: [],
     currentSynergy: 50.0,
+    agentImpacts: [],
   };
 
   constructor(
@@ -246,9 +248,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.gateway.requestMlDraft$.subscribe(
-      async ({ mapName, allies, client }) => {
+      async ({ mapName, modeName, allies, client }) => {
         const map = mapName || "Ascent";
-        const mode = this.currentQueueId || "competitive";
+        const mode = modeName || (this.currentExtraData?.mode as string) || "competitive";
         const result = await this.getMLDraftRecommendations(map, allies || [], mode);
         this.gateway.emitMlDraftResult(client, result);
       },
@@ -584,6 +586,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               myPuuid: puuid,
               mlDraftPicks: mlResult.recommendations,
               mlSynergyWinRate: mlResult.currentSynergy,
+              mlAgentImpacts: mlResult.agentImpacts || [],
               mode,
             });
           } catch (error) {
@@ -814,14 +817,16 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   async getMLDraftRecommendations(
     mapName: string,
     alliesAgentUuids: string[],
-  ): Promise<{ recommendations: any[]; currentSynergy: number }> {
+    modeName: string = "competitive",
+  ): Promise<{ recommendations: any[]; currentSynergy: number; agentImpacts?: any[] }> {
     const normalizedMap = (mapName || "Ascent").trim().toLowerCase();
+    const normalizedMode = (modeName || "competitive").trim().toLowerCase();
     const sortedAllies = (alliesAgentUuids || [])
       .filter(Boolean)
       .map((u) => u.toLowerCase().trim())
       .sort()
       .join(",");
-    const cacheKey = `${normalizedMap}__${sortedAllies}`;
+    const cacheKey = `${normalizedMap}__${normalizedMode}__${sortedAllies}`;
 
     // Si la composición y el mapa no han cambiado, reutilizar el resultado instantáneamente
     if (
@@ -860,7 +865,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       // Priorizar el intérprete de Python del entorno virtual en desarrollo
       let cmd: string;
       if (venvPython && fs.existsSync(scriptPath)) {
-        cmd = `"${venvPython}" "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+        cmd = `"${venvPython}" "${scriptPath}" --map "${mapName}" --mode "${normalizedMode}" --allies "${alliesArg}"`;
       } else {
         const electronResources =
           process.env.ELECTRON_RESOURCES_PATH ||
@@ -898,10 +903,10 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         );
 
         if (standaloneExe) {
-          cmd = `"${standaloneExe}" --map "${mapName}" --allies "${alliesArg}"`;
+          cmd = `"${standaloneExe}" --map "${mapName}" --mode "${normalizedMode}" --allies "${alliesArg}"`;
         } else {
           const pythonCmd = process.platform === "win32" ? "python" : "python3";
-          cmd = `${process.env.PYTHON_PATH || pythonCmd} "${scriptPath}" --map "${mapName}" --allies "${alliesArg}"`;
+          cmd = `${process.env.PYTHON_PATH || pythonCmd} "${scriptPath}" --map "${mapName}" --mode "${normalizedMode}" --allies "${alliesArg}"`;
         }
       }
 
@@ -916,6 +921,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         this.lastMlDraftResult = {
           recommendations: parsed.recommendations || [],
           currentSynergy: parsed.currentSynergy || 0.0,
+          agentImpacts: parsed.agentImpacts || [],
         };
         return this.lastMlDraftResult;
       }

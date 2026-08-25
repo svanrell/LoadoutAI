@@ -3,6 +3,7 @@ shared/constants.py
 ===================
 Mapeos oficiales de Riot Games para Valorant:
 - UUIDs de agentes a nombres canónicos y viceversa.
+- Roles de cada agente (duelist, initiator, controller, sentinel).
 - Nombres de mapas y armas.
 """
 
@@ -42,6 +43,42 @@ AGENT_NAME_TO_UUID_MAP: dict[str, str] = {
     agent_name: agent_uuid for agent_uuid, agent_name in AGENT_UUID_TO_NAME_MAP.items()
 }
 
+AGENT_ROLES_MAP: dict[str, str] = {
+    # Duelistas (Fraggers / Entrada)
+    "jett": "duelist",
+    "raze": "duelist",
+    "phoenix": "duelist",
+    "reyna": "duelist",
+    "yoru": "duelist",
+    "neon": "duelist",
+    "iso": "duelist",
+    "waylay": "duelist",
+    # Iniciadores (Info / Flashes)
+    "sova": "initiator",
+    "breach": "initiator",
+    "skye": "initiator",
+    "kayo": "initiator",
+    "fade": "initiator",
+    "gekko": "initiator",
+    "tejo": "initiator",
+    # Controladores (Humos / Bloqueo de visión)
+    "brimstone": "controller",
+    "omen": "controller",
+    "viper": "controller",
+    "astra": "controller",
+    "harbor": "controller",
+    "clove": "controller",
+    "miks": "controller",
+    # Centinelas (Defensa / Anclaje / Flancos)
+    "killjoy": "sentinel",
+    "cypher": "sentinel",
+    "sage": "sentinel",
+    "chamber": "sentinel",
+    "deadlock": "sentinel",
+    "vyse": "sentinel",
+    "veto": "sentinel",
+}
+
 
 def normalize_agent_identifier(raw_identifier: str) -> str:
     """Convierte cualquier UUID o nombre al nombre canónico limpio en minúsculas."""
@@ -49,3 +86,9 @@ def normalize_agent_identifier(raw_identifier: str) -> str:
     if cleaned in AGENT_UUID_TO_NAME_MAP:
         return AGENT_UUID_TO_NAME_MAP[cleaned]
     return cleaned
+
+
+def get_agent_role(agent_identifier: str) -> str:
+    """Obtiene el rol canónico de un agente ('duelist', 'initiator', 'controller', 'sentinel')."""
+    canonical_name = normalize_agent_identifier(agent_identifier)
+    return AGENT_ROLES_MAP.get(canonical_name, "duelist")

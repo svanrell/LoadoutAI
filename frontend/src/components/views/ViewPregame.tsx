@@ -15,6 +15,7 @@ export default function ViewPregame() {
     lockAgent,
     mlRecommendations,
     mlSynergyWinRate,
+    mlAgentImpacts,
     setView,
   } = useGameState();
   const { t } = useLanguage();
@@ -83,9 +84,18 @@ export default function ViewPregame() {
         <div className="team-list">
           {myTeam.map((player, playerIndex) => {
             const matchedAgent = player.agentId
-              ? agents.find((agent) => agent.uuid.toLowerCase() === (player.agentId || "").toLowerCase())
+              ? agents.find((agent) => agent.uuid.toLowerCase() === player.agentId?.toLowerCase())
               : null;
+
             const displayAgentName = matchedAgent ? matchedAgent.displayName : t.selecting;
+
+            const agentImpact = player.agentId
+              ? mlAgentImpacts?.find(
+                  (imp) =>
+                    imp.uuid?.toLowerCase() === player.agentId?.toLowerCase() ||
+                    (matchedAgent && imp.agent?.toLowerCase() === matchedAgent.displayName.toLowerCase())
+                )
+              : null;
 
             let playerStatusLabel = t.openStatus;
             let playerStatusCssClass = "status-open";
@@ -135,13 +145,51 @@ export default function ViewPregame() {
                 <div className="player-info">
                   <div className="player-name">{displayPlayerName}</div>
                   <div className="player-agent">{displayAgentName}</div>
-                  <div className="player-meta">
+                  <div className="player-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "4px" }}>
                     <span className="player-level">
                       {t.lvl} {player.level || "--"}
                     </span>
                     <span className={`status-badge-inner ${playerStatusCssClass}`}>
                       {playerStatusLabel}
                     </span>
+                    {agentImpact && typeof agentImpact.impactDelta === "number" && (
+                      <span
+                        title={`Aporte a la sinergia del equipo: ${agentImpact.impactDelta > 0 ? "+" : ""}${agentImpact.impactDelta.toFixed(1)}%`}
+                        style={{
+                          fontSize: "9px",
+                          fontFamily: "'Orbitron', sans-serif",
+                          fontWeight: 800,
+                          padding: "1px 5px",
+                          borderRadius: "3px",
+                          letterSpacing: "0.5px",
+                          color:
+                            agentImpact.impactDelta > 0
+                              ? "#00ff88"
+                              : agentImpact.impactDelta < 0
+                              ? "#ff4655"
+                              : "var(--color-cyan)",
+                          background:
+                            agentImpact.impactDelta > 0
+                              ? "rgba(0, 255, 136, 0.12)"
+                              : agentImpact.impactDelta < 0
+                              ? "rgba(255, 70, 85, 0.15)"
+                              : "rgba(0, 243, 255, 0.1)",
+                          border: `1px solid ${
+                            agentImpact.impactDelta > 0
+                              ? "rgba(0, 255, 136, 0.35)"
+                              : agentImpact.impactDelta < 0
+                              ? "rgba(255, 70, 85, 0.4)"
+                              : "rgba(0, 243, 255, 0.25)"
+                          }`,
+                        }}
+                      >
+                        {agentImpact.impactDelta > 0
+                          ? `▲ +${agentImpact.impactDelta.toFixed(1)}%`
+                          : agentImpact.impactDelta < 0
+                          ? `▼ ${agentImpact.impactDelta.toFixed(1)}%`
+                          : `~ 0.0%`}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

@@ -39,6 +39,15 @@ export interface MLDraftRecommendation {
   winRate: number;
 }
 
+export interface MLAgentImpact {
+  agent: string;
+  displayName: string;
+  uuid: string;
+  role?: string;
+  impactDelta: number;
+  synergyWithout?: number;
+}
+
 export interface SyncedMatchItem {
   id: string;
   isWin: boolean;
@@ -117,6 +126,7 @@ interface GameStateContextProps {
   myTeam: Player[];
   mlRecommendations: MLDraftRecommendation[];
   mlSynergyWinRate: number;
+  mlAgentImpacts: MLAgentImpact[];
   currentIngameRound: number;
   buyPhaseAvailable: boolean;
   buyPhaseTime: number;
@@ -151,6 +161,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   
   const [mlRecommendations, setMlRecommendations] = useState<MLDraftRecommendation[]>([]);
   const [mlSynergyWinRate, setMlSynergyWinRate] = useState<number>(50.0);
+  const [mlAgentImpacts, setMlAgentImpacts] = useState<MLAgentImpact[]>([]);
   const [currentIngameRound, setCurrentIngameRound] = useState(1);
   const [buyPhaseAvailable, setBuyPhaseAvailable] = useState(false);
   const [buyPhaseTime, setBuyPhaseTime] = useState(0);
@@ -260,6 +271,9 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         if (typeof data.currentSynergy === "number") {
           setMlSynergyWinRate(data.currentSynergy);
         }
+        if (Array.isArray(data.agentImpacts)) {
+          setMlAgentImpacts(data.agentImpacts);
+        }
       }
     });
 
@@ -285,6 +299,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         if (data.mode) setSelectedMode(data.mode.toLowerCase());
         if (data.mlDraftPicks) setMlRecommendations(data.mlDraftPicks);
         if (typeof data.mlSynergyWinRate === 'number') setMlSynergyWinRate(data.mlSynergyWinRate);
+        if (Array.isArray(data.mlAgentImpacts)) setMlAgentImpacts(data.mlAgentImpacts);
         if (data.players) {
           setMyTeam(data.players.map((p: any, i: number) => ({
             puuid: p.puuid,
@@ -368,6 +383,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         myTeam,
         mlRecommendations,
         mlSynergyWinRate,
+        mlAgentImpacts,
         currentIngameRound,
         buyPhaseAvailable,
         buyPhaseTime,

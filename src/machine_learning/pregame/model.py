@@ -1,9 +1,14 @@
 import os
+import sys
 import joblib
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from typing import Any
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 
 def train_draft_model(
@@ -49,9 +54,14 @@ def load_model_artifact(model_file_path: str) -> dict[str, Any]:
     return joblib.load(model_file_path)
 
 
-def run_training_pipeline(csv_path: str = None, output_path: str = None) -> None:
-    from .data_loader import get_clean_draft_dataset, load_agent_pick_rates
-    from .features import extract_unique_entities, build_matchup_feature_matrix
+def run_training_pipeline(csv_path: str | None = None, output_path: str | None = None) -> None:
+    from src.machine_learning.pregame.data_loader import (
+        get_clean_draft_dataset,
+        load_agent_pick_rates,
+        extract_pairwise_win_rates,
+    )
+    from src.machine_learning.pregame.features import extract_unique_entities, build_matchup_feature_matrix
+    from src.machine_learning.shared.constants import AGENT_NAME_TO_UUID_MAP
 
     current_dir = os.path.dirname(__file__)
     if csv_path is None:
@@ -60,18 +70,22 @@ def run_training_pipeline(csv_path: str = None, output_path: str = None) -> None
         output_path = os.path.join(current_dir, "artifacts", "draft_model.joblib")
 
     clean_df = get_clean_draft_dataset(csv_path)
-    maps, agents = extract_unique_entities(clean_df)
-    X, y, feature_cols = build_matchup_feature_matrix(clean_df, maps, agents)
+    maps, agents_in_df = extract_unique_entities(clean_df)
+    all_agents = sorted(list(set(agents_in_df + list(AGENT_NAME_TO_UUID_MAP.keys()))))
+
+    X, y, feature_cols = build_matchup_feature_matrix(clean_df, maps, all_agents)
     pick_rates = load_agent_pick_rates()
+    pair_stats = extract_pairwise_win_rates(clean_df)
 
     model = train_draft_model(X, y)
 
     bundle = {
         "model": model,
         "maps": maps,
-        "agents": agents,
+        "agents": all_agents,
         "feature_cols": feature_cols,
         "pick_rates": pick_rates,
+        "pair_stats": pair_stats,
     }
     save_model_artifact(bundle, output_path)
 

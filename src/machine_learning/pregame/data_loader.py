@@ -9,7 +9,7 @@ def load_dataset(csv_file_path: str) -> pd.DataFrame:
     return pd.read_csv(csv_file_path)
 
 
-def load_agent_pick_rates(csv_file_path: str = None) -> dict[str, dict[str, float]]:
+def load_agent_pick_rates(csv_file_path: str | None = None) -> dict[str, dict[str, float]]:
     """
     Carga la tasa de uso oficial de cada agente por mapa desde agents_stats.csv.
     Devuelve un diccionario { 'map_name': { 'agent_name': pick_rate_percentage } }
@@ -34,6 +34,25 @@ def load_agent_pick_rates(csv_file_path: str = None) -> dict[str, dict[str, floa
             pick_rates[m_key][agent] = float(row[m])
 
     return pick_rates
+
+
+def extract_pairwise_win_rates(clean_dataframe: pd.DataFrame) -> dict[str, dict[str, int]]:
+    """
+    Calcula la matriz empírica de partidas y victorias de cada pareja de agentes a partir de datos reales.
+    """
+    pair_stats: dict[str, dict[str, int]] = {}
+    for _, row in clean_dataframe.iterrows():
+        agents = row["agents"]
+        won = row["won"]
+        for i in range(len(agents)):
+            for j in range(i + 1, len(agents)):
+                pair_key = "__".join(sorted([agents[i], agents[j]]))
+                if pair_key not in pair_stats:
+                    pair_stats[pair_key] = {"matches": 0, "wins": 0}
+                pair_stats[pair_key]["matches"] += 1
+                if won == 1:
+                    pair_stats[pair_key]["wins"] += 1
+    return pair_stats
 
 
 def parse_and_flatten_compositions(raw_dataframe: pd.DataFrame) -> pd.DataFrame:
