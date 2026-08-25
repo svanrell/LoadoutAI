@@ -111,11 +111,28 @@ export function resolveQueueName(
   gameMode?: string,
   isRanked?: boolean,
   roundsWonMax?: number,
+  provisioningFlowId?: string,
+  customGameName?: string,
+  isCustomGame?: boolean,
 ): string {
   const q = (queueId || "").trim().toLowerCase();
   const gm = (gameMode || "").trim().toLowerCase();
+  const flow = (provisioningFlowId || "").trim().toLowerCase();
 
-  // 1. Detección por ID de cola o nombre de modo en la URL de Riot
+  // 1. Detección explícita de partidas personalizadas (Custom Game)
+  // Riot envía provisioningFlowID: "CustomGame", customGameName poblado, isCustomGame: true, o queueId "custom"
+  if (
+    isCustomGame === true ||
+    flow.includes("custom") ||
+    (customGameName && customGameName.trim().length > 0) ||
+    q === "custom" ||
+    q.includes("custom") ||
+    gm.includes("custom")
+  ) {
+    return "Custom Game";
+  }
+
+  // 2. Detección por ID de cola o nombre de modo en la URL de Riot
   if (q === "swiftplay" || gm.includes("swiftplay") || gm.includes("swift")) {
     return "Swiftplay";
   }
@@ -140,14 +157,11 @@ export function resolveQueueName(
   if (q === "premier" || gm.includes("premier")) {
     return "Premier";
   }
-  if (q === "custom" || gm.includes("custom")) {
-    return "Custom Game";
-  }
   if (q === "newmap" || gm.includes("newmap")) {
     return "New Map";
   }
 
-  // 2. Detección de partidas rápidas (Swiftplay) por tanteo (máximo 5 rondas para ganar)
+  // 3. Detección de partidas rápidas (Swiftplay) por tanteo (máximo 5 rondas para ganar)
   if (
     roundsWonMax !== undefined &&
     roundsWonMax <= 5 &&
@@ -158,16 +172,22 @@ export function resolveQueueName(
     return "Swiftplay";
   }
 
-  if (q === "competitive" || isRanked === true) {
+  // 4. Modos competitivos / normales cuando queueId está definido
+  if (q === "competitive" || (isRanked === true && q !== "unrated")) {
     return "Competitive";
   }
 
-  if (q === "unrated" || isRanked === false) {
+  if (q === "unrated" || (isRanked === false && q !== "")) {
     return "Unrated";
   }
 
   if (QUEUES_MAP[q]) {
     return QUEUES_MAP[q];
+  }
+
+  // 5. Si no hay queueId y no es Matchmaking oficial de Riot, es Custom Game
+  if (!q && flow !== "matchmaking") {
+    return "Custom Game";
   }
 
   if (q) {
@@ -177,11 +197,11 @@ export function resolveQueueName(
       .join(" ");
   }
 
-  return isRanked ? "Competitive" : "Unrated";
+  return isRanked ? "Competitive" : "Custom Game";
 }
 
 export function resolveTierName(tier: number): string {
-  return TIER_NAMES[tier] || "Unranked";
+  return TIER_NAMES[tier] || "No info";
 }
 
 // ==========================================
@@ -224,11 +244,15 @@ export interface MatchDetailsResponse {
     mapId: string;
     gameLengthMillis: number;
     gameStartMillis: number;
-    provisioningFlowId: string;
+    provisioningFlowId?: string;
+    provisioningFlowID?: string;
     isCompleted: boolean;
-    queueId: string;
+    customGameName?: string;
+    queueId?: string;
+    queueID?: string;
     gameMode: string;
-    isRanked: boolean;
+    isRanked?: boolean;
+    isCustomGame?: boolean;
     seasonId: string;
   };
   players: Array<{
@@ -847,6 +871,20 @@ export class ValorantHistoryService {
           "";
         const rawGameMode =
           (match.matchInfo as any)?.gameMode || match.matchInfo.gameMode || "";
+        const rawProvisioningFlow =
+          (match.matchInfo as any)?.provisioningFlowID ||
+          (match.matchInfo as any)?.provisioningFlowId ||
+          (match.matchInfo as any)?.provisioningFlow ||
+          match.matchInfo.provisioningFlowId ||
+          "";
+        const rawCustomGameName =
+          (match.matchInfo as any)?.customGameName ||
+          (match.matchInfo as any)?.CustomGameName ||
+          "";
+        const isCustomGame =
+          (match.matchInfo as any)?.isCustomGame ||
+          rawProvisioningFlow.toLowerCase().includes("custom");
+
         const maxScore = Math.max(scoreWon, scoreLost);
 
         const modeName = resolveQueueName(
@@ -854,6 +892,9 @@ export class ValorantHistoryService {
           rawGameMode,
           match.matchInfo.isRanked,
           maxScore,
+          rawProvisioningFlow,
+          rawCustomGameName,
+          isCustomGame,
         );
 
         matches.push({

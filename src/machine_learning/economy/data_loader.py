@@ -7,4 +7,5 @@ def load_economy_dataset(csv_file_path: str) -> pd.DataFrame:
         raise FileNotFoundError(f"No se encontró el archivo CSV en la ruta: {csv_file_path}")
     df = pd.read_csv(csv_file_path)
     # Filtrar solo mapas individuales (descartar 'All Maps')
-    return df[df["map"] != "All Maps"].copy()
+    raw_df= df[df["map"] != "All Maps"].copy()
+    return raw_df
