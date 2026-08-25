@@ -3,6 +3,7 @@
 import { useValorantData, Weapon } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { getAbilityPrice } from "@/data/agentAbilitiesData";
+import { getMapSplash } from "@/data/mapsData";
 import {
   ARMORS_DATA,
   WeaponCategoryConfig,
@@ -16,7 +17,7 @@ export type AbilityStatus = "owned" | "buy";
 
 export default function ViewIngame() {
   const { agents, weapons: rawWeapons } = useValorantData();
-  const { myTeam, myCredits, buyPhaseAvailable } = useGameState();
+  const { myTeam, myCredits, buyPhaseAvailable, selectedMap } = useGameState();
   const [hoveredWeapon, setHoveredWeapon] = useState<Weapon | null>(null);
 
   // Check if live agent was detected from the game client
@@ -365,8 +366,7 @@ export default function ViewIngame() {
         justifyContent: "center",
         alignItems: "center",
         position: "relative",
-        background:
-          "url(https://media.valorant-api.com/maps/7eae2e51-4ece-f12b-57fc-92b2dd29d3c4/splash.png) center center / cover no-repeat",
+        background: `url(${getMapSplash(selectedMap)}) center center / cover no-repeat`,
         height: "100%",
         width: "100%",
         overflowY: "auto",

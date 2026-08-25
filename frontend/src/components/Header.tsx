@@ -1,8 +1,9 @@
 "use client";
 
 import { useGameState } from "@/hooks/useGameState";
-import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
+import { DEFAULT_MAP_NAMES } from "@/data/mapsData";
+import { DEFAULT_GAME_MODES } from "@/data/gameModesData";
 import {
   ProfileIcon,
   DraftIcon,
@@ -11,32 +12,6 @@ import {
   ToolsIcon,
   GlobeIcon,
 } from "@/components/Icons";
-
-const DEFAULT_MAPS = [
-  "Ascent",
-  "Bind",
-  "Haven",
-  "Split",
-  "Breeze",
-  "Icebox",
-  "Sunset",
-  "Lotus",
-  "Abyss",
-  "Pearl",
-  "Fracture",
-];
-
-const DEFAULT_MODES = [
-  { id: "competitive", name: "Competitive" },
-  { id: "unrated", name: "Unrated" },
-  { id: "swiftplay", name: "Swiftplay" },
-  { id: "spikerush", name: "Spike Rush" },
-  { id: "deathmatch", name: "Deathmatch" },
-  { id: "hurm", name: "Team Deathmatch" },
-  { id: "escalation", name: "Escalation" },
-  { id: "premier", name: "Premier" },
-  { id: "custom", name: "Custom Game" },
-];
 
 export default function Header() {
   const {
@@ -49,7 +24,6 @@ export default function Header() {
   } = useGameState();
 
   const { language, setLanguage, t } = useLanguage();
-  const { maps, gameModes } = useValorantData();
 
   const isProfileActive = view === "menu" || view === "closed";
   const isDraftActive = view === "pregame";
@@ -146,7 +120,7 @@ export default function Header() {
             >
               <span className="compact-select-label">{t.map}:</span>
               <span className="compact-select-value">
-                {selectedMap || "ASCENT"}
+                {selectedMap || DEFAULT_MAP_NAMES[0]}
               </span>
             </div>
 
@@ -157,7 +131,7 @@ export default function Header() {
             >
               <span className="compact-select-label">{t.mode}:</span>
               <span className="compact-select-value">
-                {selectedMode || "COMPETITIVE"}
+                {selectedMode || DEFAULT_GAME_MODES[0].name.toUpperCase()}
               </span>
             </div>
           </div>
