@@ -5,25 +5,33 @@ import { useValorantData } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 
+// ============================================================================
+// VISTA PRE-GAME: ASISTENTE DE DRAFT Y COACH DE SINERGIA CON IA
+// ============================================================================
+
 export default function ViewPregame() {
+  // 1. Catálogo completo de agentes oficiales obtenidos desde la API de Valorant
   const { agents, loading: isLoadingAgents } = useValorantData();
+
+  // 2. Estado de la partida detectado por el radar local de Valorant
   const {
     selectedMap,
     selectedMode,
     myTeam,
     selectAgent,
     lockAgent,
-    mlRecommendations,
-    mlSynergyWinRate,
-    mlAgentImpacts,
+    mlRecommendations, // Lista de agentes recomendados por la IA con % de victoria
+    mlSynergyWinRate,  // Sinergia global actual del equipo (0% a 100%)
+    mlAgentImpacts,    // Aporte neto individual (Δ delta) de cada pick
     setView,
   } = useGameState();
   const { t } = useLanguage();
 
+  // 3. Filtros locales del usuario: categoría de rol (todos, duelista, etc.) y agente seleccionado en pantalla
   const [selectedRoleCategory, setSelectedRoleCategory] = useState<string>("all");
   const [selectedAgentUuid, setSelectedAgentUuid] = useState<string | null>(null);
 
-  // Mapas indexados en memoria para búsquedas O(1) de alto rendimiento
+  // 🧠 useMemo (Mapa 1): Indexa los agentes por UUID para buscarlos en O(1) instantáneo
   const agentByUuidMap = useMemo(() => {
     const map = new Map<string, (typeof agents)[0]>();
     for (const agent of agents) {
@@ -32,6 +40,7 @@ export default function ViewPregame() {
     return map;
   }, [agents]);
 
+  // 🧠 useMemo (Mapa 2): Indexa las recomendaciones de la IA por UUID y nombre para evitar búsquedas lentas
   const recMap = useMemo(() => {
     const map = new Map<string, any>();
     if (!mlRecommendations) return map;
@@ -43,6 +52,7 @@ export default function ViewPregame() {
     return map;
   }, [mlRecommendations]);
 
+  // 🧠 useMemo (Mapa 3): Indexa los impactos individuales (deltas ▲/▼) de cada agente
   const impactMap = useMemo(() => {
     const map = new Map<string, any>();
     if (!mlAgentImpacts) return map;
@@ -54,10 +64,13 @@ export default function ViewPregame() {
     return map;
   }, [mlAgentImpacts]);
 
+  // Jugadores del equipo que ya han elegido un personaje
   const pickedPlayers = myTeam.filter((player) => player.agentId && player.agentId.trim() !== "");
   const pickedAgentsCount = pickedPlayers.length;
+  // Cuando hay 5 agentes seleccionados, el draft se da por completado
   const isDraftComplete = pickedAgentsCount >= 5;
 
+  // 🧠 useMemo: Lista de agentes ya elegidos por el equipo para el resumen final
   const pickedAgentsList = useMemo(() => {
     return pickedPlayers
       .map((player) => agentByUuidMap.get((player.agentId || "").toLowerCase()))

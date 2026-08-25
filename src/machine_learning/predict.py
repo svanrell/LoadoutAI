@@ -1,3 +1,10 @@
+"""
+predict.py
+==========
+Punto de entrada principal por línea de comandos (CLI) para ejecutar
+inferencias de sinergia de equipo y recomendaciones de draft desde Python.
+"""
+
 import os
 import sys
 
@@ -10,14 +17,17 @@ from src.machine_learning.pregame.predict import run_json_prediction
 if __name__ == "__main__":
     import argparse
     import json
-    cli_parser = argparse.ArgumentParser(description="Valorant AI Predictor")
-    cli_parser.add_argument("--json", type=str, default=None, help="Input JSON")
-    cli_parser.add_argument("--map", type=str, default="Ascent", help="Map name")
-    cli_parser.add_argument("--mode", type=str, default="competitive", help="Mode name")
-    cli_parser.add_argument("--allies", type=str, default="", nargs="?", help="Allies list comma-separated")
-    cli_parser.add_argument("--enemies", type=str, default="", nargs="?", help="Enemies list comma-separated")
+
+    # 1. Configuración de los argumentos aceptados por línea de comandos
+    cli_parser = argparse.ArgumentParser(description="Predictor de IA para Valorant")
+    cli_parser.add_argument("--json", type=str, default=None, help="Payload de entrada en formato JSON")
+    cli_parser.add_argument("--map", type=str, default="Ascent", help="Nombre del mapa (ej. Ascent, Haven)")
+    cli_parser.add_argument("--mode", type=str, default="competitive", help="Modo de juego (ej. competitive, premier)")
+    cli_parser.add_argument("--allies", type=str, default="", nargs="?", help="Lista de agentes aliados separados por coma")
+    cli_parser.add_argument("--enemies", type=str, default="", nargs="?", help="Lista de agentes enemigos separados por coma")
     args = cli_parser.parse_args()
 
+    # 2. Si se pasa JSON directo, ejecutarlo; si no, estructurar los argumentos
     if args.json:
         run_json_prediction(args.json)
     else:

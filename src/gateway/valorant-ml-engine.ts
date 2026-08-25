@@ -176,12 +176,17 @@ export class ValorantMlEngine {
   }
 
   /**
-   * P(n_d, n_i, n_c, n_s | p=0.25) = (k! / (n_d! * n_i! * n_c! * n_s!)) * (0.25^k)
+   * 1. ARMONÍA MULTINOMIAL DE ROLES
+   * ---------------------------------
+   * Evalúa qué tan equilibrada está la distribución de roles (Duelista, Iniciador, Controlador, Centinela).
+   * Usa la distribución Multinomial con probabilidad equitativa p = 0.25 para cada rol:
+   * P(n_d, n_i, n_c, n_s) = (k! / (n_d! * n_i! * n_c! * n_s!)) * (0.25^k)
+   * Devuelve un valor normalizado entre 5% y 100%.
    */
   public computeMultinomialRoleHarmony(teamAgents: string[]): number {
     const cleaned = teamAgents.map(normalizeAgentName).filter(Boolean);
     const k = cleaned.length;
-    if (k === 0) return 50.0;
+    if (k === 0) return 50.0; // Valor neutro por defecto
 
     const roles = cleaned.map(getAgentRole);
     const nd = roles.filter((r) => r === "duelist").length;
@@ -189,11 +194,13 @@ export class ValorantMlEngine {
     const nc = roles.filter((r) => r === "controller").length;
     const ns = roles.filter((r) => r === "sentinel").length;
 
+    // Coeficiente combinatorio multinomial
     const multinomialCoeff =
       factorial(k) /
       (factorial(nd) * factorial(ni) * factorial(nc) * factorial(ns));
     const observedProb = multinomialCoeff * Math.pow(0.25, k);
 
+    // Máximas probabilidades teóricas para normalizar a escala 0 - 100%
     const maxProbs: Record<number, number> = {
       1: 0.25,
       2: 0.125,
@@ -207,7 +214,11 @@ export class ValorantMlEngine {
   }
 
   /**
-   * Sinergia empírica de parejas con Laplace smoothing: (wins + 1) / (matches + 2)
+   * 2. SINERGIA EMPÍRICA DE PAREJAS (Laplace Smoothing Bayesiano)
+   * -------------------------------------------------------------
+   * Calcula el porcentaje medio de victoria de todas las parejas posibles en el equipo
+   * a partir de datos reales de partidas.
+   * Aplica suavizado de Laplace con prior neutro 50%: (victorias + 1) / (partidas + 2).
    */
   public computePairwiseSynergy(teamAgents: string[]): number {
     const cleaned = teamAgents.map(normalizeAgentName).filter(Boolean);
@@ -217,10 +228,12 @@ export class ValorantMlEngine {
     const pairStats = this.modelData.pair_stats || {};
     const pairScores: number[] = [];
 
+    // Recorremos todas las combinaciones de 2 agentes en el equipo
     for (let i = 0; i < k; i++) {
       for (let j = i + 1; j < k; j++) {
         const pairKey = [cleaned[i], cleaned[j]].sort().join("__");
         const stat = pairStats[pairKey] || { matches: 0, wins: 0 };
+        // Suavizado de Laplace: evita divisiones por 0 y atenúa parejas con pocas partidas
         const smoothedWinRate =
           ((stat.wins + 1.0) / (stat.matches + 2.0)) * 100.0;
         pairScores.push(smoothedWinRate);
@@ -233,7 +246,9 @@ export class ValorantMlEngine {
   }
 
   /**
-   * Score de meta por mapa
+   * 3. PUNTUACIÓN DE META DEL MAPA
+   * ------------------------------
+   * Mide la tasa media de uso y efectividad de los agentes elegidos en el mapa concreto.
    */
   public computeMapMetaScore(teamAgents: string[], targetMapName: string): number {
     const cleaned = teamAgents.map(normalizeAgentName).filter(Boolean);
@@ -248,7 +263,12 @@ export class ValorantMlEngine {
   }
 
   /**
-   * Sinergia global de la composición
+   * 4. SINERGIA GLOBAL PONDERADA
+   * ----------------------------
+   * Combina las 3 métricas con los pesos optimizados del modelo:
+   * - 40% Armonía de Roles
+   * - 35% Sinergia de Parejas
+   * - 25% Meta del Mapa
    */
   public predictCompositionWinRate(
     targetMapName: string,
@@ -266,7 +286,12 @@ export class ValorantMlEngine {
   }
 
   /**
-   * Impacto marginal individual (Δ_i)
+   * 5. IMPACTO MARGINAL INDIVIDUAL (Delta / Δ_i)
+   * --------------------------------------------
+   * Calcula cuánto aporta cada agente en particular al equipo:
+   * Δ_i = Sinergia(Equipo_Completo) - Sinergia(Equipo_Sin_Ese_Agente)
+   * - Positivo (+5.2%): el pick potencia la composición.
+   * - Negativo (-4.1%): el pick desequilibra o empeora el balance del equipo.
    */
   public computeAgentMarginalImpacts(
     targetMapName: string,

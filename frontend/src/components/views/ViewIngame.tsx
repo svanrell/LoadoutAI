@@ -13,18 +13,27 @@ import {
 } from "@/data/weaponsData";
 import { useState, useMemo, useCallback } from "react";
 
+// Estado de compra de cada habilidad: 'owned' (ya comprada/en posesión) o 'buy' (disponible para comprar)
 export type AbilityStatus = "owned" | "buy";
 
 export default function ViewIngame() {
+  // 1. Hook para obtener datos estáticos (agentes, catálogo de armas de Riot API)
   const { agents, weapons: rawWeapons } = useValorantData();
+
+  // 2. Hook del estado en tiempo real del juego (equipo, créditos actuales, fase de compra, mapa detectado)
   const { myTeam, myCredits, buyPhaseAvailable, selectedMap } = useGameState();
+
+  // 3. Estado local para saber qué arma tiene el cursor encima (hover) y mostrar sus estadísticas
   const [hoveredWeapon, setHoveredWeapon] = useState<Weapon | null>(null);
 
-  // Check if live agent was detected from the game client
+  // 4. Detección del agente del jugador actual desde el cliente de Riot
   const rawAgentId = myTeam[0]?.agentId;
   const isAgentDetected = Boolean(rawAgentId && rawAgentId.trim() !== "");
-  const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : "add6443a-41bd-e414-f6ad-e58d267f4e95"; // Jett UUID as default demo
+  // Si estamos en modo demo (sin juego abierto), usamos el UUID de Jett por defecto
+  const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : "add6443a-41bd-e414-f6ad-e58d267f4e95";
 
+  // 🧠 useMemo: Busca al agente en la lista solo si 'agents' o 'myAgentId' cambian.
+  // Evita recorrer el array de agentes en cada renderizado.
   const myAgent = useMemo(() => {
     return agents.find((a) => a.uuid.toLowerCase() === myAgentId.toLowerCase());
   }, [agents, myAgentId]);
@@ -35,16 +44,19 @@ export default function ViewIngame() {
     "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
   const myAbilities = myAgent?.abilities || [];
 
+  // 🧠 useMemo: Filtra las 3 habilidades básicas (excluyendo la Ultimate que no se compra en tienda)
   const basicAbilities = useMemo(() => {
     return myAbilities.filter((a) => a.slot !== "Ultimate").slice(0, 3);
   }, [myAbilities]);
 
-  // State to manage 'owned' | 'buy' status for abilities dynamically
+  // 🎯 useState: Diccionario para registrar si cada habilidad está comprada o no
   const [abilityStatuses, setAbilityStatuses] = useState<Record<string, AbilityStatus>>({});
 
-  // State to manage equipped shield/armor (only 1 can be active at a time)
+  // 🎯 useState: Blindaje/escudo equipado actualmente (solo 1 activo a la vez: Ligera, Regen, Pesada)
   const [equippedArmorName, setEquippedArmorName] = useState<string | null>("ARM. PESADA");
 
+  // ⚡ useCallback: Función memorizada para alternar el estado de compra de una habilidad (comprado <-> no comprado)
+  // Al usar useCallback con dependencias vacías [], la función mantiene la misma referencia en memoria.
   const toggleAbilityStatus = useCallback((slotOrName: string) => {
     setAbilityStatuses((prev) => {
       const current = prev[slotOrName] || "buy";
@@ -55,11 +67,12 @@ export default function ViewIngame() {
     });
   }, []);
 
+  // ⚡ useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
   const toggleArmor = useCallback((armorName: string) => {
     setEquippedArmorName((current) => (current === armorName ? null : armorName));
   }, []);
 
-  // Process and deduplicate weapons cleanly via our dedicated module
+  // 🧠 useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
   const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
 
   const renderWeaponCol = (categories: WeaponCategoryConfig[]) => {

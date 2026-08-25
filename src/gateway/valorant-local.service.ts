@@ -231,23 +231,28 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit() {
-    this.logger.log("Starting Valorant radar...");
+    this.logger.log("Iniciando radar local de Valorant...");
+    // Sondeo periódico cada 2 segundos para verificar el estado de la partida
     this.intervalId = setInterval(() => {
       void this.checkStatus();
     }, 2000);
 
+    // Escucha eventos del Frontend para pre-seleccionar agente
     this.gateway.pregameSelect$.subscribe(async (data) => {
       await this.selectAgent(data.pregameMatchId, data.agentUuid);
     });
 
+    // Escucha eventos del Frontend para bloquear/fijar agente (Lock-In)
     this.gateway.pregameLock$.subscribe(async (data) => {
       await this.lockAgent(data.pregameMatchId, data.agentUuid);
     });
 
+    // Actualiza créditos en fase de compra
     this.gateway.ingameCredits$.subscribe((data) => {
       this.updateIngameCredits(data.credits);
     });
 
+    // Solicitud manual de predicción de draft desde el cliente
     this.gateway.requestMlDraft$.subscribe(
       async ({ mapName, modeName, allies, client }) => {
         const map = mapName || "Ascent";
@@ -261,13 +266,18 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   onModuleDestroy() {
     if (this.intervalId) {
       clearInterval(this.intervalId);
-      this.logger.log("Valorant radar stopped.");
+      this.logger.log("Radar local de Valorant detenido.");
     }
     if (this.buyPhaseInterval) {
       clearInterval(this.buyPhaseInterval);
     }
   }
 
+  /**
+   * Obtiene las credenciales de conexión leyendo el archivo 'lockfile'
+   * que crea automáticamente el cliente oficial de Riot Games al abrirse.
+   * Estructura del lockfile: [proceso]:[pid]:[puerto]:[password]:[protocolo]
+   */
   private getCredentials() {
     if (!fs.existsSync(this.lockfilePath)) return null;
 
