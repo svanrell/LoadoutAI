@@ -36,6 +36,9 @@ export default function ViewIngame() {
   // State to manage 'owned' | 'buy' status for abilities dynamically
   const [abilityStatuses, setAbilityStatuses] = useState<Record<string, AbilityStatus>>({});
 
+  // State to manage equipped shield/armor (only 1 can be active at a time)
+  const [equippedArmorName, setEquippedArmorName] = useState<string | null>("ARM. PESADA");
+
   const toggleAbilityStatus = (slotOrName: string) => {
     setAbilityStatuses((prev) => {
       const current = prev[slotOrName] || "buy";
@@ -44,6 +47,10 @@ export default function ViewIngame() {
         [slotOrName]: current === "owned" ? "buy" : "owned",
       };
     });
+  };
+
+  const toggleArmor = (armorName: string) => {
+    setEquippedArmorName((current) => (current === armorName ? null : armorName));
   };
 
   // Process and deduplicate weapons cleanly via our dedicated module
@@ -232,15 +239,28 @@ export default function ViewIngame() {
           }}
         >
           {ARMORS_DATA.map((a) => {
+            const isOwned = equippedArmorName === a.name;
             const status = getWeaponAffordability(a.cost, myCredits);
-            const color = status === "unaffordable" ? "var(--color-red)" : "#f8fafc";
+            const color = status === "unaffordable" && !isOwned ? "var(--color-red)" : "#f8fafc";
+
+            const border = isOwned
+              ? "1.5px solid var(--color-cyan)"
+              : "1px solid rgba(255, 255, 255, 0.16)";
+            const bg = isOwned
+              ? "rgba(56, 189, 248, 0.14)"
+              : "rgba(16, 24, 38, 0.72)";
+            const shadow = isOwned
+              ? "0 0 16px rgba(56, 189, 248, 0.25)"
+              : "none";
 
             return (
               <div
                 key={a.name}
+                onClick={() => toggleArmor(a.name)}
                 style={{
-                  border: "1px solid rgba(255, 255, 255, 0.16)",
-                  background: "rgba(16, 24, 38, 0.72)",
+                  border,
+                  background: bg,
+                  boxShadow: shadow,
                   position: "relative",
                   display: "flex",
                   alignItems: "center",
@@ -249,31 +269,63 @@ export default function ViewIngame() {
                   cursor: "pointer",
                   height: "clamp(5.8rem, 10.8vh, 8.5rem)",
                   borderRadius: "0.25rem",
-                  transition: "all 0.15s ease",
+                  transition: "all 0.2s ease",
                   backdropFilter: "blur(6px)",
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.14)";
-                  e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.45)";
+                  if (!isOwned) {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.14)";
+                    e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.45)";
+                  }
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.background = "rgba(16, 24, 38, 0.72)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
+                  if (!isOwned) {
+                    e.currentTarget.style.background = "rgba(16, 24, 38, 0.72)";
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
+                  }
                 }}
+                title={
+                  isOwned
+                    ? `Click para desequipar: ${a.name}`
+                    : `Click para equipar (reemplaza cualquier otro escudo): ${a.name}`
+                }
               >
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "1.3rem",
-                    right: "0.5rem",
-                    fontSize: "clamp(0.6rem, 0.95vh, 0.76rem)",
-                    color,
-                    fontWeight: 900,
-                    zIndex: 2,
-                  }}
-                >
-                  ¤{a.cost}
-                </div>
+                {/* Badge COMPRADO */}
+                {isOwned && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "0.3rem",
+                      right: "0.5rem",
+                      fontSize: "clamp(0.5rem, 0.8vh, 0.62rem)",
+                      color: "var(--color-cyan)",
+                      fontWeight: 900,
+                      zIndex: 2,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    COMPRADO
+                  </div>
+                )}
+
+                {/* Cost display */}
+                {!isOwned && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "1.3rem",
+                      right: "0.5rem",
+                      fontSize: "clamp(0.6rem, 0.95vh, 0.76rem)",
+                      color,
+                      fontWeight: 900,
+                      zIndex: 2,
+                    }}
+                  >
+                    ¤{a.cost}
+                  </div>
+                )}
+
+                {/* Shield name */}
                 <div
                   style={{
                     position: "absolute",
@@ -282,12 +334,14 @@ export default function ViewIngame() {
                     fontSize: "clamp(0.62rem, 1vh, 0.78rem)",
                     fontWeight: 800,
                     textTransform: "uppercase",
-                    color: "#f8fafc",
+                    color: isOwned ? "var(--text-main)" : "#f8fafc",
                     zIndex: 2,
                   }}
                 >
                   {a.name}
                 </div>
+
+                {/* Shield Icon */}
                 <img
                   src={a.icon}
                   alt={a.name}
@@ -295,13 +349,17 @@ export default function ViewIngame() {
                     maxHeight: "clamp(2.6rem, 5vh, 4rem)",
                     maxWidth: "60%",
                     objectFit: "contain",
-                    filter:
-                      status === "unaffordable" ? "grayscale(100%) opacity(0.6)" : "none",
+                    filter: isOwned
+                      ? "drop-shadow(0 0 8px rgba(56, 189, 248, 0.6))"
+                      : status === "unaffordable"
+                      ? "grayscale(100%) opacity(0.6)"
+                      : "grayscale(25%) opacity(0.75)",
                     position: "absolute",
                     top: "40%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
                     zIndex: 1,
+                    transition: "filter 0.2s ease",
                   }}
                 />
               </div>
@@ -513,15 +571,34 @@ export default function ViewIngame() {
                 )}
 
                 <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.25rem", alignItems: "center" }}>
-                  <div
-                    style={{
-                      width: "0.85rem",
-                      height: "0.85rem",
-                      border: "1.5px solid rgba(255,255,255,0.6)",
-                      borderRadius: "50%",
-                      flexShrink: 0,
-                    }}
-                  ></div>
+                  {equippedArmorName ? (
+                    <img
+                      src={
+                        ARMORS_DATA.find((a) => a.name === equippedArmorName)?.icon ||
+                        "https://media.valorant-api.com/gear/822bcab2-40a2-324e-c137-e09195ad7692/displayicon.png"
+                      }
+                      alt={equippedArmorName}
+                      style={{
+                        width: "1rem",
+                        height: "1rem",
+                        objectFit: "contain",
+                        flexShrink: 0,
+                        filter: "drop-shadow(0 0 3px var(--color-cyan))",
+                      }}
+                      title={`Escudo Equipado: ${equippedArmorName}`}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "0.85rem",
+                        height: "0.85rem",
+                        border: "1.5px dashed rgba(255,255,255,0.4)",
+                        borderRadius: "50%",
+                        flexShrink: 0,
+                      }}
+                      title="Sin escudo equipado"
+                    ></div>
+                  )}
                   <img
                     src="https://media.valorant-api.com/weapons/29a0cfab-485b-f5d5-779a-b59f85e204a8/displayicon.png"
                     alt="Classic"
