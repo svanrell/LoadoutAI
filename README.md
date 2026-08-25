@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://media.valorant-api.com/maps/7eae2e51-4ece-f12b-57fc-92b2dd29d3c4/splash.png" alt="Valorant LoadoutAI Banner" width="100%" style="border-radius: 10px; margin-bottom: 20px;">
+  <img src="https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/splash.png" alt="Valorant LoadoutAI Banner" width="100%" style="border-radius: 10px; margin-bottom: 20px;">
   
   <h1 align="center">LOADOUT AI // TACTICAL RADAR & DRAFT ML</h1>
   <p align="center"><strong>VALORANT Real-Time Drafting Assistant & Round Economy Engine</strong></p>
