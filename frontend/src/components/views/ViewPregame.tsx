@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useValorantData } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
@@ -23,44 +23,77 @@ export default function ViewPregame() {
   const [selectedRoleCategory, setSelectedRoleCategory] = useState<string>("all");
   const [selectedAgentUuid, setSelectedAgentUuid] = useState<string | null>(null);
 
+  // Mapas indexados en memoria para búsquedas O(1) de alto rendimiento
+  const agentByUuidMap = useMemo(() => {
+    const map = new Map<string, (typeof agents)[0]>();
+    for (const agent of agents) {
+      map.set(agent.uuid.toLowerCase(), agent);
+    }
+    return map;
+  }, [agents]);
+
+  const recMap = useMemo(() => {
+    const map = new Map<string, any>();
+    if (!mlRecommendations) return map;
+    for (const rec of mlRecommendations) {
+      if (rec.uuid) map.set(rec.uuid.toLowerCase(), rec);
+      const nameKey = (rec.agent || rec.displayName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (nameKey) map.set(nameKey, rec);
+    }
+    return map;
+  }, [mlRecommendations]);
+
+  const impactMap = useMemo(() => {
+    const map = new Map<string, any>();
+    if (!mlAgentImpacts) return map;
+    for (const imp of mlAgentImpacts) {
+      if (imp.uuid) map.set(imp.uuid.toLowerCase(), imp);
+      const nameKey = (imp.agent || imp.displayName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (nameKey) map.set(nameKey, imp);
+    }
+    return map;
+  }, [mlAgentImpacts]);
+
   const pickedPlayers = myTeam.filter((player) => player.agentId && player.agentId.trim() !== "");
   const pickedAgentsCount = pickedPlayers.length;
   const isDraftComplete = pickedAgentsCount >= 5;
 
-  const pickedAgentsList = pickedPlayers
-    .map((player) =>
-      agents.find((agent) => agent.uuid.toLowerCase() === (player.agentId || "").toLowerCase())
-    )
-    .filter((agent): agent is NonNullable<typeof agent> => Boolean(agent));
+  const pickedAgentsList = useMemo(() => {
+    return pickedPlayers
+      .map((player) => agentByUuidMap.get((player.agentId || "").toLowerCase()))
+      .filter((agent): agent is NonNullable<typeof agent> => Boolean(agent));
+  }, [pickedPlayers, agentByUuidMap]);
 
-  // Helper para buscar la recomendación de la IA para un agente dado (por UUID o por nombre normalizado)
+  // Helper O(1) para buscar la recomendación de la IA para un agente dado
   const getAgentRecommendation = (agentUuid: string, agentDisplayName: string) => {
-    const cleanDisplayName = agentDisplayName.toLowerCase().replace(/[^a-z0-9]/g, "");
-    return mlRecommendations?.find((rec) => {
-      const recUuid = (rec.uuid || "").toLowerCase();
-      const recAgent = (rec.agent || rec.displayName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-      return (
-        (recUuid && recUuid === agentUuid.toLowerCase()) ||
-        recAgent === cleanDisplayName
-      );
-    });
+    return (
+      recMap.get(agentUuid.toLowerCase()) ||
+      recMap.get(agentDisplayName.toLowerCase().replace(/[^a-z0-9]/g, "")) ||
+      null
+    );
   };
 
-  // Filtrar y ordenar los agentes según el porcentaje de victoria estimado por la IA
-  const filteredAgents = agents
-    .filter((agent) => {
-      if (selectedRoleCategory === "all") return true;
-      return agent.role?.displayName.toLowerCase() === selectedRoleCategory;
-    })
-    .sort((agentA, agentB) => {
-      const recommendationA = getAgentRecommendation(agentA.uuid, agentA.displayName);
-      const recommendationB = getAgentRecommendation(agentB.uuid, agentB.displayName);
-      const winRateA = recommendationA ? recommendationA.winRate : 0;
-      const winRateB = recommendationB ? recommendationB.winRate : 0;
-      return winRateB - winRateA;
-    });
+  // Filtrar y ordenar los agentes de forma memoizada en O(1) por comparación
+  const filteredAgents = useMemo(() => {
+    return agents
+      .filter((agent) => {
+        if (selectedRoleCategory === "all") return true;
+        return agent.role?.displayName.toLowerCase() === selectedRoleCategory;
+      })
+      .sort((agentA, agentB) => {
+        const recommendationA =
+          recMap.get(agentA.uuid.toLowerCase()) ||
+          recMap.get(agentA.displayName.toLowerCase().replace(/[^a-z0-9]/g, ""));
+        const recommendationB =
+          recMap.get(agentB.uuid.toLowerCase()) ||
+          recMap.get(agentB.displayName.toLowerCase().replace(/[^a-z0-9]/g, ""));
+        const winRateA = recommendationA ? recommendationA.winRate : 0;
+        const winRateB = recommendationB ? recommendationB.winRate : 0;
+        return winRateB - winRateA;
+      });
+  }, [agents, selectedRoleCategory, recMap]);
 
-  const selectedAgent = agents.find((agent) => agent.uuid === selectedAgentUuid);
+  const selectedAgent = agentByUuidMap.get(selectedAgentUuid?.toLowerCase() || "");
 
   const roleCategoryLabels: Record<string, string> = {
     all: t.allRoles,
@@ -84,17 +117,18 @@ export default function ViewPregame() {
         <div className="team-list">
           {myTeam.map((player, playerIndex) => {
             const matchedAgent = player.agentId
-              ? agents.find((agent) => agent.uuid.toLowerCase() === player.agentId?.toLowerCase())
+              ? agentByUuidMap.get(player.agentId.toLowerCase()) || null
               : null;
 
             const displayAgentName = matchedAgent ? matchedAgent.displayName : t.selecting;
 
             const agentImpact = player.agentId
-              ? mlAgentImpacts?.find(
-                  (imp) =>
-                    imp.uuid?.toLowerCase() === player.agentId?.toLowerCase() ||
-                    (matchedAgent && imp.agent?.toLowerCase() === matchedAgent.displayName.toLowerCase())
-                )
+              ? impactMap.get(player.agentId.toLowerCase()) ||
+                (matchedAgent
+                  ? impactMap.get(
+                      matchedAgent.displayName.toLowerCase().replace(/[^a-z0-9]/g, "")
+                    )
+                  : null)
               : null;
 
             let playerStatusLabel = t.openStatus;

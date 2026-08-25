@@ -11,7 +11,7 @@ import {
   getCategoryWeapons,
   getWeaponAffordability,
 } from "@/data/weaponsData";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 export type AbilityStatus = "owned" | "buy";
 
@@ -24,14 +24,20 @@ export default function ViewIngame() {
   const rawAgentId = myTeam[0]?.agentId;
   const isAgentDetected = Boolean(rawAgentId && rawAgentId.trim() !== "");
   const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : "add6443a-41bd-e414-f6ad-e58d267f4e95"; // Jett UUID as default demo
-  const myAgent = agents.find((a) => a.uuid.toLowerCase() === myAgentId.toLowerCase());
+
+  const myAgent = useMemo(() => {
+    return agents.find((a) => a.uuid.toLowerCase() === myAgentId.toLowerCase());
+  }, [agents, myAgentId]);
+
   const myAgentName = myAgent?.displayName || "Jett";
   const myAgentIcon =
     myAgent?.displayIcon ||
     "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
   const myAbilities = myAgent?.abilities || [];
 
-  const basicAbilities = myAbilities.filter((a) => a.slot !== "Ultimate").slice(0, 3);
+  const basicAbilities = useMemo(() => {
+    return myAbilities.filter((a) => a.slot !== "Ultimate").slice(0, 3);
+  }, [myAbilities]);
 
   // State to manage 'owned' | 'buy' status for abilities dynamically
   const [abilityStatuses, setAbilityStatuses] = useState<Record<string, AbilityStatus>>({});
@@ -39,7 +45,7 @@ export default function ViewIngame() {
   // State to manage equipped shield/armor (only 1 can be active at a time)
   const [equippedArmorName, setEquippedArmorName] = useState<string | null>("ARM. PESADA");
 
-  const toggleAbilityStatus = (slotOrName: string) => {
+  const toggleAbilityStatus = useCallback((slotOrName: string) => {
     setAbilityStatuses((prev) => {
       const current = prev[slotOrName] || "buy";
       return {
@@ -47,11 +53,11 @@ export default function ViewIngame() {
         [slotOrName]: current === "owned" ? "buy" : "owned",
       };
     });
-  };
+  }, []);
 
-  const toggleArmor = (armorName: string) => {
+  const toggleArmor = useCallback((armorName: string) => {
     setEquippedArmorName((current) => (current === armorName ? null : armorName));
-  };
+  }, []);
 
   // Process and deduplicate weapons cleanly via our dedicated module
   const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);

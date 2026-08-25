@@ -12,6 +12,7 @@ import * as https from "https";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { firstValueFrom } from "rxjs";
+import { ValorantMlEngine } from "./valorant-ml-engine";
 
 const execPromise = promisify(exec);
 
@@ -828,7 +829,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       .join(",");
     const cacheKey = `${normalizedMap}__${normalizedMode}__${sortedAllies}`;
 
-    // Si la composición y el mapa no han cambiado, reutilizar el resultado instantáneamente
+    // 1. Si la composición y el mapa no han cambiado, reutilizar el resultado instantáneamente
     if (
       this.lastMlDraftKey === cacheKey &&
       this.lastMlDraftResult.recommendations.length > 0
@@ -836,7 +837,32 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       return this.lastMlDraftResult;
     }
 
-    // Evitar ejecuciones de Python simultáneas que saturen la CPU
+    // 2. Ejecutar inferencia ultra-rápida In-Memory en TypeScript (<1ms)
+    try {
+      const mlEngine = ValorantMlEngine.getInstance();
+      if (mlEngine.isLoaded()) {
+        const prediction = mlEngine.predict(
+          mapName || "Ascent",
+          alliesAgentUuids || [],
+          modeName || "competitive",
+        );
+        if (prediction && prediction.success) {
+          this.lastMlDraftKey = cacheKey;
+          this.lastMlDraftResult = {
+            recommendations: prediction.recommendations || [],
+            currentSynergy: prediction.currentSynergy || 0.0,
+            agentImpacts: prediction.agentImpacts || [],
+          };
+          return this.lastMlDraftResult;
+        }
+      }
+    } catch (engineError) {
+      this.logger.debug(
+        `In-memory ML Engine evaluation skipped, trying Python fallback: ${engineError instanceof Error ? engineError.message : String(engineError)}`,
+      );
+    }
+
+    // 3. Fallback secundario a subproceso de Python si el motor in-memory no estuviera disponible
     if (this.isPredicting) {
       return this.lastMlDraftResult;
     }
@@ -862,7 +888,6 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
       const venvPython = candidateVenvPythonPaths.find((p) => fs.existsSync(p));
 
-      // Priorizar el intérprete de Python del entorno virtual en desarrollo
       let cmd: string;
       if (venvPython && fs.existsSync(scriptPath)) {
         cmd = `"${venvPython}" "${scriptPath}" --map "${mapName}" --mode "${normalizedMode}" --allies "${alliesArg}"`;
