@@ -37,8 +37,13 @@ export class ValorantGateway implements OnGatewayConnection {
 
   private currentStatus: string = "CLOSED";
   private extraData: Record<string, unknown> = {};
-  private buyPhaseStatus: { available: boolean; time: number; round: number } =
-    { available: false, time: 0, round: 0 };
+  private buyPhaseStatus: {
+    available: boolean;
+    time: number;
+    round: number;
+    scoreAlly?: number;
+    scoreEnemy?: number;
+  } = { available: false, time: 0, round: 0, scoreAlly: 0, scoreEnemy: 0 };
 
   handleConnection(client: Socket) {
     client.emit("valorant_status", {
@@ -59,8 +64,14 @@ export class ValorantGateway implements OnGatewayConnection {
     }
   }
 
-  emitBuyPhaseStatus(available: boolean, time: number, round: number) {
-    this.buyPhaseStatus = { available, time, round };
+  emitBuyPhaseStatus(
+    available: boolean,
+    time: number,
+    round: number,
+    scoreAlly: number = 0,
+    scoreEnemy: number = 0,
+  ) {
+    this.buyPhaseStatus = { available, time, round, scoreAlly, scoreEnemy };
     if (this.server) {
       this.server.emit("buy_phase", this.buyPhaseStatus);
     }

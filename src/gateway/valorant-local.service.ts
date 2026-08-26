@@ -787,7 +787,13 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     this.logger.log(
       `New round detected! Round: ${round}. Starting buy phase of ${this.buyPhaseSecondsRemaining} seconds.`,
     );
-    this.gateway.emitBuyPhaseStatus(true, this.buyPhaseSecondsRemaining, round);
+    this.gateway.emitBuyPhaseStatus(
+      true,
+      this.buyPhaseSecondsRemaining,
+      round,
+      scoreAlly,
+      scoreEnemy,
+    );
 
     // Automatically trigger ML prediction for the new round
     void this.updateIngameCredits(this.currentCredits);
@@ -796,7 +802,13 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       this.buyPhaseSecondsRemaining--;
       if (this.buyPhaseSecondsRemaining <= 0) {
         this.logger.log(`Buy phase ended for round ${round}.`);
-        this.gateway.emitBuyPhaseStatus(false, 0, round);
+        this.gateway.emitBuyPhaseStatus(
+          false,
+          0,
+          round,
+          this.allyScore,
+          this.enemyScore,
+        );
         if (this.buyPhaseInterval) {
           clearInterval(this.buyPhaseInterval);
           this.buyPhaseInterval = null;
@@ -806,6 +818,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           true,
           this.buyPhaseSecondsRemaining,
           round,
+          this.allyScore,
+          this.enemyScore,
         );
       }
     }, 1000);

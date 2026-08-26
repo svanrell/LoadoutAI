@@ -4,6 +4,7 @@ import { useValorantData, Weapon } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { getAbilityPrice } from "@/data/agentAbilitiesData";
 import { getMapSplash } from "@/data/mapsData";
+import { calculateNextRoundProjection } from "@/data/economyEngine";
 import {
   ARMORS_DATA,
   WeaponCategoryConfig,
@@ -11,7 +12,7 @@ import {
   getCategoryWeapons,
   getWeaponAffordability,
 } from "@/data/weaponsData";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 
 // Estado de compra de cada habilidad: 'owned' (ya comprada/en posesión) o 'buy' (disponible para comprar)
 export type AbilityStatus = "owned" | "buy";
@@ -20,8 +21,23 @@ export default function ViewIngame() {
   // 1. Hook para obtener datos estáticos (agentes, catálogo de armas de Riot API)
   const { agents, weapons: rawWeapons } = useValorantData();
 
-  // 2. Hook del estado en tiempo real del juego (equipo, créditos actuales, fase de compra, mapa detectado)
-  const { myTeam, myCredits, buyPhaseAvailable, selectedMap, playerProfile } = useGameState();
+  // 2. Hook del estado en tiempo real del juego (equipo, créditos actuales, fase de compra, mapa detectado, economía)
+  const {
+    myTeam,
+    myCredits,
+    buyPhaseAvailable,
+    selectedMap,
+    playerProfile,
+    lossStreak,
+    scoreAlly,
+    scoreEnemy,
+    buyRecommendations,
+    enemyEconomy,
+    currentIngameRound,
+    isFollowingAiRecommendation,
+    setIsFollowingAiRecommendation,
+    setPlannedSpend,
+  } = useGameState();
 
   // 3. Estado local para saber qué arma tiene el cursor encima (hover) y mostrar sus estadísticas
   const [hoveredWeapon, setHoveredWeapon] = useState<Weapon | null>(null);
@@ -56,8 +72,16 @@ export default function ViewIngame() {
   // useState: Blindaje/escudo equipado actualmente (null = sin escudo / no comprado; o Ligera, Regen, Pesada)
   const [equippedArmorName, setEquippedArmorName] = useState<string | null>(null);
 
+  // useState: Arma principal equipada (por defecto "Classic")
+  const [equippedWeaponName, setEquippedWeaponName] = useState<string>("Classic");
+
+  // useCallback: Función memorizada para alternar el arma equipada al hacer clic
+  const toggleWeapon = useCallback((weaponName: string) => {
+    setEquippedWeaponName((current) => (current === weaponName ? "Classic" : weaponName));
+    setIsFollowingAiRecommendation(false);
+  }, [setIsFollowingAiRecommendation]);
+
   // useCallback: Función memorizada para alternar el estado de compra de una habilidad (comprado <-> no comprado)
-  // Al usar useCallback con dependencias vacías [], la función mantiene la misma referencia en memoria.
   const toggleAbilityStatus = useCallback((slotOrName: string) => {
     setAbilityStatuses((prev) => {
       const current = prev[slotOrName] || "buy";
@@ -66,15 +90,67 @@ export default function ViewIngame() {
         [slotOrName]: current === "owned" ? "buy" : "owned",
       };
     });
-  }, []);
+    setIsFollowingAiRecommendation(false);
+  }, [setIsFollowingAiRecommendation]);
 
   // useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
   const toggleArmor = useCallback((armorName: string) => {
     setEquippedArmorName((current) => (current === armorName ? null : armorName));
-  }, []);
+    setIsFollowingAiRecommendation(false);
+  }, [setIsFollowingAiRecommendation]);
 
   // useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
   const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
+
+  // Cálculo dinámico del gasto actual (armas + escudos + habilidades)
+  const manualWeaponSpend = useMemo(() => {
+    if (!equippedWeaponName || equippedWeaponName.toUpperCase() === "CLASSIC") return 0;
+    const found = allWeapons.find((w) => w.displayName.toUpperCase() === equippedWeaponName.toUpperCase());
+    return found?.shopData?.cost || 0;
+  }, [equippedWeaponName, allWeapons]);
+
+  const manualArmorSpend = useMemo(() => {
+    if (!equippedArmorName) return 0;
+    const found = ARMORS_DATA.find((a) => a.name === equippedArmorName);
+    return found?.cost || 0;
+  }, [equippedArmorName]);
+
+  const manualAbilitiesSpend = useMemo(() => {
+    let sum = 0;
+    for (let i = 0; i < basicAbilities.length; i++) {
+      const ab = basicAbilities[i];
+      const abilityKey = `${myAgentName}_${ab.displayName || ab.slot || i}`;
+      const priceData = getAbilityPrice(myAgentName, ab.displayName, ab.slot);
+      const isOwned = abilityStatuses[abilityKey] === "owned";
+      if (isOwned && !priceData.isSignature) {
+        sum += priceData.cost;
+      }
+    }
+    return sum;
+  }, [basicAbilities, abilityStatuses, myAgentName]);
+
+  const totalCalculatedSpend = useMemo(() => {
+    if (isFollowingAiRecommendation && buyRecommendations) {
+      return buyRecommendations.cost || (manualWeaponSpend + manualArmorSpend + manualAbilitiesSpend);
+    }
+    return manualWeaponSpend + manualArmorSpend + manualAbilitiesSpend;
+  }, [
+    isFollowingAiRecommendation,
+    buyRecommendations,
+    manualWeaponSpend,
+    manualArmorSpend,
+    manualAbilitiesSpend,
+  ]);
+
+  // Sincronizar el gasto planeado con el contexto de GameState para el cálculo automático de fin de ronda
+  useEffect(() => {
+    setPlannedSpend(totalCalculatedSpend);
+  }, [totalCalculatedSpend, setPlannedSpend]);
+
+  // Proyección de la economía para la siguiente ronda (Mínimo garantizado por derrota vs ganancia por victoria)
+  const projection = useMemo(() => {
+    return calculateNextRoundProjection(myCredits, totalCalculatedSpend, lossStreak);
+  }, [myCredits, totalCalculatedSpend, lossStreak]);
 
   const renderWeaponCol = (categories: WeaponCategoryConfig[]) => {
     return (
@@ -119,25 +195,35 @@ export default function ViewIngame() {
               </div>
               {groupWeapons.map((w) => {
                 if (!w.shopData) return null;
+                const isEquipped = equippedWeaponName.toUpperCase() === w.displayName.toUpperCase();
                 const status = getWeaponAffordability(w.shopData.cost, myCredits);
 
-                const border = "1px solid rgba(255, 255, 255, 0.16)";
-                const bg = "rgba(16, 24, 38, 0.72)";
-                const color = status === "unaffordable" ? "var(--color-red)" : "#f8fafc";
+                const border = isEquipped
+                  ? "1.5px solid var(--color-cyan)"
+                  : "1px solid rgba(255, 255, 255, 0.16)";
+                const bg = isEquipped
+                  ? "rgba(56, 189, 248, 0.14)"
+                  : "rgba(16, 24, 38, 0.72)";
+                const shadow = isEquipped
+                  ? "0 0 14px rgba(56, 189, 248, 0.25)"
+                  : "none";
+                const color = status === "unaffordable" && !isEquipped ? "var(--color-red)" : "#f8fafc";
 
                 const isClassic = w.displayName.toUpperCase() === "CLASSIC";
                 const costDisplay = isClassic ? "GRATIS" : `¤${w.shopData.cost}`;
-                const nameDisplay = isClassic ? "CLASSIC" : w.displayName;
-                const statusLabel = isClassic ? "COMPRADO" : "";
+                const nameDisplay = w.displayName;
+                const statusLabel = isEquipped ? "COMPRADO" : "";
 
                 return (
                   <div
                     key={w.uuid}
+                    onClick={() => toggleWeapon(w.displayName)}
                     onMouseEnter={() => setHoveredWeapon(w)}
                     onMouseLeave={() => setHoveredWeapon(null)}
                     style={{
                       border,
                       background: bg,
+                      boxShadow: shadow,
                       position: "relative",
                       display: "flex",
                       alignItems: "center",
@@ -150,13 +236,18 @@ export default function ViewIngame() {
                       backdropFilter: "blur(6px)",
                     }}
                     onMouseOver={(e) => {
-                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.14)";
-                      e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.45)";
+                      if (!isEquipped) {
+                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.14)";
+                        e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.45)";
+                      }
                     }}
                     onMouseOut={(e) => {
-                      e.currentTarget.style.background = bg;
-                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
+                      if (!isEquipped) {
+                        e.currentTarget.style.background = bg;
+                        e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
+                      }
                     }}
+                    title={`Click para equipar: ${w.displayName}`}
                   >
                     {statusLabel && (
                       <div
@@ -620,55 +711,182 @@ export default function ViewIngame() {
                     ></div>
                   )}
                   <img
-                    src="https://media.valorant-api.com/weapons/29a0cfab-485b-f5d5-779a-b59f85e204a8/displayicon.png"
-                    alt="Classic"
-                    style={{ width: "1.2rem", height: "0.6rem", objectFit: "contain" }}
+                    src={
+                      allWeapons.find((w) => w.displayName.toUpperCase() === equippedWeaponName.toUpperCase())?.displayIcon ||
+                      "https://media.valorant-api.com/weapons/29a0cfab-485b-f5d5-779a-b59f85e204a8/displayicon.png"
+                    }
+                    alt={equippedWeaponName}
+                    style={{ width: "1.3rem", height: "0.65rem", objectFit: "contain" }}
+                    title={`Arma equipada: ${equippedWeaponName}`}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Credits Box */}
+            {/* Selector de Modo de Compra (Seguir IA vs Compra Manual) */}
+            <div
+              onClick={() => setIsFollowingAiRecommendation(!isFollowingAiRecommendation)}
+              style={{
+                background: isFollowingAiRecommendation
+                  ? "linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(16, 24, 38, 0.88))"
+                  : "rgba(16, 24, 38, 0.82)",
+                border: isFollowingAiRecommendation
+                  ? "1.5px solid var(--color-cyan)"
+                  : "1px solid rgba(255, 255, 255, 0.18)",
+                padding: "clamp(0.45rem, 0.85vh, 0.65rem)",
+                borderRadius: "0.3rem",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                backdropFilter: "blur(8px)",
+              }}
+              title="Click para alternar entre seguir la recomendación de la IA o compra manual"
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span
+                  style={{
+                    fontSize: "clamp(0.52rem, 0.85vh, 0.65rem)",
+                    fontWeight: 900,
+                    letterSpacing: "0.05em",
+                    color: isFollowingAiRecommendation ? "var(--color-cyan)" : "#cbd5e1",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {isFollowingAiRecommendation ? "RECOMENDACIÓN IA" : "COMPRA MANUAL"}
+                </span>
+                <span
+                  style={{
+                    fontSize: "clamp(0.48rem, 0.72vh, 0.58rem)",
+                    fontWeight: 800,
+                    padding: "1px 5px",
+                    borderRadius: "3px",
+                    background: isFollowingAiRecommendation ? "var(--color-cyan)" : "rgba(255,255,255,0.12)",
+                    color: isFollowingAiRecommendation ? "#000" : "#94a3b8",
+                  }}
+                >
+                  {isFollowingAiRecommendation ? "SEGUIDA" : "EDITAR"}
+                </span>
+              </div>
+
+              {buyRecommendations && (
+                <div
+                  style={{
+                    fontSize: "clamp(0.5rem, 0.76vh, 0.6rem)",
+                    color: "var(--text-muted)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "2px",
+                    marginTop: "2px",
+                  }}
+                >
+                  <div>
+                    <span style={{ color: "#f8fafc", fontWeight: 700 }}>Plan IA:</span>{" "}
+                    {buyRecommendations.weapon || "Save"} + {buyRecommendations.shield || "Sin escudo"}
+                  </div>
+                  <div style={{ color: "var(--color-cyan)", fontWeight: 800 }}>
+                    Coste estimado: ¤ {buyRecommendations.cost?.toLocaleString() || 0}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Credits Box con desglose dinámico */}
             <div
               style={{
                 background: "rgba(16, 24, 38, 0.82)",
-                padding: "clamp(0.45rem, 0.95vh, 0.75rem) clamp(0.6rem, 1vw, 0.95rem)",
+                padding: "clamp(0.45rem, 0.85vh, 0.7rem) clamp(0.6rem, 1vw, 0.85rem)",
                 display: "flex",
-                justifyContent: "flex-end",
+                flexDirection: "column",
+                gap: "0.3rem",
                 border: "1px solid rgba(255,255,255,0.18)",
                 borderRadius: "0.3rem",
                 backdropFilter: "blur(10px)",
               }}
             >
-              <span
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "clamp(0.52rem, 0.8vh, 0.62rem)", color: "var(--text-muted)", fontWeight: 800 }}>
+                  CRÉDITOS BANCO
+                </span>
+                <span
+                  style={{
+                    fontSize: "clamp(1.15rem, 2.1vh, 1.55rem)",
+                    fontWeight: 900,
+                    fontFamily: "'Orbitron', sans-serif",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.25rem",
+                  }}
+                >
+                  <span style={{ fontSize: "clamp(0.8rem, 1.3vh, 1rem)", color: "var(--color-cyan)" }}>
+                    ¤
+                  </span>{" "}
+                  {myCredits.toLocaleString()}
+                </span>
+              </div>
+
+              <div
                 style={{
-                  fontSize: "clamp(1.25rem, 2.3vh, 1.7rem)",
-                  fontWeight: 900,
-                  fontFamily: "'Orbitron', sans-serif",
                   display: "flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
+                  justifyContent: "space-between",
+                  fontSize: "clamp(0.5rem, 0.78vh, 0.62rem)",
+                  fontWeight: 800,
+                  borderTop: "1px solid rgba(255,255,255,0.08)",
+                  paddingTop: "0.25rem",
                 }}
               >
-                <span style={{ fontSize: "clamp(0.85rem, 1.4vh, 1.1rem)", color: "var(--color-cyan)" }}>
-                  ¤
-                </span>{" "}
-                {myCredits.toLocaleString()}
-              </span>
+                <span style={{ color: "var(--color-red)" }}>
+                  Gasto: -¤ {totalCalculatedSpend.toLocaleString()}
+                </span>
+                <span style={{ color: "var(--color-green)" }}>
+                  Restante: ¤ {projection.leftoverCredits.toLocaleString()}
+                </span>
+              </div>
             </div>
 
+            {/* Proyecciones de la Próxima Ronda */}
             <div
               style={{
-                fontSize: "clamp(0.52rem, 0.85vh, 0.65rem)",
-                color: "var(--text-muted)",
-                textTransform: "uppercase",
-                margin: "0.25rem 0",
-                fontWeight: 800,
-                letterSpacing: "0.05em",
+                background: "rgba(16, 24, 38, 0.6)",
+                padding: "clamp(0.35rem, 0.7vh, 0.5rem) clamp(0.5rem, 0.9vw, 0.75rem)",
+                borderRadius: "0.25rem",
+                border: "1px solid rgba(255,255,255,0.1)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.2rem",
               }}
             >
-              MÍN. PARA LA PRÓXIMA RONDA:{" "}
-              <span style={{ float: "right", color: "var(--text-main)" }}>¤ 0</span>
+              <div
+                style={{
+                  fontSize: "clamp(0.5rem, 0.8vh, 0.62rem)",
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  fontWeight: 800,
+                  letterSpacing: "0.04em",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span>MÍN. PRÓXIMA RONDA:</span>
+                <span style={{ color: "var(--text-main)", fontWeight: 900 }}>
+                  ¤ {projection.minNextRoundLoss.toLocaleString()}
+                </span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: "clamp(0.48rem, 0.75vh, 0.58rem)",
+                  color: "rgba(255,255,255,0.55)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span>SI GANAS LA RONDA:</span>
+                <span style={{ color: "var(--color-cyan)", fontWeight: 800 }}>
+                  ¤ {projection.minNextRoundWin.toLocaleString()}
+                </span>
+              </div>
             </div>
           </div>
 

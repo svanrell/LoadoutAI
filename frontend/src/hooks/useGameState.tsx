@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
+import { advanceRoundEconomy, getResetCreditsForRound, RoundOutcome } from "@/data/economyEngine";
 
 export type ViewState = "closed" | "menu" | "pregame" | "ingame" | "tierlist" | "tools";
 
@@ -134,6 +135,13 @@ interface GameStateContextProps {
   enemyEconomy: EnemyEconomy | null;
   myCredits: number;
   setMyCredits: (credits: number) => void;
+  scoreAlly: number;
+  scoreEnemy: number;
+  lossStreak: number;
+  isFollowingAiRecommendation: boolean;
+  setIsFollowingAiRecommendation: (following: boolean) => void;
+  plannedSpend: number;
+  setPlannedSpend: (spend: number) => void;
   pregameMatchId: string | null;
   selectAgent: (agentUuid: string) => void;
   lockAgent: (agentUuid: string) => void;
@@ -167,8 +175,26 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [buyPhaseTime, setBuyPhaseTime] = useState(0);
   const [buyRecommendations, setBuyRecommendations] = useState<BuyRecommendation | null>(null);
   const [enemyEconomy, setEnemyEconomy] = useState<EnemyEconomy | null>(null);
-  const [myCredits, setMyCredits] = useState(3900);
+  const [myCredits, setMyCredits] = useState(800); // 800 créditos iniciales oficiales
+  const [scoreAlly, setScoreAlly] = useState(0);
+  const [scoreEnemy, setScoreEnemy] = useState(0);
+  const [lossStreak, setLossStreak] = useState(0);
+  const [isFollowingAiRecommendation, setIsFollowingAiRecommendation] = useState(true);
+  const [plannedSpend, setPlannedSpend] = useState(0);
   const [pregameMatchId, setPregameMatchId] = useState<string | null>(null);
+
+  const creditsRef = useRef(myCredits);
+  creditsRef.current = myCredits;
+  const currentRoundRef = useRef(currentIngameRound);
+  currentRoundRef.current = currentIngameRound;
+  const scoreAllyRef = useRef(scoreAlly);
+  scoreAllyRef.current = scoreAlly;
+  const scoreEnemyRef = useRef(scoreEnemy);
+  scoreEnemyRef.current = scoreEnemy;
+  const lossStreakRef = useRef(lossStreak);
+  lossStreakRef.current = lossStreak;
+  const plannedSpendRef = useRef(plannedSpend);
+  plannedSpendRef.current = plannedSpend;
 
   const [playerProfile, setPlayerProfile] = useState<SyncedPlayerProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -341,7 +367,39 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     });
 
     socket.on("buy_phase", (data: any) => {
-      setCurrentIngameRound(data.round || 1);
+      const newRound = data.round || 1;
+      const newScoreAlly = typeof data.scoreAlly === "number" ? data.scoreAlly : scoreAllyRef.current;
+      const newScoreEnemy = typeof data.scoreEnemy === "number" ? data.scoreEnemy : scoreEnemyRef.current;
+
+      // Si la ronda avanzó durante una partida activa, calculamos el nuevo saldo
+      if (newRound > currentRoundRef.current && currentRoundRef.current > 0) {
+        const outcome: RoundOutcome = newScoreAlly > scoreAllyRef.current ? "win" : "loss";
+        
+        const econ = advanceRoundEconomy({
+          previousBank: creditsRef.current,
+          totalSpend: plannedSpendRef.current,
+          outcome,
+          previousLossStreak: lossStreakRef.current,
+          newRound,
+        });
+
+        setMyCredits(econ.newCredits);
+        setLossStreak(econ.newLossStreak);
+        setPlannedSpend(0); // Reiniciar gasto para la nueva fase de compra
+      } else if (newRound === 1 || newRound === 13) {
+        const reset = getResetCreditsForRound(newRound);
+        if (reset !== null) {
+          setMyCredits(reset);
+          setLossStreak(0);
+          setPlannedSpend(0);
+        }
+      }
+
+      scoreAllyRef.current = newScoreAlly;
+      scoreEnemyRef.current = newScoreEnemy;
+      setScoreAlly(newScoreAlly);
+      setScoreEnemy(newScoreEnemy);
+      setCurrentIngameRound(newRound);
       setBuyPhaseAvailable(!!data.available);
       if (data.available && typeof data.time === 'number') {
         setBuyPhaseTime(data.time);
@@ -399,6 +457,13 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         enemyEconomy,
         myCredits,
         setMyCredits,
+        scoreAlly,
+        scoreEnemy,
+        lossStreak,
+        isFollowingAiRecommendation,
+        setIsFollowingAiRecommendation,
+        plannedSpend,
+        setPlannedSpend,
         pregameMatchId,
         selectAgent,
         lockAgent,

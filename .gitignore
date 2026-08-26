@@ -1,11 +1,11 @@
 # Compiled output
-/dist
+/dist*
 /dist_app
 /node_modules
 /public
 /release
 /frontend/.next
-/frontend/out
+/frontend/out*
 /frontend/node_modules
 
 # Python & Machine Learning
