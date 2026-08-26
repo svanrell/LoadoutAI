@@ -21,15 +21,16 @@ export default function ViewIngame() {
   const { agents, weapons: rawWeapons } = useValorantData();
 
   // 2. Hook del estado en tiempo real del juego (equipo, créditos actuales, fase de compra, mapa detectado)
-  const { myTeam, myCredits, buyPhaseAvailable, selectedMap } = useGameState();
+  const { myTeam, myCredits, buyPhaseAvailable, selectedMap, playerProfile } = useGameState();
 
   // 3. Estado local para saber qué arma tiene el cursor encima (hover) y mostrar sus estadísticas
   const [hoveredWeapon, setHoveredWeapon] = useState<Weapon | null>(null);
 
-  // 4. Detección del agente del jugador actual desde el cliente de Riot
-  const rawAgentId = myTeam[0]?.agentId;
+  // 4. Detección del agente del jugador actual ("You" en vivo o el agente seleccionado)
+  const myPlayer = myTeam.find((p) => p.name === "You") || myTeam.find((p) => p.agentId) || myTeam[0];
+  const rawAgentId = myPlayer?.agentId;
   const isAgentDetected = Boolean(rawAgentId && rawAgentId.trim() !== "");
-  // Si estamos en modo demo (sin juego abierto), usamos el UUID de Jett por defecto
+  // Si estamos en modo demo (sin juego abierto ni agente seleccionado), usamos el UUID de Jett por defecto
   const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : "add6443a-41bd-e414-f6ad-e58d267f4e95";
 
   // 🧠 useMemo: Busca al agente en la lista solo si 'agents' o 'myAgentId' cambian.
@@ -52,8 +53,8 @@ export default function ViewIngame() {
   // 🎯 useState: Diccionario para registrar si cada habilidad está comprada o no
   const [abilityStatuses, setAbilityStatuses] = useState<Record<string, AbilityStatus>>({});
 
-  // 🎯 useState: Blindaje/escudo equipado actualmente (solo 1 activo a la vez: Ligera, Regen, Pesada)
-  const [equippedArmorName, setEquippedArmorName] = useState<string | null>("ARM. PESADA");
+  // 🎯 useState: Blindaje/escudo equipado actualmente (null = sin escudo / no comprado; o Ligera, Regen, Pesada)
+  const [equippedArmorName, setEquippedArmorName] = useState<string | null>(null);
 
   // ⚡ useCallback: Función memorizada para alternar el estado de compra de una habilidad (comprado <-> no comprado)
   // Al usar useCallback con dependencias vacías [], la función mantiene la misma referencia en memoria.
@@ -556,7 +557,7 @@ export default function ViewIngame() {
                     letterSpacing: "0.04em",
                   }}
                 >
-                  shumi747
+                  {playerProfile?.gameName ? playerProfile.gameName : "PLAYER"}
                 </div>
 
                 {/* Status indicator: Shows whether agent is live or fallback demo */}

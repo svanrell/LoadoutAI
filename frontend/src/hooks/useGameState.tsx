@@ -155,7 +155,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [connectionText, setConnectionText] = useState("Radar Offline");
   const [myTeam, setMyTeam] = useState<Player[]>(
     Array(5).fill(null).map((_, i) => ({
-      puuid: `p${i}`, name: `Ally ${i+1}`, agentId: null, state: "", level: 0, rank: 0, playerCardId: ""
+      puuid: `p${i}`, name: i === 0 ? "You" : `Ally ${i+1}`, agentId: null, state: "", level: 0, rank: 0, playerCardId: ""
     }))
   );
   
