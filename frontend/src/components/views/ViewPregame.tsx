@@ -622,39 +622,18 @@ export default function ViewPregame() {
         </div>
 
         {/* Panel de Explorador de Sinergia O Mensaje de Equipo Completo */}
-        <div
-          className="cyber-panel"
-          style={{
-            flex: 1,
-            padding: "12px 14px",
-            display: "flex",
-            flexDirection: "column",
-            minHeight: 0,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            className="panel-header"
-            style={{
-              width: "100%",
-              padding: "0 0 8px 0",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderBottom: "1px solid rgba(0, 243, 255, 0.15)",
-              background: "transparent",
-            }}
-          >
-            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div className="cyber-panel synergy-explorer-panel">
+          <div className="panel-header synergy-panel-header">
+            <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
               <span style={{ color: isDraftComplete ? "#00ff88" : "var(--color-cyan)", fontWeight: "bold" }}>●</span>{" "}
               {isDraftComplete ? "ESTADO DEL EQUIPO" : t.roleSynergyExplorer}
             </span>
             <span
               style={{
-                fontSize: "10px",
+                fontSize: "0.625rem",
                 color: isDraftComplete ? "#00ff88" : "var(--color-cyan)",
                 textTransform: "uppercase",
-                letterSpacing: "1px",
+                letterSpacing: "0.06em",
                 fontWeight: "bold",
               }}
             >
@@ -674,22 +653,22 @@ export default function ViewPregame() {
                 alignItems: "center",
                 justifyContent: "center",
                 flex: 1,
-                gap: "14px",
-                padding: "20px",
+                gap: "0.875rem",
+                padding: "1.25rem",
                 textAlign: "center",
               }}
             >
               <div
                 style={{
-                  width: "52px",
-                  height: "52px",
+                  width: "3.25rem",
+                  height: "3.25rem",
                   borderRadius: "50%",
                   background: "rgba(0, 255, 136, 0.12)",
                   border: "2px solid #00ff88",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 0 20px rgba(0, 255, 136, 0.3)",
+                  boxShadow: "0 0 1.25rem rgba(0, 255, 136, 0.3)",
                 }}
               >
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00ff88" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -701,10 +680,10 @@ export default function ViewPregame() {
                 <div
                   style={{
                     fontFamily: "'Orbitron', sans-serif",
-                    fontSize: "16px",
+                    fontSize: "1rem",
                     fontWeight: 900,
                     color: "#00ff88",
-                    letterSpacing: "1px",
+                    letterSpacing: "0.06em",
                     textTransform: "uppercase",
                   }}
                 >
@@ -712,9 +691,9 @@ export default function ViewPregame() {
                 </div>
                 <div
                   style={{
-                    fontSize: "12px",
+                    fontSize: "0.75rem",
                     color: "var(--text-muted)",
-                    marginTop: "4px",
+                    marginTop: "0.25rem",
                   }}
                 >
                   Todos los agentes han sido seleccionados. La selección está cerrada.
@@ -724,27 +703,19 @@ export default function ViewPregame() {
               <button
                 onClick={() => setView("ingame")}
                 style={{
-                  marginTop: "6px",
-                  padding: "8px 22px",
+                  marginTop: "0.375rem",
+                  padding: "0.5rem 1.375rem",
                   background: "var(--color-cyan)",
                   color: "#000",
                   border: "none",
-                  borderRadius: "4px",
+                  borderRadius: "0.25rem",
                   fontFamily: "'Orbitron', sans-serif",
-                  fontSize: "11px",
+                  fontSize: "0.6875rem",
                   fontWeight: 900,
-                  letterSpacing: "1px",
+                  letterSpacing: "0.06em",
                   cursor: "pointer",
-                  boxShadow: "0 0 15px rgba(56, 189, 248, 0.35)",
+                  boxShadow: "0 0 0.95rem rgba(56, 189, 248, 0.35)",
                   transition: "all 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "scale(1.02)";
-                  e.currentTarget.style.boxShadow = "0 0 20px rgba(56, 189, 248, 0.55)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.boxShadow = "0 0 15px rgba(56, 189, 248, 0.35)";
                 }}
               >
                 IR A SELECCIÓN DE ARMAS →
@@ -752,16 +723,17 @@ export default function ViewPregame() {
             </div>
           ) : (
             <div
+              className="synergy-agents-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(13.75rem, 1fr))",
                 gridAutoRows: "max-content",
                 alignContent: "start",
-                gap: "8px",
+                gap: "0.5rem",
                 flex: 1,
                 overflowY: "auto",
-                paddingRight: "4px",
-                marginTop: "8px",
+                paddingRight: "0.25rem",
+                marginTop: "0.5rem",
               }}
             >
               {filteredAgents.map((agent) => {
@@ -775,17 +747,12 @@ export default function ViewPregame() {
                 return (
                   <div
                     key={agent.uuid}
-                    onClick={() => {
-                      if (!isAgentPickedByTeam) {
-                        setSelectedAgentUuid(agent.uuid);
-                        selectAgent(agent.uuid);
-                      }
-                    }}
+                    className={`synergy-agent-card ${isCurrentAgentSelected ? "selected" : ""} ${isAgentPickedByTeam ? "team-picked" : ""}`}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      padding: "8px 12px",
+                      padding: "0.4rem 0.55rem",
                       background: isCurrentAgentSelected
                         ? "rgba(0, 243, 255, 0.15)"
                         : isAgentPickedByTeam
@@ -796,142 +763,198 @@ export default function ViewPregame() {
                         : isAgentPickedByTeam
                         ? "1px solid rgba(0, 255, 136, 0.25)"
                         : "1px solid rgba(0, 243, 255, 0.18)",
-                      borderRadius: "4px",
+                      borderRadius: "0.3rem",
                       cursor: isAgentPickedByTeam ? "default" : "pointer",
                       transition: "all 0.2s ease",
-                      opacity: isAgentPickedByTeam ? 0.85 : 1,
+                      gap: "0.5rem",
+                      minWidth: 0,
                     }}
-                    onMouseEnter={(event) => {
-                      if (!isCurrentAgentSelected && !isAgentPickedByTeam) {
-                        event.currentTarget.style.borderColor = "var(--color-cyan)";
-                        event.currentTarget.style.background = "rgba(0, 243, 255, 0.08)";
-                      }
-                    }}
-                    onMouseLeave={(event) => {
-                      if (!isCurrentAgentSelected && !isAgentPickedByTeam) {
-                        event.currentTarget.style.borderColor = "rgba(0, 243, 255, 0.18)";
-                        event.currentTarget.style.background = "rgba(15, 25, 35, 0.75)";
+                    onClick={() => {
+                      if (!isAgentPickedByTeam) {
+                        setSelectedAgentUuid(agent.uuid);
+                        selectAgent(agent.uuid);
                       }
                     }}
                   >
                     {/* Foto + Nombre + Rol */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div
+                      className="synergy-agent-identity"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.45rem",
+                        minWidth: 0,
+                        flex: 1,
+                      }}
+                    >
                       <img
                         src={agent.displayIcon}
                         alt={agent.displayName}
+                        className={`synergy-agent-avatar ${isCurrentAgentSelected ? "selected" : ""} ${isAgentPickedByTeam ? "picked" : ""}`}
                         style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "4px",
+                          width: "2rem",
+                          height: "2rem",
+                          minWidth: "2rem",
+                          maxWidth: "2rem",
+                          minHeight: "2rem",
+                          maxHeight: "2rem",
+                          borderRadius: "0.25rem",
                           objectFit: "cover",
+                          flexShrink: 0,
+                          display: "block",
                           border: isCurrentAgentSelected
                             ? "1px solid var(--color-cyan)"
                             : isAgentPickedByTeam
                             ? "1px solid rgba(0, 255, 136, 0.4)"
-                            : "1px solid transparent",
+                            : "1px solid rgba(255, 255, 255, 0.08)",
                         }}
                       />
-                      <div>
+                      <div
+                        className="synergy-agent-names"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          minWidth: 0,
+                          flex: 1,
+                        }}
+                      >
                         <div
+                          className="synergy-agent-name"
                           style={{
-                            fontSize: "12px",
-                            fontWeight: "bold",
+                            fontSize: "0.775rem",
+                            fontWeight: 700,
                             color: isCurrentAgentSelected
                               ? "var(--color-cyan)"
                               : isAgentPickedByTeam
                               ? "#00ff88"
-                              : "#fff",
+                              : "#ffffff",
+                            lineHeight: 1.15,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
                           }}
                         >
                           {agent.displayName}
                         </div>
-                        <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                        <div
+                          className="synergy-agent-role"
+                          style={{
+                            fontSize: "0.625rem",
+                            color: "var(--text-muted)",
+                            lineHeight: 1.05,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
                           {agent.role?.displayName || "Agent"}
                         </div>
                       </div>
                     </div>
 
                     {/* Win Rate o Badge 'EN EQUIPO' + Botón Pick/Lock */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div
+                      className="synergy-agent-actions"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        flexShrink: 0,
+                      }}
+                    >
                       {isAgentPickedByTeam ? (
                         <span
+                          className="synergy-team-badge"
                           style={{
-                            fontSize: "9px",
+                            fontSize: "0.55rem",
                             fontWeight: 800,
                             color: "#00ff88",
-                            padding: "2px 6px",
+                            padding: "0.15rem 0.4rem",
                             background: "rgba(0, 255, 136, 0.12)",
-                            borderRadius: "3px",
+                            borderRadius: "0.2rem",
                             border: "1px solid rgba(0, 255, 136, 0.3)",
-                            letterSpacing: "0.5px",
+                            letterSpacing: "0.04em",
+                            whiteSpace: "nowrap",
                           }}
                         >
                           EN EQUIPO
                         </span>
                       ) : estimatedWinRate !== null ? (
-                        <div style={{ textAlign: "right" }}>
+                        <div
+                          className="synergy-winrate-box"
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-end",
+                            flexShrink: 0,
+                          }}
+                        >
                           <div
+                            className="synergy-winrate-val"
                             style={{
-                              fontFamily: "'Orbitron', sans-serif",
-                              fontSize: "12px",
-                              fontWeight: "bold",
+                              fontFamily: "'Orbitron', monospace, sans-serif",
+                              fontSize: "0.725rem",
+                              fontWeight: 800,
                               color:
                                 estimatedWinRate >= 70 ? "#00ff88" : "var(--color-cyan)",
+                              letterSpacing: "0.02em",
+                              lineHeight: 1.1,
                             }}
                           >
                             {estimatedWinRate.toFixed(1)}%
                           </div>
-                          <div style={{ fontSize: "8px", color: "var(--text-muted)" }}>
+                          <div
+                            className="synergy-winrate-label"
+                            style={{
+                              fontSize: "0.5rem",
+                              color: "var(--text-muted)",
+                              lineHeight: 1,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.03em",
+                            }}
+                          >
                             {t.estWinRate}
                           </div>
                         </div>
                       ) : (
-                        <span style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                        <span style={{ fontSize: "0.625rem", color: "var(--text-muted)" }}>
                           --
                         </span>
                       )}
 
                       <button
+                        type="button"
                         disabled={isAgentPickedByTeam}
+                        className={`synergy-pick-btn ${isCurrentAgentSelected ? "selected" : ""}`}
+                        style={{
+                          padding: "0.25rem 0.5rem",
+                          fontSize: "0.625rem",
+                          fontFamily: "'Orbitron', sans-serif",
+                          fontWeight: 800,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                          borderRadius: "0.2rem",
+                          border: "none",
+                          cursor: isAgentPickedByTeam ? "default" : "pointer",
+                          whiteSpace: "nowrap",
+                          flexShrink: 0,
+                          transition: "all 0.18s ease",
+                          background: isAgentPickedByTeam
+                            ? "rgba(255, 255, 255, 0.08)"
+                            : isCurrentAgentSelected
+                            ? "var(--color-red)"
+                            : "rgba(255, 70, 85, 0.22)",
+                          color: isAgentPickedByTeam ? "var(--text-muted)" : "#ffffff",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                         onClick={(event) => {
                           event.stopPropagation();
                           if (!isAgentPickedByTeam) {
                             setSelectedAgentUuid(agent.uuid);
                             selectAgent(agent.uuid);
                             lockAgent(agent.uuid);
-                          }
-                        }}
-                        style={{
-                          padding: "5px 10px",
-                          fontSize: "10px",
-                          fontFamily: "'Orbitron', sans-serif",
-                          fontWeight: "bold",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                          borderRadius: "3px",
-                          border: "none",
-                          cursor: isAgentPickedByTeam ? "default" : "pointer",
-                          background: isAgentPickedByTeam
-                            ? "rgba(255, 255, 255, 0.08)"
-                            : isCurrentAgentSelected
-                            ? "var(--color-red)"
-                            : "rgba(255, 70, 85, 0.2)",
-                          color: isAgentPickedByTeam ? "var(--text-muted)" : "#fff",
-                          transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={(event) => {
-                          if (!isAgentPickedByTeam) {
-                            event.currentTarget.style.background = "var(--color-red)";
-                            event.currentTarget.style.boxShadow =
-                              "0 0 10px rgba(255, 70, 85, 0.5)";
-                          }
-                        }}
-                        onMouseLeave={(event) => {
-                          if (!isAgentPickedByTeam) {
-                            event.currentTarget.style.background = isCurrentAgentSelected
-                              ? "var(--color-red)"
-                              : "rgba(255, 70, 85, 0.2)";
-                            event.currentTarget.style.boxShadow = "none";
                           }
                         }}
                       >
@@ -982,7 +1005,20 @@ export default function ViewPregame() {
                   selectAgent(agent.uuid);
                 }}
               >
-                <img src={agent.displayIcon} alt={agent.displayName} />
+                <img
+                  src={agent.displayIcon}
+                  alt={agent.displayName}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    minWidth: "100%",
+                    maxWidth: "100%",
+                    minHeight: "100%",
+                    maxHeight: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
               </div>
             ))
           )}
@@ -990,12 +1026,22 @@ export default function ViewPregame() {
 
         {/* Active Selection Area */}
         <div className="selection-panel">
-          <div className="selection-portrait-wrap">
+          <div className="selection-portrait-wrap" style={{ width: "4rem", height: "4rem", minWidth: "4rem", maxWidth: "4rem", minHeight: "4rem", maxHeight: "4rem", overflow: "hidden", flexShrink: 0, position: "relative" }}>
             {selectedAgent ? (
               <img
-                src={selectedAgent.bustPortrait || selectedAgent.fullPortrait}
+                src={selectedAgent.displayIcon}
                 alt={selectedAgent.displayName}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  minWidth: "100%",
+                  maxWidth: "100%",
+                  minHeight: "100%",
+                  maxHeight: "100%",
+                  objectFit: "cover",
+                  objectPosition: "center top",
+                  display: "block",
+                }}
               />
             ) : (
               <div className="selection-portrait-placeholder">

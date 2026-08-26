@@ -12,6 +12,7 @@ import {
   ToolsIcon,
   GlobeIcon,
 } from "@/components/Icons";
+import { getRankIconUrl, getTierColor } from "@/lib/rankUtils";
 
 export default function Header() {
   const {
@@ -175,8 +176,15 @@ export default function Header() {
             <span className="header-username">
               {playerProfile ? `${playerProfile.gameName} #${playerProfile.tagLine}` : "Player #LIVE"}
             </span>
-            <span className="header-user-tier">
-              {playerProfile?.rankName ? `${playerProfile.rankName.toUpperCase()} • ${playerProfile.rankedRating} RR` : t.currentRank}
+            <span className="header-user-tier" style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              <img
+                src={getRankIconUrl(playerProfile?.currentTier || 0)}
+                alt="Rank Icon"
+                style={{ width: "13px", height: "13px", objectFit: "contain", filter: "drop-shadow(0 0 2px rgba(255,255,255,0.2))" }}
+              />
+              <span style={{ color: getTierColor(playerProfile?.currentTier || 0), fontWeight: 700 }}>
+                {playerProfile?.rankName ? `${playerProfile.rankName.toUpperCase()} • ${playerProfile.rankedRating} RR` : t.currentRank}
+              </span>
             </span>
           </div>
         </div>

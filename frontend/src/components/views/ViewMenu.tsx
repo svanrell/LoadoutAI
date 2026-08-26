@@ -6,85 +6,14 @@ import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
 import { RefreshIcon } from "@/components/Icons";
 
-const TIER_NAMES_MAP: Record<number, string> = {
-  0: "Unranked",
-  1: "Unranked",
-  2: "Unranked",
-  3: "Iron 1",
-  4: "Iron 2",
-  5: "Iron 3",
-  6: "Bronze 1",
-  7: "Bronze 2",
-  8: "Bronze 3",
-  9: "Silver 1",
-  10: "Silver 2",
-  11: "Silver 3",
-  12: "Gold 1",
-  13: "Gold 2",
-  14: "Gold 3",
-  15: "Platinum 1",
-  16: "Platinum 2",
-  17: "Platinum 3",
-  18: "Diamond 1",
-  19: "Diamond 2",
-  20: "Diamond 3",
-  21: "Ascendant 1",
-  22: "Ascendant 2",
-  23: "Ascendant 3",
-  24: "Immortal 1",
-  25: "Immortal 2",
-  26: "Immortal 3",
-  27: "Radiant",
-};
-
-const TIER_COLORS: Record<string, string> = {
-  iron: "#94a3b8",
-  bronze: "#ca8a04",
-  silver: "#cbd5e1",
-  gold: "#eab308",
-  platinum: "#06b6d4",
-  diamond: "#c084fc",
-  ascendant: "#10b981",
-  immortal: "#f43f5e",
-  radiant: "#fef08a",
-  unranked: "#64748b",
-};
-
-function resolveTierName(tier: number): string {
-  return TIER_NAMES_MAP[tier] || "Unranked";
-}
-
-function getTierColor(tierName: string) {
-  const lower = (tierName || "").toLowerCase();
-  for (const [key, color] of Object.entries(TIER_COLORS)) {
-    if (lower.includes(key)) return color;
-  }
-  return "#06b6d4";
-}
-
-function getTierShortLabel(tierNum: number, tierName?: string) {
-  if (tierNum >= 3 && tierNum <= 5) return `I${tierNum - 2}`;
-  if (tierNum >= 6 && tierNum <= 8) return `B${tierNum - 5}`;
-  if (tierNum >= 9 && tierNum <= 11) return `S${tierNum - 8}`;
-  if (tierNum >= 12 && tierNum <= 14) return `G${tierNum - 11}`;
-  if (tierNum >= 15 && tierNum <= 17) return `P${tierNum - 14}`;
-  if (tierNum >= 18 && tierNum <= 20) return `D${tierNum - 17}`;
-  if (tierNum >= 21 && tierNum <= 23) return `A${tierNum - 20}`;
-  if (tierNum >= 24 && tierNum <= 26) return `Imm${tierNum - 23}`;
-  if (tierNum === 27) return "RAD";
-
-  const lower = (tierName || "").toLowerCase();
-  if (lower.includes("iron")) return "IRON";
-  if (lower.includes("bronze")) return "BRON";
-  if (lower.includes("silver")) return "SILV";
-  if (lower.includes("gold")) return "GOLD";
-  if (lower.includes("platinum")) return "PLAT";
-  if (lower.includes("diamond")) return "DIAM";
-  if (lower.includes("ascendant")) return "ASCE";
-  if (lower.includes("immortal")) return "IMMO";
-  if (lower.includes("radiant")) return "RAD";
-  return "UNR";
-}
+import {
+  resolveTierName,
+  getTierColor,
+  getTierBgColor,
+  getTierShortLabel,
+  getRankIconUrl,
+  getRankLargeIconUrl,
+} from "@/lib/rankUtils";
 
 export default function ViewMenu() {
   const { setView, connectionStatus, playerProfile, isProfileLoading, requestPlayerProfile } = useGameState();
@@ -211,10 +140,10 @@ export default function ViewMenu() {
   const chartData = useMemo(() => {
     if (competitiveUpdates.length === 0) return null;
 
-    const padLeft = 38;
-    const padRight = 14;
-    const padTop = 12;
-    const padBottom = 14;
+    const padLeft = 68;
+    const padRight = 16;
+    const padTop = 14;
+    const padBottom = 16;
     const width = chartDimensions.width;
     const height = chartDimensions.height;
     const chartW = Math.max(10, width - padLeft - padRight);
@@ -226,11 +155,9 @@ export default function ViewMenu() {
     const maxTier = Math.max(...tierValues);
 
     // Rango visible de divisiones (Tier Bands)
-    // Ampliar para mostrar al menos 3 a 4 divisiones para que no se vea comprimido
     let displayMinTier = Math.max(3, minTier - 1);
     let displayMaxTier = Math.min(27, maxTier + 1);
 
-    // Si abarca muy pocas divisiones, expandir hacia arriba y hacia abajo
     while (displayMaxTier - displayMinTier < 3 && (displayMinTier > 3 || displayMaxTier < 27)) {
       if (displayMinTier > 3) displayMinTier--;
       if (displayMaxTier - displayMinTier < 3 && displayMaxTier < 27) displayMaxTier++;
@@ -288,25 +215,51 @@ export default function ViewMenu() {
         ? `${linePath} L ${coords[coords.length - 1].x.toFixed(1)} ${baselineY} L ${coords[0].x.toFixed(1)} ${baselineY} Z`
         : "";
 
-    // Construir las Bandas de Rango (Tier Bands) para cada división visible
-    const tierBands = [];
+    // Construir las Bandas de Rango (Tier Bands) con algoritmo anti-colisión estricto
+    const allDivisions: number[] = [];
     for (let tNum = displayMinTier; tNum <= displayMaxTier; tNum++) {
+      allDivisions.push(tNum);
+    }
+
+    const allBands = allDivisions.map((tNum) => {
       const topY = getY((tNum + 1) * 100);
       const bottomY = getY(tNum * 100);
+      const centerY = (topY + bottomY) / 2;
       const bandHeight = Math.max(0, bottomY - topY);
       const tierName = resolveTierName(tNum);
       const color = getTierColor(tierName);
       const label = getTierShortLabel(tNum, tierName);
+      const iconUrl = getRankIconUrl(tNum);
+      const isBaseRank = tNum % 3 === 0;
 
-      tierBands.push({
+      return {
         tierNum: tNum,
         topY,
         bottomY,
+        centerY,
         bandHeight,
         tierName,
         label,
         color,
-      });
+        iconUrl,
+        isBaseRank,
+      };
+    });
+
+    let candidateBands = allBands;
+    if (allBands.length > 4 || (chartH / Math.max(1, allBands.length)) < 26) {
+      const baseOnly = allBands.filter((b) => b.isBaseRank);
+      candidateBands = baseOnly.length >= 2 ? baseOnly : allBands;
+    }
+
+    const tierBands: typeof allBands = [];
+    const sortedCandidates = [...candidateBands].sort((a, b) => a.centerY - b.centerY);
+
+    for (const band of sortedCandidates) {
+      const collides = tierBands.some((placed) => Math.abs(placed.centerY - band.centerY) < 24);
+      if (!collides) {
+        tierBands.push(band);
+      }
     }
 
     return {
@@ -490,9 +443,26 @@ export default function ViewMenu() {
         <div className="hero-stats-card">
           <div className="stats-card-header">
             <span className="stats-card-title">{t.rrGraphTitle}</span>
-            <span style={{ fontSize: "0.6875rem", color: "var(--color-cyan)", fontWeight: 700 }}>
-              {playerProfile?.rankName ? `${playerProfile.rankName.toUpperCase()} (${playerProfile.rankedRating} RR)` : t.currentRank}
-            </span>
+            <div className="rank-header-badge">
+              <img
+                src={getRankIconUrl(playerProfile?.currentTier ?? 0)}
+                alt={playerProfile?.rankName || "Rank"}
+                className="rank-header-icon"
+              />
+              <div className="rank-header-text-group">
+                <span
+                  className="rank-header-name"
+                  style={{
+                    color: getTierColor(playerProfile?.currentTier ?? 0),
+                  }}
+                >
+                  {playerProfile?.rankName ? playerProfile.rankName.toUpperCase() : t.currentRank}
+                </span>
+                <span className="rank-header-rr">
+                  • {playerProfile?.rankedRating ?? 0} RR
+                </span>
+              </div>
+            </div>
           </div>
 
           <div
@@ -516,14 +486,14 @@ export default function ViewMenu() {
                       x2="0%"
                       y2="100%"
                     >
-                      <stop offset="0%" stopColor="rgba(56, 189, 248, 0.22)" />
+                      <stop offset="0%" stopColor="rgba(56, 189, 248, 0.25)" />
                       <stop offset="100%" stopColor="rgba(56, 189, 248, 0.0)" />
                     </linearGradient>
                   </defs>
 
                   {/* Background Tier Bands & Y-Axis Tier Badges */}
                   {chartData.tierBands.map((band) => (
-                    <g key={band.tierNum}>
+                    <g key={band.tierNum} className="chart-tier-band-group">
                       {/* Tier colored background strip */}
                       <rect
                         x={chartData.padLeft}
@@ -531,7 +501,7 @@ export default function ViewMenu() {
                         width={chartData.chartW}
                         height={band.bandHeight}
                         fill={band.color}
-                        fillOpacity={0.06}
+                        fillOpacity={0.05}
                       />
                       {/* Tier upper separator line */}
                       <line
@@ -540,21 +510,41 @@ export default function ViewMenu() {
                         x2={chartData.padLeft + chartData.chartW}
                         y2={band.topY}
                         stroke="rgba(255, 255, 255, 0.07)"
-                        strokeDasharray="3 3"
+                        strokeDasharray="4 4"
                       />
-                      {/* Tier label text (Crisp & non-stretched) */}
-                      <text
-                        x={chartData.padLeft - 6}
-                        y={(band.topY + band.bottomY) / 2 + 3.5}
-                        fill={band.color}
-                        fontSize="9.5"
-                        fontWeight="700"
-                        fontFamily="system-ui, -apple-system, sans-serif"
-                        textAnchor="end"
-                        opacity="0.9"
-                      >
-                        {band.label}
-                      </text>
+                      {/* Y-Axis Sleek Rank Badge Pill */}
+                      <g transform={`translate(8, ${Math.max(2, Math.min(chartData.height - 24, band.centerY - 10))})`}>
+                        <rect
+                          x={0}
+                          y={0}
+                          width={52}
+                          height={20}
+                          rx={5}
+                          fill="rgba(12, 17, 29, 0.85)"
+                          stroke={band.color}
+                          strokeWidth={1}
+                          strokeOpacity={0.4}
+                        />
+                        <image
+                          href={band.iconUrl}
+                          x={3}
+                          y={2}
+                          width={16}
+                          height={16}
+                          preserveAspectRatio="xMidYMid meet"
+                        />
+                        <text
+                          x={22}
+                          y={14}
+                          fill={band.color}
+                          fontSize="9.5"
+                          fontWeight="800"
+                          fontFamily="'Inter', system-ui, sans-serif"
+                          letterSpacing="0.02em"
+                        >
+                          {band.label}
+                        </text>
+                      </g>
                     </g>
                   ))}
 
@@ -564,7 +554,7 @@ export default function ViewMenu() {
                     y1={chartData.padTop + chartData.chartH}
                     x2={chartData.padLeft + chartData.chartW}
                     y2={chartData.padTop + chartData.chartH}
-                    stroke="rgba(255, 255, 255, 0.1)"
+                    stroke="rgba(255, 255, 255, 0.12)"
                   />
 
                   {/* Filled Area below curve */}
@@ -583,7 +573,7 @@ export default function ViewMenu() {
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    filter="drop-shadow(0 2px 5px rgba(56, 189, 248, 0.4))"
+                    filter="drop-shadow(0 2px 6px rgba(56, 189, 248, 0.5))"
                   />
 
                   {/* Match Points on Curve */}
@@ -597,20 +587,27 @@ export default function ViewMenu() {
                           <circle
                             cx={pt.x}
                             cy={pt.y}
-                            r="8"
+                            r="9"
                             fill="none"
                             stroke={pt.color}
                             strokeWidth="1.5"
-                            opacity="0.4"
+                            className="chart-point-pulse"
                           />
                         )}
                         <circle
                           cx={pt.x}
                           cy={pt.y}
-                          r={isHovered ? 6 : isLast ? 4.5 : 3.5}
+                          r={isHovered ? 7 : isLast ? 5.5 : 4}
+                          fill={pt.color}
+                          fillOpacity={0.35}
+                        />
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r={isHovered ? 5.5 : isLast ? 4.5 : 3.5}
                           fill={pt.color}
                           stroke="#ffffff"
-                          strokeWidth={isHovered || isLast ? 1.5 : 1}
+                          strokeWidth={isHovered || isLast ? 2 : 1.2}
                           className="lp-chart-point"
                           onMouseEnter={() => {
                             setHoveredPoint({
@@ -635,32 +632,44 @@ export default function ViewMenu() {
                     }}
                   >
                     <div className="lp-chart-tooltip-header">
-                      {hoveredPoint.point.mapName} • {hoveredPoint.point.dateStr}
-                    </div>
-                    <div className="lp-chart-tooltip-rank">
-                      <span
-                        style={{
-                          color: getTierColor(hoveredPoint.point.tierName),
-                        }}
-                      >
-                        {hoveredPoint.point.tierName}
+                      <span style={{ color: "var(--text-main)", fontWeight: 800 }}>
+                        {hoveredPoint.point.mapName}
                       </span>
-                      <span>{hoveredPoint.point.rankedRating} RR</span>
+                      <span className="tooltip-dot">•</span>
+                      <span>{hoveredPoint.point.dateStr}</span>
                     </div>
-                    <div
-                      className="lp-chart-tooltip-delta"
-                      style={{
-                        color:
-                          hoveredPoint.point.rankedRatingEarned >= 0
-                            ? "var(--color-cyan)"
-                            : "var(--color-red)",
-                      }}
-                    >
-                      {hoveredPoint.point.rankedRatingEarned >= 0 ? "+" : ""}
-                      {hoveredPoint.point.rankedRatingEarned} RR
+                    <div className="lp-chart-tooltip-main">
+                      <img
+                        src={getRankIconUrl(hoveredPoint.point.tier)}
+                        alt={hoveredPoint.point.tierName}
+                        className="lp-tooltip-rank-icon"
+                      />
+                      <div className="lp-tooltip-rank-info">
+                        <span
+                          className="lp-tooltip-rank-name"
+                          style={{
+                            color: getTierColor(hoveredPoint.point.tierName),
+                          }}
+                        >
+                          {hoveredPoint.point.tierName}
+                        </span>
+                        <span className="lp-tooltip-rr-val">
+                          {hoveredPoint.point.rankedRating} RR
+                        </span>
+                      </div>
+                    </div>
+                    <div className="lp-chart-tooltip-delta-row">
+                      <span
+                        className={`lp-tooltip-delta-badge ${
+                          hoveredPoint.point.rankedRatingEarned >= 0 ? "gain" : "loss"
+                        }`}
+                      >
+                        {hoveredPoint.point.rankedRatingEarned >= 0 ? "+" : ""}
+                        {hoveredPoint.point.rankedRatingEarned} RR
+                      </span>
                       {hoveredPoint.point.performanceBonus > 0 && (
-                        <span style={{ color: "#ffd000", marginLeft: "0.25rem" }}>
-                          +{hoveredPoint.point.performanceBonus} bonus
+                        <span className="lp-tooltip-bonus-badge">
+                          ★ +{hoveredPoint.point.performanceBonus} bonus
                         </span>
                       )}
                     </div>
@@ -668,7 +677,7 @@ export default function ViewMenu() {
                 )}
               </>
             ) : (
-              <>
+              <div className="lp-chart-empty-container">
                 <svg
                   className="lp-chart-svg"
                   viewBox={`0 0 ${chartDimensions.width} ${chartDimensions.height}`}
@@ -676,61 +685,77 @@ export default function ViewMenu() {
                   height={chartDimensions.height}
                 >
                   {[
-                    { label: "P1", color: "#06b6d4", topRatio: 0.08, heightRatio: 0.22 },
-                    { label: "G3", color: "#eab308", topRatio: 0.30, heightRatio: 0.22 },
-                    { label: "G2", color: "#eab308", topRatio: 0.52, heightRatio: 0.22 },
-                    { label: "G1", color: "#eab308", topRatio: 0.74, heightRatio: 0.22 },
+                    { tierNum: 15, label: "PLAT", color: "#06b6d4", topRatio: 0.08, heightRatio: 0.26 },
+                    { tierNum: 12, label: "GOLD", color: "#eab308", topRatio: 0.38, heightRatio: 0.26 },
+                    { tierNum: 9, label: "SILV", color: "#cbd5e1", topRatio: 0.68, heightRatio: 0.26 },
                   ].map((band, i) => (
                     <g key={i}>
                       <rect
-                        x={38}
+                        x={68}
                         y={band.topRatio * chartDimensions.height}
-                        width={Math.max(10, chartDimensions.width - 52)}
+                        width={Math.max(10, chartDimensions.width - 84)}
                         height={band.heightRatio * chartDimensions.height}
                         fill={band.color}
-                        fillOpacity="0.05"
+                        fillOpacity={0.04}
                       />
                       <line
-                        x1={38}
+                        x1={68}
                         y1={band.topRatio * chartDimensions.height}
-                        x2={chartDimensions.width - 14}
+                        x2={chartDimensions.width - 16}
                         y2={band.topRatio * chartDimensions.height}
-                        stroke="rgba(255, 255, 255, 0.07)"
-                        strokeDasharray="3 3"
+                        stroke="rgba(255, 255, 255, 0.06)"
+                        strokeDasharray="4 4"
                       />
-                      <text
-                        x={32}
-                        y={(band.topRatio + band.heightRatio / 2) * chartDimensions.height + 3.5}
-                        fill={band.color}
-                        fontSize="9.5"
-                        fontWeight="700"
-                        fontFamily="system-ui, -apple-system, sans-serif"
-                        textAnchor="end"
-                        opacity="0.8"
-                      >
-                        {band.label}
-                      </text>
+                      {/* Sleek Pill Badge */}
+                      <g transform={`translate(8, ${band.topRatio * chartDimensions.height + 6})`}>
+                        <rect
+                          x={0}
+                          y={0}
+                          width={52}
+                          height={20}
+                          rx={5}
+                          fill="rgba(12, 17, 29, 0.75)"
+                          stroke={band.color}
+                          strokeWidth={1}
+                          strokeOpacity={0.35}
+                        />
+                        <image
+                          href={getRankIconUrl(band.tierNum)}
+                          x={3}
+                          y={2}
+                          width={16}
+                          height={16}
+                        />
+                        <text
+                          x={22}
+                          y={14}
+                          fill={band.color}
+                          fontSize="9.5"
+                          fontWeight="800"
+                          fontFamily="'Inter', system-ui, sans-serif"
+                        >
+                          {band.label}
+                        </text>
+                      </g>
                     </g>
                   ))}
                 </svg>
-                <div
-                  className="lp-chart-empty"
-                  style={{ position: "absolute", inset: 0 }}
-                >
-                  <span
-                    style={{
-                      color: "var(--text-muted)",
-                      fontSize: "0.6875rem",
-                      fontWeight: 600,
-                    }}
-                  >
+                <div className="lp-chart-empty-overlay">
+                  <div className="lp-empty-icon-wrap">
+                    <img
+                      src={getRankLargeIconUrl(playerProfile?.currentTier || 0)}
+                      alt="Unranked"
+                      className="lp-empty-rank-emblem"
+                    />
+                  </div>
+                  <span className="lp-empty-title">
                     Sin partidas clasificatorias en los últimos 6 meses
                   </span>
-                  <span style={{ color: "var(--text-dim)", fontSize: "0.625rem" }}>
+                  <span className="lp-empty-subtitle">
                     Juega en modo Competitivo para registrar tu evolución de RR
                   </span>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
