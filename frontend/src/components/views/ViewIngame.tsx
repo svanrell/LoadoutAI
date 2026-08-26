@@ -33,7 +33,7 @@ export default function ViewIngame() {
   // Si estamos en modo demo (sin juego abierto ni agente seleccionado), usamos el UUID de Jett por defecto
   const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : "add6443a-41bd-e414-f6ad-e58d267f4e95";
 
-  // 🧠 useMemo: Busca al agente en la lista solo si 'agents' o 'myAgentId' cambian.
+  // useMemo: Busca al agente en la lista solo si 'agents' o 'myAgentId' cambian.
   // Evita recorrer el array de agentes en cada renderizado.
   const myAgent = useMemo(() => {
     return agents.find((a) => a.uuid.toLowerCase() === myAgentId.toLowerCase());
@@ -45,18 +45,18 @@ export default function ViewIngame() {
     "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
   const myAbilities = myAgent?.abilities || [];
 
-  // 🧠 useMemo: Filtra las 3 habilidades básicas (excluyendo la Ultimate que no se compra en tienda)
+  // useMemo: Filtra las 3 habilidades básicas (excluyendo la Ultimate que no se compra en tienda)
   const basicAbilities = useMemo(() => {
     return myAbilities.filter((a) => a.slot !== "Ultimate").slice(0, 3);
   }, [myAbilities]);
 
-  // 🎯 useState: Diccionario para registrar si cada habilidad está comprada o no
+  // useState: Diccionario para registrar si cada habilidad está comprada o no
   const [abilityStatuses, setAbilityStatuses] = useState<Record<string, AbilityStatus>>({});
 
-  // 🎯 useState: Blindaje/escudo equipado actualmente (null = sin escudo / no comprado; o Ligera, Regen, Pesada)
+  // useState: Blindaje/escudo equipado actualmente (null = sin escudo / no comprado; o Ligera, Regen, Pesada)
   const [equippedArmorName, setEquippedArmorName] = useState<string | null>(null);
 
-  // ⚡ useCallback: Función memorizada para alternar el estado de compra de una habilidad (comprado <-> no comprado)
+  // useCallback: Función memorizada para alternar el estado de compra de una habilidad (comprado <-> no comprado)
   // Al usar useCallback con dependencias vacías [], la función mantiene la misma referencia en memoria.
   const toggleAbilityStatus = useCallback((slotOrName: string) => {
     setAbilityStatuses((prev) => {
@@ -68,12 +68,12 @@ export default function ViewIngame() {
     });
   }, []);
 
-  // ⚡ useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
+  // useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
   const toggleArmor = useCallback((armorName: string) => {
     setEquippedArmorName((current) => (current === armorName ? null : armorName));
   }, []);
 
-  // 🧠 useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
+  // useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
   const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
 
   const renderWeaponCol = (categories: WeaponCategoryConfig[]) => {
@@ -372,8 +372,8 @@ export default function ViewIngame() {
                     filter: isOwned
                       ? "drop-shadow(0 0 8px rgba(56, 189, 248, 0.6))"
                       : status === "unaffordable"
-                      ? "grayscale(100%) opacity(0.6)"
-                      : "grayscale(25%) opacity(0.75)",
+                        ? "grayscale(100%) opacity(0.6)"
+                        : "grayscale(25%) opacity(0.75)",
                     position: "absolute",
                     top: "40%",
                     left: "50%",
@@ -574,7 +574,7 @@ export default function ViewIngame() {
                       letterSpacing: "0.02em",
                     }}
                   >
-                    <span style={{ fontSize: "0.55rem" }}>⚠️</span> NO DETECTADO (DEMO)
+                    NO DETECTADO (DEMO)
                   </div>
                 ) : (
                   <div
@@ -1055,7 +1055,7 @@ export default function ViewIngame() {
                     letterSpacing: "0.04em",
                   }}
                 >
-                  ⚠️ NO DETECTADO (DEMO JETT)
+                  NO DETECTADO (DEMO JETT)
                 </span>
               )}
             </div>
@@ -1093,35 +1093,35 @@ export default function ViewIngame() {
 
                 const cardStyle: React.CSSProperties = isOwned
                   ? {
-                      flex: 1,
-                      maxWidth: "16rem",
-                      height: "clamp(3.1rem, 5.8vh, 4.2rem)",
-                      background: "rgba(56, 189, 248, 0.12)",
-                      border: "1.5px solid var(--color-cyan)",
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "clamp(0.3rem, 0.7vh, 0.55rem) clamp(0.55rem, 1.1vw, 0.95rem)",
-                      position: "relative",
-                      borderRadius: "0.25rem",
-                      boxShadow: "0 0 14px rgba(56, 189, 248, 0.22)",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                    }
+                    flex: 1,
+                    maxWidth: "16rem",
+                    height: "clamp(3.1rem, 5.8vh, 4.2rem)",
+                    background: "rgba(56, 189, 248, 0.12)",
+                    border: "1.5px solid var(--color-cyan)",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "clamp(0.3rem, 0.7vh, 0.55rem) clamp(0.55rem, 1.1vw, 0.95rem)",
+                    position: "relative",
+                    borderRadius: "0.25rem",
+                    boxShadow: "0 0 14px rgba(56, 189, 248, 0.22)",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }
                   : {
-                      flex: 1,
-                      maxWidth: "16rem",
-                      height: "clamp(3.1rem, 5.8vh, 4.2rem)",
-                      background: "rgba(16, 24, 38, 0.65)",
-                      border: "1px solid rgba(255, 255, 255, 0.18)",
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "clamp(0.3rem, 0.7vh, 0.55rem) clamp(0.55rem, 1.1vw, 0.95rem)",
-                      position: "relative",
-                      borderRadius: "0.25rem",
-                      boxShadow: "none",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                    };
+                    flex: 1,
+                    maxWidth: "16rem",
+                    height: "clamp(3.1rem, 5.8vh, 4.2rem)",
+                    background: "rgba(16, 24, 38, 0.65)",
+                    border: "1px solid rgba(255, 255, 255, 0.18)",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "clamp(0.3rem, 0.7vh, 0.55rem) clamp(0.55rem, 1.1vw, 0.95rem)",
+                    position: "relative",
+                    borderRadius: "0.25rem",
+                    boxShadow: "none",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  };
 
                 return (
                   <div

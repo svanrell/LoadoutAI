@@ -31,7 +31,7 @@ export default function ViewPregame() {
   const [selectedRoleCategory, setSelectedRoleCategory] = useState<string>("all");
   const [selectedAgentUuid, setSelectedAgentUuid] = useState<string | null>(null);
 
-  // 🧠 useMemo (Mapa 1): Indexa los agentes por UUID para buscarlos en O(1) instantáneo
+  // useMemo (Mapa 1): Indexa los agentes por UUID para buscarlos en O(1) instantáneo
   const agentByUuidMap = useMemo(() => {
     const map = new Map<string, (typeof agents)[0]>();
     for (const agent of agents) {
@@ -40,7 +40,7 @@ export default function ViewPregame() {
     return map;
   }, [agents]);
 
-  // 🧠 useMemo (Mapa 2): Indexa las recomendaciones de la IA por UUID y nombre para evitar búsquedas lentas
+  // useMemo (Mapa 2): Indexa las recomendaciones de la IA por UUID y nombre para evitar búsquedas lentas
   const recMap = useMemo(() => {
     const map = new Map<string, any>();
     if (!mlRecommendations) return map;
@@ -52,7 +52,7 @@ export default function ViewPregame() {
     return map;
   }, [mlRecommendations]);
 
-  // 🧠 useMemo (Mapa 3): Indexa los impactos individuales (deltas ▲/▼) de cada agente
+  // useMemo (Mapa 3): Indexa los impactos individuales (deltas ▲/▼) de cada agente
   const impactMap = useMemo(() => {
     const map = new Map<string, any>();
     if (!mlAgentImpacts) return map;
@@ -70,7 +70,7 @@ export default function ViewPregame() {
   // Cuando hay 5 agentes seleccionados, el draft se da por completado
   const isDraftComplete = pickedAgentsCount >= 5;
 
-  // 🧠 useMemo: Lista de agentes ya elegidos por el equipo para el resumen final
+  // useMemo: Lista de agentes ya elegidos por el equipo para el resumen final
   const pickedAgentsList = useMemo(() => {
     return pickedPlayers
       .map((player) => agentByUuidMap.get((player.agentId || "").toLowerCase()))

@@ -687,7 +687,7 @@ export default function ViewMenu() {
                       {hoveredPoint.point.rankedRatingEarned} RR
                       {hoveredPoint.point.performanceBonus > 0 && (
                         <span style={{ color: "#ffd000", marginLeft: "4px" }}>
-                          ⭐ +{hoveredPoint.point.performanceBonus}
+                          +{hoveredPoint.point.performanceBonus} bonus
                         </span>
                       )}
                     </div>
