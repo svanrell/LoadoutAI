@@ -411,6 +411,14 @@ export interface SyncedAgentStat {
   winRate: number;
 }
 
+// ==========================================
+// CONSTANTES DE HISTORIAL
+// ==========================================
+
+export const MAX_HISTORY_MONTHS = 6;
+export const MAX_HISTORY_DAYS = 180;
+export const MAX_HISTORY_TIME_WINDOW_MS = 180 * 24 * 60 * 60 * 1000; // Límite máximo de 6 meses
+
 export interface PlayerLoadoutResponse {
   Subject: string;
   Version: number;
@@ -447,6 +455,9 @@ export class ValorantHistoryService {
   private readonly logger = new Logger(ValorantHistoryService.name);
   private readonly lockfilePath: string;
   private readonly httpsAgent: https.Agent;
+
+  private profileCache: Map<string, { data: SyncedPlayerProfile; timestamp: number }> = new Map();
+  private inFlightRequests: Map<string, Promise<SyncedPlayerProfile | null>> = new Map();
 
   constructor(private readonly httpService: HttpService) {
     this.lockfilePath = path.join(
@@ -504,7 +515,36 @@ export class ValorantHistoryService {
         ),
       );
 
-      const region = process.env.VALORANT_REGION || "eu";
+      // Intentar auto-detectar la región desde el cliente local de Riot si no está en .env
+      let region = process.env.VALORANT_REGION || "";
+      if (!region) {
+        try {
+          const regionRes = await firstValueFrom(
+            this.httpService.get<{ region?: string; webRegion?: string }>(
+              `${credentials.url}/riotclient/region-locale`,
+              {
+                headers: { Authorization: credentials.token },
+                httpsAgent: this.httpsAgent,
+              },
+            ),
+          );
+          const rawReg = (
+            regionRes.data?.region ||
+            regionRes.data?.webRegion ||
+            ""
+          ).toLowerCase();
+          if (rawReg.includes("eu")) region = "eu";
+          else if (rawReg.includes("na")) region = "na";
+          else if (rawReg.includes("latam")) region = "latam";
+          else if (rawReg.includes("br")) region = "br";
+          else if (rawReg.includes("ap")) region = "ap";
+          else if (rawReg.includes("kr")) region = "kr";
+          else region = "eu";
+        } catch {
+          region = "eu";
+        }
+      }
+
       const shard = region === "latam" || region === "br" ? "na" : region;
 
       const glzUrl = `https://glz-${region}-1.${shard}.a.pvp.net`;
@@ -578,7 +618,7 @@ export class ValorantHistoryService {
   public async getPlayerMatchHistory(
     puuid: string,
     startIndex = 0,
-    endIndex = 10,
+    endIndex = 20,
   ): Promise<PlayerHistoryResponse | null> {
     const remote = await this.getRemoteConfig();
     if (!remote) return null;
@@ -703,6 +743,7 @@ export class ValorantHistoryService {
 
   public async getFullSyncedProfile(
     targetPuuid?: string,
+    forceRefresh = false,
   ): Promise<SyncedPlayerProfile | null> {
     const puuid = targetPuuid || (await this.getCurrentPlayerPuuid());
     if (!puuid) {
@@ -710,14 +751,45 @@ export class ValorantHistoryService {
       return null;
     }
 
+    // 1. Si no es un refresco forzado y está en caché reciente (< 25 segundos), devolver caché inmediatamente
+    const cached = this.profileCache.get(puuid);
+    if (!forceRefresh && cached && Date.now() - cached.timestamp < 25_000) {
+      return cached.data;
+    }
+
+    // 2. Si ya hay una petición idéntica en vuelo para este PUUID, reutilizar la misma promesa
+    const inFlight = this.inFlightRequests.get(puuid);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const fetchPromise = this.fetchProfileFromRiot(puuid);
+    this.inFlightRequests.set(puuid, fetchPromise);
+
+    try {
+      const result = await fetchPromise;
+      if (result) {
+        this.profileCache.set(puuid, { data: result, timestamp: Date.now() });
+      }
+      return result || (cached ? cached.data : null);
+    } catch {
+      return cached ? cached.data : null;
+    } finally {
+      this.inFlightRequests.delete(puuid);
+    }
+  }
+
+  private async fetchProfileFromRiot(
+    puuid: string,
+  ): Promise<SyncedPlayerProfile | null> {
     try {
       // 1. Obtener Nombre, MMR, Lista de Partidas, Actualizaciones Competitivas y Loadout en paralelo
       const [namesList, mmrData, historyData, compUpdatesRes, loadoutData] =
         await Promise.all([
           this.getPlayerNames([puuid]),
           this.getPlayerMMR(puuid),
-          this.getPlayerMatchHistory(puuid, 0, 10),
-          this.getPlayerCompetitiveUpdates(puuid, 0, 15),
+          this.getPlayerMatchHistory(puuid, 0, 20),
+          this.getPlayerCompetitiveUpdates(puuid, 0, 20),
           this.getPlayerLoadout(puuid),
         ]);
 
@@ -748,13 +820,16 @@ export class ValorantHistoryService {
 
       const rankName = resolveTierName(currentTier);
 
-      // 3. Cargar detalles de las partidas
+      // 3. Cargar detalles de las partidas (con límite temporal de 6 meses)
+      const now = Date.now();
+      const cutoffTime = now - MAX_HISTORY_TIME_WINDOW_MS;
+
       const matches: SyncedMatchItem[] = [];
       const historyList = historyData?.History || [];
 
-      // Descargar detalles en paralelo (limitado a 10)
+      // Descargar detalles en paralelo (limitado a 20)
       const detailPromises = historyList
-        .slice(0, 10)
+        .slice(0, 20)
         .map((h) => this.getMatchDetails(h.MatchID));
       const detailsList = await Promise.all(detailPromises);
 
@@ -764,6 +839,12 @@ export class ValorantHistoryService {
 
       for (const match of detailsList) {
         if (!match || !match.players || !match.teams) continue;
+
+        const matchStartTime = match.matchInfo.gameStartMillis || 0;
+        // Filtrar partidas más antiguas de 6 meses
+        if (matchStartTime > 0 && matchStartTime < cutoffTime) {
+          continue;
+        }
 
         const player = match.players.find((p) => p.subject === puuid);
         if (!player) continue;
@@ -937,12 +1018,18 @@ export class ValorantHistoryService {
       const winRate =
         totalMatches > 0 ? Math.round((totalWins / totalMatches) * 100) : 0;
 
-      // 5. Procesar historial de actualizaciones competitivas (RR)
+      // 5. Procesar historial de actualizaciones competitivas (RR) (con límite temporal de 6 meses)
       const competitiveUpdates: SyncedCompetitiveUpdate[] = [];
       const rawCompMatches = compUpdatesRes?.Matches || [];
 
       for (const cu of rawCompMatches) {
         if (!cu || cu.TierAfterUpdate === undefined) continue;
+
+        const matchStartTime = cu.MatchStartTime || 0;
+        // Filtrar actualizaciones competitivas más antiguas de 6 meses
+        if (matchStartTime > 0 && matchStartTime < cutoffTime) {
+          continue;
+        }
 
         const tier = cu.TierAfterUpdate;
         const tierName = resolveTierName(tier);

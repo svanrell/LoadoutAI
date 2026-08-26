@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
@@ -38,16 +38,16 @@ const TIER_NAMES_MAP: Record<number, string> = {
 };
 
 const TIER_COLORS: Record<string, string> = {
-  iron: "#6c757d",
-  bronze: "#cd7f32",
-  silver: "#c0c0c0",
-  gold: "#ffd000",
-  platinum: "#00f0ff",
+  iron: "#94a3b8",
+  bronze: "#ca8a04",
+  silver: "#cbd5e1",
+  gold: "#eab308",
+  platinum: "#06b6d4",
   diamond: "#c084fc",
   ascendant: "#10b981",
   immortal: "#f43f5e",
   radiant: "#fef08a",
-  unranked: "#8892b0",
+  unranked: "#64748b",
 };
 
 function resolveTierName(tier: number): string {
@@ -59,10 +59,20 @@ function getTierColor(tierName: string) {
   for (const [key, color] of Object.entries(TIER_COLORS)) {
     if (lower.includes(key)) return color;
   }
-  return "#00f0ff";
+  return "#06b6d4";
 }
 
-function getTierShortLabel(tierName: string) {
+function getTierShortLabel(tierNum: number, tierName?: string) {
+  if (tierNum >= 3 && tierNum <= 5) return `I${tierNum - 2}`;
+  if (tierNum >= 6 && tierNum <= 8) return `B${tierNum - 5}`;
+  if (tierNum >= 9 && tierNum <= 11) return `S${tierNum - 8}`;
+  if (tierNum >= 12 && tierNum <= 14) return `G${tierNum - 11}`;
+  if (tierNum >= 15 && tierNum <= 17) return `P${tierNum - 14}`;
+  if (tierNum >= 18 && tierNum <= 20) return `D${tierNum - 17}`;
+  if (tierNum >= 21 && tierNum <= 23) return `A${tierNum - 20}`;
+  if (tierNum >= 24 && tierNum <= 26) return `Imm${tierNum - 23}`;
+  if (tierNum === 27) return "RAD";
+
   const lower = (tierName || "").toLowerCase();
   if (lower.includes("iron")) return "IRON";
   if (lower.includes("bronze")) return "BRON";
@@ -73,7 +83,7 @@ function getTierShortLabel(tierName: string) {
   if (lower.includes("ascendant")) return "ASCE";
   if (lower.includes("immortal")) return "IMMO";
   if (lower.includes("radiant")) return "RAD";
-  return "UNRK";
+  return "UNR";
 }
 
 export default function ViewMenu() {
@@ -88,9 +98,31 @@ export default function ViewMenu() {
     y: number;
   } | null>(null);
 
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartDimensions, setChartDimensions] = useState({ width: 500, height: 140 });
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+    const el = chartContainerRef.current;
+    const updateSize = () => {
+      const { clientWidth, clientHeight } = el;
+      if (clientWidth > 0 && clientHeight > 0) {
+        setChartDimensions({
+          width: clientWidth,
+          height: clientHeight,
+        });
+      }
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const handleRefresh = () => {
     setIsRefreshing(true);
-    requestPlayerProfile();
+    requestPlayerProfile(undefined, true);
     setTimeout(() => setIsRefreshing(false), 1000);
   };
 
@@ -179,35 +211,46 @@ export default function ViewMenu() {
   const chartData = useMemo(() => {
     if (competitiveUpdates.length === 0) return null;
 
-    const padLeft = 45;
-    const padRight = 20;
-    const padTop = 18;
-    const padBottom = 18;
-    const width = 500;
-    const height = 120;
-    const chartW = width - padLeft - padRight;
-    const chartH = height - padTop - padBottom;
+    const padLeft = 38;
+    const padRight = 14;
+    const padTop = 12;
+    const padBottom = 14;
+    const width = chartDimensions.width;
+    const height = chartDimensions.height;
+    const chartW = Math.max(10, width - padLeft - padRight);
+    const chartH = Math.max(10, height - padTop - padBottom);
 
     // Calcular MMR absoluto de cada punto: tier * 100 + rankedRating
-    const mmrValues = competitiveUpdates.map((u) => u.tier * 100 + u.rankedRating);
-    let minMmr = Math.min(...mmrValues);
-    let maxMmr = Math.max(...mmrValues);
+    const tierValues = competitiveUpdates.map((u) => Math.max(3, u.tier));
+    const minTier = Math.min(...tierValues);
+    const maxTier = Math.max(...tierValues);
 
-    if (minMmr === maxMmr) {
-      minMmr -= 30;
-      maxMmr += 30;
+    // Rango visible de divisiones (Tier Bands)
+    // Ampliar para mostrar al menos 3 a 4 divisiones para que no se vea comprimido
+    let displayMinTier = Math.max(3, minTier - 1);
+    let displayMaxTier = Math.min(27, maxTier + 1);
+
+    // Si abarca muy pocas divisiones, expandir hacia arriba y hacia abajo
+    while (displayMaxTier - displayMinTier < 3 && (displayMinTier > 3 || displayMaxTier < 27)) {
+      if (displayMinTier > 3) displayMinTier--;
+      if (displayMaxTier - displayMinTier < 3 && displayMaxTier < 27) displayMaxTier++;
     }
 
-    const range = Math.max(30, maxMmr - minMmr);
-    const yMin = minMmr - range * 0.15;
-    const yMax = maxMmr + range * 0.15;
+    const yMin = displayMinTier * 100;
+    const yMax = (displayMaxTier + 1) * 100;
+    const mmrSpan = Math.max(100, yMax - yMin);
 
-    // Coordenadas de los puntos
+    const getY = (val: number) => {
+      const clamped = Math.max(yMin, Math.min(yMax, val));
+      return padTop + chartH - ((clamped - yMin) / mmrSpan) * chartH;
+    };
+
+    // Coordenadas de los puntos exactas en px
     const count = competitiveUpdates.length;
     const coords = competitiveUpdates.map((update, i) => {
-      const val = update.tier * 100 + update.rankedRating;
+      const val = Math.max(3, update.tier) * 100 + (update.rankedRating || 0);
       const x = count === 1 ? padLeft + chartW / 2 : padLeft + (i / (count - 1)) * chartW;
-      const y = padTop + chartH - ((val - yMin) / (yMax - yMin)) * chartH;
+      const y = getY(val);
       return {
         x,
         y,
@@ -216,10 +259,10 @@ export default function ViewMenu() {
       };
     });
 
-    // Generar curva suave (spline)
+    // Generar curva suave (spline cúbico)
     let linePath = "";
     if (coords.length === 1) {
-      linePath = `M ${coords[0].x - 30} ${coords[0].y} L ${coords[0].x + 30} ${coords[0].y}`;
+      linePath = `M ${coords[0].x - 20} ${coords[0].y} L ${coords[0].x + 20} ${coords[0].y}`;
     } else if (coords.length === 2) {
       linePath = `M ${coords[0].x} ${coords[0].y} L ${coords[1].x} ${coords[1].y}`;
     } else {
@@ -239,125 +282,53 @@ export default function ViewMenu() {
       }
     }
 
+    const baselineY = (padTop + chartH).toFixed(1);
     const areaPath =
       coords.length >= 2
-        ? `${linePath} L ${coords[coords.length - 1].x.toFixed(1)} 120 L ${coords[0].x.toFixed(1)} 120 Z`
+        ? `${linePath} L ${coords[coords.length - 1].x.toFixed(1)} ${baselineY} L ${coords[0].x.toFixed(1)} ${baselineY} Z`
         : "";
 
-    // 4 Líneas de referencia en el eje Y
-    const gridTicks = [];
-    const tickCount = 4;
-    for (let i = 0; i < tickCount; i++) {
-      const mmrVal = yMax - (i / (tickCount - 1)) * (yMax - yMin);
-      const tierNum = Math.max(0, Math.floor(mmrVal / 100));
-      const tierName = resolveTierName(tierNum);
-      const label = getTierShortLabel(tierName);
+    // Construir las Bandas de Rango (Tier Bands) para cada división visible
+    const tierBands = [];
+    for (let tNum = displayMinTier; tNum <= displayMaxTier; tNum++) {
+      const topY = getY((tNum + 1) * 100);
+      const bottomY = getY(tNum * 100);
+      const bandHeight = Math.max(0, bottomY - topY);
+      const tierName = resolveTierName(tNum);
       const color = getTierColor(tierName);
-      const y = padTop + (i / (tickCount - 1)) * chartH;
-      gridTicks.push({ y, label, color });
+      const label = getTierShortLabel(tNum, tierName);
+
+      tierBands.push({
+        tierNum: tNum,
+        topY,
+        bottomY,
+        bandHeight,
+        tierName,
+        label,
+        color,
+      });
     }
 
     return {
       coords,
       linePath,
       areaPath,
-      gridTicks,
+      tierBands,
+      padLeft,
+      padRight,
+      padTop,
+      padBottom,
+      chartW,
+      chartH,
+      width,
+      height,
     };
-  }, [competitiveUpdates]);
-
-  // Fallback Mock Groups
-  const defaultMatchGroups = [
-    {
-      dateTitle: "Feb 8",
-      gameCount: 1,
-      wins: 1,
-      losses: 0,
-      dailyKd: "1.4",
-      dailyKdaLine: "17 K // 12 D // 6 A",
-      dailyKdaVal: "1.42 K/D/A",
-      dailyDd: "+76",
-      dailyHs: "11%",
-      dailyAcs: "291",
-      matches: [
-        {
-          id: "m-yoru-1",
-          isWin: true,
-          agentName: "Yoru",
-          agentIcon: yoruIcon,
-          metaText: `6mo ago // ${t.normal}`,
-          mapName: "Bind",
-          placement: "2nd",
-          isMvp: false,
-          scoreWon: 13,
-          scoreLost: 4,
-          badges: [{ label: "3k x3", type: "default" }],
-          kd: "1.4",
-          kda: "17 / 12 / 6",
-          dd: "+76",
-          hs: "11%",
-          acs: "291",
-        },
-      ],
-    },
-    {
-      dateTitle: "Feb 7",
-      gameCount: 2,
-      wins: 1,
-      losses: 1,
-      dailyKd: "1.0",
-      dailyKdaLine: "35 K // 35 D // 15 A",
-      dailyKdaVal: "1.00 K/D/A",
-      dailyDd: "+33",
-      dailyHs: "14%",
-      dailyAcs: "270",
-      matches: [
-        {
-          id: "m-yoru-2",
-          isWin: true,
-          agentName: "Yoru",
-          agentIcon: yoruIcon,
-          metaText: `${formatTimeAgo("6mo ago")} // ${t.normal}`,
-          mapName: "Icebox",
-          placement: "MVP",
-          isMvp: true,
-          scoreWon: 13,
-          scoreLost: 8,
-          badges: [
-            { label: "Ace", type: "gold" },
-            { label: "1v3 Clutch", type: "gold" },
-          ],
-          kd: "1.7",
-          kda: "25 / 15 / 5",
-          dd: "+87",
-          hs: "16%",
-          acs: "339",
-        },
-        {
-          id: "m-sova-1",
-          isWin: false,
-          agentName: "Sova",
-          agentIcon: sovaIcon,
-          metaText: `${formatTimeAgo("6mo ago")} // ${t.normal}`,
-          mapName: "Haven",
-          placement: "6th",
-          isMvp: false,
-          scoreWon: 7,
-          scoreLost: 13,
-          badges: [{ label: t.defeat, type: "red" }],
-          kd: "0.5",
-          kda: "10 / 20 / 10",
-          dd: "-23",
-          hs: "10%",
-          acs: "198",
-        },
-      ],
-    },
-  ];
+  }, [competitiveUpdates, chartDimensions]);
 
   // Agrupación dinámica de las partidas sincronizadas de Riot
   const matchGroups = useMemo(() => {
     if (!playerProfile || !playerProfile.matches || playerProfile.matches.length === 0) {
-      return defaultMatchGroups;
+      return [];
     }
 
     const groupMap: Record<string, typeof playerProfile.matches> = {};
@@ -421,22 +392,19 @@ export default function ViewMenu() {
     });
   }, [playerProfile, agents, defaultAvatar, t, language]);
 
-  const streakPills = playerProfile?.streak?.length
-    ? playerProfile.streak
-    : ["L", "W", "L", "L", "W", "W", "L", "W", "W", "L"];
-
+  const streakPills = playerProfile?.streak || [];
   const winCountStreak = streakPills.filter((s) => s === "W").length;
   const lossCountStreak = streakPills.length - winCountStreak;
 
   return (
     <div id="viewMenu" className="state-view active">
       {/* 1. Filter Chips & Quick Refresh Bar */}
-      <div className="filter-chips-bar" style={{ justifyContent: "flex-end", marginBottom: "14px" }}>
+      <div className="filter-chips-bar" style={{ justifyContent: "flex-end", marginBottom: "0.875rem" }}>
         <div className="role-chips-group">
           <button
             className="cyber-btn-secondary"
             onClick={handleRefresh}
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
+            style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}
           >
             <span style={{ display: "flex", transform: (isRefreshing || isProfileLoading) ? "rotate(360deg)" : "none", transition: "transform 0.5s ease" }}>
               <RefreshIcon size={12} />
@@ -456,12 +424,12 @@ export default function ViewMenu() {
 
           <div className="winrate-numbers-row">
             <div>
-              <div className="stat-big-number">{playerProfile ? playerProfile.totalMatches : 68}</div>
-              <div style={{ fontSize: "10px", color: "var(--text-muted)", fontWeight: 600 }}>{t.matchesCount}</div>
+              <div className="stat-big-number">{playerProfile ? playerProfile.totalMatches : 0}</div>
+              <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", fontWeight: 600 }}>{t.matchesCount}</div>
             </div>
             <div>
-              <div className="stat-big-percent">{playerProfile ? `${playerProfile.winRate}%` : "60.3%"}</div>
-              <div style={{ fontSize: "10px", color: "var(--text-muted)", fontWeight: 600 }}>
+              <div className="stat-big-percent">{playerProfile ? `${playerProfile.winRate}%` : "0%"}</div>
+              <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", fontWeight: 600 }}>
                 {t.winRate}
               </div>
             </div>
@@ -476,9 +444,15 @@ export default function ViewMenu() {
               </span>
             </div>
             <div className="streak-pills-row">
-              {streakPills.map((s, idx) => (
-                <div key={idx} className={`streak-pill ${s === "W" ? "win" : "loss"}`} />
-              ))}
+              {streakPills.length > 0 ? (
+                streakPills.map((s, idx) => (
+                  <div key={idx} className={`streak-pill ${s === "W" ? "win" : "loss"}`} />
+                ))
+              ) : (
+                <div style={{ fontSize: "0.625rem", color: "var(--text-dim)", padding: "0.125rem 0" }}>
+                  Sin partidas recientes
+                </div>
+              )}
             </div>
           </div>
 
@@ -505,29 +479,9 @@ export default function ViewMenu() {
                 );
               })
             ) : (
-              <>
-                <div className="agent-mini-item">
-                  <img src={defaultAvatar} alt="Jett" className="agent-mini-img" />
-                  <div className="agent-mini-text">
-                    <div style={{ color: "var(--color-red)" }}>0{t.winsShort} 1{t.lossesShort}</div>
-                    <div>0%</div>
-                  </div>
-                </div>
-                <div className="agent-mini-item">
-                  <img src={omenIcon} alt="Omen" className="agent-mini-img" />
-                  <div className="agent-mini-text">
-                    <div style={{ color: "var(--color-cyan)" }}>1{t.winsShort} 0{t.lossesShort}</div>
-                    <div>100%</div>
-                  </div>
-                </div>
-                <div className="agent-mini-item">
-                  <img src={sovaIcon} alt="Sova" className="agent-mini-img" />
-                  <div className="agent-mini-text">
-                    <div style={{ color: "var(--color-red)" }}>0{t.winsShort} 1{t.lossesShort}</div>
-                    <div>0%</div>
-                  </div>
-                </div>
-              </>
+              <div style={{ fontSize: "0.625rem", color: "var(--text-dim)", padding: "0.25rem 0" }}>
+                Sin agentes jugados en la temporada actual
+              </div>
             )}
           </div>
         </div>
@@ -536,12 +490,13 @@ export default function ViewMenu() {
         <div className="hero-stats-card">
           <div className="stats-card-header">
             <span className="stats-card-title">{t.rrGraphTitle}</span>
-            <span style={{ fontSize: "11px", color: "var(--color-cyan)", fontWeight: 700 }}>
+            <span style={{ fontSize: "0.6875rem", color: "var(--color-cyan)", fontWeight: 700 }}>
               {playerProfile?.rankName ? `${playerProfile.rankName.toUpperCase()} (${playerProfile.rankedRating} RR)` : t.currentRank}
             </span>
           </div>
 
           <div
+            ref={chartContainerRef}
             className="lp-chart-container"
             onMouseLeave={() => setHoveredPoint(null)}
           >
@@ -549,8 +504,9 @@ export default function ViewMenu() {
               <>
                 <svg
                   className="lp-chart-svg"
-                  viewBox="0 0 500 120"
-                  preserveAspectRatio="none"
+                  viewBox={`0 0 ${chartData.width} ${chartData.height}`}
+                  width={chartData.width}
+                  height={chartData.height}
                 >
                   <defs>
                     <linearGradient
@@ -560,34 +516,56 @@ export default function ViewMenu() {
                       x2="0%"
                       y2="100%"
                     >
-                      <stop offset="0%" stopColor="rgba(56, 189, 248, 0.18)" />
+                      <stop offset="0%" stopColor="rgba(56, 189, 248, 0.22)" />
                       <stop offset="100%" stopColor="rgba(56, 189, 248, 0.0)" />
                     </linearGradient>
                   </defs>
 
-                  {/* Grid Lines & Y Axis Tier Labels */}
-                  {chartData.gridTicks.map((tick, idx) => (
-                    <g key={idx}>
+                  {/* Background Tier Bands & Y-Axis Tier Badges */}
+                  {chartData.tierBands.map((band) => (
+                    <g key={band.tierNum}>
+                      {/* Tier colored background strip */}
+                      <rect
+                        x={chartData.padLeft}
+                        y={band.topY}
+                        width={chartData.chartW}
+                        height={band.bandHeight}
+                        fill={band.color}
+                        fillOpacity={0.06}
+                      />
+                      {/* Tier upper separator line */}
                       <line
-                        x1="0"
-                        y1={tick.y}
-                        x2="500"
-                        y2={tick.y}
-                        stroke="rgba(255,255,255,0.06)"
+                        x1={chartData.padLeft}
+                        y1={band.topY}
+                        x2={chartData.padLeft + chartData.chartW}
+                        y2={band.topY}
+                        stroke="rgba(255, 255, 255, 0.07)"
                         strokeDasharray="3 3"
                       />
+                      {/* Tier label text (Crisp & non-stretched) */}
                       <text
-                        x="5"
-                        y={tick.y + 3}
-                        fill={tick.color}
-                        fontSize="9"
-                        fontWeight="bold"
-                        fontFamily="monospace"
+                        x={chartData.padLeft - 6}
+                        y={(band.topY + band.bottomY) / 2 + 3.5}
+                        fill={band.color}
+                        fontSize="9.5"
+                        fontWeight="700"
+                        fontFamily="system-ui, -apple-system, sans-serif"
+                        textAnchor="end"
+                        opacity="0.9"
                       >
-                        {tick.label}
+                        {band.label}
                       </text>
                     </g>
                   ))}
+
+                  {/* Chart Bottom baseline */}
+                  <line
+                    x1={chartData.padLeft}
+                    y1={chartData.padTop + chartData.chartH}
+                    x2={chartData.padLeft + chartData.chartW}
+                    y2={chartData.padTop + chartData.chartH}
+                    stroke="rgba(255, 255, 255, 0.1)"
+                  />
 
                   {/* Filled Area below curve */}
                   {chartData.areaPath && (
@@ -602,11 +580,13 @@ export default function ViewMenu() {
                     d={chartData.linePath}
                     fill="none"
                     stroke="#38bdf8"
-                    strokeWidth="2"
-                    filter="drop-shadow(0 2px 4px rgba(56, 189, 248, 0.3))"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter="drop-shadow(0 2px 5px rgba(56, 189, 248, 0.4))"
                   />
 
-                  {/* Points on Curve */}
+                  {/* Match Points on Curve */}
                   {chartData.coords.map((pt, idx) => {
                     const isHovered =
                       hoveredPoint?.point?.matchId === pt.update.matchId;
@@ -617,34 +597,27 @@ export default function ViewMenu() {
                           <circle
                             cx={pt.x}
                             cy={pt.y}
-                            r="7"
+                            r="8"
                             fill="none"
                             stroke={pt.color}
-                            strokeWidth="1"
+                            strokeWidth="1.5"
                             opacity="0.4"
                           />
                         )}
                         <circle
                           cx={pt.x}
                           cy={pt.y}
-                          r={isHovered ? 5.5 : isLast ? 4.5 : 3.5}
+                          r={isHovered ? 6 : isLast ? 4.5 : 3.5}
                           fill={pt.color}
-                          stroke="#fff"
+                          stroke="#ffffff"
                           strokeWidth={isHovered || isLast ? 1.5 : 1}
                           className="lp-chart-point"
-                          onMouseEnter={(e) => {
-                            const rect = e.currentTarget
-                              .closest(".lp-chart-container")
-                              ?.getBoundingClientRect();
-                            if (rect) {
-                              const px = (pt.x / 500) * rect.width;
-                              const py = (pt.y / 120) * rect.height;
-                              setHoveredPoint({
-                                point: pt.update,
-                                x: px,
-                                y: py,
-                              });
-                            }
+                          onMouseEnter={() => {
+                            setHoveredPoint({
+                              point: pt.update,
+                              x: pt.x,
+                              y: pt.y,
+                            });
                           }}
                         />
                       </g>
@@ -686,7 +659,7 @@ export default function ViewMenu() {
                       {hoveredPoint.point.rankedRatingEarned >= 0 ? "+" : ""}
                       {hoveredPoint.point.rankedRatingEarned} RR
                       {hoveredPoint.point.performanceBonus > 0 && (
-                        <span style={{ color: "#ffd000", marginLeft: "4px" }}>
+                        <span style={{ color: "#ffd000", marginLeft: "0.25rem" }}>
                           +{hoveredPoint.point.performanceBonus} bonus
                         </span>
                       )}
@@ -698,87 +671,47 @@ export default function ViewMenu() {
               <>
                 <svg
                   className="lp-chart-svg"
-                  viewBox="0 0 500 120"
-                  preserveAspectRatio="none"
+                  viewBox={`0 0 ${chartDimensions.width} ${chartDimensions.height}`}
+                  width={chartDimensions.width}
+                  height={chartDimensions.height}
                 >
-                  <line
-                    x1="0"
-                    y1="20"
-                    x2="500"
-                    y2="20"
-                    stroke="rgba(255,255,255,0.06)"
-                    strokeDasharray="3 3"
-                  />
-                  <line
-                    x1="0"
-                    y1="50"
-                    x2="500"
-                    y2="50"
-                    stroke="rgba(255,255,255,0.06)"
-                    strokeDasharray="3 3"
-                  />
-                  <line
-                    x1="0"
-                    y1="80"
-                    x2="500"
-                    y2="80"
-                    stroke="rgba(255,255,255,0.06)"
-                    strokeDasharray="3 3"
-                  />
-                  <line
-                    x1="0"
-                    y1="110"
-                    x2="500"
-                    y2="110"
-                    stroke="rgba(255,255,255,0.06)"
-                    strokeDasharray="3 3"
-                  />
-
-                  <text
-                    x="5"
-                    y="24"
-                    fill="#38bdf8"
-                    fontSize="9"
-                    fontWeight="bold"
-                  >
-                    PLAT
-                  </text>
-                  <text
-                    x="5"
-                    y="54"
-                    fill="#f59e0b"
-                    fontSize="9"
-                    fontWeight="bold"
-                  >
-                    GOLD
-                  </text>
-                  <text
-                    x="5"
-                    y="84"
-                    fill="#c0c0c0"
-                    fontSize="9"
-                    fontWeight="bold"
-                  >
-                    SILV
-                  </text>
-                  <text
-                    x="5"
-                    y="114"
-                    fill="#cd7f32"
-                    fontSize="9"
-                    fontWeight="bold"
-                  >
-                    BRON
-                  </text>
-
-                  <line
-                    x1="45"
-                    y1="60"
-                    x2="480"
-                    y2="60"
-                    stroke="rgba(0, 240, 255, 0.2)"
-                    strokeDasharray="4 4"
-                  />
+                  {[
+                    { label: "P1", color: "#06b6d4", topRatio: 0.08, heightRatio: 0.22 },
+                    { label: "G3", color: "#eab308", topRatio: 0.30, heightRatio: 0.22 },
+                    { label: "G2", color: "#eab308", topRatio: 0.52, heightRatio: 0.22 },
+                    { label: "G1", color: "#eab308", topRatio: 0.74, heightRatio: 0.22 },
+                  ].map((band, i) => (
+                    <g key={i}>
+                      <rect
+                        x={38}
+                        y={band.topRatio * chartDimensions.height}
+                        width={Math.max(10, chartDimensions.width - 52)}
+                        height={band.heightRatio * chartDimensions.height}
+                        fill={band.color}
+                        fillOpacity="0.05"
+                      />
+                      <line
+                        x1={38}
+                        y1={band.topRatio * chartDimensions.height}
+                        x2={chartDimensions.width - 14}
+                        y2={band.topRatio * chartDimensions.height}
+                        stroke="rgba(255, 255, 255, 0.07)"
+                        strokeDasharray="3 3"
+                      />
+                      <text
+                        x={32}
+                        y={(band.topRatio + band.heightRatio / 2) * chartDimensions.height + 3.5}
+                        fill={band.color}
+                        fontSize="9.5"
+                        fontWeight="700"
+                        fontFamily="system-ui, -apple-system, sans-serif"
+                        textAnchor="end"
+                        opacity="0.8"
+                      >
+                        {band.label}
+                      </text>
+                    </g>
+                  ))}
                 </svg>
                 <div
                   className="lp-chart-empty"
@@ -787,13 +720,13 @@ export default function ViewMenu() {
                   <span
                     style={{
                       color: "var(--text-muted)",
-                      fontSize: "11px",
+                      fontSize: "0.6875rem",
                       fontWeight: 600,
                     }}
                   >
-                    Sin partidas clasificatorias recientes
+                    Sin partidas clasificatorias en los últimos 6 meses
                   </span>
-                  <span style={{ color: "var(--text-dim)", fontSize: "10px" }}>
+                  <span style={{ color: "var(--text-dim)", fontSize: "0.625rem" }}>
                     Juega en modo Competitivo para registrar tu evolución de RR
                   </span>
                 </div>
@@ -808,7 +741,7 @@ export default function ViewMenu() {
             <span className="stats-card-title">{t.liveRadarTitle}</span>
             <span
               style={{
-                fontSize: "10px",
+                fontSize: "0.625rem",
                 fontWeight: 700,
                 color:
                   connectionStatus === "live"
@@ -824,9 +757,9 @@ export default function ViewMenu() {
 
           <div className="radar-orb-widget">
             <div className="radar-sweep-orb">
-              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--color-cyan)" }} />
+              <div style={{ width: "0.5rem", height: "0.5rem", borderRadius: "50%", background: "var(--color-cyan)" }} />
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-muted)", lineHeight: 1.3 }}>
+            <div style={{ fontSize: "0.6875rem", color: "var(--text-muted)", lineHeight: 1.3 }}>
               {connectionStatus === "offline" ? t.clientOfflineText : t.clientDetectedText}
             </div>
           </div>
@@ -834,140 +767,163 @@ export default function ViewMenu() {
       </div>
 
       {/* 5. Match History List (Tracker.gg Daily Layout) */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "6px" }}>
-        {matchGroups.map((group, gIdx) => (
-          <div key={gIdx} className="daily-group-container">
-            {/* Daily Header Summary Row */}
-            <div className="daily-header-row">
-              <div className="daily-date-title">
-                <span>{group.dateTitle}</span>
-                <span className="daily-count-badge">{group.gameCount}</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem", marginTop: "0.375rem" }}>
+        {matchGroups.length > 0 ? (
+          matchGroups.map((group, gIdx) => (
+            <div key={gIdx} className="daily-group-container">
+              {/* Daily Header Summary Row */}
+              <div className="daily-header-row">
+                <div className="daily-date-title">
+                  <span>{group.dateTitle}</span>
+                  <span className="daily-count-badge">{group.gameCount}</span>
+                </div>
+
+                <div className="daily-record-text">
+                  <span className="win">{group.wins} {t.winsShort}</span>
+                  <span className="sep">{"//"}</span>
+                  <span className="loss">{group.losses} {t.lossesShort}</span>
+                </div>
+
+                <div />
+
+                <div className="daily-stat-header">
+                  <span>K/D</span>
+                  <span className="daily-stat-value">{group.dailyKd}</span>
+                </div>
+
+                <div className="daily-stat-header" style={{ textAlign: "center" }}>
+                  <span>{group.dailyKdaLine}</span>
+                  <span className="daily-stat-value">{group.dailyKdaVal}</span>
+                </div>
+
+                <div className="daily-stat-header">
+                  <span>DDΔ</span>
+                  <span className="daily-stat-value">{group.dailyDd}</span>
+                </div>
+
+                <div className="daily-stat-header">
+                  <span>HS%</span>
+                  <span className="daily-stat-value">{group.dailyHs}</span>
+                </div>
+
+                <div className="daily-stat-header">
+                  <span>ACS</span>
+                  <span className="daily-stat-value">{group.dailyAcs}</span>
+                </div>
+
+                <div />
               </div>
 
-              <div className="daily-record-text">
-                <span className="win">{group.wins} {t.winsShort}</span>
-                <span className="sep">{"//"}</span>
-                <span className="loss">{group.losses} {t.lossesShort}</span>
-              </div>
+              {/* Match Rows inside Group */}
+              {group.matches.map((m) => (
+                <div key={m.id} className={`tracker-match-card ${m.isWin ? "win" : "loss"}`}>
+                  <div className={`tracker-left-bar ${m.isWin ? "win" : "loss"}`} />
 
-              <div />
-
-              <div className="daily-stat-header">
-                <span>K/D</span>
-                <span className="daily-stat-value">{group.dailyKd}</span>
-              </div>
-
-              <div className="daily-stat-header" style={{ textAlign: "center" }}>
-                <span>{group.dailyKdaLine}</span>
-                <span className="daily-stat-value">{group.dailyKdaVal}</span>
-              </div>
-
-              <div className="daily-stat-header">
-                <span>DDΔ</span>
-                <span className="daily-stat-value">{group.dailyDd}</span>
-              </div>
-
-              <div className="daily-stat-header">
-                <span>HS%</span>
-                <span className="daily-stat-value">{group.dailyHs}</span>
-              </div>
-
-              <div className="daily-stat-header">
-                <span>ACS</span>
-                <span className="daily-stat-value">{group.dailyAcs}</span>
-              </div>
-
-              <div />
-            </div>
-
-            {/* Match Rows inside Group */}
-            {group.matches.map((m) => (
-              <div key={m.id} className={`tracker-match-card ${m.isWin ? "win" : "loss"}`}>
-                <div className={`tracker-left-bar ${m.isWin ? "win" : "loss"}`} />
-
-                {/* Col 1: Agent Portrait & Map Placement */}
-                <div className="tracker-agent-col">
-                  <img src={m.agentIcon} alt={m.agentName} className="tracker-agent-avatar" />
-                  <div className="tracker-agent-info">
-                    <span className="tracker-meta-sub">{m.metaText}</span>
-                    <div className="tracker-map-name">
-                      <span>{m.mapName}</span>
-                      <span className={`tracker-placement-badge ${m.isMvp ? "mvp" : ""}`}>
-                        {m.placement}
-                      </span>
+                  {/* Col 1: Agent Portrait & Map Placement */}
+                  <div className="tracker-agent-col">
+                    <img src={m.agentIcon} alt={m.agentName} className="tracker-agent-avatar" />
+                    <div className="tracker-agent-info">
+                      <span className="tracker-meta-sub">{m.metaText}</span>
+                      <div className="tracker-map-name">
+                        <span>{m.mapName}</span>
+                        <span className={`tracker-placement-badge ${m.isMvp ? "mvp" : ""}`}>
+                          {m.placement}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Col 2: Score */}
-                <div className="tracker-score-col">
-                  <span className="tracker-col-label">{t.score}</span>
-                  <div className="tracker-score-val">
-                    <span className={m.isWin ? "score-win" : "score-loss"}>{m.scoreWon}</span>
-                    <span style={{ color: "var(--text-muted)", margin: "0 4px" }}>:</span>
-                    <span className={m.isWin ? "score-loss" : "score-win"}>{m.scoreLost}</span>
+                  {/* Col 2: Score */}
+                  <div className="tracker-score-col">
+                    <span className="tracker-col-label">{t.score}</span>
+                    <div className="tracker-score-val">
+                      <span className={m.isWin ? "score-win" : "score-loss"}>{m.scoreWon}</span>
+                      <span style={{ color: "var(--text-muted)", margin: "0 0.25rem" }}>:</span>
+                      <span className={m.isWin ? "score-loss" : "score-win"}>{m.scoreLost}</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Col 3: Badges / Highlights */}
-                <div className="tracker-badges-col">
-                  {m.badges.map((b, bIdx) => (
+                  {/* Col 3: Badges / Highlights */}
+                  <div className="tracker-badges-col">
+                    {m.badges.map((b, bIdx) => (
+                      <span
+                        key={bIdx}
+                        className={`tracker-tag-badge ${
+                          b.type === "gold" ? "gold" : b.type === "red" ? "red" : ""
+                        }`}
+                      >
+                        {b.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Col 4: K/D Ratio */}
+                  <div className="tracker-stat-col">
+                    <span className="tracker-col-label">K/D</span>
                     <span
-                      key={bIdx}
-                      className={`tracker-tag-badge ${
-                        b.type === "gold" ? "gold" : b.type === "red" ? "red" : ""
+                      className={`tracker-stat-val ${
+                        parseFloat(m.kd) >= 1.0 ? "positive" : "negative"
                       }`}
                     >
-                      {b.label}
+                      {m.kd}
                     </span>
-                  ))}
-                </div>
+                  </div>
 
-                {/* Col 4: K/D Ratio */}
-                <div className="tracker-stat-col">
-                  <span className="tracker-col-label">K/D</span>
-                  <span
-                    className={`tracker-stat-val ${
-                      parseFloat(m.kd) >= 1.0 ? "positive" : "negative"
-                    }`}
-                  >
-                    {m.kd}
-                  </span>
-                </div>
+                  {/* Col 5: K/D/A Numbers */}
+                  <div className="tracker-stat-col" style={{ alignItems: "center" }}>
+                    <span className="tracker-col-label">K/D/A</span>
+                    <span className="tracker-stat-val">{m.kda}</span>
+                  </div>
 
-                {/* Col 5: K/D/A Numbers */}
-                <div className="tracker-stat-col" style={{ alignItems: "center" }}>
-                  <span className="tracker-col-label">K/D/A</span>
-                  <span className="tracker-stat-val">{m.kda}</span>
-                </div>
+                  {/* Col 6: DDΔ */}
+                  <div className="tracker-stat-col">
+                    <span className="tracker-col-label">DDΔ</span>
+                    <span className="tracker-stat-val">{m.dd}</span>
+                  </div>
 
-                {/* Col 6: DDΔ */}
-                <div className="tracker-stat-col">
-                  <span className="tracker-col-label">DDΔ</span>
-                  <span className="tracker-stat-val">{m.dd}</span>
-                </div>
+                  {/* Col 7: HS% */}
+                  <div className="tracker-stat-col">
+                    <span className="tracker-col-label">HS%</span>
+                    <span className="tracker-stat-val">{m.hs}</span>
+                  </div>
 
-                {/* Col 7: HS% */}
-                <div className="tracker-stat-col">
-                  <span className="tracker-col-label">HS%</span>
-                  <span className="tracker-stat-val">{m.hs}</span>
-                </div>
+                  {/* Col 8: ACS */}
+                  <div className="tracker-stat-col">
+                    <span className="tracker-col-label">ACS</span>
+                    <span className="tracker-stat-val">{m.acs}</span>
+                  </div>
 
-                {/* Col 8: ACS */}
-                <div className="tracker-stat-col">
-                  <span className="tracker-col-label">ACS</span>
-                  <span className="tracker-stat-val">{m.acs}</span>
+                  {/* Col 9: 3 dots menu */}
+                  <div className="tracker-dots-menu">⋮</div>
                 </div>
-
-                {/* Col 9: 3 dots menu */}
-                <div className="tracker-dots-menu">⋮</div>
-              </div>
-            ))}
+              ))}
+            </div>
+          ))
+        ) : (
+          <div
+            className="daily-group-container"
+            style={{
+              padding: "2rem",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-main)" }}>
+              No se encontraron partidas en los últimos 6 meses en esta cuenta
+            </span>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+              Juega partidas en Valorant para sincronizar tu historial y estadísticas en tiempo real.
+            </span>
           </div>
-        ))}
+        )}
 
         {/* End of Results footer */}
-        <div className="end-of-results-text">{t.endOfResults}</div>
+        {matchGroups.length > 0 && (
+          <div className="end-of-results-text">{t.endOfResults}</div>
+        )}
       </div>
     </div>
   );

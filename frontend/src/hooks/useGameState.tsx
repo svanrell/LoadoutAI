@@ -140,7 +140,7 @@ interface GameStateContextProps {
   requestMlDraft: (mapName?: string, allies?: string[]) => void;
   playerProfile: SyncedPlayerProfile | null;
   isProfileLoading: boolean;
-  requestPlayerProfile: (puuid?: string) => void;
+  requestPlayerProfile: (puuid?: string, forceRefresh?: boolean) => void;
 }
 
 const GameStateContext = createContext<GameStateContextProps | undefined>(undefined);
@@ -174,11 +174,17 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [isProfileLoading, setIsProfileLoading] = useState(false);
 
   const socketRef = useRef<Socket | null>(null);
+  const lastProfileFetchRef = useRef<number>(0);
 
-  const requestPlayerProfile = (puuid?: string) => {
+  const requestPlayerProfile = (puuid?: string, forceRefresh = false) => {
     if (socketRef.current) {
+      const now = Date.now();
+      if (!forceRefresh && now - lastProfileFetchRef.current < 3000) {
+        return;
+      }
+      lastProfileFetchRef.current = now;
       setIsProfileLoading(true);
-      socketRef.current.emit("request_player_profile", { puuid });
+      socketRef.current.emit("request_player_profile", { puuid, forceRefresh });
     }
   };
 
@@ -244,8 +250,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         mapName: selectedMap,
         allies: myTeam.map((p) => p.agentId).filter(Boolean),
       });
-      setIsProfileLoading(true);
-      socket.emit("request_player_profile", {});
+      requestPlayerProfile();
     });
 
     socket.on("disconnect", () => {
@@ -288,7 +293,10 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         setConnectionText("In Game Lobby");
         setView("menu");
         setIsLiveMode(false);
-        socket.emit("request_player_profile", {});
+        const now = Date.now();
+        if (now - lastProfileFetchRef.current > 20000) {
+          requestPlayerProfile();
+        }
       } else if (data.status === "PREGAME") {
         setConnectionStatus("live");
         setConnectionText("Agent Selection");

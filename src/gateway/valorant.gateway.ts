@@ -108,10 +108,14 @@ export class ValorantGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("request_player_profile")
-  async handleRequestPlayerProfile(client: Socket, data?: { puuid?: string }) {
+  async handleRequestPlayerProfile(
+    client: Socket,
+    data?: { puuid?: string; forceRefresh?: boolean },
+  ) {
     try {
       const profile = await this.historyService.getFullSyncedProfile(
         data?.puuid,
+        Boolean(data?.forceRefresh),
       );
       client.emit("player_profile_result", {
         success: Boolean(profile),
