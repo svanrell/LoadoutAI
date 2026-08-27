@@ -59,6 +59,37 @@ export function resolveTierName(tier: number): string {
   return TIER_NAMES_MAP[tier] || "Unranked";
 }
 
+export function getGlobalTierName(tierNum: number, lang: "es" | "en" = "es"): string {
+  if (tierNum <= 2) return lang === "es" ? "Sin rango" : "Unranked";
+  if (tierNum === 27) return lang === "es" ? "Radiante" : "Radiant";
+
+  const groupIdx = Math.floor((tierNum - 3) / 3);
+  const namesEs = ["Hierro", "Bronce", "Plata", "Oro", "Platino", "Diamante", "Ascendente", "Inmortal"];
+  const namesEn = ["Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ascendant", "Immortal"];
+
+  if (groupIdx >= 0 && groupIdx < namesEs.length) {
+    return lang === "es" ? namesEs[groupIdx] : namesEn[groupIdx];
+  }
+  return lang === "es" ? "Sin rango" : "Unranked";
+}
+
+export function getExactTierName(tierNum: number, lang: "es" | "en" = "es"): string {
+  if (tierNum <= 2) return lang === "es" ? "Sin rango" : "Unranked";
+  if (tierNum === 27) return lang === "es" ? "Radiante" : "Radiant";
+
+  const groupName = getGlobalTierName(tierNum, lang);
+  const divNum = ((tierNum - 3) % 3) + 1;
+  const roman = divNum === 1 ? "I" : divNum === 2 ? "II" : "III";
+  return `${groupName} ${roman}`;
+}
+
+export function getBaseTierIconUrl(tierNum: number): string {
+  if (tierNum <= 2) return getRankIconUrl(0);
+  if (tierNum === 27) return getRankIconUrl(27);
+  const baseTierNum = Math.floor((tierNum - 3) / 3) * 3 + 3;
+  return getRankIconUrl(baseTierNum);
+}
+
 export function getTierColor(tier: string | number): string {
   const name = typeof tier === "number" ? resolveTierName(tier) : tier || "";
   const lower = name.toLowerCase();
