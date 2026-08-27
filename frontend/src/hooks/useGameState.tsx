@@ -121,7 +121,7 @@ interface GameStateContextProps {
   selectedMode: string;
   setSelectedMode: (mode: string) => void;
   isLiveMode: boolean;
-  setIsLiveMode: (live: boolean) => void;
+  setIsLiveMode: (live: boolean) => void;     
   connectionStatus: "offline" | "menu-mode" | "live";
   connectionText: string;
   myTeam: Player[];
