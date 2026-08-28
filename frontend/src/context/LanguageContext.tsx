@@ -129,6 +129,13 @@ export interface Translations {
   tacticalPlaystyle: string;
   rolesDistribution: string;
   goToWeaponShop: string;
+  scoreLabel: string;
+  scoreGradeRadiantCore: string;
+  scoreGradeTacticalMastery: string;
+  scoreGradeOptimized: string;
+  scoreGradeStandard: string;
+  scoreGradeDeficit: string;
+  scoreGradeBreakdown: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -250,6 +257,13 @@ const translations: Record<Language, Translations> = {
     tacticalPlaystyle: "Estrategia Recomendada",
     rolesDistribution: "Distribución de Roles",
     goToWeaponShop: "IR A SELECCIÓN DE ARMAS",
+    scoreLabel: "PUNTUACIÓN",
+    scoreGradeRadiantCore: "Núcleo Radiante",
+    scoreGradeTacticalMastery: "Dominio Táctico",
+    scoreGradeOptimized: "Optimizado",
+    scoreGradeStandard: "Estándar",
+    scoreGradeDeficit: "Déficit Táctico",
+    scoreGradeBreakdown: "Desbalance",
   },
   en: {
     profile: "Profile",
@@ -369,6 +383,13 @@ const translations: Record<Language, Translations> = {
     tacticalPlaystyle: "Recommended Strategy",
     rolesDistribution: "Role Distribution",
     goToWeaponShop: "GO TO WEAPON SELECTION",
+    scoreLabel: "SCORE",
+    scoreGradeRadiantCore: "Radiant Core",
+    scoreGradeTacticalMastery: "Tactical Mastery",
+    scoreGradeOptimized: "Optimized",
+    scoreGradeStandard: "Standard",
+    scoreGradeDeficit: "Deficit",
+    scoreGradeBreakdown: "Breakdown",
   },
 };
 

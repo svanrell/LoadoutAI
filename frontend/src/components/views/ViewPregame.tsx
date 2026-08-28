@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useValorantData } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
-import { calculateTci, getTciMeta } from "@/lib/tciUtils";
+import { calculateScore, getScoreMeta } from "@/lib/scoreUtils";
 
 // ============================================================================
 // VISTA PRE-GAME: ASISTENTE DE DRAFT Y COACH DE SINERGIA CON IA
@@ -26,7 +26,7 @@ export default function ViewPregame() {
     mlAgentImpacts,    // Aporte neto individual (Δ delta) de cada pick
     setView,
   } = useGameState();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // 3. Filtros locales del usuario: categoría de rol (todos, duelista, etc.) y agente seleccionado en pantalla
   const [selectedRoleCategory, setSelectedRoleCategory] = useState<string>("all");
@@ -311,15 +311,15 @@ export default function ViewPregame() {
 
             {(() => {
               const rawWinRate = mlSynergyWinRate || 50;
-              const tciMeta = getTciMeta(rawWinRate, true);
+              const scoreMeta = getScoreMeta(rawWinRate, true, language);
               const synergyScorePercent = Math.min(100, Math.max(0, Math.round(rawWinRate)));
               const strokeOffsetValue = Math.max(
                 0,
-                172 - (172 * (tciMeta.tci * 10)) / 100
+                172 - (172 * (scoreMeta.score * 10)) / 100
               );
 
-              const compositionRatingText = `${tciMeta.grade} • ${tciMeta.label.toUpperCase()}`;
-              const compositionThemeColor = tciMeta.color;
+              const compositionRatingText = `${scoreMeta.grade} • ${scoreMeta.label.toUpperCase()}`;
+              const compositionThemeColor = scoreMeta.color;
 
               return (
                 <>
@@ -339,7 +339,7 @@ export default function ViewPregame() {
                       className="synergy-value"
                       style={{ color: compositionThemeColor }}
                     >
-                      {tciMeta.tci.toFixed(1)}
+                      {scoreMeta.score.toFixed(1)}
                     </div>
                   </div>
 
@@ -567,7 +567,7 @@ export default function ViewPregame() {
                       </div>
 
                       {estimatedWinRate !== null && (() => {
-                        const tciMeta = getTciMeta(estimatedWinRate, true);
+                        const scoreMeta = getScoreMeta(estimatedWinRate, true, language);
                         return (
                           <div
                             style={{
@@ -575,7 +575,7 @@ export default function ViewPregame() {
                               flexDirection: "column",
                               alignItems: "flex-end",
                             }}
-                            title={`WR Estimado: ${estimatedWinRate.toFixed(1)}% • ${tciMeta.label}`}
+                            title={`${t.winRate}: ${estimatedWinRate.toFixed(1)}% • ${scoreMeta.label}`}
                           >
                             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                               <span
@@ -585,27 +585,27 @@ export default function ViewPregame() {
                                   fontFamily: "'Orbitron', monospace",
                                   padding: "1px 4px",
                                   borderRadius: "2px",
-                                  color: tciMeta.color,
-                                  background: tciMeta.bg,
-                                  border: `1px solid ${tciMeta.border}`,
+                                  color: scoreMeta.color,
+                                  background: scoreMeta.bg,
+                                  border: `1px solid ${scoreMeta.border}`,
                                   lineHeight: 1,
                                 }}
                               >
-                                {tciMeta.grade}
+                                {scoreMeta.grade}
                               </span>
                               <span
                                 style={{
                                   fontFamily: "'Orbitron', sans-serif",
                                   fontSize: "11px",
                                   fontWeight: "bold",
-                                  color: tciMeta.color,
+                                  color: scoreMeta.color,
                                 }}
                               >
-                                {tciMeta.tci.toFixed(1)}
+                                {scoreMeta.score.toFixed(1)}
                               </span>
                             </div>
                             <span style={{ fontSize: "7px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                              TCI SCORE
+                              {t.scoreLabel}
                             </span>
                           </div>
                         );
@@ -888,7 +888,7 @@ export default function ViewPregame() {
                           EN EQUIPO
                         </span>
                       ) : estimatedWinRate !== null ? (() => {
-                        const tciMeta = getTciMeta(estimatedWinRate, true);
+                        const scoreMeta = getScoreMeta(estimatedWinRate, true, language);
                         return (
                           <div
                             className="synergy-winrate-box"
@@ -898,7 +898,7 @@ export default function ViewPregame() {
                               alignItems: "flex-end",
                               flexShrink: 0,
                             }}
-                            title={`WR Estimado: ${estimatedWinRate.toFixed(1)}% • ${tciMeta.label}`}
+                            title={`${t.winRate}: ${estimatedWinRate.toFixed(1)}% • ${scoreMeta.label}`}
                           >
                             <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                               <span
@@ -908,13 +908,13 @@ export default function ViewPregame() {
                                   fontFamily: "'Orbitron', monospace",
                                   padding: "0.05rem 0.25rem",
                                   borderRadius: "0.15rem",
-                                  color: tciMeta.color,
-                                  background: tciMeta.bg,
-                                  border: `1px solid ${tciMeta.border}`,
+                                  color: scoreMeta.color,
+                                  background: scoreMeta.bg,
+                                  border: `1px solid ${scoreMeta.border}`,
                                   lineHeight: 1,
                                 }}
                               >
-                                {tciMeta.grade}
+                                {scoreMeta.grade}
                               </span>
                               <div
                                 className="synergy-winrate-val"
@@ -922,12 +922,12 @@ export default function ViewPregame() {
                                   fontFamily: "'Orbitron', monospace, sans-serif",
                                   fontSize: "0.725rem",
                                   fontWeight: 800,
-                                  color: tciMeta.color,
+                                  color: scoreMeta.color,
                                   letterSpacing: "0.02em",
                                   lineHeight: 1.1,
                                 }}
                               >
-                                {tciMeta.tci.toFixed(1)}
+                                {scoreMeta.score.toFixed(1)}
                               </div>
                             </div>
                             <div
@@ -940,7 +940,7 @@ export default function ViewPregame() {
                                 letterSpacing: "0.03em",
                               }}
                             >
-                              TCI INDEX
+                              {t.scoreLabel}
                             </div>
                           </div>
                         );
