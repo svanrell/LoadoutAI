@@ -10,8 +10,8 @@
     "build": "npm run build:frontend && nest build && node -e \"const fs=require('fs'); fs.mkdirSync('dist/machine_learning/pregame/artifacts', {recursive: true}); fs.copyFileSync('src/machine_learning/pregame/artifacts/draft_data.json', 'dist/machine_learning/pregame/artifacts/draft_data.json');\"",
     "build:frontend": "npm run build --prefix frontend && node -e \"const fs=require('fs'); fs.cpSync('frontend/out', 'public', {recursive: true, force: true});\"",
     "build:all": "npm run build",
-    "dist:win": "npm run build:all && electron-builder --win",
-    "dist:portable": "npm run build:all && electron-builder --win portable",
+    "dist:win": "npm run build && node scripts/build-exe.js",
+    "dist:portable": "npm run build && node scripts/build-exe.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -93,9 +93,6 @@
       "electron/**/*",
       "public/**/*",
       "package.json"
-    ],
-    "asarUnpack": [
-      "dist/**/*"
     ],
     "extraResources": [
       {
