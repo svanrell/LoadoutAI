@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useValorantData } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
+import { calculateTci, getTciMeta } from "@/lib/tciUtils";
 
 // ============================================================================
 // VISTA PRE-GAME: ASISTENTE DE DRAFT Y COACH DE SINERGIA CON IA
@@ -309,28 +310,16 @@ export default function ViewPregame() {
             </div>
 
             {(() => {
-              const synergyScorePercent = Math.min(
-                100,
-                Math.max(0, Math.round(mlSynergyWinRate || 50))
-              );
+              const rawWinRate = mlSynergyWinRate || 50;
+              const tciMeta = getTciMeta(rawWinRate, true);
+              const synergyScorePercent = Math.min(100, Math.max(0, Math.round(rawWinRate)));
               const strokeOffsetValue = Math.max(
                 0,
-                172 - (172 * synergyScorePercent) / 100
+                172 - (172 * (tciMeta.tci * 10)) / 100
               );
 
-              let compositionRatingText = t.averageComposition;
-              let compositionThemeColor = "var(--color-cyan)";
-
-              if (synergyScorePercent >= 70) {
-                compositionRatingText = t.metaComposition;
-                compositionThemeColor = "#00ff88";
-              } else if (synergyScorePercent >= 55) {
-                compositionRatingText = t.balancedComposition;
-                compositionThemeColor = "var(--color-cyan)";
-              } else if (synergyScorePercent < 45) {
-                compositionRatingText = t.highRiskComposition;
-                compositionThemeColor = "#ff4655";
-              }
+              const compositionRatingText = `${tciMeta.grade} • ${tciMeta.label.toUpperCase()}`;
+              const compositionThemeColor = tciMeta.color;
 
               return (
                 <>
@@ -350,14 +339,14 @@ export default function ViewPregame() {
                       className="synergy-value"
                       style={{ color: compositionThemeColor }}
                     >
-                      {synergyScorePercent}%
+                      {tciMeta.tci.toFixed(1)}
                     </div>
                   </div>
 
                   <div className="synergy-feedback" style={{ marginTop: "4px" }}>
                     <div
                       className="synergy-rating"
-                      style={{ color: compositionThemeColor, fontSize: "11px" }}
+                      style={{ color: compositionThemeColor, fontSize: "11px", fontWeight: 800 }}
                     >
                       {compositionRatingText}
                     </div>
@@ -369,11 +358,9 @@ export default function ViewPregame() {
                         </span>
                       </div>
                       <div className="synergy-analysis-item">
-                        <strong className="weak-label">{t.aiStatus}</strong>
-                        <span className="synergy-analysis-text">
-                          {isDraftComplete
-                            ? t.fullCompAnalyzed
-                            : t.evaluatingSynergies}
+                        <strong className="weak-label">WIN RATE EST.</strong>
+                        <span className="synergy-analysis-text" style={{ color: compositionThemeColor, fontWeight: 700 }}>
+                          {synergyScorePercent}%
                         </span>
                       </div>
                     </div>
@@ -579,29 +566,50 @@ export default function ViewPregame() {
                         </div>
                       </div>
 
-                      {estimatedWinRate !== null && (
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "flex-end",
-                          }}
-                        >
-                          <span
+                      {estimatedWinRate !== null && (() => {
+                        const tciMeta = getTciMeta(estimatedWinRate, true);
+                        return (
+                          <div
                             style={{
-                              fontFamily: "'Orbitron', sans-serif",
-                              fontSize: "11px",
-                              fontWeight: "bold",
-                              color: estimatedWinRate >= 70 ? "#00ff88" : "var(--color-cyan)",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "flex-end",
                             }}
+                            title={`WR Estimado: ${estimatedWinRate.toFixed(1)}% • ${tciMeta.label}`}
                           >
-                            {estimatedWinRate.toFixed(1)}%
-                          </span>
-                          <span style={{ fontSize: "8px", color: "var(--text-muted)" }}>
-                            {t.estWinRate}
-                          </span>
-                        </div>
-                      )}
+                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                              <span
+                                style={{
+                                  fontSize: "9px",
+                                  fontWeight: 900,
+                                  fontFamily: "'Orbitron', monospace",
+                                  padding: "1px 4px",
+                                  borderRadius: "2px",
+                                  color: tciMeta.color,
+                                  background: tciMeta.bg,
+                                  border: `1px solid ${tciMeta.border}`,
+                                  lineHeight: 1,
+                                }}
+                              >
+                                {tciMeta.grade}
+                              </span>
+                              <span
+                                style={{
+                                  fontFamily: "'Orbitron', sans-serif",
+                                  fontSize: "11px",
+                                  fontWeight: "bold",
+                                  color: tciMeta.color,
+                                }}
+                              >
+                                {tciMeta.tci.toFixed(1)}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: "7px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                              TCI SCORE
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })
@@ -879,44 +887,64 @@ export default function ViewPregame() {
                         >
                           EN EQUIPO
                         </span>
-                      ) : estimatedWinRate !== null ? (
-                        <div
-                          className="synergy-winrate-box"
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "flex-end",
-                            flexShrink: 0,
-                          }}
-                        >
+                      ) : estimatedWinRate !== null ? (() => {
+                        const tciMeta = getTciMeta(estimatedWinRate, true);
+                        return (
                           <div
-                            className="synergy-winrate-val"
+                            className="synergy-winrate-box"
                             style={{
-                              fontFamily: "'Orbitron', monospace, sans-serif",
-                              fontSize: "0.725rem",
-                              fontWeight: 800,
-                              color:
-                                estimatedWinRate >= 70 ? "#00ff88" : "var(--color-cyan)",
-                              letterSpacing: "0.02em",
-                              lineHeight: 1.1,
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "flex-end",
+                              flexShrink: 0,
                             }}
+                            title={`WR Estimado: ${estimatedWinRate.toFixed(1)}% • ${tciMeta.label}`}
                           >
-                            {estimatedWinRate.toFixed(1)}%
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                              <span
+                                style={{
+                                  fontSize: "0.55rem",
+                                  fontWeight: 900,
+                                  fontFamily: "'Orbitron', monospace",
+                                  padding: "0.05rem 0.25rem",
+                                  borderRadius: "0.15rem",
+                                  color: tciMeta.color,
+                                  background: tciMeta.bg,
+                                  border: `1px solid ${tciMeta.border}`,
+                                  lineHeight: 1,
+                                }}
+                              >
+                                {tciMeta.grade}
+                              </span>
+                              <div
+                                className="synergy-winrate-val"
+                                style={{
+                                  fontFamily: "'Orbitron', monospace, sans-serif",
+                                  fontSize: "0.725rem",
+                                  fontWeight: 800,
+                                  color: tciMeta.color,
+                                  letterSpacing: "0.02em",
+                                  lineHeight: 1.1,
+                                }}
+                              >
+                                {tciMeta.tci.toFixed(1)}
+                              </div>
+                            </div>
+                            <div
+                              className="synergy-winrate-label"
+                              style={{
+                                fontSize: "0.5rem",
+                                color: "var(--text-muted)",
+                                lineHeight: 1,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.03em",
+                              }}
+                            >
+                              TCI INDEX
+                            </div>
                           </div>
-                          <div
-                            className="synergy-winrate-label"
-                            style={{
-                              fontSize: "0.5rem",
-                              color: "var(--text-muted)",
-                              lineHeight: 1,
-                              textTransform: "uppercase",
-                              letterSpacing: "0.03em",
-                            }}
-                          >
-                            {t.estWinRate}
-                          </div>
-                        </div>
-                      ) : (
+                        );
+                      })() : (
                         <span style={{ fontSize: "0.625rem", color: "var(--text-muted)" }}>
                           --
                         </span>

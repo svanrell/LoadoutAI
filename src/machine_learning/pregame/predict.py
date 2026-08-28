@@ -71,7 +71,7 @@ def compute_multinomial_role_harmony(team_agents: list[str]) -> float:
 def compute_pairwise_synergy(team_agents: list[str], pair_stats: dict[str, dict[str, int]]) -> float:
     """
     Calcula la tasa media de victoria de las parejas de agentes a partir de datos reales de partidas,
-    aplicando suavizado de Laplace bayesiano con prior 50%: (wins + 1) / (matches + 2).
+    aplicando suavizado de Laplace bayesiano con prior M=6.0 hacia 50%: (wins + 3) / (matches + 6).
     """
     cleaned = [normalize_agent_identifier(a) for a in team_agents if a]
     k = len(cleaned)
@@ -85,7 +85,7 @@ def compute_pairwise_synergy(team_agents: list[str], pair_stats: dict[str, dict[
             stat = pair_stats.get(pair_key, {"matches": 0, "wins": 0})
             matches = stat.get("matches", 0)
             wins = stat.get("wins", 0)
-            smoothed_winrate = ((wins + 1.0) / (matches + 2.0)) * 100.0
+            smoothed_winrate = ((wins + 3.0) / (matches + 6.0)) * 100.0
             pair_scores.append(smoothed_winrate)
 
     return float(sum(pair_scores) / len(pair_scores)) if pair_scores else 50.0
@@ -108,20 +108,20 @@ def compute_map_meta_score(
 
     rates = [map_dict.get(a, 0.0) for a in cleaned]
     avg_pick = sum(rates) / len(rates) if rates else 0.0
-    return float(min(95.0, max(25.0, 30.0 + (avg_pick * 0.95))))
+    return float(min(80.0, max(35.0, 42.0 + (avg_pick * 0.35))))
 
 
 def predict_composition_win_rate(
-    model_bundle: dict[str, Any],
+    model_bundle: dict,
     target_map_name: str,
     current_team_agents: list[str],
     enemy_team_agents: list[str] | None = None,
 ) -> float:
     """
     Calcula la sinergia global del equipo (0 - 100%):
-    - 40% Distribución Multinomial de Roles
+    - 35% Meta del Mapa
     - 35% Sinergia Empírica de Parejas
-    - 25% Meta del Mapa
+    - 30% Armonía y Balance de Roles
     """
     cleaned_allies = [normalize_agent_identifier(a) for a in current_team_agents if a]
     if not cleaned_allies:
@@ -130,20 +130,25 @@ def predict_composition_win_rate(
     pick_rates = model_bundle.get("pick_rates", {})
     pair_stats = model_bundle.get("pair_stats", {})
 
+    if len(cleaned_allies) == 1:
+        map_key = target_map_name.strip().lower()
+        candidate_pick_rate = pick_rates.get(map_key, {}).get(cleaned_allies[0], 0.0)
+        return round(43.0 + (candidate_pick_rate * 0.18), 1)
+
     role_harmony = compute_multinomial_role_harmony(cleaned_allies)
     pairwise_score = compute_pairwise_synergy(cleaned_allies, pair_stats)
     meta_score = compute_map_meta_score(cleaned_allies, target_map_name, pick_rates)
 
-    overall_synergy = (0.40 * role_harmony) + (0.35 * pairwise_score) + (0.25 * meta_score)
-    return round(max(10.0, min(98.0, overall_synergy)), 1)
+    overall_synergy = (0.35 * meta_score) + (0.35 * pairwise_score) + (0.30 * role_harmony)
+    return round(max(15.0, min(95.0, overall_synergy)), 1)
 
 
 def compute_agent_marginal_impacts(
-    model_bundle: dict[str, Any],
+    model_bundle: dict,
     target_map_name: str,
     team_agents: list[str],
     enemy_team_agents: list[str] | None = None,
-) -> list[dict[str, Any]]:
+) -> list[dict]:
     """
     Calcula el Impacto Marginal Individual (Delta / Δ) de cada agente elegido en la composición:
     Δ_i = Sinergia(Equipo_Completo) - Sinergia(Equipo_Sin_Agente_i)
@@ -189,16 +194,16 @@ def compute_agent_marginal_impacts(
 
 
 def recommend_agent_picks(
-    model_bundle: dict[str, Any],
+    model_bundle: dict,
     target_map_name: str,
     already_picked_agents: list[str],
     enemy_picked_agents: list[str] | None = None,
     top_limit: int | None = None,
-) -> list[dict[str, Any]]:
+) -> list[dict]:
     """
     Evalúa matemáticamente qué candidatos maximizan la sinergia global.
+    Calibrado con escala natural centrada en el 50.0%.
     """
-    all_available_maps = model_bundle["maps"]
     all_available_agents = model_bundle["agents"]
     pick_rates = model_bundle.get("pick_rates", {})
     pair_stats = model_bundle.get("pair_stats", {})
@@ -211,22 +216,42 @@ def recommend_agent_picks(
     map_pick_rates = pick_rates.get(map_key, {})
 
     candidate_results = []
+    is_initial_draft = len(valid_locked_allies) == 0
+
+    locked_roles = [get_agent_role(a) for a in valid_locked_allies]
+    has_controller = "controller" in locked_roles
+    has_duelist = "duelist" in locked_roles
+
     for candidate in available_candidates:
         hypothetical_team = valid_locked_allies + [candidate]
-
-        role_harmony = compute_multinomial_role_harmony(hypothetical_team)
-        pairwise_score = compute_pairwise_synergy(hypothetical_team, pair_stats)
         candidate_pick_rate = map_pick_rates.get(candidate, 0.0)
-        meta_score = min(95.0, max(25.0, 30.0 + (candidate_pick_rate * 0.95)))
+        c_role = get_agent_role(candidate)
 
-        composite_score = (0.40 * role_harmony) + (0.35 * pairwise_score) + (0.25 * meta_score)
+        if is_initial_draft:
+            role_harmony = 50.0
+            pairwise_score = 50.0
+            # Escala natural centrada en 50%: 43.0% (0% meta) -> 60.3% (96% meta)
+            composite_score = 43.0 + (candidate_pick_rate * 0.18)
+        else:
+            role_harmony = compute_multinomial_role_harmony(hypothetical_team)
+            pairwise_score = compute_pairwise_synergy(hypothetical_team, pair_stats)
+            candidate_meta = 42.0 + (candidate_pick_rate * 0.35)
+
+            # Ajuste dinámico de necesidad de rol:
+            role_score = 50.0 + (role_harmony - 50.0) * 0.4
+            if not has_controller and c_role == "controller":
+                role_score += 8.0 # Necesidad de humos
+            elif not has_duelist and c_role == "duelist":
+                role_score += 4.0
+
+            composite_score = (0.35 * candidate_meta) + (0.35 * pairwise_score) + (0.30 * role_score)
 
         candidate_results.append({
             "agent": candidate,
             "displayName": candidate.capitalize(),
             "uuid": AGENT_NAME_TO_UUID_MAP.get(candidate, ""),
-            "role": get_agent_role(candidate),
-            "winRate": round(max(10.0, min(99.0, composite_score)), 1),
+            "role": c_role,
+            "winRate": round(max(15.0, min(95.0, composite_score)), 1),
             "roleHarmony": round(role_harmony, 1),
             "pairwiseWinRate": round(pairwise_score, 1),
             "metaPickRate": round(candidate_pick_rate, 1),

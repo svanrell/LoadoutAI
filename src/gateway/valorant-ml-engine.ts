@@ -242,7 +242,7 @@ export class ValorantMlEngine {
    * -------------------------------------------------------------
    * Calcula el porcentaje medio de victoria de todas las parejas posibles en el equipo
    * a partir de datos reales de partidas.
-   * Aplica suavizado de Laplace con prior neutro 50%: (victorias + 1) / (partidas + 2).
+   * Aplica suavizado bayesiano con prior neutro M=6.0 hacia 50%: (victorias + 3) / (partidas + 6).
    */
   public computePairwiseSynergy(teamAgents: string[]): number {
     const cleaned = teamAgents.map(normalizeAgentName).filter(Boolean);
@@ -257,9 +257,9 @@ export class ValorantMlEngine {
       for (let j = i + 1; j < k; j++) {
         const pairKey = [cleaned[i], cleaned[j]].sort().join("__");
         const stat = pairStats[pairKey] || { matches: 0, wins: 0 };
-        // Suavizado de Laplace: evita divisiones por 0 y atenúa parejas con pocas partidas
+        // Suavizado Bayesiano: prior M=6 hacia 50%
         const smoothedWinRate =
-          ((stat.wins + 1.0) / (stat.matches + 2.0)) * 100.0;
+          ((stat.wins + 3.0) / (stat.matches + 6.0)) * 100.0;
         pairScores.push(smoothedWinRate);
       }
     }
@@ -283,16 +283,16 @@ export class ValorantMlEngine {
 
     const rates = cleaned.map((a) => mapDict[a] || 0.0);
     const avgPick = rates.length > 0 ? rates.reduce((a, b) => a + b, 0) / rates.length : 0.0;
-    return Math.min(95.0, Math.max(25.0, 30.0 + avgPick * 0.95));
+    return Math.min(80.0, Math.max(35.0, 42.0 + avgPick * 0.35));
   }
 
   /**
    * 4. SINERGIA GLOBAL PONDERADA
    * ----------------------------
    * Combina las 3 métricas con los pesos optimizados del modelo:
-   * - 40% Armonía de Roles
+   * - 35% Meta del Mapa
    * - 35% Sinergia de Parejas
-   * - 25% Meta del Mapa
+   * - 30% Armonía y Balance de Roles
    */
   public predictCompositionWinRate(
     targetMapName: string,
@@ -301,12 +301,19 @@ export class ValorantMlEngine {
     const cleaned = currentTeamAgents.map(normalizeAgentName).filter(Boolean);
     if (cleaned.length === 0) return 50.0;
 
+    if (cleaned.length === 1 && this.modelData) {
+      const mapKey = (targetMapName || "Ascent").trim().toLowerCase();
+      const mapDict = (this.modelData.pick_rates || {})[mapKey] || {};
+      const pr = mapDict[cleaned[0]] || 0.0;
+      return Math.round((43.0 + pr * 0.18) * 10) / 10;
+    }
+
     const roleHarmony = this.computeMultinomialRoleHarmony(cleaned);
     const pairwiseScore = this.computePairwiseSynergy(cleaned);
     const metaScore = this.computeMapMetaScore(cleaned, targetMapName);
 
-    const overall = 0.4 * roleHarmony + 0.35 * pairwiseScore + 0.25 * metaScore;
-    return Math.round(Math.max(10.0, Math.min(98.0, overall)) * 10) / 10;
+    const overall = 0.35 * metaScore + 0.35 * pairwiseScore + 0.30 * roleHarmony;
+    return Math.round(Math.max(15.0, Math.min(95.0, overall)) * 10) / 10;
   }
 
   /**
@@ -362,6 +369,7 @@ export class ValorantMlEngine {
 
   /**
    * Recomendación de candidatos ordenada por sinergia
+   * Calibrada con escala natural centrada en 50.0%
    */
   public recommendAgentPicks(
     targetMapName: string,
@@ -380,22 +388,47 @@ export class ValorantMlEngine {
     const pairStats = this.modelData.pair_stats || {};
 
     const candidateResults: AgentRecommendation[] = [];
+    const isInitialDraft = cleanedAllies.length === 0;
+
+    const lockedRoles = cleanedAllies.map(getAgentRole);
+    const hasController = lockedRoles.includes("controller");
+    const hasDuelist = lockedRoles.includes("duelist");
 
     for (const candidate of availableCandidates) {
       const hypotheticalTeam = [...cleanedAllies, candidate];
-      const roleHarmony = this.computeMultinomialRoleHarmony(hypotheticalTeam);
-      const pairwiseScore = this.computePairwiseSynergy(hypotheticalTeam);
       const candidatePickRate = mapPickRates[candidate] || 0.0;
-      const metaScore = Math.min(95.0, Math.max(25.0, 30.0 + candidatePickRate * 0.95));
+      const cRole = getAgentRole(candidate);
+      let composite = 50.0;
+      let roleHarmony = 50.0;
+      let pairwiseScore = 50.0;
 
-      const composite = 0.4 * roleHarmony + 0.35 * pairwiseScore + 0.25 * metaScore;
-      const finalScore = Math.round(Math.max(10.0, Math.min(99.0, composite)) * 10) / 10;
+      if (isInitialDraft) {
+        roleHarmony = 50.0;
+        pairwiseScore = 50.0;
+        // Escala natural 50%: 43.0% (0% meta) -> 60.3% (96% meta)
+        composite = 43.0 + candidatePickRate * 0.18;
+      } else {
+        roleHarmony = this.computeMultinomialRoleHarmony(hypotheticalTeam);
+        pairwiseScore = this.computePairwiseSynergy(hypotheticalTeam);
+        const candidateMeta = 42.0 + candidatePickRate * 0.35;
+
+        let roleScore = 50.0 + (roleHarmony - 50.0) * 0.4;
+        if (!hasController && cRole === "controller") {
+          roleScore += 8.0; // Necesidad de humos
+        } else if (!hasDuelist && cRole === "duelist") {
+          roleScore += 4.0;
+        }
+
+        composite = 0.35 * candidateMeta + 0.35 * pairwiseScore + 0.30 * roleScore;
+      }
+
+      const finalScore = Math.round(Math.max(15.0, Math.min(95.0, composite)) * 10) / 10;
 
       candidateResults.push({
         agent: candidate,
         displayName: candidate.charAt(0).toUpperCase() + candidate.slice(1),
         uuid: AGENT_NAME_TO_UUID[candidate] || "",
-        role: getAgentRole(candidate),
+        role: cRole,
         winRate: finalScore,
         roleHarmony: Math.round(roleHarmony * 10) / 10,
         pairwiseWinRate: Math.round(pairwiseScore * 10) / 10,
