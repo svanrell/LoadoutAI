@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain } = require("electron");
 const path = require("path");
 const http = require("http");
 const fs = require("fs");
@@ -65,11 +65,11 @@ async function startBackendServer() {
 
 async function createWindow() {
   const win = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 1024,
-    minHeight: 700,
-    fullscreen: true,
+    width: 1200,
+    height: 700,
+    minWidth: 380,
+    minHeight: 520,
+    fullscreen: false,
     autoHideMenuBar: true,
     title: "LoadoutAI - Valorant Tactical AI Assistant",
     backgroundColor: "#05080c",
@@ -80,13 +80,46 @@ async function createWindow() {
       contextIsolation: true,
     },
   });
-
+  // limites de la ventana
   mainWindow = win;
+  let isCompact = false;
+  let previousBounds = win.getBounds();
 
-  // Atajos de teclado: F11 pantalla completa, F12 DevTools, F5 / Ctrl+R recargar
+  // Limpiar handler previo si la ventana se recrea
+  ipcMain.removeHandler("toggle-mode");
+  ipcMain.handle("toggle-mode", () => {
+    if (!isCompact) {
+      previousBounds = win.getBounds();
+      win.setBounds({
+        width: 400,
+        height: 680,
+      });
+      isCompact = true;
+      win.setAlwaysOnTop(true, "screen-saver");
+    } else {
+      win.setBounds(previousBounds);
+      isCompact = false;
+      win.setAlwaysOnTop(false);
+    }
+    return isCompact;
+  });
+
+  // Atajos de teclado: F9 modo compacto, F11 pantalla completa, F12 DevTools, F5 / Ctrl+R recargar
   win.webContents.on("before-input-event", (event, input) => {
     if (input.type === "keyDown") {
-      if (input.key === "F11") {
+      if (input.key === "F9") {
+        if (!isCompact) {
+          previousBounds = win.getBounds();
+          win.setBounds({ width: 400, height: 680 });
+          win.setAlwaysOnTop(true, "screen-saver");
+          isCompact = true;
+        } else {
+          win.setBounds(previousBounds);
+          win.setAlwaysOnTop(false);
+          isCompact = false;
+        }
+        event.preventDefault();
+      } else if (input.key === "F11") {
         win.setFullScreen(!win.isFullScreen());
         event.preventDefault();
       } else if (input.key === "F12") {
@@ -106,7 +139,7 @@ async function createWindow() {
     console.log("Carga inicial pendiente, esperando a que el servidor responda...");
     setTimeout(() => {
       if (!win.isDestroyed()) {
-        win.loadURL(targetUrl).catch(() => {});
+        win.loadURL(targetUrl).catch(() => { });
       }
     }, 500);
   });

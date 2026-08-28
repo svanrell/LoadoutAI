@@ -1,4 +1,6 @@
-// Preload script for Electron
-window.addEventListener("DOMContentLoaded", () => {
-  // Safe bridge if needed in the future
+const { contextBridge, ipcRenderer } = require("electron");
+
+contextBridge.exposeInMainWorld("electronAPI", {
+  toggleMode: () => ipcRenderer.invoke("toggle-mode"),
+  isElectron: true,
 });
