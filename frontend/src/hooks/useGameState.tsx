@@ -184,17 +184,20 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [pregameMatchId, setPregameMatchId] = useState<string | null>(null);
 
   const creditsRef = useRef(myCredits);
-  creditsRef.current = myCredits;
   const currentRoundRef = useRef(currentIngameRound);
-  currentRoundRef.current = currentIngameRound;
   const scoreAllyRef = useRef(scoreAlly);
-  scoreAllyRef.current = scoreAlly;
   const scoreEnemyRef = useRef(scoreEnemy);
-  scoreEnemyRef.current = scoreEnemy;
   const lossStreakRef = useRef(lossStreak);
-  lossStreakRef.current = lossStreak;
   const plannedSpendRef = useRef(plannedSpend);
-  plannedSpendRef.current = plannedSpend;
+
+  useEffect(() => {
+    creditsRef.current = myCredits;
+    currentRoundRef.current = currentIngameRound;
+    scoreAllyRef.current = scoreAlly;
+    scoreEnemyRef.current = scoreEnemy;
+    lossStreakRef.current = lossStreak;
+    plannedSpendRef.current = plannedSpend;
+  }, [myCredits, currentIngameRound, scoreAlly, scoreEnemy, lossStreak, plannedSpend]);
 
   const [playerProfile, setPlayerProfile] = useState<SyncedPlayerProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);

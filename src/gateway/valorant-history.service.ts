@@ -275,8 +275,12 @@ export class ValorantHistoryService {
   private readonly lockfilePath: string;
   private readonly httpsAgent: https.Agent;
 
-  private profileCache: Map<string, { data: SyncedPlayerProfile; timestamp: number }> = new Map();
-  private inFlightRequests: Map<string, Promise<SyncedPlayerProfile | null>> = new Map();
+  private profileCache: Map<
+    string,
+    { data: SyncedPlayerProfile; timestamp: number }
+  > = new Map();
+  private inFlightRequests: Map<string, Promise<SyncedPlayerProfile | null>> =
+    new Map();
 
   constructor(private readonly httpService: HttpService) {
     this.lockfilePath = path.join(
@@ -771,12 +775,13 @@ export class ValorantHistoryService {
           "";
         const rawGameMode =
           (match.matchInfo as any)?.gameMode || match.matchInfo.gameMode || "";
-        const rawProvisioningFlow =
+        const rawProvisioningFlow: string = String(
           (match.matchInfo as any)?.provisioningFlowID ||
-          (match.matchInfo as any)?.provisioningFlowId ||
-          (match.matchInfo as any)?.provisioningFlow ||
-          match.matchInfo.provisioningFlowId ||
-          "";
+            (match.matchInfo as any)?.provisioningFlowId ||
+            (match.matchInfo as any)?.provisioningFlow ||
+            match.matchInfo.provisioningFlowId ||
+            "",
+        );
         const rawCustomGameName =
           (match.matchInfo as any)?.customGameName ||
           (match.matchInfo as any)?.CustomGameName ||

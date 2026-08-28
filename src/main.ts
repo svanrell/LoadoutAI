@@ -19,9 +19,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   app.enableCors();
 
   const resourcesPath =
-    process.env.ELECTRON_RESOURCES_PATH ||
-    (process as any).resourcesPath ||
-    "";
+    process.env.ELECTRON_RESOURCES_PATH || (process as any).resourcesPath || "";
 
   // Localizar la carpeta public estática en desarrollo o empaquetado
   const possiblePublicPaths = [
