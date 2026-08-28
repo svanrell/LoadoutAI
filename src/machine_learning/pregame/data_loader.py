@@ -3,13 +3,6 @@ from collections import defaultdict
 import pandas as pd
 
 
-# Ponderación del meta: 2026 tiene 3.5x más peso que 2025
-YEAR_WEIGHTS = {
-    2026: 3.5,
-    2025: 1.0
-}
-
-
 def load_dataset(csv_file_path: str) -> pd.DataFrame:
     """Carga un archivo CSV desde una ruta dada."""
     if not os.path.exists(csv_file_path):
@@ -18,10 +11,14 @@ def load_dataset(csv_file_path: str) -> pd.DataFrame:
 
 
 def get_year_weight(year: int | float) -> float:
-    """Devuelve el peso según el año (3.5x para 2026, 1.0x para 2025)."""
-    try:
-        return YEAR_WEIGHTS.get(int(year), 1.0)
-    except Exception:
+    """
+    Devuelve la importancia de la partida:
+    - 2026: peso 3.5x (meta actual)
+    - 2025: peso 1.0x (meta año pasado)
+    """
+    if year == 2026:
+        return 3.5
+    else:
         return 1.0
 
 
