@@ -82,57 +82,15 @@ async function createWindow() {
   });
   // limites de la ventana
   mainWindow = win;
-  let isCompact = false;
-  let previousBounds = win.getBounds();
-
-  // Limpiar handler previo si la ventana se recrea
-  ipcMain.removeHandler("toggle-mode");
-  ipcMain.handle("toggle-mode", () => {
-    if (!isCompact) {
-      previousBounds = win.getBounds();
-      win.setBounds({
-        width: 400,
-        height: 680,
-      });
-      isCompact = true;
-      win.setAlwaysOnTop(true, "screen-saver");
-    } else {
-      win.setBounds(previousBounds);
-      isCompact = false;
-      win.setAlwaysOnTop(false);
-    }
-    return isCompact;
-  });
-
-  // Atajos de teclado: F9 modo compacto, F11 pantalla completa, F12 DevTools, F5 / Ctrl+R recargar
+  // Atajo de teclado: F11 para alternar pantalla completa
   win.webContents.on("before-input-event", (event, input) => {
-    if (input.type === "keyDown") {
-      if (input.key === "F9") {
-        if (!isCompact) {
-          previousBounds = win.getBounds();
-          win.setBounds({ width: 400, height: 680 });
-          win.setAlwaysOnTop(true, "screen-saver");
-          isCompact = true;
-        } else {
-          win.setBounds(previousBounds);
-          win.setAlwaysOnTop(false);
-          isCompact = false;
-        }
-        event.preventDefault();
-      } else if (input.key === "F11") {
-        win.setFullScreen(!win.isFullScreen());
-        event.preventDefault();
-      } else if (input.key === "F12") {
-        win.webContents.toggleDevTools();
-        event.preventDefault();
-      } else if (input.key === "F5" || (input.control && input.key.toLowerCase() === "r")) {
-        win.reload();
-        event.preventDefault();
-      }
+    if (input.type === "keyDown" && input.key === "F11") {
+      win.setFullScreen(!win.isFullScreen());
+      event.preventDefault();
     }
   });
 
-  const targetUrl = process.env.APP_URL || "http://127.0.0.1:3000/";
+  const targetUrl = "http://127.0.0.1:3000/";
 
   // Si la carga inicial falla, reintentar automáticamente
   win.webContents.on("did-fail-load", () => {
