@@ -64,5 +64,5 @@ lerna-debug.log*
 # Concept and learning notes
 /aprender_conceptos/
 
-
-
+# Agent workflows
+.agent/
