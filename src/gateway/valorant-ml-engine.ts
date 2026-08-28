@@ -151,10 +151,7 @@ export class ValorantMlEngine {
   }
 
   public loadData(): boolean {
-    const resourcesPath =
-      process.env.ELECTRON_RESOURCES_PATH ||
-      (process as any).resourcesPath ||
-      "";
+    const resourcesPath = process.env.ELECTRON_RESOURCES_PATH || "";
 
     const candidatePaths = [
       path.join(resourcesPath, "artifacts", "draft_data.json"),

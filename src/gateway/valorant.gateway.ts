@@ -6,7 +6,15 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Subject } from "rxjs";
-import { ValorantHistoryService } from "./valorant-history.service";
+import {
+  ValorantHistoryService,
+  SyncedPlayerProfile,
+} from "./valorant-history.service";
+import {
+  DraftPredictionResult,
+  AgentRecommendation,
+  AgentMarginalImpact,
+} from "./valorant-ml-engine";
 
 @WebSocketGateway({
   cors: {
@@ -140,17 +148,26 @@ export class ValorantGateway implements OnGatewayConnection {
     }
   }
 
-  emitMlDraftResult(client: Socket, result: any) {
+  emitMlDraftResult(
+    client: Socket,
+    result:
+      | DraftPredictionResult
+      | {
+          recommendations: AgentRecommendation[];
+          currentSynergy: number;
+          agentImpacts?: AgentMarginalImpact[];
+        },
+  ) {
     client.emit("ml_draft_result", result);
   }
 
-  emitMlBuyRecommendations(data: any) {
+  emitMlBuyRecommendations(data: unknown) {
     if (this.server) {
       this.server.emit("ml_buy_recommendations", data);
     }
   }
 
-  emitPlayerProfile(profile: any) {
+  emitPlayerProfile(profile: SyncedPlayerProfile | null) {
     if (this.server) {
       this.server.emit("player_profile_result", {
         success: Boolean(profile),

@@ -96,7 +96,9 @@ export function useValorantData() {
         }
         if (mapJson.status === 200) {
           // Filter out standard non-playable maps like Range if needed or keep standard
-          const playableMaps = mapJson.data.filter((m: any) => m.coordinates);
+          const playableMaps = (mapJson.data as MapInfo[]).filter(
+            (m: MapInfo) => Boolean(m.coordinates)
+          );
           setMaps(playableMaps.length > 0 ? playableMaps : mapJson.data);
         }
       } catch (err) {

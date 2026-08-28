@@ -10,7 +10,11 @@ import * as fs from "fs";
 import * as path from "path";
 import * as https from "https";
 import { firstValueFrom } from "rxjs";
-import { ValorantMlEngine } from "./valorant-ml-engine";
+import {
+  ValorantMlEngine,
+  AgentRecommendation,
+  AgentMarginalImpact,
+} from "./valorant-ml-engine";
 import {
   MAPS_MAP,
   QUEUES_MAP,
@@ -19,6 +23,15 @@ import {
 } from "./valorant.constants";
 
 export { MAPS_MAP, QUEUES_MAP, resolveMapName, resolveQueueName };
+
+export interface LocalPlayerInfo {
+  puuid: string;
+  agentId: string;
+  state?: string;
+  level?: number | null;
+  rank?: number;
+  playerCardId?: string;
+}
 
 interface ChatSessionResponse {
   puuid: string;
@@ -133,9 +146,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private isCheckingStatus: boolean = false;
   private lastMlDraftKey: string = "";
   private lastMlDraftResult: {
-    recommendations: any[];
+    recommendations: AgentRecommendation[];
     currentSynergy: number;
-    agentImpacts?: any[];
+    agentImpacts?: AgentMarginalImpact[];
   } = {
     recommendations: [],
     currentSynergy: 50.0,
@@ -710,7 +723,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           const mapName = resolveMapName(mapPath);
           const mode = resolveQueueName(queueId);
 
-          let players: any[] = [];
+          let players: LocalPlayerInfo[] = [];
           try {
             const remoteConfig = await this.getRemoteConfig();
             if (!remoteConfig) {
@@ -911,9 +924,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     alliesAgentUuids: string[],
     modeName: string = "competitive",
   ): {
-    recommendations: any[];
+    recommendations: AgentRecommendation[];
     currentSynergy: number;
-    agentImpacts?: any[];
+    agentImpacts?: AgentMarginalImpact[];
   } {
     const normalizedMap = (mapName || "Ascent").trim().toLowerCase();
     const normalizedMode = (modeName || "competitive").trim().toLowerCase();

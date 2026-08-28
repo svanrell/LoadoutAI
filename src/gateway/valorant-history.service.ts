@@ -65,10 +65,13 @@ export interface MatchDetailsResponse {
     gameStartMillis: number;
     provisioningFlowId?: string;
     provisioningFlowID?: string;
+    provisioningFlow?: string;
     isCompleted: boolean;
     customGameName?: string;
+    CustomGameName?: string;
     queueId?: string;
     queueID?: string;
+    QueueID?: string;
     gameMode: string;
     isRanked?: boolean;
     isCustomGame?: boolean;
@@ -768,26 +771,22 @@ export class ValorantHistoryService {
         const timeAgo = this.formatTimeAgo(dateObj.getTime());
 
         const rawQueue =
-          (match.matchInfo as any)?.queueID ||
-          (match.matchInfo as any)?.queueId ||
-          (match.matchInfo as any)?.QueueID ||
+          match.matchInfo.queueID ||
           match.matchInfo.queueId ||
+          match.matchInfo.QueueID ||
           "";
-        const rawGameMode =
-          (match.matchInfo as any)?.gameMode || match.matchInfo.gameMode || "";
-        const rawProvisioningFlow: string = String(
-          (match.matchInfo as any)?.provisioningFlowID ||
-            (match.matchInfo as any)?.provisioningFlowId ||
-            (match.matchInfo as any)?.provisioningFlow ||
-            match.matchInfo.provisioningFlowId ||
-            "",
-        );
+        const rawGameMode = match.matchInfo.gameMode || "";
+        const rawProvisioningFlow: string =
+          match.matchInfo.provisioningFlowID ||
+          match.matchInfo.provisioningFlowId ||
+          match.matchInfo.provisioningFlow ||
+          "";
         const rawCustomGameName =
-          (match.matchInfo as any)?.customGameName ||
-          (match.matchInfo as any)?.CustomGameName ||
+          match.matchInfo.customGameName ||
+          match.matchInfo.CustomGameName ||
           "";
         const isCustomGame =
-          (match.matchInfo as any)?.isCustomGame ||
+          match.matchInfo.isCustomGame ||
           rawProvisioningFlow.toLowerCase().includes("custom");
 
         const maxScore = Math.max(scoreWon, scoreLost);

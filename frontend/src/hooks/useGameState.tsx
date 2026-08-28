@@ -301,14 +301,61 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       setIsProfileLoading(false);
     });
 
-    socket.on("player_profile_result", (data: any) => {
+interface PlayerProfileResultPayload {
+  success: boolean;
+  profile?: SyncedPlayerProfile;
+  error?: string;
+}
+
+interface MLDraftResultPayload {
+  recommendations?: MLDraftRecommendation[];
+  currentSynergy?: number;
+  agentImpacts?: MLAgentImpact[];
+}
+
+interface RawStatusPlayer {
+  puuid: string;
+  agentId?: string;
+  state?: string;
+  level?: number | null;
+  rank?: number;
+  playerCardId?: string;
+}
+
+interface ValorantStatusPayload {
+  status: "CLOSED" | "MENU" | "PREGAME" | "INGAME";
+  mapName?: string;
+  mode?: string;
+  pregameMatchId?: string;
+  myPuuid?: string;
+  mlDraftPicks?: MLDraftRecommendation[];
+  mlSynergyWinRate?: number;
+  mlAgentImpacts?: MLAgentImpact[];
+  players?: RawStatusPlayer[];
+}
+
+interface BuyPhasePayload {
+  available?: boolean;
+  round?: number;
+  scoreAlly?: number;
+  scoreEnemy?: number;
+  time?: number;
+  credits?: number;
+}
+
+interface MLBuyRecommendationsPayload {
+  buy_recommendations?: BuyRecommendation[];
+  enemy_economy?: EnemyEconomy;
+}
+
+    socket.on("player_profile_result", (data: PlayerProfileResultPayload) => {
       setIsProfileLoading(false);
       if (data && data.success && data.profile) {
         setPlayerProfile(data.profile);
       }
     });
 
-    socket.on("ml_draft_result", (data: any) => {
+    socket.on("ml_draft_result", (data: MLDraftResultPayload) => {
       if (data) {
         if (Array.isArray(data.recommendations)) {
           setMlRecommendations(data.recommendations);
@@ -322,7 +369,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    socket.on("valorant_status", (data: any) => {
+    socket.on("valorant_status", (data: ValorantStatusPayload) => {
       if (data.status === "CLOSED") {
         setConnectionStatus("offline");
         setConnectionText("Game Offline");
@@ -346,18 +393,22 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         if (data.mapName) setSelectedMap(data.mapName);
         if (data.mode) setSelectedMode(data.mode.toLowerCase());
         if (data.mlDraftPicks) setMlRecommendations(data.mlDraftPicks);
-        if (typeof data.mlSynergyWinRate === 'number') setMlSynergyWinRate(data.mlSynergyWinRate);
-        if (Array.isArray(data.mlAgentImpacts)) setMlAgentImpacts(data.mlAgentImpacts);
+        if (typeof data.mlSynergyWinRate === "number")
+          setMlSynergyWinRate(data.mlSynergyWinRate);
+        if (Array.isArray(data.mlAgentImpacts))
+          setMlAgentImpacts(data.mlAgentImpacts);
         if (data.players) {
-          setMyTeam(data.players.map((p: any, i: number) => ({
-            puuid: p.puuid,
-            name: p.puuid === data.myPuuid ? 'You' : `Ally ${i + 1}`,
-            agentId: p.agentId ? p.agentId.toLowerCase() : null,
-            state: p.state,
-            level: p.level || 0,
-            rank: p.rank || 0,
-            playerCardId: p.playerCardId || ''
-          })));
+          setMyTeam(
+            data.players.map((p: RawStatusPlayer, i: number) => ({
+              puuid: p.puuid,
+              name: p.puuid === data.myPuuid ? "You" : `Ally ${i + 1}`,
+              agentId: p.agentId ? p.agentId.toLowerCase() : null,
+              state: p.state || "",
+              level: p.level || 0,
+              rank: p.rank || 0,
+              playerCardId: p.playerCardId || "",
+            }))
+          );
         }
       } else if (data.status === "INGAME") {
         setConnectionStatus("live");
@@ -367,28 +418,37 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         if (data.mapName) setSelectedMap(data.mapName);
         if (data.mode) setSelectedMode(data.mode.toLowerCase());
         if (data.players) {
-          setMyTeam(data.players.map((p: any, i: number) => ({
-            puuid: p.puuid,
-            name: p.puuid === data.myPuuid ? 'You' : `Ally ${i + 1}`,
-            agentId: p.agentId ? p.agentId.toLowerCase() : null,
-            state: p.state,
-            level: p.level || 0,
-            rank: p.rank || 0,
-            playerCardId: p.playerCardId || ''
-          })));
+          setMyTeam(
+            data.players.map((p: RawStatusPlayer, i: number) => ({
+              puuid: p.puuid,
+              name: p.puuid === data.myPuuid ? "You" : `Ally ${i + 1}`,
+              agentId: p.agentId ? p.agentId.toLowerCase() : null,
+              state: p.state || "",
+              level: p.level || 0,
+              rank: p.rank || 0,
+              playerCardId: p.playerCardId || "",
+            }))
+          );
         }
       }
     });
 
-    socket.on("buy_phase", (data: any) => {
+    socket.on("buy_phase", (data: BuyPhasePayload) => {
       const newRound = data.round || 1;
-      const newScoreAlly = typeof data.scoreAlly === "number" ? data.scoreAlly : scoreAllyRef.current;
-      const newScoreEnemy = typeof data.scoreEnemy === "number" ? data.scoreEnemy : scoreEnemyRef.current;
+      const newScoreAlly =
+        typeof data.scoreAlly === "number"
+          ? data.scoreAlly
+          : scoreAllyRef.current;
+      const newScoreEnemy =
+        typeof data.scoreEnemy === "number"
+          ? data.scoreEnemy
+          : scoreEnemyRef.current;
 
       // Si la ronda avanzó durante una partida activa, calculamos el nuevo saldo
       if (newRound > currentRoundRef.current && currentRoundRef.current > 0) {
-        const outcome: RoundOutcome = newScoreAlly > scoreAllyRef.current ? "win" : "loss";
-        
+        const outcome: RoundOutcome =
+          newScoreAlly > scoreAllyRef.current ? "win" : "loss";
+
         const econ = advanceRoundEconomy({
           previousBank: creditsRef.current,
           totalSpend: plannedSpendRef.current,
@@ -414,13 +474,13 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       setScoreAlly(newScoreAlly);
       setScoreEnemy(newScoreEnemy);
       setCurrentIngameRound(newRound);
-      setBuyPhaseAvailable(!!data.available);
-      if (data.available && typeof data.time === 'number') {
+      setBuyPhaseAvailable(Boolean(data.available));
+      if (data.available && typeof data.time === "number") {
         setBuyPhaseTime(data.time);
       }
     });
 
-    socket.on("ml_buy_recommendations", (data: any) => {
+    socket.on("ml_buy_recommendations", (data: MLBuyRecommendationsPayload) => {
       if (data && data.buy_recommendations && data.buy_recommendations.length > 0) {
         setBuyRecommendations(data.buy_recommendations[0]);
       }
