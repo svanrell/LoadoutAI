@@ -9,19 +9,29 @@ async function bootstrap() {
 
   app.enableCors();
 
+  const resourcesPath =
+    process.env.ELECTRON_RESOURCES_PATH ||
+    (process as any).resourcesPath ||
+    "";
+
   // Localizar la carpeta public estática en desarrollo o empaquetado
   const possiblePublicPaths = [
+    join(resourcesPath, "public"),
+    join(resourcesPath, "app.asar", "public"),
+    join(resourcesPath, "app.asar.unpacked", "public"),
     join(__dirname, "..", "public"),
+    join(__dirname, "public"),
     join(process.cwd(), "public"),
-    join((process as any).resourcesPath || "", "public"),
   ];
   const publicPath =
     possiblePublicPaths.find((p) => fs.existsSync(p)) ||
     join(__dirname, "..", "public");
 
+  console.log("Serving static assets from:", publicPath);
   app.useStaticAssets(publicPath);
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, "0.0.0.0");
+  console.log(`Loadout AI Server running on http://127.0.0.1:${port}`);
 }
 void bootstrap();

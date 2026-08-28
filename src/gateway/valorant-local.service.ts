@@ -279,15 +279,125 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
    * Estructura del lockfile: [proceso]:[pid]:[puerto]:[password]:[protocolo]
    */
   private getCredentials() {
-    if (!fs.existsSync(this.lockfilePath)) return null;
+    const candidatePaths = [
+      this.lockfilePath,
+      path.join(
+        process.env.LOCALAPPDATA || "",
+        "Riot Games",
+        "Riot Client",
+        "Config",
+        "lockfile",
+      ),
+      path.join(
+        process.env.PROGRAMDATA || "C:\\ProgramData",
+        "Riot Games",
+        "Riot Client",
+        "Config",
+        "lockfile",
+      ),
+      "C:\\Riot Games\\VALORANT\\live\\lockfile",
+    ];
 
-    const content = fs.readFileSync(this.lockfilePath, "utf8");
-    const [, , port, password, protocol] = content.split(":");
-    const authBase64 = Buffer.from(`riot:${password}`).toString("base64");
+    const foundPath = candidatePaths.find((p) => fs.existsSync(p));
+    if (!foundPath) return null;
 
+    try {
+      const content = fs.readFileSync(foundPath, "utf8");
+      const [, , port, password, protocol] = content.split(":");
+      const authBase64 = Buffer.from(`riot:${password}`).toString("base64");
+
+      return {
+        url: `${protocol}://127.0.0.1:${port}`,
+        token: `Basic ${authBase64}`,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private getClientVersionFromLogs(): string | null {
+    try {
+      const logPath = path.join(
+        process.env.LOCALAPPDATA || "",
+        "VALORANT",
+        "Saved",
+        "Logs",
+        "ShooterGame.log",
+      );
+      if (fs.existsSync(logPath)) {
+        const content = fs.readFileSync(logPath, "utf8");
+        const match = content.match(/CI server version:\s*([a-zA-Z0-9._-]+)/);
+        if (match && match[1]) {
+          return match[1].trim();
+        }
+      }
+    } catch {
+      // Ignorar errores de lectura
+    }
+    return null;
+  }
+
+  private async getRegionAndGlzUrl(credentials: { url: string; token: string }) {
+    let region = (process.env.VALORANT_REGION || "").toLowerCase();
+
+    // 1. Intentar leer región de ShooterGame.log
+    try {
+      const logPath = path.join(
+        process.env.LOCALAPPDATA || "",
+        "VALORANT",
+        "Saved",
+        "Logs",
+        "ShooterGame.log",
+      );
+      if (fs.existsSync(logPath)) {
+        const content = fs.readFileSync(logPath, "utf8");
+        const glzMatch = content.match(/https:\/\/(glz-[a-z0-9-]+)\.([a-z0-9-]+)\.a\.pvp\.net/i);
+        if (glzMatch && glzMatch[0]) {
+          return {
+            glzUrl: `https://${glzMatch[1]}.${glzMatch[2]}.a.pvp.net`,
+            region: glzMatch[1].replace("glz-", "").replace(/-[0-9]+$/, ""),
+            shard: glzMatch[2],
+          };
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
+    // 2. Intentar consultar endpoint de Riot Client
+    if (!region) {
+      try {
+        const regionRes = await firstValueFrom(
+          this.httpService.get<{ region?: string; webRegion?: string }>(
+            `${credentials.url}/riotclient/region-locale`,
+            {
+              headers: { Authorization: credentials.token },
+              httpsAgent: this.httpsAgent,
+            },
+          ),
+        );
+        const rawReg = (
+          regionRes.data?.region ||
+          regionRes.data?.webRegion ||
+          ""
+        ).toLowerCase();
+        if (rawReg.includes("eu")) region = "eu";
+        else if (rawReg.includes("na")) region = "na";
+        else if (rawReg.includes("latam")) region = "latam";
+        else if (rawReg.includes("br")) region = "br";
+        else if (rawReg.includes("ap")) region = "ap";
+        else if (rawReg.includes("kr")) region = "kr";
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (!region) region = "eu";
+    const shard = region === "latam" || region === "br" ? "na" : region;
     return {
-      url: `${protocol}://127.0.0.1:${port}`,
-      token: `Basic ${authBase64}`,
+      glzUrl: `https://glz-${region}-1.${shard}.a.pvp.net`,
+      region,
+      shard,
     };
   }
 
@@ -310,16 +420,23 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       const accessToken = tokenRes.data.accessToken;
       const entitlementsToken = tokenRes.data.token;
 
-      const versionRes = await firstValueFrom(
-        this.httpService.get<ValorantVersionResponse>(
-          "https://valorant-api.com/v1/version",
-        ),
-      );
-      const clientVersion = versionRes.data.data.riotClientVersion;
+      let clientVersion = "release-13.04-shipping-20-5340415";
+      try {
+        const versionRes = await firstValueFrom(
+          this.httpService.get<ValorantVersionResponse>(
+            "https://valorant-api.com/v1/version",
+            { timeout: 3000 },
+          ),
+        );
+        if (versionRes?.data?.data?.riotClientVersion) {
+          clientVersion = versionRes.data.data.riotClientVersion;
+        }
+      } catch {
+        const logVersion = this.getClientVersionFromLogs();
+        if (logVersion) clientVersion = logVersion;
+      }
 
-      const region = process.env.VALORANT_REGION || "eu";
-      const shard = region === "latam" || region === "br" ? "na" : region;
-      const glzUrl = `https://glz-${region}-1.${shard}.a.pvp.net`;
+      const { glzUrl } = await this.getRegionAndGlzUrl(credentials);
 
       return {
         glzUrl,
@@ -329,6 +446,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           "X-Riot-ClientVersion": clientVersion,
           "X-Riot-ClientPlatform":
             "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
+          "Content-Type": "application/json",
         },
       };
     } catch (error) {
@@ -344,10 +462,13 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     agentUuid: string,
   ): Promise<boolean> {
     const remote = await this.getRemoteConfig();
-    if (!remote) return false;
+    if (!remote) {
+      this.logger.warn("selectAgent failed: remote config unavailable (Valorant closed?)");
+      return false;
+    }
 
     let matchId = pregameMatchId;
-    if (!matchId) {
+    if (!matchId || matchId === "PRESENCE_LOBBY") {
       const credentials = this.getCredentials();
       if (credentials) {
         try {
@@ -393,9 +514,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         `Selected agent ${agentUuid} in pregame match ${matchId}`,
       );
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error selecting agent: ${error instanceof Error ? error.message : String(error)}`,
+        `Error selecting agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : (error instanceof Error ? error.message : String(error))}`,
       );
       return false;
     }
@@ -403,10 +524,13 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
   async lockAgent(pregameMatchId: string, agentUuid: string): Promise<boolean> {
     const remote = await this.getRemoteConfig();
-    if (!remote) return false;
+    if (!remote) {
+      this.logger.warn("lockAgent failed: remote config unavailable (Valorant closed?)");
+      return false;
+    }
 
     let matchId = pregameMatchId;
-    if (!matchId) {
+    if (!matchId || matchId === "PRESENCE_LOBBY") {
       const credentials = this.getCredentials();
       if (credentials) {
         try {
@@ -450,9 +574,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       );
       this.logger.log(`Locked agent ${agentUuid} in pregame match ${matchId}`);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error locking agent: ${error instanceof Error ? error.message : String(error)}`,
+        `Error locking agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : (error instanceof Error ? error.message : String(error))}`,
       );
       return false;
     }
@@ -511,44 +635,16 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           this.clearBuyPhase();
           const matchId = privateData.partyId || "PRESENCE_LOBBY";
           try {
-            // 1. Obtener tokens de la API local
-            const tokenRes = await firstValueFrom(
-              this.httpService.get<EntitlementsTokenResponse>(
-                `${credentials.url}/entitlements/v1/token`,
-                config,
-              ),
-            );
-            const accessToken = tokenRes.data.accessToken;
-            const entitlementsToken = tokenRes.data.token;
-
-            // 2. Obtener la versión actual del juego
-            const versionRes = await firstValueFrom(
-              this.httpService.get<ValorantVersionResponse>(
-                "https://valorant-api.com/v1/version",
-              ),
-            );
-            const clientVersion = versionRes.data.data.riotClientVersion;
-
-            // 3. Configurar URL y headers para los servidores remotos GLZ
-            const region = process.env.VALORANT_REGION || "eu";
-            const shard = region === "latam" || region === "br" ? "na" : region;
-            const glzUrl = `https://glz-${region}-1.${shard}.a.pvp.net`;
-
-            const remoteConfig = {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "X-Riot-Entitlements-JWT": entitlementsToken,
-                "X-Riot-ClientVersion": clientVersion,
-                "X-Riot-ClientPlatform":
-                  "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
-              },
-            };
+            const remoteConfig = await this.getRemoteConfig();
+            if (!remoteConfig) {
+              throw new Error("Unable to obtain remote GLZ configuration for pregame");
+            }
 
             // 4. Buscar el MatchID del pregame del jugador
             const pregamePlayer = await firstValueFrom(
               this.httpService.get<PregamePlayerResponse>(
-                `${glzUrl}/pregame/v1/players/${puuid}`,
-                remoteConfig,
+                `${remoteConfig.glzUrl}/pregame/v1/players/${puuid}`,
+                { headers: remoteConfig.headers },
               ),
             );
             const pregameMatchId = pregamePlayer.data.MatchID;
@@ -556,8 +652,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
             // 5. Obtener los detalles de la fase de selección
             const pregameMatch = await firstValueFrom(
               this.httpService.get<PregameMatchResponse>(
-                `${glzUrl}/pregame/v1/matches/${pregameMatchId}`,
-                remoteConfig,
+                `${remoteConfig.glzUrl}/pregame/v1/matches/${pregameMatchId}`,
+                { headers: remoteConfig.headers },
               ),
             );
 
@@ -622,48 +718,23 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
           let players: any[] = [];
           try {
-            const tokenRes = await firstValueFrom(
-              this.httpService.get<EntitlementsTokenResponse>(
-                `${credentials.url}/entitlements/v1/token`,
-                config,
-              ),
-            );
-            const accessToken = tokenRes.data.accessToken;
-            const entitlementsToken = tokenRes.data.token;
-
-            const versionRes = await firstValueFrom(
-              this.httpService.get<ValorantVersionResponse>(
-                "https://valorant-api.com/v1/version",
-              ),
-            );
-            const clientVersion = versionRes.data.data.riotClientVersion;
-
-            const region = process.env.VALORANT_REGION || "eu";
-            const shard = region === "latam" || region === "br" ? "na" : region;
-            const glzUrl = `https://glz-${region}-1.${shard}.a.pvp.net`;
-
-            const remoteConfig = {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "X-Riot-Entitlements-JWT": entitlementsToken,
-                "X-Riot-ClientVersion": clientVersion,
-                "X-Riot-ClientPlatform":
-                  "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
-              },
-            };
+            const remoteConfig = await this.getRemoteConfig();
+            if (!remoteConfig) {
+              throw new Error("Unable to obtain remote GLZ configuration for in-game");
+            }
 
             const coregamePlayer = await firstValueFrom(
               this.httpService.get<CoreGamePlayerResponse>(
-                `${glzUrl}/core-game/v1/players/${puuid}`,
-                remoteConfig,
+                `${remoteConfig.glzUrl}/core-game/v1/players/${puuid}`,
+                { headers: remoteConfig.headers },
               ),
             );
             const coregameMatchId = coregamePlayer.data.MatchID;
 
             const coregameMatch = await firstValueFrom(
               this.httpService.get<CoreGameMatchResponse>(
-                `${glzUrl}/core-game/v1/matches/${coregameMatchId}`,
-                remoteConfig,
+                `${remoteConfig.glzUrl}/core-game/v1/matches/${coregameMatchId}`,
+                { headers: remoteConfig.headers },
               ),
             );
 

@@ -47,36 +47,65 @@ async function startBackendServer() {
     return;
   }
 
+  const appPath = typeof app.getAppPath === "function" ? app.getAppPath() : __dirname;
+  const unpackedAppPath = appPath.replace("app.asar", "app.asar.unpacked");
+  const resourcesPath = process.resourcesPath || path.join(__dirname, "..");
+
   const possibleServerPaths = [
     path.join(__dirname, "..", "dist", "main.js"),
-    path.join(process.resourcesPath || "", "app.asar", "dist", "main.js"),
-    path.join(process.resourcesPath || "", "dist", "main.js"),
+    path.join(unpackedAppPath, "dist", "main.js"),
+    path.join(resourcesPath, "app.asar.unpacked", "dist", "main.js"),
+    path.join(resourcesPath, "dist", "main.js"),
+    path.join(resourcesPath, "app.asar", "dist", "main.js"),
+    path.join(appPath, "dist", "main.js"),
   ];
 
   const serverScript = possibleServerPaths.find((p) => fs.existsSync(p));
+  console.log("Ruta de script backend seleccionada:", serverScript);
   if (!serverScript) {
     console.warn("No se encontró dist/main.js local, usando servidor externo.");
     return;
   }
 
   try {
-    const resourcesPath = process.resourcesPath || path.join(__dirname, "..");
-    serverProcess = fork(serverScript, [], {
-      env: {
-        ...process.env,
-        PORT: "3000",
-        ELECTRON_RESOURCES_PATH: resourcesPath,
-      },
-      silent: false,
-    });
+    const env = {
+      ...process.env,
+      PORT: "3000",
+      ELECTRON_RUN_AS_NODE: "1",
+      ELECTRON_RESOURCES_PATH: resourcesPath,
+      VALORANT_REGION: process.env.VALORANT_REGION || "eu",
+    };
 
-    serverProcess.on("error", (err) => {
-      console.error("Error en proceso de backend NestJS:", err);
-    });
+    if (utilityProcess && typeof utilityProcess.fork === "function") {
+      console.log("Iniciando backend mediante Electron utilityProcess...");
+      serverProcess = utilityProcess.fork(serverScript, [], {
+        env,
+        stdio: "inherit",
+      });
 
-    serverProcess.on("exit", (code, signal) => {
-      console.log(`Servidor backend finalizado (código: ${code}, señal: ${signal})`);
-    });
+      serverProcess.on("error", (err) => {
+        console.error("Error en utilityProcess de NestJS:", err);
+      });
+
+      serverProcess.on("exit", (code) => {
+        console.log(`Servidor backend utilityProcess finalizado con código: ${code}`);
+      });
+    } else {
+      console.log("Iniciando backend mediante child_process.fork...");
+      serverProcess = fork(serverScript, [], {
+        execPath: process.execPath,
+        env,
+        silent: false,
+      });
+
+      serverProcess.on("error", (err) => {
+        console.error("Error en proceso de backend NestJS:", err);
+      });
+
+      serverProcess.on("exit", (code, signal) => {
+        console.log(`Servidor backend finalizado (código: ${code}, señal: ${signal})`);
+      });
+    }
   } catch (err) {
     console.error("No se pudo iniciar el proceso de NestJS:", err);
   }
@@ -125,7 +154,7 @@ async function createWindow() {
     console.log("Carga inicial pendiente, esperando a que el servidor esté listo...");
     setTimeout(() => {
       if (!win.isDestroyed()) {
-        win.loadURL(targetUrl).catch(() => {});
+        win.loadURL(targetUrl).catch(() => { });
       }
     }, 1000);
   });

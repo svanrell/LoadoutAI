@@ -223,9 +223,10 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   };
 
   const selectAgent = (agentUuid: string) => {
-    if (socketRef.current && isLiveMode) {
+    if (socketRef.current) {
       socketRef.current.emit("pregame_select", { pregameMatchId, agentUuid });
-    } else {
+    }
+    if (!isLiveMode) {
       // En modo simulador / offline: actualizar el equipo localmente y recalcular ML
       setMyTeam((prevTeam) => {
         const teamCopy = [...prevTeam];
@@ -250,9 +251,10 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   };
 
   const lockAgent = (agentUuid: string) => {
-    if (socketRef.current && isLiveMode) {
+    if (socketRef.current) {
       socketRef.current.emit("pregame_lock", { pregameMatchId, agentUuid });
-    } else {
+    }
+    if (!isLiveMode) {
       setMyTeam((prevTeam) => {
         const teamCopy = [...prevTeam];
         const slot = teamCopy.findIndex((p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase());
@@ -265,7 +267,16 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const serverUrl =
+      typeof window !== "undefined" && window.location.port === "3000"
+        ? window.location.origin
+        : "http://127.0.0.1:3000";
+
+    const socket = io(serverUrl, {
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 100,
+      reconnectionDelay: 1000,
+    });
     socketRef.current = socket;
 
     socket.on("connect", () => {
