@@ -89,6 +89,26 @@ def run_training_pipeline(csv_path: str | None = None, output_path: str | None =
     }
     save_model_artifact(bundle, output_path)
 
+    # Exportar automáticamente draft_data.json para el motor TypeScript in-memory
+    json_data = {
+        "maps": maps,
+        "agents": all_agents,
+        "pick_rates": pick_rates,
+        "pair_stats": pair_stats,
+    }
+    json_path = os.path.join(current_dir, "artifacts", "draft_data.json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(json_data, f, ensure_ascii=False, indent=2)
+    print(f"Exportado exitosamente a {json_path}")
+
+    # Si existe la carpeta dist, sincronizar
+    dist_json_path = os.path.join(PROJECT_ROOT, "dist", "machine_learning", "pregame", "artifacts", "draft_data.json")
+    if os.path.exists(os.path.dirname(dist_json_path)):
+        with open(dist_json_path, "w", encoding="utf-8") as f:
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
+        print(f"Sincronizado con {dist_json_path}")
+
 
 if __name__ == "__main__":
+    import json
     run_training_pipeline()

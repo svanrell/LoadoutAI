@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 import pandas as pd
 
 
@@ -9,22 +10,66 @@ def load_dataset(csv_file_path: str) -> pd.DataFrame:
     return pd.read_csv(csv_file_path)
 
 
-def load_agent_pick_rates(csv_file_path: str | None = None) -> dict[str, dict[str, float]]:
+def load_agent_pick_rates(
+    csv_file_path: str | None = None,
+    vct_dir: str | None = None,
+    min_year: int = 2025,
+) -> dict[str, dict[str, float]]:
     """
-    Carga la tasa de uso oficial de cada agente por mapa desde agents_stats.csv.
+    Calcula la tasa de uso oficial de cada agente por mapa a partir de los datos reales del meta reciente (2025-2026).
     Devuelve un diccionario { 'map_name': { 'agent_name': pick_rate_percentage } }
     """
+    if vct_dir is None:
+        vct_dir = os.path.join(os.path.dirname(__file__), "..", "data", "vct_2021_2026")
+
+    player_stats_path = os.path.join(vct_dir, "player_stats.csv")
+    maps_path = os.path.join(vct_dir, "maps.csv")
+
+    if os.path.exists(player_stats_path) and os.path.exists(maps_path):
+        players_df = pd.read_csv(player_stats_path).dropna(subset=["agent"])
+        maps_df = pd.read_csv(maps_path)
+
+        recent_df = players_df[players_df["year"] >= min_year].merge(
+            maps_df[["match_id", "map", "winner"]], on=["match_id", "map"]
+        )
+
+        clean_records = []
+        for (match_id, map_name, team), grp in recent_df.groupby(["match_id", "map", "team"]):
+            agents = grp["agent"].astype(str).str.strip().str.lower().tolist()
+            if len(agents) == 5:
+                clean_records.append({
+                    "map_name": str(map_name).strip(),
+                    "agents": agents,
+                })
+
+        clean_df = pd.DataFrame(clean_records)
+        map_counts = clean_df["map_name"].value_counts().to_dict()
+        pick_rates: dict[str, dict[str, float]] = defaultdict(dict)
+
+        for map_name, total_team_slots in map_counts.items():
+            map_sub = clean_df[clean_df["map_name"] == map_name]
+            agent_counts: dict[str, int] = defaultdict(int)
+            for agents in map_sub["agents"]:
+                for a in agents:
+                    agent_counts[a] += 1
+
+            for agent, count in agent_counts.items():
+                pick_rates[map_name.lower()][agent] = round((count / total_team_slots) * 100.0, 1)
+
+        return dict(pick_rates)
+
+    # Fallback si no está el archivo vct
     if csv_file_path is None:
-        csv_file_path = os.path.join(os.path.dirname(__file__), "..", "csv", "agents_stats.csv")
-    
+        csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "champions_paris_2025", "agents_stats.csv")
+
     if not os.path.exists(csv_file_path):
         print(f"Aviso: no se encontró {csv_file_path}, se asumirán tasas neutras.")
         return {}
 
     df = pd.read_csv(csv_file_path)
     map_columns = [col for col in df.columns if col not in ["agent_name", "total_utilization"]]
-    
-    pick_rates: dict[str, dict[str, float]] = {}
+
+    pick_rates = {}
     for _, row in df.iterrows():
         agent = str(row["agent_name"]).strip().lower()
         for m in map_columns:
@@ -85,7 +130,56 @@ def parse_and_flatten_compositions(raw_dataframe: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(clean_records)
 
 
-def get_clean_draft_dataset(csv_file_path: str) -> pd.DataFrame:
+def get_clean_draft_dataset(
+    csv_file_path: str | None = None,
+    vct_dir: str | None = None,
+    min_year: int = 2025,
+) -> pd.DataFrame:
+    """
+    Carga y limpia las composiciones de equipo de 5 jugadores.
+    Prioriza el dataset moderno del VCT en src/machine_learning/data/vct_2021_2026/ (2025-2026).
+    """
+    if vct_dir is None:
+        vct_dir = os.path.join(os.path.dirname(__file__), "..", "data", "vct_2021_2026")
+
+    player_stats_path = os.path.join(vct_dir, "player_stats.csv")
+    maps_path = os.path.join(vct_dir, "maps.csv")
+
+    if os.path.exists(player_stats_path) and os.path.exists(maps_path):
+        print(f"Cargando dataset VCT moderno desde {vct_dir} (años >= {min_year})...")
+        players_df = pd.read_csv(player_stats_path).dropna(subset=["agent"])
+        maps_df = pd.read_csv(maps_path)
+
+        recent_df = players_df[players_df["year"] >= min_year].merge(
+            maps_df[["match_id", "map", "winner"]], on=["match_id", "map"]
+        )
+
+        clean_records = []
+        for (match_id, map_name, team), grp in recent_df.groupby(["match_id", "map", "team"]):
+            agents = grp["agent"].astype(str).str.strip().str.lower().tolist()
+            players = grp["player"].astype(str).str.strip().tolist()
+
+            if len(agents) == 5:
+                winner = grp["winner"].iloc[0] if "winner" in grp.columns else None
+                won = int(team == winner) if pd.notna(winner) else 0
+
+                clean_records.append({
+                    "match_id": match_id,
+                    "map_name": str(map_name).strip(),
+                    "team_name": team,
+                    "players": players,
+                    "agents": agents,
+                    "player_agent_map": dict(zip(players, agents)),
+                    "won": won,
+                    "year": grp["year"].iloc[0] if "year" in grp.columns else min_year,
+                })
+
+        return pd.DataFrame(clean_records)
+
+    # Fallback a detailed_matches_player_stats.csv
+    if csv_file_path is None:
+        csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "champions_paris_2025", "detailed_matches_player_stats.csv")
+
     raw_dataframe = load_dataset(csv_file_path)
     clean_dataframe = parse_and_flatten_compositions(raw_dataframe)
     return clean_dataframe

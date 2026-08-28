@@ -1,0 +1,1128 @@
+match_id,event_id,year,map_index,map,team1,team1_score,team2,team2_score,winner
+112287,1014,2022,1,Bind,FunPlus Phoenix,14,XERXIA Esports,12,FunPlus Phoenix
+112287,1014,2022,2,Ascent,FunPlus Phoenix,9,XERXIA Esports,13,XERXIA Esports
+112287,1014,2022,3,Haven,FunPlus Phoenix,13,XERXIA Esports,10,FunPlus Phoenix
+112325,1014,2022,1,Fracture,KIWOOM DRX,13,OpTic Gaming,4,KIWOOM DRX
+112325,1014,2022,2,Breeze,KIWOOM DRX,4,OpTic Gaming,13,OpTic Gaming
+112325,1014,2022,3,Bind,KIWOOM DRX,11,OpTic Gaming,13,OpTic Gaming
+112328,1014,2022,1,Ascent,Guild Esports,11,FunPlus Phoenix,13,FunPlus Phoenix
+112328,1014,2022,2,Breeze,Guild Esports,13,FunPlus Phoenix,3,Guild Esports
+112328,1014,2022,3,Bind,Guild Esports,4,FunPlus Phoenix,13,FunPlus Phoenix
+112286,1014,2022,1,Split,KRÜ Esports,7,OpTic Gaming,13,OpTic Gaming
+112286,1014,2022,2,Haven,KRÜ Esports,6,OpTic Gaming,13,OpTic Gaming
+112329,1014,2022,1,Split,LEVIATÁN,9,XSET,13,XSET
+112329,1014,2022,2,Ascent,LEVIATÁN,15,XSET,13,LEVIATÁN
+112329,1014,2022,3,Haven,LEVIATÁN,16,XSET,14,LEVIATÁN
+112288,1014,2022,1,Ascent,KIWOOM DRX,13,NORTHEPTION,8,KIWOOM DRX
+112288,1014,2022,2,Bind,KIWOOM DRX,13,NORTHEPTION,1,KIWOOM DRX
+112290,1014,2022,1,Split,XERXIA Esports,13,NORTHEPTION,9,XERXIA Esports
+112290,1014,2022,2,Haven,XERXIA Esports,8,NORTHEPTION,13,NORTHEPTION
+112290,1014,2022,3,Bind,XERXIA Esports,13,NORTHEPTION,15,NORTHEPTION
+112291,1014,2022,1,Fracture,FunPlus Phoenix,13,NORTHEPTION,9,FunPlus Phoenix
+112291,1014,2022,2,Ascent,FunPlus Phoenix,13,NORTHEPTION,9,FunPlus Phoenix
+112283,1014,2022,1,Fracture,LOUD,13,KRÜ Esports,10,LOUD
+112283,1014,2022,2,Haven,LOUD,9,KRÜ Esports,13,KRÜ Esports
+112283,1014,2022,3,Icebox,LOUD,10,KRÜ Esports,13,KRÜ Esports
+112285,1014,2022,1,Ascent,OpTic Gaming,8,LOUD,13,LOUD
+112285,1014,2022,2,Fracture,OpTic Gaming,13,LOUD,8,OpTic Gaming
+112285,1014,2022,3,Split,OpTic Gaming,14,LOUD,12,OpTic Gaming
+112323,1014,2022,1,Haven,XSET,7,OpTic Gaming,13,OpTic Gaming
+112323,1014,2022,2,Bind,XSET,6,OpTic Gaming,13,OpTic Gaming
+112284,1014,2022,1,Bind,Guild Esports,12,KRÜ Esports,14,KRÜ Esports
+112284,1014,2022,2,Fracture,Guild Esports,13,KRÜ Esports,6,Guild Esports
+112284,1014,2022,3,Icebox,Guild Esports,16,KRÜ Esports,14,Guild Esports
+112322,1014,2022,1,Ascent,LEVIATÁN,13,KIWOOM DRX,6,LEVIATÁN
+112322,1014,2022,2,Breeze,LEVIATÁN,5,KIWOOM DRX,13,KIWOOM DRX
+112322,1014,2022,3,Haven,LEVIATÁN,11,KIWOOM DRX,13,KIWOOM DRX
+112289,1014,2022,1,Haven,FunPlus Phoenix,13,KIWOOM DRX,8,FunPlus Phoenix
+112289,1014,2022,2,Fracture,FunPlus Phoenix,6,KIWOOM DRX,13,KIWOOM DRX
+112289,1014,2022,3,Breeze,FunPlus Phoenix,6,KIWOOM DRX,13,KIWOOM DRX
+112332,1014,2022,1,Split,FunPlus Phoenix,13,FNATIC,15,FNATIC
+112332,1014,2022,2,Bind,FunPlus Phoenix,13,FNATIC,7,FunPlus Phoenix
+112332,1014,2022,3,Fracture,FunPlus Phoenix,13,FNATIC,5,FunPlus Phoenix
+112331,1014,2022,1,Fracture,FNATIC,14,LEVIATÁN,12,FNATIC
+112331,1014,2022,2,Ascent,FNATIC,10,LEVIATÁN,13,LEVIATÁN
+112331,1014,2022,3,Bind,FNATIC,17,LEVIATÁN,15,FNATIC
+112327,1014,2022,1,Bind,Paper Rex,3,FunPlus Phoenix,13,FunPlus Phoenix
+112327,1014,2022,2,Icebox,Paper Rex,13,FunPlus Phoenix,7,Paper Rex
+112327,1014,2022,3,Fracture,Paper Rex,7,FunPlus Phoenix,13,FunPlus Phoenix
+112327,1014,2022,4,Haven,Paper Rex,13,FunPlus Phoenix,7,Paper Rex
+112327,1014,2022,5,Breeze,Paper Rex,9,FunPlus Phoenix,13,FunPlus Phoenix
+112324,1014,2022,1,Ascent,Paper Rex,13,FNATIC,11,Paper Rex
+112324,1014,2022,2,Bind,Paper Rex,13,FNATIC,10,Paper Rex
+112326,1014,2022,1,Haven,Paper Rex,13,OpTic Gaming,3,Paper Rex
+112326,1014,2022,2,Bind,Paper Rex,9,OpTic Gaming,13,OpTic Gaming
+112326,1014,2022,3,Fracture,Paper Rex,13,OpTic Gaming,5,Paper Rex
+112282,1014,2022,1,Icebox,OpTic Gaming,11,Guild Esports,13,Guild Esports
+112282,1014,2022,2,Split,OpTic Gaming,14,Guild Esports,16,Guild Esports
+112334,1014,2022,1,Split,OpTic Gaming,6,FunPlus Phoenix,13,FunPlus Phoenix
+112334,1014,2022,2,Icebox,OpTic Gaming,8,FunPlus Phoenix,13,FunPlus Phoenix
+112334,1014,2022,3,Bind,OpTic Gaming,13,FunPlus Phoenix,6,OpTic Gaming
+112334,1014,2022,4,Fracture,OpTic Gaming,7,FunPlus Phoenix,13,FunPlus Phoenix
+112330,1014,2022,1,Ascent,KIWOOM DRX,9,FunPlus Phoenix,13,FunPlus Phoenix
+112330,1014,2022,2,Fracture,KIWOOM DRX,5,FunPlus Phoenix,13,FunPlus Phoenix
+112320,1014,2022,1,Ascent,Paper Rex,13,Guild Esports,4,Paper Rex
+112320,1014,2022,2,Fracture,Paper Rex,14,Guild Esports,12,Paper Rex
+112321,1014,2022,1,Icebox,FNATIC,13,FunPlus Phoenix,10,FNATIC
+112321,1014,2022,2,Haven,FNATIC,13,FunPlus Phoenix,4,FNATIC
+130628,1015,2022,1,Fracture,XSET,13,XERXIA Esports,11,XSET
+130628,1015,2022,2,Icebox,XSET,13,XERXIA Esports,10,XSET
+130680,1015,2022,1,Breeze,OpTic Gaming,7,Team Liquid,13,Team Liquid
+130680,1015,2022,2,Bind,OpTic Gaming,13,Team Liquid,8,OpTic Gaming
+130680,1015,2022,3,Ascent,OpTic Gaming,13,Team Liquid,8,OpTic Gaming
+130622,1015,2022,1,Breeze,OpTic Gaming,16,BOOM Esports,18,BOOM Esports
+130622,1015,2022,2,Bind,OpTic Gaming,13,BOOM Esports,5,OpTic Gaming
+130622,1015,2022,3,Fracture,OpTic Gaming,13,BOOM Esports,3,OpTic Gaming
+130629,1015,2022,1,Pearl,FunPlus Phoenix,7,XSET,13,XSET
+130629,1015,2022,2,Fracture,FunPlus Phoenix,13,XSET,4,FunPlus Phoenix
+130629,1015,2022,3,Breeze,FunPlus Phoenix,5,XSET,13,XSET
+130687,1015,2022,1,Bind,Team Liquid,6,FNATIC,13,FNATIC
+130687,1015,2022,2,Haven,Team Liquid,7,FNATIC,13,FNATIC
+130632,1015,2022,1,Ascent,KIWOOM DRX,16,FURIA,14,KIWOOM DRX
+130632,1015,2022,2,Haven,KIWOOM DRX,13,FURIA,4,KIWOOM DRX
+130682,1015,2022,1,Breeze,KIWOOM DRX,11,LOUD,13,LOUD
+130682,1015,2022,2,Haven,KIWOOM DRX,6,LOUD,13,LOUD
+130685,1015,2022,1,Ascent,LOUD,15,OpTic Gaming,13,LOUD
+130685,1015,2022,2,Bind,LOUD,6,OpTic Gaming,13,OpTic Gaming
+130685,1015,2022,3,Breeze,LOUD,16,OpTic Gaming,14,LOUD
+130685,1015,2022,4,Haven,LOUD,13,OpTic Gaming,5,LOUD
+130689,1015,2022,1,Icebox,KIWOOM DRX,7,FNATIC,13,FNATIC
+130689,1015,2022,2,Ascent,KIWOOM DRX,14,FNATIC,12,KIWOOM DRX
+130689,1015,2022,3,Fracture,KIWOOM DRX,13,FNATIC,9,KIWOOM DRX
+130631,1015,2022,1,Icebox,FunPlus Phoenix,13,KRÜ Esports,9,FunPlus Phoenix
+130631,1015,2022,2,Ascent,FunPlus Phoenix,13,KRÜ Esports,4,FunPlus Phoenix
+130688,1015,2022,1,Pearl,XSET,13,FunPlus Phoenix,11,XSET
+130688,1015,2022,2,Bind,XSET,10,FunPlus Phoenix,13,FunPlus Phoenix
+130688,1015,2022,3,Ascent,XSET,11,FunPlus Phoenix,13,FunPlus Phoenix
+130623,1015,2022,1,Ascent,ZETA DIVISION,8,LOUD,13,LOUD
+130623,1015,2022,2,Fracture,ZETA DIVISION,9,LOUD,13,LOUD
+130683,1015,2022,1,Haven,OpTic Gaming,13,XSET,9,OpTic Gaming
+130683,1015,2022,2,Ascent,OpTic Gaming,11,XSET,13,XSET
+130683,1015,2022,3,Pearl,OpTic Gaming,13,XSET,8,OpTic Gaming
+130636,1015,2022,1,Bind,100 Thieves,5,FNATIC,13,FNATIC
+130636,1015,2022,2,Ascent,100 Thieves,7,FNATIC,13,FNATIC
+130619,1015,2022,1,Haven,Paper Rex,8,LEVIATÁN,13,LEVIATÁN
+130619,1015,2022,2,Bind,Paper Rex,11,LEVIATÁN,13,LEVIATÁN
+130690,1015,2022,1,Icebox,FunPlus Phoenix,11,KIWOOM DRX,13,KIWOOM DRX
+130690,1015,2022,2,Haven,FunPlus Phoenix,9,KIWOOM DRX,13,KIWOOM DRX
+130681,1015,2022,1,Pearl,XSET,13,FNATIC,8,XSET
+130681,1015,2022,2,Fracture,XSET,13,FNATIC,11,XSET
+130634,1015,2022,1,Breeze,KIWOOM DRX,18,100 Thieves,16,KIWOOM DRX
+130634,1015,2022,2,Fracture,KIWOOM DRX,13,100 Thieves,9,KIWOOM DRX
+130627,1015,2022,1,Icebox,FunPlus Phoenix,14,KRÜ Esports,12,FunPlus Phoenix
+130627,1015,2022,2,Bind,FunPlus Phoenix,13,KRÜ Esports,10,FunPlus Phoenix
+130620,1015,2022,1,Bind,EDward Gaming,5,Team Liquid,13,Team Liquid
+130620,1015,2022,2,Breeze,EDward Gaming,12,Team Liquid,14,Team Liquid
+130691,1015,2022,1,Bind,OpTic Gaming,13,KIWOOM DRX,8,OpTic Gaming
+130691,1015,2022,2,Breeze,OpTic Gaming,13,KIWOOM DRX,5,OpTic Gaming
+130691,1015,2022,3,Fracture,OpTic Gaming,8,KIWOOM DRX,13,KIWOOM DRX
+130691,1015,2022,4,Ascent,OpTic Gaming,6,KIWOOM DRX,13,KIWOOM DRX
+130691,1015,2022,5,Haven,OpTic Gaming,13,KIWOOM DRX,10,OpTic Gaming
+130686,1015,2022,1,Icebox,FunPlus Phoenix,13,LEVIATÁN,6,FunPlus Phoenix
+130686,1015,2022,2,Ascent,FunPlus Phoenix,13,LEVIATÁN,11,FunPlus Phoenix
+130621,1015,2022,1,Haven,Paper Rex,13,Team Liquid,15,Team Liquid
+130621,1015,2022,2,Pearl,Paper Rex,13,Team Liquid,4,Paper Rex
+130621,1015,2022,3,Ascent,Paper Rex,8,Team Liquid,13,Team Liquid
+130633,1015,2022,1,Pearl,FNATIC,10,100 Thieves,13,100 Thieves
+130633,1015,2022,2,Bind,FNATIC,13,100 Thieves,7,FNATIC
+130633,1015,2022,3,Haven,FNATIC,7,100 Thieves,13,100 Thieves
+130635,1015,2022,1,Icebox,FURIA,13,FNATIC,9,FURIA
+130635,1015,2022,2,Breeze,FURIA,7,FNATIC,13,FNATIC
+130635,1015,2022,3,Haven,FURIA,11,FNATIC,13,FNATIC
+130626,1015,2022,1,Bind,LOUD,13,ZETA DIVISION,11,LOUD
+130626,1015,2022,2,Ascent,LOUD,13,ZETA DIVISION,5,LOUD
+130617,1015,2022,1,Pearl,Paper Rex,13,EDward Gaming,11,Paper Rex
+130617,1015,2022,2,Icebox,Paper Rex,5,EDward Gaming,13,EDward Gaming
+130617,1015,2022,3,Haven,Paper Rex,13,EDward Gaming,8,Paper Rex
+130684,1015,2022,1,Bind,LOUD,13,OpTic Gaming,10,LOUD
+130684,1015,2022,2,Ascent,LOUD,13,OpTic Gaming,3,LOUD
+130624,1015,2022,1,Breeze,OpTic Gaming,7,LOUD,13,LOUD
+130624,1015,2022,2,Fracture,OpTic Gaming,13,LOUD,10,OpTic Gaming
+130624,1015,2022,3,Pearl,OpTic Gaming,13,LOUD,3,OpTic Gaming
+130625,1015,2022,1,Haven,BOOM Esports,13,ZETA DIVISION,11,BOOM Esports
+130625,1015,2022,2,Pearl,BOOM Esports,11,ZETA DIVISION,13,ZETA DIVISION
+130625,1015,2022,3,Fracture,BOOM Esports,2,ZETA DIVISION,13,ZETA DIVISION
+130679,1015,2022,1,Icebox,LEVIATÁN,12,LOUD,14,LOUD
+130679,1015,2022,2,Haven,LEVIATÁN,6,LOUD,13,LOUD
+130678,1015,2022,1,Ascent,KIWOOM DRX,19,FunPlus Phoenix,17,KIWOOM DRX
+130678,1015,2022,2,Breeze,KIWOOM DRX,13,FunPlus Phoenix,5,KIWOOM DRX
+130630,1015,2022,1,Icebox,KRÜ Esports,13,XERXIA Esports,4,KRÜ Esports
+130630,1015,2022,2,Haven,KRÜ Esports,7,XERXIA Esports,13,XERXIA Esports
+130630,1015,2022,3,Ascent,KRÜ Esports,13,XERXIA Esports,6,KRÜ Esports
+130618,1015,2022,1,Haven,LEVIATÁN,13,Team Liquid,10,LEVIATÁN
+130618,1015,2022,2,Ascent,LEVIATÁN,13,Team Liquid,10,LEVIATÁN
+167391,1188,2023,1,Pearl,LOUD,13,KIWOOM DRX,5,LOUD
+167391,1188,2023,2,Icebox,LOUD,13,KIWOOM DRX,8,LOUD
+167391,1188,2023,3,Split,LOUD,7,KIWOOM DRX,13,KIWOOM DRX
+167391,1188,2023,4,Fracture,LOUD,7,KIWOOM DRX,13,KIWOOM DRX
+167391,1188,2023,5,Ascent,LOUD,13,KIWOOM DRX,8,LOUD
+167350,1188,2023,1,Pearl,Gen.G,9,LOUD,13,LOUD
+167350,1188,2023,2,Fracture,Gen.G,12,LOUD,14,LOUD
+167360,1188,2023,1,Split,NRG,3,LOUD,13,LOUD
+167360,1188,2023,2,Pearl,NRG,15,LOUD,13,NRG
+167360,1188,2023,3,Fracture,NRG,16,LOUD,18,LOUD
+167368,1188,2023,1,Haven,Sentinels,6,FNATIC,13,FNATIC
+167368,1188,2023,2,Split,Sentinels,7,FNATIC,13,FNATIC
+167367,1188,2023,1,Icebox,100 Thieves,13,EDward Gaming,10,100 Thieves
+167367,1188,2023,2,Lotus,100 Thieves,9,EDward Gaming,13,EDward Gaming
+167367,1188,2023,3,Pearl,100 Thieves,14,EDward Gaming,12,100 Thieves
+180279,1188,2023,1,Lotus,Team tarik,10,Team FRTTT,13,Team FRTTT
+167361,1188,2023,1,Fracture,KIWOOM DRX,10,TALON,13,TALON
+167361,1188,2023,2,Ascent,KIWOOM DRX,13,TALON,6,KIWOOM DRX
+167361,1188,2023,3,Icebox,KIWOOM DRX,13,TALON,10,KIWOOM DRX
+167352,1188,2023,1,Pearl,BBL Esports,3,KIWOOM DRX,13,KIWOOM DRX
+167352,1188,2023,2,Ascent,BBL Esports,13,KIWOOM DRX,11,BBL Esports
+167352,1188,2023,3,Haven,BBL Esports,7,KIWOOM DRX,13,KIWOOM DRX
+167372,1188,2023,1,Lotus,FUT Esports,13,100 Thieves,9,FUT Esports
+167372,1188,2023,2,Haven,FUT Esports,11,100 Thieves,13,100 Thieves
+167372,1188,2023,3,Icebox,FUT Esports,8,100 Thieves,13,100 Thieves
+167348,1188,2023,1,Icebox,KOI,11,NRG,13,NRG
+167348,1188,2023,2,Haven,KOI,9,NRG,13,NRG
+167365,1188,2023,1,Split,Team Vitality,13,Global Esports,4,Team Vitality
+167365,1188,2023,2,Pearl,Team Vitality,9,Global Esports,13,Global Esports
+167365,1188,2023,3,Lotus,Team Vitality,13,Global Esports,6,Team Vitality
+167353,1188,2023,1,Lotus,Cloud9,13,Paper Rex,8,Cloud9
+167353,1188,2023,2,Pearl,Cloud9,13,Paper Rex,4,Cloud9
+167366,1188,2023,1,Lotus,FUT Esports,13,Rex Regum Qeon,3,FUT Esports
+167366,1188,2023,2,Pearl,FUT Esports,13,Rex Regum Qeon,11,FUT Esports
+167362,1188,2023,1,Icebox,Team Liquid,8,Team Secret,13,Team Secret
+167362,1188,2023,2,Fracture,Team Liquid,7,Team Secret,13,Team Secret
+167351,1188,2023,1,Lotus,FunPlus Phoenix,6,Karmine Corp,13,Karmine Corp
+167351,1188,2023,2,Haven,FunPlus Phoenix,13,Karmine Corp,8,FunPlus Phoenix
+167351,1188,2023,3,Pearl,FunPlus Phoenix,6,Karmine Corp,13,Karmine Corp
+167354,1188,2023,1,Pearl,Team Heretics,8,Evil Geniuses,13,Evil Geniuses
+167354,1188,2023,2,Ascent,Team Heretics,8,Evil Geniuses,13,Evil Geniuses
+167393,1188,2023,1,Ascent,LOUD,8,FNATIC,13,FNATIC
+167393,1188,2023,2,Fracture,LOUD,7,FNATIC,13,FNATIC
+167393,1188,2023,3,Split,LOUD,13,FNATIC,9,LOUD
+167393,1188,2023,4,Lotus,LOUD,13,FNATIC,8,LOUD
+167393,1188,2023,5,Icebox,LOUD,12,FNATIC,14,FNATIC
+167373,1188,2023,1,Haven,FNATIC,18,FURIA,16,FNATIC
+167373,1188,2023,2,Ascent,FNATIC,13,FURIA,9,FNATIC
+167349,1188,2023,1,Haven,DetonatioN FocusMe,4,Giants Gaming,13,Giants Gaming
+167349,1188,2023,2,Icebox,DetonatioN FocusMe,7,Giants Gaming,13,Giants Gaming
+167356,1188,2023,1,Lotus,NRG,12,Giants Gaming,14,Giants Gaming
+167356,1188,2023,2,Haven,NRG,13,Giants Gaming,1,NRG
+167356,1188,2023,3,Icebox,NRG,13,Giants Gaming,7,NRG
+167392,1188,2023,1,Haven,Natus Vincere,11,FNATIC,13,FNATIC
+167392,1188,2023,2,Lotus,Natus Vincere,4,FNATIC,13,FNATIC
+167392,1188,2023,3,Fracture,Natus Vincere,11,FNATIC,13,FNATIC
+167358,1188,2023,1,Pearl,KIWOOM DRX,3,Cloud9,13,Cloud9
+167358,1188,2023,2,Haven,KIWOOM DRX,13,Cloud9,7,KIWOOM DRX
+167358,1188,2023,3,Icebox,KIWOOM DRX,13,Cloud9,2,KIWOOM DRX
+167375,1188,2023,1,Fracture,100 Thieves,1,FNATIC,13,FNATIC
+167375,1188,2023,2,Icebox,100 Thieves,10,FNATIC,13,FNATIC
+167374,1188,2023,1,Ascent,Natus Vincere,13,LEVIATÁN,10,Natus Vincere
+167374,1188,2023,2,Fracture,Natus Vincere,13,LEVIATÁN,2,Natus Vincere
+167363,1188,2023,1,Ascent,Natus Vincere,13,KRÜ Esports,5,Natus Vincere
+167363,1188,2023,2,Lotus,Natus Vincere,13,KRÜ Esports,10,Natus Vincere
+167370,1188,2023,1,Icebox,Team Secret,8,Natus Vincere,13,Natus Vincere
+167370,1188,2023,2,Pearl,Team Secret,4,Natus Vincere,13,Natus Vincere
+167357,1188,2023,1,Pearl,LOUD,13,Karmine Corp,10,LOUD
+167357,1188,2023,2,Split,LOUD,13,Karmine Corp,8,LOUD
+167355,1188,2023,1,Haven,MIBR,8,TALON,13,TALON
+167355,1188,2023,2,Fracture,MIBR,11,TALON,13,TALON
+167371,1188,2023,1,Haven,LEVIATÁN,16,Team Vitality,14,LEVIATÁN
+167371,1188,2023,2,Pearl,LEVIATÁN,13,Team Vitality,3,LEVIATÁN
+167364,1188,2023,1,Ascent,ZETA DIVISION,4,LEVIATÁN,13,LEVIATÁN
+167364,1188,2023,2,Pearl,ZETA DIVISION,11,LEVIATÁN,13,LEVIATÁN
+167359,1188,2023,1,Haven,Evil Geniuses,11,TALON,13,TALON
+167359,1188,2023,2,Split,Evil Geniuses,10,TALON,13,TALON
+167369,1188,2023,1,Pearl,T1,7,FURIA,13,FURIA
+167369,1188,2023,2,Icebox,T1,5,FURIA,13,FURIA
+220447,1494,2023,1,Lotus,FNATIC,13,Evil Geniuses,3,FNATIC
+220447,1494,2023,2,Fracture,FNATIC,9,Evil Geniuses,13,Evil Geniuses
+220447,1494,2023,3,Split,FNATIC,13,Evil Geniuses,11,FNATIC
+220444,1494,2023,1,Fracture,LOUD,7,Evil Geniuses,13,Evil Geniuses
+220444,1494,2023,2,Ascent,LOUD,5,Evil Geniuses,13,Evil Geniuses
+220452,1494,2023,1,Fracture,Paper Rex,14,EDward Gaming,12,Paper Rex
+220452,1494,2023,2,Split,Paper Rex,9,EDward Gaming,13,EDward Gaming
+220452,1494,2023,3,Lotus,Paper Rex,13,EDward Gaming,8,Paper Rex
+220448,1494,2023,1,Lotus,FNATIC,13,Evil Geniuses,8,FNATIC
+220448,1494,2023,2,Split,FNATIC,13,Evil Geniuses,11,FNATIC
+220448,1494,2023,3,Bind,FNATIC,14,Evil Geniuses,12,FNATIC
+220450,1494,2023,1,Lotus,EDward Gaming,13,LOUD,6,EDward Gaming
+220450,1494,2023,2,Fracture,EDward Gaming,13,LOUD,10,EDward Gaming
+220441,1494,2023,1,Split,Paper Rex,13,KIWOOM DRX,10,Paper Rex
+220441,1494,2023,2,Bind,Paper Rex,13,KIWOOM DRX,10,Paper Rex
+220297,1494,2023,1,Split,FUT Esports,5,Evil Geniuses,13,Evil Geniuses
+220297,1494,2023,2,Lotus,FUT Esports,12,Evil Geniuses,14,Evil Geniuses
+220295,1494,2023,1,Fracture,T1,4,EDward Gaming,13,EDward Gaming
+220295,1494,2023,2,Haven,T1,6,EDward Gaming,13,EDward Gaming
+220442,1494,2023,1,Fracture,FNATIC,13,NRG,9,FNATIC
+220442,1494,2023,2,Bind,FNATIC,13,NRG,4,FNATIC
+220446,1494,2023,1,Fracture,Team Liquid,2,Evil Geniuses,13,Evil Geniuses
+220446,1494,2023,2,Haven,Team Liquid,9,Evil Geniuses,13,Evil Geniuses
+220449,1494,2023,1,Pearl,KIWOOM DRX,11,NRG,13,NRG
+220449,1494,2023,2,Haven,KIWOOM DRX,5,NRG,13,NRG
+220298,1494,2023,1,Fracture,KIWOOM DRX,5,Evil Geniuses,13,Evil Geniuses
+220298,1494,2023,2,Ascent,KIWOOM DRX,9,Evil Geniuses,13,Evil Geniuses
+220300,1494,2023,1,Bind,KIWOOM DRX,9,FUT Esports,13,FUT Esports
+220300,1494,2023,2,Fracture,KIWOOM DRX,13,FUT Esports,8,KIWOOM DRX
+220300,1494,2023,3,Haven,KIWOOM DRX,13,FUT Esports,4,KIWOOM DRX
+220453,1494,2023,1,Pearl,NRG,13,Paper Rex,15,Paper Rex
+220453,1494,2023,2,Lotus,NRG,13,Paper Rex,6,NRG
+220453,1494,2023,3,Bind,NRG,11,Paper Rex,13,Paper Rex
+220299,1494,2023,1,Haven,Attacking Soul Esports,13,FUT Esports,8,Attacking Soul Esports
+220299,1494,2023,2,Ascent,Attacking Soul Esports,5,FUT Esports,13,FUT Esports
+220299,1494,2023,3,Lotus,Attacking Soul Esports,6,FUT Esports,13,FUT Esports
+220294,1494,2023,1,Pearl,Natus Vincere,15,EDward Gaming,17,EDward Gaming
+220294,1494,2023,2,Bind,Natus Vincere,12,EDward Gaming,14,EDward Gaming
+220451,1494,2023,1,Haven,Team Liquid,12,NRG,14,NRG
+220451,1494,2023,2,Ascent,Team Liquid,13,NRG,8,Team Liquid
+220451,1494,2023,3,Split,Team Liquid,5,NRG,13,NRG
+220292,1494,2023,1,Fracture,EDward Gaming,10,T1,13,T1
+220292,1494,2023,2,Haven,EDward Gaming,13,T1,7,EDward Gaming
+220292,1494,2023,3,Pearl,EDward Gaming,12,T1,14,T1
+220293,1494,2023,1,Lotus,NRG,11,T1,13,T1
+220293,1494,2023,2,Bind,NRG,13,T1,7,NRG
+220293,1494,2023,3,Pearl,NRG,13,T1,11,NRG
+220445,1494,2023,1,Lotus,Paper Rex,5,FNATIC,13,FNATIC
+220445,1494,2023,2,Bind,Paper Rex,7,FNATIC,13,FNATIC
+220443,1494,2023,1,Haven,Team Liquid,13,EDward Gaming,9,Team Liquid
+220443,1494,2023,2,Split,Team Liquid,8,EDward Gaming,13,EDward Gaming
+220443,1494,2023,3,Lotus,Team Liquid,13,EDward Gaming,11,Team Liquid
+220290,1494,2023,1,Ascent,NRG,13,Natus Vincere,8,NRG
+220290,1494,2023,2,Lotus,NRG,12,Natus Vincere,14,Natus Vincere
+220290,1494,2023,3,Split,NRG,13,Natus Vincere,6,NRG
+220454,1494,2023,1,Fracture,Evil Geniuses,13,Paper Rex,7,Evil Geniuses
+220454,1494,2023,2,Lotus,Evil Geniuses,12,Paper Rex,14,Paper Rex
+220454,1494,2023,3,Split,Evil Geniuses,10,Paper Rex,13,Paper Rex
+220454,1494,2023,4,Pearl,Evil Geniuses,13,Paper Rex,6,Evil Geniuses
+220454,1494,2023,5,Ascent,Evil Geniuses,13,Paper Rex,8,Evil Geniuses
+220296,1494,2023,1,Fracture,KIWOOM DRX,13,Attacking Soul Esports,10,KIWOOM DRX
+220296,1494,2023,2,Pearl,KIWOOM DRX,13,Attacking Soul Esports,7,KIWOOM DRX
+247103,1657,2023,1,Haven,Team Liquid,2,LOUD,13,LOUD
+247103,1657,2023,2,Split,Team Liquid,8,LOUD,13,LOUD
+247086,1657,2023,1,Ascent,Evil Geniuses,13,FunPlus Phoenix,8,Evil Geniuses
+247086,1657,2023,2,Pearl,Evil Geniuses,13,FunPlus Phoenix,8,Evil Geniuses
+248275,1657,2023,1,Fracture,KIWOOM DRX,9,Evil Geniuses,13,Evil Geniuses
+248275,1657,2023,2,Lotus,KIWOOM DRX,4,Evil Geniuses,13,Evil Geniuses
+247096,1657,2023,1,Bind,ZETA DIVISION,13,NRG,15,NRG
+247096,1657,2023,2,Haven,ZETA DIVISION,1,NRG,13,NRG
+247087,1657,2023,1,Pearl,FUT Esports,13,T1,4,FUT Esports
+247087,1657,2023,2,Haven,FUT Esports,13,T1,7,FUT Esports
+248279,1657,2023,1,Bind,Bilibili Gaming,4,EDward Gaming,13,EDward Gaming
+248279,1657,2023,2,Split,Bilibili Gaming,15,EDward Gaming,13,Bilibili Gaming
+248279,1657,2023,3,Haven,Bilibili Gaming,10,EDward Gaming,13,EDward Gaming
+247090,1657,2023,1,Bind,FUT Esports,13,T1,10,FUT Esports
+247090,1657,2023,2,Pearl,FUT Esports,14,T1,12,FUT Esports
+248274,1657,2023,1,Lotus,LOUD,13,Paper Rex,15,Paper Rex
+248274,1657,2023,2,Split,LOUD,13,Paper Rex,2,LOUD
+248274,1657,2023,3,Pearl,LOUD,10,Paper Rex,13,Paper Rex
+247075,1657,2023,1,Split,Paper Rex,13,KRÜ Esports,7,Paper Rex
+247075,1657,2023,2,Pearl,Paper Rex,13,KRÜ Esports,8,Paper Rex
+247098,1657,2023,1,Bind,Bilibili Gaming,13,NRG,10,Bilibili Gaming
+247098,1657,2023,2,Ascent,Bilibili Gaming,13,NRG,5,Bilibili Gaming
+247102,1657,2023,1,Bind,Natus Vincere,13,KIWOOM DRX,15,KIWOOM DRX
+247102,1657,2023,2,Split,Natus Vincere,13,KIWOOM DRX,9,Natus Vincere
+247102,1657,2023,3,Lotus,Natus Vincere,12,KIWOOM DRX,14,KIWOOM DRX
+247079,1657,2023,1,Split,EDward Gaming,13,Giants Gaming,6,EDward Gaming
+247079,1657,2023,2,Fracture,EDward Gaming,13,Giants Gaming,7,EDward Gaming
+248270,1657,2023,1,Ascent,FNATIC,11,LOUD,13,LOUD
+248270,1657,2023,2,Lotus,FNATIC,6,LOUD,13,LOUD
+247101,1657,2023,1,Lotus,KIWOOM DRX,13,LOUD,15,LOUD
+247101,1657,2023,2,Split,KIWOOM DRX,13,LOUD,6,KIWOOM DRX
+247101,1657,2023,3,Ascent,KIWOOM DRX,13,LOUD,8,KIWOOM DRX
+248273,1657,2023,1,Split,Evil Geniuses,12,EDward Gaming,14,EDward Gaming
+248273,1657,2023,2,Ascent,Evil Geniuses,13,EDward Gaming,5,Evil Geniuses
+248273,1657,2023,3,Pearl,Evil Geniuses,13,EDward Gaming,5,Evil Geniuses
+247078,1657,2023,1,Lotus,KRÜ Esports,10,Giants Gaming,13,Giants Gaming
+247078,1657,2023,2,Pearl,KRÜ Esports,12,Giants Gaming,14,Giants Gaming
+247088,1657,2023,1,Pearl,Evil Geniuses,15,FUT Esports,13,Evil Geniuses
+247088,1657,2023,2,Bind,Evil Geniuses,13,FUT Esports,9,Evil Geniuses
+248282,1657,2023,1,Split,FNATIC,4,LOUD,13,LOUD
+248282,1657,2023,2,Ascent,FNATIC,13,LOUD,9,FNATIC
+248282,1657,2023,3,Haven,FNATIC,7,LOUD,13,LOUD
+248281,1657,2023,1,Bind,LOUD,11,EDward Gaming,13,EDward Gaming
+248281,1657,2023,2,Ascent,LOUD,13,EDward Gaming,5,LOUD
+248281,1657,2023,3,Haven,LOUD,13,EDward Gaming,11,LOUD
+248278,1657,2023,1,Split,FNATIC,13,FUT Esports,5,FNATIC
+248278,1657,2023,2,Haven,FNATIC,13,FUT Esports,9,FNATIC
+248271,1657,2023,1,Ascent,Paper Rex,13,FUT Esports,10,Paper Rex
+248271,1657,2023,2,Pearl,Paper Rex,13,FUT Esports,4,Paper Rex
+248280,1657,2023,1,Bind,KIWOOM DRX,13,FNATIC,1,KIWOOM DRX
+248280,1657,2023,2,Haven,KIWOOM DRX,9,FNATIC,13,FNATIC
+248280,1657,2023,3,Split,KIWOOM DRX,6,FNATIC,13,FNATIC
+248277,1657,2023,1,Split,Paper Rex,10,Evil Geniuses,13,Evil Geniuses
+248277,1657,2023,2,Ascent,Paper Rex,13,Evil Geniuses,11,Paper Rex
+248277,1657,2023,3,Bind,Paper Rex,5,Evil Geniuses,13,Evil Geniuses
+248277,1657,2023,4,Lotus,Paper Rex,10,Evil Geniuses,13,Evil Geniuses
+247089,1657,2023,1,Lotus,FunPlus Phoenix,10,T1,13,T1
+247089,1657,2023,2,Bind,FunPlus Phoenix,7,T1,13,T1
+247093,1657,2023,1,Fracture,FNATIC,13,ZETA DIVISION,5,FNATIC
+247093,1657,2023,2,Haven,FNATIC,13,ZETA DIVISION,6,FNATIC
+248276,1657,2023,1,Ascent,Paper Rex,10,Evil Geniuses,13,Evil Geniuses
+248276,1657,2023,2,Bind,Paper Rex,13,Evil Geniuses,9,Paper Rex
+248276,1657,2023,3,Pearl,Paper Rex,15,Evil Geniuses,13,Paper Rex
+248272,1657,2023,1,Lotus,KIWOOM DRX,13,Bilibili Gaming,10,KIWOOM DRX
+248272,1657,2023,2,Haven,KIWOOM DRX,13,Bilibili Gaming,9,KIWOOM DRX
+247094,1657,2023,1,Lotus,NRG,12,Bilibili Gaming,14,Bilibili Gaming
+247094,1657,2023,2,Split,NRG,8,Bilibili Gaming,13,Bilibili Gaming
+247076,1657,2023,1,Split,EDward Gaming,13,Giants Gaming,15,Giants Gaming
+247076,1657,2023,2,Bind,EDward Gaming,13,Giants Gaming,11,EDward Gaming
+247076,1657,2023,3,Ascent,EDward Gaming,13,Giants Gaming,8,EDward Gaming
+247104,1657,2023,1,Pearl,Natus Vincere,13,LOUD,11,Natus Vincere
+247104,1657,2023,2,Ascent,Natus Vincere,11,LOUD,13,LOUD
+247104,1657,2023,3,Bind,Natus Vincere,11,LOUD,13,LOUD
+248283,1657,2023,1,Ascent,Evil Geniuses,14,LOUD,12,Evil Geniuses
+248283,1657,2023,2,Lotus,Evil Geniuses,13,LOUD,4,Evil Geniuses
+248283,1657,2023,3,Pearl,Evil Geniuses,8,LOUD,13,LOUD
+248283,1657,2023,4,Split,Evil Geniuses,7,LOUD,13,LOUD
+248283,1657,2023,5,Bind,Evil Geniuses,13,LOUD,8,Evil Geniuses
+247077,1657,2023,1,Fracture,Paper Rex,13,EDward Gaming,7,Paper Rex
+247077,1657,2023,2,Pearl,Paper Rex,16,EDward Gaming,14,Paper Rex
+247100,1657,2023,1,Fracture,Team Liquid,11,Natus Vincere,13,Natus Vincere
+247100,1657,2023,2,Bind,Team Liquid,15,Natus Vincere,17,Natus Vincere
+247095,1657,2023,1,Haven,FNATIC,13,Bilibili Gaming,2,FNATIC
+247095,1657,2023,2,Lotus,FNATIC,13,Bilibili Gaming,8,FNATIC
+312777,1921,2024,1,Split,Gen.G,13,Paper Rex,8,Gen.G
+312777,1921,2024,2,Lotus,Gen.G,13,Paper Rex,9,Gen.G
+312776,1921,2024,1,Split,Sentinels,13,LOUD,4,Sentinels
+312776,1921,2024,2,Icebox,Sentinels,12,LOUD,14,LOUD
+312776,1921,2024,3,Sunset,Sentinels,14,LOUD,12,Sentinels
+312799,1921,2024,1,Sunset,Team Heretics,10,Paper Rex,13,Paper Rex
+312799,1921,2024,2,Lotus,Team Heretics,13,Paper Rex,10,Team Heretics
+312799,1921,2024,3,Split,Team Heretics,7,Paper Rex,13,Paper Rex
+312768,1921,2024,1,Lotus,Sentinels,13,Team Heretics,9,Sentinels
+312768,1921,2024,2,Sunset,Sentinels,5,Team Heretics,13,Team Heretics
+312768,1921,2024,3,Bind,Sentinels,13,Team Heretics,11,Sentinels
+312798,1921,2024,1,Split,Sentinels,13,Karmine Corp,8,Sentinels
+312798,1921,2024,2,Lotus,Sentinels,13,Karmine Corp,11,Sentinels
+312800,1921,2024,1,Sunset,FunPlus Phoenix,5,LOUD,13,LOUD
+312800,1921,2024,2,Breeze,FunPlus Phoenix,11,LOUD,13,LOUD
+312767,1921,2024,1,Sunset,EDward Gaming,8,Paper Rex,13,Paper Rex
+312767,1921,2024,2,Bind,EDward Gaming,13,Paper Rex,9,EDward Gaming
+312767,1921,2024,3,Split,EDward Gaming,13,Paper Rex,9,EDward Gaming
+312765,1921,2024,1,Icebox,Karmine Corp,13,FunPlus Phoenix,8,Karmine Corp
+312765,1921,2024,2,Lotus,Karmine Corp,13,FunPlus Phoenix,10,Karmine Corp
+312781,1921,2024,1,Lotus,Sentinels,14,Paper Rex,12,Sentinels
+312781,1921,2024,2,Ascent,Sentinels,13,Paper Rex,6,Sentinels
+312781,1921,2024,3,Split,Sentinels,5,Paper Rex,13,Paper Rex
+312781,1921,2024,4,Sunset,Sentinels,13,Paper Rex,3,Sentinels
+312778,1921,2024,1,Split,Gen.G,13,Sentinels,5,Gen.G
+312778,1921,2024,2,Lotus,Gen.G,7,Sentinels,13,Sentinels
+312778,1921,2024,3,Breeze,Gen.G,13,Sentinels,3,Gen.G
+312779,1921,2024,1,Breeze,Gen.G,13,Sentinels,8,Gen.G
+312779,1921,2024,2,Bind,Gen.G,12,Sentinels,14,Sentinels
+312779,1921,2024,3,Ascent,Gen.G,13,Sentinels,8,Gen.G
+312779,1921,2024,4,Split,Gen.G,10,Sentinels,13,Sentinels
+312779,1921,2024,5,Icebox,Gen.G,6,Sentinels,13,Sentinels
+321373,1921,2024,1,Ascent,Team International,8,Team Spain,13,Team Spain
+312797,1921,2024,1,Icebox,EDward Gaming,13,Gen.G,8,EDward Gaming
+312797,1921,2024,2,Split,EDward Gaming,5,Gen.G,13,Gen.G
+312797,1921,2024,3,Breeze,EDward Gaming,6,Gen.G,13,Gen.G
+312802,1921,2024,1,Bind,Karmine Corp,10,Paper Rex,13,Paper Rex
+312802,1921,2024,2,Lotus,Karmine Corp,13,Paper Rex,6,Karmine Corp
+312802,1921,2024,3,Ascent,Karmine Corp,12,Paper Rex,14,Paper Rex
+312803,1921,2024,1,Icebox,LOUD,13,EDward Gaming,2,LOUD
+312803,1921,2024,2,Sunset,LOUD,13,EDward Gaming,3,LOUD
+312766,1921,2024,1,Icebox,Gen.G,13,LOUD,11,Gen.G
+312766,1921,2024,2,Breeze,Gen.G,8,LOUD,13,LOUD
+312766,1921,2024,3,Ascent,Gen.G,13,LOUD,5,Gen.G
+312780,1921,2024,1,Ascent,Paper Rex,13,LOUD,11,Paper Rex
+312780,1921,2024,2,Sunset,Paper Rex,13,LOUD,8,Paper Rex
+348476,1999,2024,1,Breeze,Gen.G,13,Team Heretics,6,Gen.G
+348476,1999,2024,2,Icebox,Gen.G,9,Team Heretics,13,Team Heretics
+348476,1999,2024,3,Ascent,Gen.G,9,Team Heretics,13,Team Heretics
+348476,1999,2024,4,Lotus,Gen.G,13,Team Heretics,4,Gen.G
+348476,1999,2024,5,Split,Gen.G,13,Team Heretics,3,Gen.G
+348459,1999,2024,1,Breeze,LEVIATÁN,13,T1,9,LEVIATÁN
+348459,1999,2024,2,Sunset,LEVIATÁN,13,T1,7,LEVIATÁN
+348470,1999,2024,1,Icebox,100 Thieves,10,Gen.G,13,Gen.G
+348470,1999,2024,2,Ascent,100 Thieves,10,Gen.G,13,Gen.G
+348472,1999,2024,1,Bind,Team Heretics,13,FUT Esports,7,Team Heretics
+348472,1999,2024,2,Sunset,Team Heretics,13,FUT Esports,4,Team Heretics
+348461,1999,2024,1,Sunset,FUT Esports,13,LEVIATÁN,1,FUT Esports
+348461,1999,2024,2,Lotus,FUT Esports,11,LEVIATÁN,13,LEVIATÁN
+348461,1999,2024,3,Bind,FUT Esports,13,LEVIATÁN,11,FUT Esports
+348064,1999,2024,1,Icebox,Gen.G,7,LEVIATÁN,13,LEVIATÁN
+348064,1999,2024,2,Lotus,Gen.G,13,LEVIATÁN,5,Gen.G
+348064,1999,2024,3,Breeze,Gen.G,13,LEVIATÁN,7,Gen.G
+348473,1999,2024,1,Lotus,G2 Esports,8,Gen.G,13,Gen.G
+348473,1999,2024,2,Ascent,G2 Esports,10,Gen.G,13,Gen.G
+348471,1999,2024,1,Breeze,100 Thieves,13,Paper Rex,5,100 Thieves
+348471,1999,2024,2,Sunset,100 Thieves,10,Paper Rex,13,Paper Rex
+348471,1999,2024,3,Icebox,100 Thieves,14,Paper Rex,12,100 Thieves
+348475,1999,2024,1,Bind,G2 Esports,2,Team Heretics,13,Team Heretics
+348475,1999,2024,2,Icebox,G2 Esports,6,Team Heretics,13,Team Heretics
+348475,1999,2024,3,Lotus,G2 Esports,8,Team Heretics,13,Team Heretics
+348063,1999,2024,1,Breeze,G2 Esports,13,T1,8,G2 Esports
+348063,1999,2024,2,Icebox,G2 Esports,1,T1,13,T1
+348063,1999,2024,3,Lotus,G2 Esports,14,T1,12,G2 Esports
+348467,1999,2024,1,Bind,Paper Rex,13,EDward Gaming,11,Paper Rex
+348467,1999,2024,2,Sunset,Paper Rex,13,EDward Gaming,6,Paper Rex
+348463,1999,2024,1,Split,Paper Rex,13,G2 Esports,7,Paper Rex
+348463,1999,2024,2,Lotus,Paper Rex,10,G2 Esports,13,G2 Esports
+348463,1999,2024,3,Bind,Paper Rex,5,G2 Esports,13,G2 Esports
+348464,1999,2024,1,Sunset,EDward Gaming,6,Team Heretics,13,Team Heretics
+348464,1999,2024,2,Split,EDward Gaming,3,Team Heretics,13,Team Heretics
+348465,1999,2024,1,Icebox,100 Thieves,13,FUT Esports,2,100 Thieves
+348465,1999,2024,2,Bind,100 Thieves,13,FUT Esports,5,100 Thieves
+348474,1999,2024,1,Bind,100 Thieves,13,Team Heretics,15,Team Heretics
+348474,1999,2024,2,Sunset,100 Thieves,1,Team Heretics,13,Team Heretics
+348462,1999,2024,1,Sunset,FunPlus Phoenix,4,Team Heretics,13,Team Heretics
+348462,1999,2024,2,Lotus,FunPlus Phoenix,13,Team Heretics,6,FunPlus Phoenix
+348462,1999,2024,3,Icebox,FunPlus Phoenix,15,Team Heretics,17,Team Heretics
+348469,1999,2024,1,Icebox,G2 Esports,7,Team Heretics,13,Team Heretics
+348469,1999,2024,2,Ascent,G2 Esports,13,Team Heretics,11,G2 Esports
+348469,1999,2024,3,Lotus,G2 Esports,13,Team Heretics,4,G2 Esports
+348468,1999,2024,1,Split,FUT Esports,5,FNATIC,13,FNATIC
+348468,1999,2024,2,Lotus,FUT Esports,13,FNATIC,8,FUT Esports
+348468,1999,2024,3,Ascent,FUT Esports,13,FNATIC,3,FUT Esports
+348460,1999,2024,1,Bind,Dragon Ranger Gaming,10,FUT Esports,13,FUT Esports
+348460,1999,2024,2,Ascent,Dragon Ranger Gaming,12,FUT Esports,14,FUT Esports
+348458,1999,2024,1,Lotus,FunPlus Phoenix,16,Gen.G,14,FunPlus Phoenix
+348458,1999,2024,2,Sunset,FunPlus Phoenix,7,Gen.G,13,Gen.G
+348458,1999,2024,3,Ascent,FunPlus Phoenix,11,Gen.G,13,Gen.G
+348061,1999,2024,1,Sunset,FunPlus Phoenix,13,FUT Esports,7,FunPlus Phoenix
+348061,1999,2024,2,Lotus,FunPlus Phoenix,12,FUT Esports,14,FUT Esports
+348061,1999,2024,3,Icebox,FunPlus Phoenix,13,FUT Esports,10,FunPlus Phoenix
+348466,1999,2024,1,Lotus,FNATIC,13,Gen.G,10,FNATIC
+348466,1999,2024,2,Bind,FNATIC,10,Gen.G,13,Gen.G
+348466,1999,2024,3,Breeze,FNATIC,11,Gen.G,13,Gen.G
+348059,1999,2024,1,Icebox,Team Heretics,13,Dragon Ranger Gaming,5,Team Heretics
+348059,1999,2024,2,Sunset,Team Heretics,13,Dragon Ranger Gaming,5,Team Heretics
+348457,1999,2024,1,Lotus,G2 Esports,9,Team Heretics,13,Team Heretics
+348457,1999,2024,2,Bind,G2 Esports,13,Team Heretics,6,G2 Esports
+348457,1999,2024,3,Split,G2 Esports,13,Team Heretics,8,G2 Esports
+359463,1999,2024,1,Abyss,Team International,11,Team China,13,Team China
+378825,2097,2024,1,Lotus,Team Heretics,13,FNATIC,3,Team Heretics
+378825,2097,2024,2,Abyss,Team Heretics,14,FNATIC,12,Team Heretics
+378667,2097,2024,1,Bind,LEVIATÁN,13,TALON,11,LEVIATÁN
+378667,2097,2024,2,Ascent,LEVIATÁN,13,TALON,8,LEVIATÁN
+378660,2097,2024,1,Sunset,FNATIC,11,KRÜ Esports,13,KRÜ Esports
+378660,2097,2024,2,Haven,FNATIC,13,KRÜ Esports,9,FNATIC
+378660,2097,2024,3,Lotus,FNATIC,13,KRÜ Esports,5,FNATIC
+378677,2097,2024,1,Icebox,EDward Gaming,3,Paper Rex,13,Paper Rex
+378677,2097,2024,2,Sunset,EDward Gaming,13,Paper Rex,8,EDward Gaming
+378677,2097,2024,3,Lotus,EDward Gaming,13,Paper Rex,4,EDward Gaming
+378674,2097,2024,1,Icebox,G2 Esports,13,Paper Rex,8,G2 Esports
+378674,2097,2024,2,Lotus,G2 Esports,13,Paper Rex,9,G2 Esports
+378665,2097,2024,1,Bind,Sentinels,13,FunPlus Phoenix,8,Sentinels
+378665,2097,2024,2,Lotus,Sentinels,13,FunPlus Phoenix,5,Sentinels
+378836,2097,2024,1,Icebox,LEVIATÁN,7,Team Heretics,13,Team Heretics
+378836,2097,2024,2,Sunset,LEVIATÁN,13,Team Heretics,15,Team Heretics
+378836,2097,2024,3,Abyss,LEVIATÁN,13,Team Heretics,9,LEVIATÁN
+378836,2097,2024,4,Lotus,LEVIATÁN,3,Team Heretics,13,Team Heretics
+378673,2097,2024,1,Lotus,EDward Gaming,13,FUT Esports,9,EDward Gaming
+378673,2097,2024,2,Bind,EDward Gaming,13,FUT Esports,10,EDward Gaming
+378824,2097,2024,1,Icebox,G2 Esports,14,LEVIATÁN,16,LEVIATÁN
+378824,2097,2024,2,Abyss,G2 Esports,5,LEVIATÁN,13,LEVIATÁN
+378663,2097,2024,1,Abyss,FunPlus Phoenix,12,Team Heretics,14,Team Heretics
+378663,2097,2024,2,Bind,FunPlus Phoenix,13,Team Heretics,9,FunPlus Phoenix
+378663,2097,2024,3,Lotus,FunPlus Phoenix,13,Team Heretics,15,Team Heretics
+378833,2097,2024,1,Abyss,Team Heretics,5,KIWOOM DRX,13,KIWOOM DRX
+378833,2097,2024,2,Sunset,Team Heretics,13,KIWOOM DRX,5,Team Heretics
+378833,2097,2024,3,Icebox,Team Heretics,13,KIWOOM DRX,10,Team Heretics
+378656,2097,2024,1,Bind,FNATIC,13,Bilibili Gaming,9,FNATIC
+378656,2097,2024,2,Lotus,FNATIC,13,Bilibili Gaming,4,FNATIC
+378826,2097,2024,1,Haven,Sentinels,13,EDward Gaming,9,Sentinels
+378826,2097,2024,2,Lotus,Sentinels,9,EDward Gaming,13,EDward Gaming
+378826,2097,2024,3,Sunset,Sentinels,6,EDward Gaming,13,EDward Gaming
+378822,2097,2024,1,Sunset,KIWOOM DRX,13,Sentinels,15,Sentinels
+378822,2097,2024,2,Haven,KIWOOM DRX,8,Sentinels,13,Sentinels
+378666,2097,2024,1,Lotus,Gen.G,9,Sentinels,13,Sentinels
+378666,2097,2024,2,Icebox,Gen.G,6,Sentinels,13,Sentinels
+378669,2097,2024,1,Ascent,Team Vitality,13,Trace Esports,15,Trace Esports
+378669,2097,2024,2,Sunset,Team Vitality,13,Trace Esports,7,Team Vitality
+378669,2097,2024,3,Bind,Team Vitality,7,Trace Esports,13,Trace Esports
+378834,2097,2024,1,Sunset,Sentinels,13,FNATIC,11,Sentinels
+378834,2097,2024,2,Bind,Sentinels,9,FNATIC,13,FNATIC
+378834,2097,2024,3,Lotus,Sentinels,13,FNATIC,6,Sentinels
+378671,2097,2024,1,Lotus,TALON,6,Team Vitality,13,Team Vitality
+378671,2097,2024,2,Sunset,TALON,8,Team Vitality,13,Team Vitality
+378676,2097,2024,1,Sunset,FUT Esports,11,Paper Rex,13,Paper Rex
+378676,2097,2024,2,Bind,FUT Esports,6,Paper Rex,13,Paper Rex
+378664,2097,2024,1,Abyss,Gen.G,13,Team Heretics,11,Gen.G
+378664,2097,2024,2,Lotus,Gen.G,11,Team Heretics,13,Team Heretics
+378664,2097,2024,3,Bind,Gen.G,10,Team Heretics,13,Team Heretics
+378670,2097,2024,1,Bind,LEVIATÁN,10,Trace Esports,13,Trace Esports
+378670,2097,2024,2,Sunset,LEVIATÁN,13,Trace Esports,9,LEVIATÁN
+378670,2097,2024,3,Ascent,LEVIATÁN,5,Trace Esports,13,Trace Esports
+378658,2097,2024,1,Abyss,FNATIC,11,KIWOOM DRX,13,KIWOOM DRX
+378658,2097,2024,2,Lotus,FNATIC,6,KIWOOM DRX,13,KIWOOM DRX
+378659,2097,2024,1,Lotus,Bilibili Gaming,9,KRÜ Esports,13,KRÜ Esports
+378659,2097,2024,2,Icebox,Bilibili Gaming,4,KRÜ Esports,13,KRÜ Esports
+378827,2097,2024,1,Icebox,LEVIATÁN,15,Team Heretics,13,LEVIATÁN
+378827,2097,2024,2,Lotus,LEVIATÁN,13,Team Heretics,10,LEVIATÁN
+378835,2097,2024,1,Haven,Team Heretics,8,Sentinels,13,Sentinels
+378835,2097,2024,2,Icebox,Team Heretics,13,Sentinels,9,Team Heretics
+378835,2097,2024,3,Abyss,Team Heretics,13,Sentinels,7,Team Heretics
+378832,2097,2024,1,Haven,G2 Esports,3,FNATIC,13,FNATIC
+378832,2097,2024,2,Bind,G2 Esports,11,FNATIC,13,FNATIC
+378823,2097,2024,1,Bind,Trace Esports,7,EDward Gaming,13,EDward Gaming
+378823,2097,2024,2,Sunset,Trace Esports,10,EDward Gaming,13,EDward Gaming
+378662,2097,2024,1,Haven,Gen.G,13,Sentinels,8,Gen.G
+378662,2097,2024,2,Ascent,Gen.G,13,Sentinels,7,Gen.G
+378657,2097,2024,1,Haven,KIWOOM DRX,2,KRÜ Esports,13,KRÜ Esports
+378657,2097,2024,2,Abyss,KIWOOM DRX,13,KRÜ Esports,6,KIWOOM DRX
+378657,2097,2024,3,Bind,KIWOOM DRX,13,KRÜ Esports,6,KIWOOM DRX
+378828,2097,2024,1,Icebox,EDward Gaming,14,LEVIATÁN,16,LEVIATÁN
+378828,2097,2024,2,Lotus,EDward Gaming,13,LEVIATÁN,4,EDward Gaming
+378828,2097,2024,3,Abyss,EDward Gaming,13,LEVIATÁN,11,EDward Gaming
+378672,2097,2024,1,Icebox,LEVIATÁN,14,Team Vitality,12,LEVIATÁN
+378672,2097,2024,2,Sunset,LEVIATÁN,13,Team Vitality,4,LEVIATÁN
+378829,2097,2024,1,Haven,EDward Gaming,6,Team Heretics,13,Team Heretics
+378829,2097,2024,2,Sunset,EDward Gaming,13,Team Heretics,4,EDward Gaming
+378829,2097,2024,3,Lotus,EDward Gaming,13,Team Heretics,9,EDward Gaming
+378829,2097,2024,4,Bind,EDward Gaming,11,Team Heretics,13,Team Heretics
+378829,2097,2024,5,Abyss,EDward Gaming,13,Team Heretics,9,EDward Gaming
+378831,2097,2024,1,Lotus,KIWOOM DRX,13,Trace Esports,3,KIWOOM DRX
+378831,2097,2024,2,Abyss,KIWOOM DRX,13,Trace Esports,5,KIWOOM DRX
+378675,2097,2024,1,Icebox,EDward Gaming,13,G2 Esports,8,EDward Gaming
+378675,2097,2024,2,Haven,EDward Gaming,11,G2 Esports,13,G2 Esports
+378675,2097,2024,3,Bind,EDward Gaming,11,G2 Esports,13,G2 Esports
+449013,2281,2025,1,Bind,EDward Gaming,4,T1,13,T1
+449013,2281,2025,2,Haven,EDward Gaming,10,T1,13,T1
+449013,2281,2025,3,Fracture,EDward Gaming,14,T1,12,EDward Gaming
+449013,2281,2025,4,Split,EDward Gaming,5,T1,13,T1
+449008,2281,2025,1,Split,EDward Gaming,13,T1,7,EDward Gaming
+449008,2281,2025,2,Bind,EDward Gaming,6,T1,13,T1
+449008,2281,2025,3,Pearl,EDward Gaming,13,T1,11,EDward Gaming
+448600,2281,2025,1,Lotus,KIWOOM DRX,13,Sentinels,3,KIWOOM DRX
+448600,2281,2025,2,Haven,KIWOOM DRX,13,Sentinels,10,KIWOOM DRX
+449000,2281,2025,1,Bind,KIWOOM DRX,8,Team Vitality,13,Team Vitality
+449000,2281,2025,2,Abyss,KIWOOM DRX,13,Team Vitality,11,KIWOOM DRX
+449000,2281,2025,3,Split,KIWOOM DRX,11,Team Vitality,13,Team Vitality
+448597,2281,2025,1,Lotus,G2 Esports,13,Trace Esports,8,G2 Esports
+448597,2281,2025,2,Abyss,G2 Esports,13,Trace Esports,3,G2 Esports
+449004,2281,2025,1,Fracture,T1,13,KIWOOM DRX,11,T1
+449004,2281,2025,2,Pearl,T1,13,KIWOOM DRX,4,T1
+448599,2281,2025,1,Fracture,Team Vitality,13,T1,10,Team Vitality
+448599,2281,2025,2,Bind,Team Vitality,13,T1,9,Team Vitality
+449009,2281,2025,1,Bind,Team Vitality,13,G2 Esports,15,G2 Esports
+449009,2281,2025,2,Lotus,Team Vitality,9,G2 Esports,13,G2 Esports
+449011,2281,2025,1,Lotus,G2 Esports,13,T1,5,G2 Esports
+449011,2281,2025,2,Haven,G2 Esports,9,T1,13,T1
+449011,2281,2025,3,Abyss,G2 Esports,13,T1,11,G2 Esports
+449011,2281,2025,4,Split,G2 Esports,13,T1,15,T1
+449011,2281,2025,5,Pearl,G2 Esports,14,T1,16,T1
+449005,2281,2025,1,Haven,G2 Esports,13,Team Liquid,5,G2 Esports
+449005,2281,2025,2,Lotus,G2 Esports,13,Team Liquid,7,G2 Esports
+449003,2281,2025,1,Lotus,Team Liquid,7,Sentinels,13,Sentinels
+449003,2281,2025,2,Abyss,Team Liquid,16,Sentinels,14,Team Liquid
+449003,2281,2025,3,Bind,Team Liquid,13,Sentinels,1,Team Liquid
+449002,2281,2025,1,Lotus,T1,13,Trace Esports,3,T1
+449002,2281,2025,2,Haven,T1,13,Trace Esports,8,T1
+448598,2281,2025,1,Split,EDward Gaming,18,Team Liquid,16,EDward Gaming
+448598,2281,2025,2,Pearl,EDward Gaming,13,Team Liquid,6,EDward Gaming
+450589,2281,2025,1,Ascent,Team International,9,Team Thailand,13,Team Thailand
+449012,2281,2025,1,Lotus,T1,12,Team Vitality,14,Team Vitality
+449012,2281,2025,2,Haven,T1,13,Team Vitality,4,T1
+449012,2281,2025,3,Split,T1,13,Team Vitality,5,T1
+449010,2281,2025,1,Lotus,EDward Gaming,8,G2 Esports,13,G2 Esports
+449010,2281,2025,2,Split,EDward Gaming,7,G2 Esports,13,G2 Esports
+449001,2281,2025,1,Pearl,EDward Gaming,16,G2 Esports,18,G2 Esports
+449001,2281,2025,2,Bind,EDward Gaming,13,G2 Esports,8,EDward Gaming
+449001,2281,2025,3,Fracture,EDward Gaming,13,G2 Esports,4,EDward Gaming
+498632,2282,2025,1,Sunset,Sentinels,13,FNATIC,9,Sentinels
+498632,2282,2025,2,Ascent,Sentinels,7,FNATIC,13,FNATIC
+498632,2282,2025,3,Icebox,Sentinels,9,FNATIC,13,FNATIC
+490314,2282,2025,1,Split,Paper Rex,13,Team Liquid,15,Team Liquid
+490314,2282,2025,2,Sunset,Paper Rex,13,Team Liquid,5,Paper Rex
+490314,2282,2025,3,Lotus,Paper Rex,14,Team Liquid,12,Paper Rex
+490308,2282,2025,1,Split,Sentinels,13,Wolves Esports,11,Sentinels
+490308,2282,2025,2,Lotus,Sentinels,13,Wolves Esports,8,Sentinels
+498633,2282,2025,1,Lotus,G2 Esports,10,FNATIC,13,FNATIC
+498633,2282,2025,2,Split,G2 Esports,10,FNATIC,13,FNATIC
+490307,2282,2025,1,Icebox,Bilibili Gaming,13,Team Liquid,10,Bilibili Gaming
+490307,2282,2025,2,Haven,Bilibili Gaming,14,Team Liquid,16,Team Liquid
+490307,2282,2025,3,Sunset,Bilibili Gaming,13,Team Liquid,10,Bilibili Gaming
+498621,2282,2025,1,Sunset,Xi Lai Gaming,6,Sentinels,13,Sentinels
+498621,2282,2025,2,Lotus,Xi Lai Gaming,6,Sentinels,13,Sentinels
+498628,2282,2025,1,Sunset,Paper Rex,13,FNATIC,11,Paper Rex
+498628,2282,2025,2,Icebox,Paper Rex,15,FNATIC,17,FNATIC
+498628,2282,2025,3,Pearl,Paper Rex,13,FNATIC,10,Paper Rex
+498628,2282,2025,4,Lotus,Paper Rex,14,FNATIC,12,Paper Rex
+498626,2282,2025,1,Split,Wolves Esports,13,Gen.G,11,Wolves Esports
+498626,2282,2025,2,Sunset,Wolves Esports,13,Gen.G,9,Wolves Esports
+498625,2282,2025,1,Split,Sentinels,3,Paper Rex,13,Paper Rex
+498625,2282,2025,2,Sunset,Sentinels,11,Paper Rex,13,Paper Rex
+498631,2282,2025,1,Lotus,Gen.G,7,G2 Esports,13,G2 Esports
+498631,2282,2025,2,Haven,Gen.G,13,G2 Esports,11,Gen.G
+498631,2282,2025,3,Icebox,Gen.G,11,G2 Esports,13,G2 Esports
+498623,2282,2025,1,Ascent,Rex Regum Qeon,11,Wolves Esports,13,Wolves Esports
+498623,2282,2025,2,Icebox,Rex Regum Qeon,8,Wolves Esports,13,Wolves Esports
+490313,2282,2025,1,Icebox,Team Liquid,13,MIBR,6,Team Liquid
+490313,2282,2025,2,Sunset,Team Liquid,13,MIBR,7,Team Liquid
+498627,2282,2025,1,Lotus,Paper Rex,14,Wolves Esports,12,Paper Rex
+498627,2282,2025,2,Ascent,Paper Rex,13,Wolves Esports,8,Paper Rex
+490306,2282,2025,1,Sunset,Gen.G,13,MIBR,5,Gen.G
+490306,2282,2025,2,Haven,Gen.G,13,MIBR,1,Gen.G
+490312,2282,2025,1,Pearl,Team Heretics,10,Wolves Esports,13,Wolves Esports
+490312,2282,2025,2,Lotus,Team Heretics,9,Wolves Esports,13,Wolves Esports
+490309,2282,2025,1,Pearl,Team Heretics,1,Paper Rex,13,Paper Rex
+490309,2282,2025,2,Icebox,Team Heretics,9,Paper Rex,13,Paper Rex
+490310,2282,2025,1,Ascent,Paper Rex,11,Gen.G,13,Gen.G
+490310,2282,2025,2,Icebox,Paper Rex,3,Gen.G,13,Gen.G
+507067,2282,2025,1,Corrode,Team tarik,7,Team Toast,13,Team Toast
+498622,2282,2025,1,Split,G2 Esports,10,Paper Rex,13,Paper Rex
+498622,2282,2025,2,Lotus,G2 Esports,11,Paper Rex,13,Paper Rex
+498634,2282,2025,1,Split,Wolves Esports,9,FNATIC,13,FNATIC
+498634,2282,2025,2,Icebox,Wolves Esports,4,FNATIC,13,FNATIC
+498634,2282,2025,3,Lotus,Wolves Esports,13,FNATIC,10,Wolves Esports
+498634,2282,2025,4,Ascent,Wolves Esports,5,FNATIC,13,FNATIC
+490315,2282,2025,1,Split,Bilibili Gaming,10,Wolves Esports,13,Wolves Esports
+490315,2282,2025,2,Ascent,Bilibili Gaming,5,Wolves Esports,13,Wolves Esports
+498629,2282,2025,1,Icebox,Xi Lai Gaming,3,G2 Esports,13,G2 Esports
+498629,2282,2025,2,Haven,Xi Lai Gaming,8,G2 Esports,13,G2 Esports
+490311,2282,2025,1,Icebox,Bilibili Gaming,13,Sentinels,9,Bilibili Gaming
+490311,2282,2025,2,Sunset,Bilibili Gaming,5,Sentinels,13,Sentinels
+490311,2282,2025,3,Lotus,Bilibili Gaming,9,Sentinels,13,Sentinels
+498624,2282,2025,1,Haven,FNATIC,11,Gen.G,13,Gen.G
+498624,2282,2025,2,Split,FNATIC,14,Gen.G,12,FNATIC
+498624,2282,2025,3,Sunset,FNATIC,6,Gen.G,13,Gen.G
+498630,2282,2025,1,Lotus,Rex Regum Qeon,5,FNATIC,13,FNATIC
+498630,2282,2025,2,Haven,Rex Regum Qeon,13,FNATIC,6,Rex Regum Qeon
+498630,2282,2025,3,Ascent,Rex Regum Qeon,5,FNATIC,13,FNATIC
+542266,2283,2025,1,Corrode,Team Heretics,12,MIBR,14,MIBR
+542266,2283,2025,2,Sunset,Team Heretics,6,MIBR,13,MIBR
+542195,2283,2025,1,Bind,Paper Rex,13,Xi Lai Gaming,9,Paper Rex
+542195,2283,2025,2,Sunset,Paper Rex,13,Xi Lai Gaming,5,Paper Rex
+542210,2283,2025,1,Corrode,KIWOOM DRX,13,Team Liquid,8,KIWOOM DRX
+542210,2283,2025,2,Abyss,KIWOOM DRX,13,Team Liquid,7,KIWOOM DRX
+542273,2283,2025,1,Lotus,KIWOOM DRX,7,G2 Esports,13,G2 Esports
+542273,2283,2025,2,Abyss,KIWOOM DRX,13,G2 Esports,10,KIWOOM DRX
+542273,2283,2025,3,Bind,KIWOOM DRX,13,G2 Esports,7,KIWOOM DRX
+542198,2283,2025,1,Abyss,Xi Lai Gaming,10,Sentinels,13,Sentinels
+542198,2283,2025,2,Lotus,Xi Lai Gaming,13,Sentinels,11,Xi Lai Gaming
+542198,2283,2025,3,Haven,Xi Lai Gaming,13,Sentinels,8,Xi Lai Gaming
+542201,2283,2025,1,Ascent,Rex Regum Qeon,10,FNATIC,13,FNATIC
+542201,2283,2025,2,Abyss,Rex Regum Qeon,7,FNATIC,13,FNATIC
+542207,2283,2025,1,Abyss,NRG,17,EDward Gaming,15,NRG
+542207,2283,2025,2,Corrode,NRG,13,EDward Gaming,11,NRG
+542269,2283,2025,1,Abyss,MIBR,14,NRG,16,NRG
+542269,2283,2025,2,Haven,MIBR,13,NRG,4,MIBR
+542269,2283,2025,3,Corrode,MIBR,14,NRG,16,NRG
+542203,2283,2025,1,Sunset,Bilibili Gaming,13,Rex Regum Qeon,7,Bilibili Gaming
+542203,2283,2025,2,Lotus,Bilibili Gaming,8,Rex Regum Qeon,13,Rex Regum Qeon
+542203,2283,2025,3,Abyss,Bilibili Gaming,4,Rex Regum Qeon,13,Rex Regum Qeon
+542211,2283,2025,1,Corrode,G2 Esports,10,Team Heretics,13,Team Heretics
+542211,2283,2025,2,Lotus,G2 Esports,10,Team Heretics,13,Team Heretics
+542270,2283,2025,1,Ascent,FNATIC,12,NRG,14,NRG
+542270,2283,2025,2,Abyss,FNATIC,5,NRG,13,NRG
+542197,2283,2025,1,Ascent,Paper Rex,11,GIANTX,13,GIANTX
+542197,2283,2025,2,Lotus,Paper Rex,13,GIANTX,10,Paper Rex
+542197,2283,2025,3,Sunset,Paper Rex,13,GIANTX,6,Paper Rex
+542196,2283,2025,1,Corrode,GIANTX,6,Sentinels,13,Sentinels
+542196,2283,2025,2,Sunset,GIANTX,13,Sentinels,4,GIANTX
+542196,2283,2025,3,Haven,GIANTX,13,Sentinels,9,GIANTX
+542213,2283,2025,1,Lotus,Team Heretics,13,T1,10,Team Heretics
+542213,2283,2025,2,Sunset,Team Heretics,13,T1,11,Team Heretics
+542272,2283,2025,1,Corrode,NRG,13,FNATIC,3,NRG
+542272,2283,2025,2,Lotus,NRG,13,FNATIC,6,NRG
+542272,2283,2025,3,Abyss,NRG,13,FNATIC,15,FNATIC
+542272,2283,2025,4,Ascent,NRG,8,FNATIC,13,FNATIC
+542272,2283,2025,5,Sunset,NRG,13,FNATIC,5,NRG
+542208,2283,2025,1,Haven,KIWOOM DRX,13,NRG,4,KIWOOM DRX
+542208,2283,2025,2,Corrode,KIWOOM DRX,11,NRG,13,NRG
+542208,2283,2025,3,Lotus,KIWOOM DRX,11,NRG,13,NRG
+542205,2283,2025,1,Abyss,Team Liquid,8,KIWOOM DRX,13,KIWOOM DRX
+542205,2283,2025,2,Bind,Team Liquid,10,KIWOOM DRX,13,KIWOOM DRX
+542265,2283,2025,1,Lotus,Paper Rex,13,G2 Esports,11,Paper Rex
+542265,2283,2025,2,Corrode,Paper Rex,13,G2 Esports,15,G2 Esports
+542265,2283,2025,3,Ascent,Paper Rex,13,G2 Esports,11,Paper Rex
+542268,2283,2025,1,Bind,FNATIC,10,Paper Rex,13,Paper Rex
+542268,2283,2025,2,Haven,FNATIC,13,Paper Rex,4,FNATIC
+542268,2283,2025,3,Lotus,FNATIC,13,Paper Rex,9,FNATIC
+542204,2283,2025,1,Corrode,MIBR,13,Rex Regum Qeon,5,MIBR
+542204,2283,2025,2,Abyss,MIBR,13,Rex Regum Qeon,5,MIBR
+542274,2283,2025,1,Ascent,Team Heretics,13,GIANTX,4,Team Heretics
+542274,2283,2025,2,Lotus,Team Heretics,3,GIANTX,13,GIANTX
+542274,2283,2025,3,Bind,Team Heretics,13,GIANTX,9,Team Heretics
+542202,2283,2025,1,Bind,MIBR,13,FNATIC,5,MIBR
+542202,2283,2025,2,Abyss,MIBR,7,FNATIC,13,FNATIC
+542202,2283,2025,3,Haven,MIBR,10,FNATIC,13,FNATIC
+542277,2283,2025,1,Ascent,Paper Rex,13,Team Heretics,11,Paper Rex
+542277,2283,2025,2,Bind,Paper Rex,9,Team Heretics,13,Team Heretics
+542277,2283,2025,3,Lotus,Paper Rex,13,Team Heretics,4,Paper Rex
+542279,2283,2025,1,Sunset,FNATIC,8,KIWOOM DRX,13,KIWOOM DRX
+542279,2283,2025,2,Corrode,FNATIC,13,KIWOOM DRX,3,FNATIC
+542279,2283,2025,3,Haven,FNATIC,13,KIWOOM DRX,11,FNATIC
+542279,2283,2025,4,Bind,FNATIC,13,KIWOOM DRX,4,FNATIC
+542214,2283,2025,1,Lotus,G2 Esports,13,Dragon Ranger Gaming,7,G2 Esports
+542214,2283,2025,2,Abyss,G2 Esports,13,Dragon Ranger Gaming,7,G2 Esports
+542209,2283,2025,1,Sunset,Team Liquid,3,EDward Gaming,13,EDward Gaming
+542209,2283,2025,2,Abyss,Team Liquid,13,EDward Gaming,6,Team Liquid
+542209,2283,2025,3,Bind,Team Liquid,15,EDward Gaming,13,Team Liquid
+542267,2283,2025,1,Haven,NRG,13,GIANTX,1,NRG
+542267,2283,2025,2,Lotus,NRG,13,GIANTX,6,NRG
+542212,2283,2025,1,Lotus,Dragon Ranger Gaming,13,T1,15,T1
+542212,2283,2025,2,Sunset,Dragon Ranger Gaming,14,T1,16,T1
+542200,2283,2025,1,Haven,Bilibili Gaming,2,MIBR,13,MIBR
+542200,2283,2025,2,Corrode,Bilibili Gaming,9,MIBR,13,MIBR
+542278,2283,2025,1,Ascent,KIWOOM DRX,15,Paper Rex,13,KIWOOM DRX
+542278,2283,2025,2,Lotus,KIWOOM DRX,13,Paper Rex,8,KIWOOM DRX
+542264,2283,2025,1,Haven,FNATIC,13,KIWOOM DRX,11,FNATIC
+542264,2283,2025,2,Ascent,FNATIC,8,KIWOOM DRX,13,KIWOOM DRX
+542264,2283,2025,3,Lotus,FNATIC,13,KIWOOM DRX,5,FNATIC
+542276,2283,2025,1,Sunset,MIBR,13,KIWOOM DRX,10,MIBR
+542276,2283,2025,2,Ascent,MIBR,13,KIWOOM DRX,15,KIWOOM DRX
+542276,2283,2025,3,Bind,MIBR,10,KIWOOM DRX,13,KIWOOM DRX
+542215,2283,2025,1,Lotus,T1,9,G2 Esports,13,G2 Esports
+542215,2283,2025,2,Corrode,T1,8,G2 Esports,13,G2 Esports
+542199,2283,2025,1,Bind,GIANTX,14,Xi Lai Gaming,12,GIANTX
+542199,2283,2025,2,Ascent,GIANTX,13,Xi Lai Gaming,10,GIANTX
+626545,2760,2026,1,Pearl,Gentle Mates,13,All Gamers,5,Gentle Mates
+626545,2760,2026,2,Split,Gentle Mates,4,All Gamers,13,All Gamers
+626545,2760,2026,3,Bind,Gentle Mates,8,All Gamers,13,All Gamers
+625788,2760,2026,1,Haven,Gentle Mates,13,EDward Gaming,11,Gentle Mates
+625788,2760,2026,2,Pearl,Gentle Mates,13,EDward Gaming,7,Gentle Mates
+626546,2760,2026,1,Haven,FURIA,7,BBL Esports,13,BBL Esports
+626546,2760,2026,2,Breeze,FURIA,13,BBL Esports,10,FURIA
+626546,2760,2026,3,Abyss,FURIA,11,BBL Esports,13,BBL Esports
+626544,2760,2026,1,Corrode,Nongshim RedForce,13,Paper Rex,11,Nongshim RedForce
+626544,2760,2026,2,Split,Nongshim RedForce,13,Paper Rex,4,Nongshim RedForce
+626544,2760,2026,3,Abyss,Nongshim RedForce,13,Paper Rex,3,Nongshim RedForce
+626535,2760,2026,1,Breeze,NRG,13,Team Liquid,11,NRG
+626535,2760,2026,2,Abyss,NRG,13,Team Liquid,4,NRG
+626541,2760,2026,1,Corrode,Nongshim RedForce,13,G2 Esports,7,Nongshim RedForce
+626541,2760,2026,2,Split,Nongshim RedForce,14,G2 Esports,12,Nongshim RedForce
+626541,2760,2026,3,Abyss,Nongshim RedForce,7,G2 Esports,13,G2 Esports
+626529,2760,2026,1,Split,Paper Rex,13,NRG,10,Paper Rex
+626529,2760,2026,2,Pearl,Paper Rex,10,NRG,13,NRG
+626529,2760,2026,3,Haven,Paper Rex,13,NRG,11,Paper Rex
+626548,2760,2026,1,Haven,G2 Esports,13,BBL Esports,5,G2 Esports
+626548,2760,2026,2,Breeze,G2 Esports,13,BBL Esports,8,G2 Esports
+626539,2760,2026,1,Haven,FURIA,13,Paper Rex,9,FURIA
+626539,2760,2026,2,Breeze,FURIA,4,Paper Rex,13,Paper Rex
+626539,2760,2026,3,Split,FURIA,7,Paper Rex,13,Paper Rex
+625790,2760,2026,1,Split,G2 Esports,9,Paper Rex,13,Paper Rex
+625790,2760,2026,2,Corrode,G2 Esports,5,Paper Rex,13,Paper Rex
+626537,2760,2026,1,Haven,Nongshim RedForce,13,Gentle Mates,10,Nongshim RedForce
+626537,2760,2026,2,Corrode,Nongshim RedForce,13,Gentle Mates,10,Nongshim RedForce
+626538,2760,2026,1,Split,All Gamers,6,G2 Esports,13,G2 Esports
+626538,2760,2026,2,Abyss,All Gamers,4,G2 Esports,13,G2 Esports
+626549,2760,2026,1,Haven,Paper Rex,11,G2 Esports,13,G2 Esports
+626549,2760,2026,2,Breeze,Paper Rex,13,G2 Esports,9,Paper Rex
+626549,2760,2026,3,Corrode,Paper Rex,13,G2 Esports,4,Paper Rex
+626543,2760,2026,1,Bind,Nongshim RedForce,13,NRG,9,Nongshim RedForce
+626543,2760,2026,2,Abyss,Nongshim RedForce,13,NRG,11,Nongshim RedForce
+626547,2760,2026,1,Corrode,Paper Rex,10,All Gamers,13,All Gamers
+626547,2760,2026,2,Pearl,Paper Rex,13,All Gamers,7,Paper Rex
+626547,2760,2026,3,Split,Paper Rex,13,All Gamers,4,Paper Rex
+626542,2760,2026,1,Pearl,Paper Rex,12,NRG,14,NRG
+626542,2760,2026,2,Bind,Paper Rex,11,NRG,13,NRG
+625791,2760,2026,1,Haven,Xi Lai Gaming,2,NRG,13,NRG
+625791,2760,2026,2,Abyss,Xi Lai Gaming,10,NRG,13,NRG
+626533,2760,2026,1,Abyss,Xi Lai Gaming,8,G2 Esports,13,G2 Esports
+626533,2760,2026,2,Haven,Xi Lai Gaming,3,G2 Esports,13,G2 Esports
+625789,2760,2026,1,Breeze,T1,8,Team Liquid,13,Team Liquid
+625789,2760,2026,2,Split,T1,13,Team Liquid,15,Team Liquid
+626540,2760,2026,1,Pearl,BBL Esports,6,NRG,13,NRG
+626540,2760,2026,2,Abyss,BBL Esports,13,NRG,6,BBL Esports
+626540,2760,2026,3,Split,BBL Esports,15,NRG,17,NRG
+626550,2760,2026,1,Pearl,NRG,13,Paper Rex,8,NRG
+626550,2760,2026,2,Split,NRG,7,Paper Rex,13,Paper Rex
+626550,2760,2026,3,Corrode,NRG,6,Paper Rex,13,Paper Rex
+626550,2760,2026,4,Breeze,NRG,9,Paper Rex,13,Paper Rex
+626530,2760,2026,1,Pearl,Gentle Mates,13,Team Liquid,11,Gentle Mates
+626530,2760,2026,2,Bind,Gentle Mates,13,Team Liquid,3,Gentle Mates
+626534,2760,2026,1,Breeze,G2 Esports,13,T1,6,G2 Esports
+626534,2760,2026,2,Haven,G2 Esports,16,T1,14,G2 Esports
+626532,2760,2026,1,Bind,EDward Gaming,1,T1,13,T1
+626532,2760,2026,2,Haven,EDward Gaming,10,T1,13,T1
+670464,2765,2026,1,Lotus,G2 Esports,13,Xi Lai Gaming,7,G2 Esports
+670464,2765,2026,2,Ascent,G2 Esports,4,Xi Lai Gaming,13,Xi Lai Gaming
+670464,2765,2026,3,Split,G2 Esports,9,Xi Lai Gaming,13,Xi Lai Gaming
+670477,2765,2026,1,Haven,EDward Gaming,5,LEVIATÁN,13,LEVIATÁN
+670477,2765,2026,2,Pearl,EDward Gaming,9,LEVIATÁN,13,LEVIATÁN
+670477,2765,2026,3,Split,EDward Gaming,11,LEVIATÁN,13,LEVIATÁN
+684618,2765,2026,1,Haven,Global Esports,13,Xi Lai Gaming,10,Global Esports
+684618,2765,2026,2,Lotus,Global Esports,9,Xi Lai Gaming,13,Xi Lai Gaming
+684618,2765,2026,3,Breeze,Global Esports,10,Xi Lai Gaming,13,Xi Lai Gaming
+684615,2765,2026,1,Ascent,NRG,7,LEVIATÁN,13,LEVIATÁN
+684615,2765,2026,2,Lotus,NRG,13,LEVIATÁN,5,NRG
+684615,2765,2026,3,Pearl,NRG,8,LEVIATÁN,13,LEVIATÁN
+670474,2765,2026,1,Lotus,Team Vitality,13,FUT Esports,7,Team Vitality
+670474,2765,2026,2,Ascent,Team Vitality,13,FUT Esports,2,Team Vitality
+670467,2765,2026,1,Breeze,Team Heretics,6,Team Vitality,13,Team Vitality
+670467,2765,2026,2,Lotus,Team Heretics,7,Team Vitality,13,Team Vitality
+684619,2765,2026,1,Lotus,FUT Esports,11,NRG,13,NRG
+684619,2765,2026,2,Haven,FUT Esports,14,NRG,12,FUT Esports
+684619,2765,2026,3,Fracture,FUT Esports,13,NRG,11,FUT Esports
+684614,2765,2026,1,Pearl,Team Vitality,13,FUT Esports,11,Team Vitality
+684614,2765,2026,2,Haven,Team Vitality,4,FUT Esports,13,FUT Esports
+684614,2765,2026,3,Fracture,Team Vitality,13,FUT Esports,10,Team Vitality
+670472,2765,2026,1,Ascent,G2 Esports,6,FUT Esports,13,FUT Esports
+670472,2765,2026,2,Lotus,G2 Esports,13,FUT Esports,15,FUT Esports
+684611,2765,2026,1,Fracture,FULL SENSE,3,FUT Esports,13,FUT Esports
+684611,2765,2026,2,Haven,FULL SENSE,7,FUT Esports,13,FUT Esports
+670469,2765,2026,1,Breeze,Paper Rex,13,Team Vitality,3,Paper Rex
+670469,2765,2026,2,Split,Paper Rex,6,Team Vitality,13,Team Vitality
+670469,2765,2026,3,Fracture,Paper Rex,13,Team Vitality,6,Paper Rex
+670470,2765,2026,1,Breeze,EDward Gaming,15,Paper Rex,13,EDward Gaming
+670470,2765,2026,2,Fracture,EDward Gaming,12,Paper Rex,14,Paper Rex
+670470,2765,2026,3,Split,EDward Gaming,6,Paper Rex,13,Paper Rex
+684612,2765,2026,1,Pearl,LEVIATÁN,4,Global Esports,13,Global Esports
+684612,2765,2026,2,Fracture,LEVIATÁN,13,Global Esports,11,LEVIATÁN
+684612,2765,2026,3,Split,LEVIATÁN,13,Global Esports,9,LEVIATÁN
+670475,2765,2026,1,Haven,Xi Lai Gaming,7,LEVIATÁN,13,LEVIATÁN
+670475,2765,2026,2,Lotus,Xi Lai Gaming,3,LEVIATÁN,13,LEVIATÁN
+684613,2765,2026,1,Pearl,Xi Lai Gaming,6,NRG,13,NRG
+684613,2765,2026,2,Lotus,Xi Lai Gaming,11,NRG,13,NRG
+670468,2765,2026,1,Lotus,Xi Lai Gaming,10,EDward Gaming,13,EDward Gaming
+670468,2765,2026,2,Breeze,Xi Lai Gaming,13,EDward Gaming,10,Xi Lai Gaming
+670468,2765,2026,3,Split,Xi Lai Gaming,3,EDward Gaming,13,EDward Gaming
+670471,2765,2026,1,Fracture,Paper Rex,13,LEVIATÁN,2,Paper Rex
+670471,2765,2026,2,Split,Paper Rex,6,LEVIATÁN,13,LEVIATÁN
+670471,2765,2026,3,Breeze,Paper Rex,13,LEVIATÁN,11,Paper Rex
+670471,2765,2026,4,Ascent,Paper Rex,10,LEVIATÁN,13,LEVIATÁN
+670471,2765,2026,5,Lotus,Paper Rex,5,LEVIATÁN,13,LEVIATÁN
+670465,2765,2026,1,Haven,EDward Gaming,4,FUT Esports,13,FUT Esports
+670465,2765,2026,2,Pearl,EDward Gaming,14,FUT Esports,12,EDward Gaming
+670465,2765,2026,3,Fracture,EDward Gaming,13,FUT Esports,5,EDward Gaming
+684616,2765,2026,1,Haven,Dragon Ranger Gaming,13,Xi Lai Gaming,4,Dragon Ranger Gaming
+684616,2765,2026,2,Fracture,Dragon Ranger Gaming,9,Xi Lai Gaming,13,Xi Lai Gaming
+684616,2765,2026,3,Split,Dragon Ranger Gaming,11,Xi Lai Gaming,13,Xi Lai Gaming
+670476,2765,2026,1,Lotus,Team Vitality,4,LEVIATÁN,13,LEVIATÁN
+670476,2765,2026,2,Split,Team Vitality,4,LEVIATÁN,13,LEVIATÁN
+670466,2765,2026,1,Ascent,Paper Rex,13,LEVIATÁN,1,Paper Rex
+670466,2765,2026,2,Lotus,Paper Rex,13,LEVIATÁN,10,Paper Rex
+684610,2765,2026,1,Lotus,Team Vitality,13,Dragon Ranger Gaming,5,Team Vitality
+684610,2765,2026,2,Breeze,Team Vitality,13,Dragon Ranger Gaming,3,Team Vitality
+670473,2765,2026,1,Split,LEVIATÁN,13,Team Heretics,3,LEVIATÁN
+670473,2765,2026,2,Lotus,LEVIATÁN,11,Team Heretics,13,Team Heretics
+670473,2765,2026,3,Ascent,LEVIATÁN,13,Team Heretics,6,LEVIATÁN
+684617,2765,2026,1,Split,Global Esports,9,FULL SENSE,13,FULL SENSE
+684617,2765,2026,2,Breeze,Global Esports,13,FULL SENSE,8,Global Esports
+684617,2765,2026,3,Pearl,Global Esports,13,FULL SENSE,8,Global Esports
+19084,353,2021,1,Split,Team Liquid,13,KRÜ Esports,2,Team Liquid
+19084,353,2021,2,Ascent,Team Liquid,13,KRÜ Esports,9,Team Liquid
+19076,353,2021,1,Split,Team Liquid,16,Version1,14,Team Liquid
+19076,353,2021,2,Ascent,Team Liquid,11,Version1,13,Version1
+19076,353,2021,3,Haven,Team Liquid,4,Version1,13,Version1
+19075,353,2021,1,Haven,Sharks Esports,13,NUTURN,5,Sharks Esports
+19075,353,2021,2,Bind,Sharks Esports,5,NUTURN,13,NUTURN
+19075,353,2021,3,Ascent,Sharks Esports,5,NUTURN,13,NUTURN
+19089,353,2021,1,Split,Sentinels,14,FNATIC,12,Sentinels
+19089,353,2021,2,Bind,Sentinels,16,FNATIC,14,Sentinels
+19089,353,2021,3,Haven,Sentinels,13,FNATIC,11,Sentinels
+19080,353,2021,1,Bind,Sentinels,13,NUTURN,5,Sentinels
+19080,353,2021,2,Haven,Sentinels,13,NUTURN,4,Sentinels
+19074,353,2021,1,Ascent,Team Vikings,14,X10 Esports,12,Team Vikings
+19074,353,2021,2,Icebox,Team Vikings,13,X10 Esports,11,Team Vikings
+19085,353,2021,1,Icebox,Version1,12,FNATIC,14,FNATIC
+19085,353,2021,2,Ascent,Version1,6,FNATIC,13,FNATIC
+19079,353,2021,1,Haven,Version1,13,NUTURN,3,Version1
+19079,353,2021,2,Ascent,Version1,13,NUTURN,15,NUTURN
+19079,353,2021,3,Split,Version1,12,NUTURN,14,NUTURN
+19086,353,2021,1,Ascent,Team Vikings,8,Team Liquid,13,Team Liquid
+19086,353,2021,2,Haven,Team Vikings,5,Team Liquid,13,Team Liquid
+19073,353,2021,1,Icebox,Sentinels,13,FNATIC,11,Sentinels
+19073,353,2021,2,Haven,Sentinels,13,FNATIC,10,Sentinels
+19082,353,2021,1,Icebox,Sharks Esports,5,KRÜ Esports,13,KRÜ Esports
+19082,353,2021,2,Bind,Sharks Esports,6,KRÜ Esports,13,KRÜ Esports
+19071,353,2021,1,Haven,FNATIC,13,KRÜ Esports,5,FNATIC
+19071,353,2021,2,Icebox,FNATIC,13,KRÜ Esports,4,FNATIC
+19087,353,2021,1,Bind,FNATIC,13,Team Liquid,10,FNATIC
+19087,353,2021,2,Ascent,FNATIC,13,Team Liquid,10,FNATIC
+19081,353,2021,1,Haven,X10 Esports,13,Crazy Raccoon,9,X10 Esports
+19081,353,2021,2,Icebox,X10 Esports,13,Crazy Raccoon,5,X10 Esports
+19078,353,2021,1,Icebox,Sentinels,13,Team Vikings,7,Sentinels
+19078,353,2021,2,Haven,Sentinels,13,Team Vikings,6,Sentinels
+19083,353,2021,1,Icebox,FNATIC,13,X10 Esports,4,FNATIC
+19083,353,2021,2,Haven,FNATIC,13,X10 Esports,9,FNATIC
+19088,353,2021,1,Bind,NUTURN,8,FNATIC,13,FNATIC
+19088,353,2021,2,Ascent,NUTURN,13,FNATIC,8,NUTURN
+19088,353,2021,3,Haven,NUTURN,8,FNATIC,13,FNATIC
+19072,353,2021,1,Ascent,Version1,13,Crazy Raccoon,11,Version1
+19072,353,2021,2,Icebox,Version1,13,Crazy Raccoon,10,Version1
+51272,449,2021,1,Haven,KRÜ Esports,5,Team Liquid,13,Team Liquid
+51272,449,2021,2,Ascent,KRÜ Esports,8,Team Liquid,13,Team Liquid
+51290,449,2021,1,Icebox,Acend,13,Team Secret,8,Acend
+51290,449,2021,2,Breeze,Acend,13,Team Secret,6,Acend
+51294,449,2021,1,Bind,Acend,13,Team Liquid,6,Acend
+51294,449,2021,2,Split,Acend,13,Team Liquid,5,Acend
+51275,449,2021,1,Fracture,KRÜ Esports,11,FURIA,13,FURIA
+51275,449,2021,2,Ascent,KRÜ Esports,13,FURIA,8,KRÜ Esports
+51275,449,2021,3,Haven,KRÜ Esports,13,FURIA,9,KRÜ Esports
+51280,449,2021,1,Split,Team Secret,13,Crazy Raccoon,5,Team Secret
+51280,449,2021,2,Haven,Team Secret,13,Crazy Raccoon,2,Team Secret
+51295,449,2021,1,Breeze,Gambit Esports,13,KRÜ Esports,8,Gambit Esports
+51295,449,2021,2,Ascent,Gambit Esports,7,KRÜ Esports,13,KRÜ Esports
+51295,449,2021,3,Bind,Gambit Esports,18,KRÜ Esports,16,Gambit Esports
+51277,449,2021,1,Icebox,Gambit Esports,6,Team Secret,13,Team Secret
+51277,449,2021,2,Breeze,Gambit Esports,13,Team Secret,0,Gambit Esports
+51277,449,2021,3,Bind,Gambit Esports,13,Team Secret,6,Gambit Esports
+51286,449,2021,1,Ascent,Vision Strikers,10,Cloud9,13,Cloud9
+51286,449,2021,2,Split,Vision Strikers,13,Cloud9,9,Vision Strikers
+51286,449,2021,3,Breeze,Vision Strikers,11,Cloud9,13,Cloud9
+51296,449,2021,1,Breeze,Acend,11,Gambit Esports,13,Gambit Esports
+51296,449,2021,2,Ascent,Acend,13,Gambit Esports,7,Acend
+51296,449,2021,3,Fracture,Acend,3,Gambit Esports,13,Gambit Esports
+51296,449,2021,4,Icebox,Acend,14,Gambit Esports,12,Acend
+51296,449,2021,5,Split,Acend,13,Gambit Esports,8,Acend
+51281,449,2021,1,Haven,Team Vikings,6,Team Secret,13,Team Secret
+51281,449,2021,2,Icebox,Team Vikings,7,Team Secret,13,Team Secret
+51276,449,2021,1,Fracture,Sentinels,13,KRÜ Esports,7,Sentinels
+51276,449,2021,2,Haven,Sentinels,11,KRÜ Esports,13,KRÜ Esports
+51276,449,2021,3,Split,Sentinels,11,KRÜ Esports,13,KRÜ Esports
+51284,449,2021,1,Icebox,Vision Strikers,10,FNATIC,13,FNATIC
+51284,449,2021,2,Haven,Vision Strikers,13,FNATIC,10,Vision Strikers
+51284,449,2021,3,Fracture,Vision Strikers,6,FNATIC,13,FNATIC
+51266,449,2021,1,Icebox,Acend,9,Keyd Stars,13,Keyd Stars
+51266,449,2021,2,Bind,Acend,13,Keyd Stars,3,Acend
+51266,449,2021,3,Breeze,Acend,13,Keyd Stars,10,Acend
+51283,449,2021,1,Icebox,FNATIC,13,Cloud9,11,FNATIC
+51283,449,2021,2,Split,FNATIC,11,Cloud9,13,Cloud9
+51283,449,2021,3,Fracture,FNATIC,14,Cloud9,12,FNATIC
+51285,449,2021,1,Split,FULL SENSE,7,Cloud9,13,Cloud9
+51285,449,2021,2,Breeze,FULL SENSE,12,Cloud9,14,Cloud9
+51267,449,2021,1,Breeze,ENVY,13,X10 Esports,8,ENVY
+51267,449,2021,2,Ascent,ENVY,13,X10 Esports,7,ENVY
+51282,449,2021,1,Haven,Vision Strikers,13,FULL SENSE,5,Vision Strikers
+51282,449,2021,2,Breeze,Vision Strikers,13,FULL SENSE,5,Vision Strikers
+51268,449,2021,1,Ascent,Acend,13,ENVY,8,Acend
+51268,449,2021,2,Bind,Acend,13,ENVY,11,Acend
+51269,449,2021,1,Icebox,Keyd Stars,6,X10 Esports,13,X10 Esports
+51269,449,2021,2,Haven,Keyd Stars,5,X10 Esports,13,X10 Esports
+51278,449,2021,1,Icebox,Team Vikings,13,Crazy Raccoon,9,Team Vikings
+51278,449,2021,2,Haven,Team Vikings,13,Crazy Raccoon,8,Team Vikings
+51273,449,2021,1,Ascent,Sentinels,13,FURIA,9,Sentinels
+51273,449,2021,2,Breeze,Sentinels,10,FURIA,13,FURIA
+51273,449,2021,3,Haven,Sentinels,13,FURIA,9,Sentinels
+51270,449,2021,1,Icebox,ENVY,13,X10 Esports,10,ENVY
+51270,449,2021,2,Split,ENVY,8,X10 Esports,13,X10 Esports
+51270,449,2021,3,Haven,ENVY,12,X10 Esports,14,X10 Esports
+51279,449,2021,1,Split,Gambit Esports,13,Team Vikings,6,Gambit Esports
+51279,449,2021,2,Bind,Gambit Esports,5,Team Vikings,13,Team Vikings
+51279,449,2021,3,Icebox,Gambit Esports,14,Team Vikings,12,Gambit Esports
+51292,449,2021,1,Fracture,Gambit Esports,13,X10 Esports,7,Gambit Esports
+51292,449,2021,2,Ascent,Gambit Esports,7,X10 Esports,13,X10 Esports
+51292,449,2021,3,Breeze,Gambit Esports,13,X10 Esports,7,Gambit Esports
+51293,449,2021,1,Haven,FNATIC,13,KRÜ Esports,15,KRÜ Esports
+51293,449,2021,2,Icebox,FNATIC,13,KRÜ Esports,6,FNATIC
+51293,449,2021,3,Split,FNATIC,8,KRÜ Esports,13,KRÜ Esports
+51274,449,2021,1,Breeze,Team Liquid,14,Sentinels,12,Team Liquid
+51274,449,2021,2,Bind,Team Liquid,2,Sentinels,13,Sentinels
+51274,449,2021,3,Split,Team Liquid,13,Sentinels,10,Team Liquid
+51291,449,2021,1,Bind,Team Liquid,13,Cloud9,10,Team Liquid
+51291,449,2021,2,Ascent,Team Liquid,13,Cloud9,11,Team Liquid
+34978,466,2021,1,Haven,100 Thieves,5,ENVY,13,ENVY
+34978,466,2021,2,Ascent,100 Thieves,8,ENVY,13,ENVY
+34951,466,2021,1,Bind,Gambit Esports,13,Crazy Raccoon,1,Gambit Esports
+34951,466,2021,2,Icebox,Gambit Esports,13,Crazy Raccoon,1,Gambit Esports
+35940,466,2021,1,Split,F4Q,9,Sentinels,13,Sentinels
+35940,466,2021,2,Breeze,F4Q,4,Sentinels,13,Sentinels
+34977,466,2021,1,Breeze,Gambit Esports,13,G2 Esports,10,Gambit Esports
+34977,466,2021,2,Icebox,Gambit Esports,13,G2 Esports,0,Gambit Esports
+34965,466,2021,1,Haven,Crazy Raccoon,13,Liberty,9,Crazy Raccoon
+34965,466,2021,2,Split,Crazy Raccoon,13,Liberty,8,Crazy Raccoon
+35943,466,2021,1,Breeze,Sentinels,13,F4Q,3,Sentinels
+35943,466,2021,2,Split,Sentinels,9,F4Q,13,F4Q
+35943,466,2021,3,Haven,Sentinels,13,F4Q,4,Sentinels
+34950,466,2021,1,Ascent,KRÜ Esports,13,ZETA DIVISION,8,KRÜ Esports
+34950,466,2021,2,Split,KRÜ Esports,5,ZETA DIVISION,13,ZETA DIVISION
+34950,466,2021,3,Bind,KRÜ Esports,13,ZETA DIVISION,7,KRÜ Esports
+34964,466,2021,1,Ascent,Gambit Esports,13,100 Thieves,5,Gambit Esports
+34964,466,2021,2,Icebox,Gambit Esports,11,100 Thieves,13,100 Thieves
+34964,466,2021,3,Split,Gambit Esports,10,100 Thieves,13,100 Thieves
+35942,466,2021,1,Icebox,G2 Esports,13,Sentinels,3,G2 Esports
+35942,466,2021,2,Split,G2 Esports,13,Sentinels,11,G2 Esports
+34962,466,2021,1,Breeze,Keyd Stars,13,ZETA DIVISION,3,Keyd Stars
+34962,466,2021,2,Split,Keyd Stars,13,ZETA DIVISION,4,Keyd Stars
+34963,466,2021,1,Split,KRÜ Esports,13,Keyd Stars,11,KRÜ Esports
+34963,466,2021,2,Haven,KRÜ Esports,13,Keyd Stars,11,KRÜ Esports
+35939,466,2021,1,Split,Sentinels,13,G2 Esports,6,Sentinels
+35939,466,2021,2,Icebox,Sentinels,8,G2 Esports,13,G2 Esports
+35939,466,2021,3,Haven,Sentinels,13,G2 Esports,8,Sentinels
+34974,466,2021,1,Haven,ENVY,15,Sentinels,13,ENVY
+34974,466,2021,2,Split,ENVY,13,Sentinels,7,ENVY
+35941,466,2021,1,Bind,F4Q,3,G2 Esports,13,G2 Esports
+35941,466,2021,2,Ascent,F4Q,6,G2 Esports,13,G2 Esports
+34949,466,2021,1,Icebox,Keyd Stars,13,ENVY,15,ENVY
+34949,466,2021,2,Bind,Keyd Stars,9,ENVY,13,ENVY
+34961,466,2021,1,Icebox,ENVY,13,KRÜ Esports,9,ENVY
+34961,466,2021,2,Ascent,ENVY,13,KRÜ Esports,2,ENVY
+34976,466,2021,1,Haven,G2 Esports,13,KRÜ Esports,7,G2 Esports
+34976,466,2021,2,Icebox,G2 Esports,13,KRÜ Esports,9,G2 Esports
+34960,466,2021,1,Ascent,Acend,6,Papara SuperMassive,13,Papara SuperMassive
+34960,466,2021,2,Bind,Acend,13,Papara SuperMassive,7,Acend
+34960,466,2021,3,Split,Acend,13,Papara SuperMassive,10,Acend
+34958,466,2021,1,Haven,Vision Strikers,13,Acend,7,Vision Strikers
+34958,466,2021,2,Icebox,Vision Strikers,13,Acend,9,Vision Strikers
+34973,466,2021,1,Ascent,100 Thieves,9,Acend,13,Acend
+34973,466,2021,2,Haven,100 Thieves,13,Acend,8,100 Thieves
+34973,466,2021,3,Breeze,100 Thieves,14,Acend,12,100 Thieves
+34948,466,2021,1,Ascent,Papara SuperMassive,9,Acend,13,Acend
+34948,466,2021,2,Bind,Papara SuperMassive,5,Acend,13,Acend
+34979,466,2021,1,Bind,ENVY,13,Gambit Esports,15,Gambit Esports
+34979,466,2021,2,Haven,ENVY,11,Gambit Esports,13,Gambit Esports
+34979,466,2021,3,Split,ENVY,9,Gambit Esports,13,Gambit Esports
+35938,466,2021,1,Ascent,G2 Esports,13,F4Q,5,G2 Esports
+35938,466,2021,2,Bind,G2 Esports,9,F4Q,13,F4Q
+35938,466,2021,3,Haven,G2 Esports,13,F4Q,8,G2 Esports
+34966,466,2021,1,Icebox,Gambit Esports,14,Crazy Raccoon,12,Gambit Esports
+34966,466,2021,2,Ascent,Gambit Esports,13,Crazy Raccoon,8,Gambit Esports
+34975,466,2021,1,Bind,Vision Strikers,2,Gambit Esports,13,Gambit Esports
+34975,466,2021,2,Split,Vision Strikers,13,Gambit Esports,7,Vision Strikers
+34975,466,2021,3,Icebox,Vision Strikers,8,Gambit Esports,13,Gambit Esports
+34959,466,2021,1,Haven,Paper Rex,14,Papara SuperMassive,12,Paper Rex
+34959,466,2021,2,Breeze,Paper Rex,2,Papara SuperMassive,13,Papara SuperMassive
+34959,466,2021,3,Split,Paper Rex,10,Papara SuperMassive,13,Papara SuperMassive
+34947,466,2021,1,Haven,Vision Strikers,13,Paper Rex,9,Vision Strikers
+34947,466,2021,2,Icebox,Vision Strikers,13,Paper Rex,11,Vision Strikers
+34952,466,2021,1,Ascent,100 Thieves,13,Liberty,3,100 Thieves
+34952,466,2021,2,Icebox,100 Thieves,13,Liberty,6,100 Thieves
+85526,926,2022,1,Icebox,LOUD,13,Team Liquid,10,LOUD
+85526,926,2022,2,Haven,LOUD,3,Team Liquid,13,Team Liquid
+85526,926,2022,3,Ascent,LOUD,13,Team Liquid,10,LOUD
+85535,926,2022,1,Icebox,ZETA DIVISION,6,Paper Rex,13,Paper Rex
+85535,926,2022,2,Haven,ZETA DIVISION,13,Paper Rex,2,ZETA DIVISION
+85535,926,2022,3,Split,ZETA DIVISION,13,Paper Rex,10,ZETA DIVISION
+84373,926,2022,1,Icebox,OpTic Gaming,10,XERXIA Esports,13,XERXIA Esports
+84373,926,2022,2,Ascent,OpTic Gaming,10,XERXIA Esports,13,XERXIA Esports
+85531,926,2022,1,Fracture,ZETA DIVISION,13,Team Liquid,7,ZETA DIVISION
+85531,926,2022,2,Haven,ZETA DIVISION,4,Team Liquid,13,Team Liquid
+85531,926,2022,3,Split,ZETA DIVISION,13,Team Liquid,7,ZETA DIVISION
+84646,926,2022,1,Split,Ninjas In Pyjamas,13,ZETA DIVISION,6,Ninjas In Pyjamas
+84646,926,2022,2,Fracture,Ninjas In Pyjamas,12,ZETA DIVISION,14,ZETA DIVISION
+84646,926,2022,3,Icebox,Ninjas In Pyjamas,10,ZETA DIVISION,13,ZETA DIVISION
+85529,926,2022,1,Fracture,LOUD,2,OpTic Gaming,13,OpTic Gaming
+85529,926,2022,2,Ascent,LOUD,13,OpTic Gaming,8,LOUD
+85529,926,2022,3,Icebox,LOUD,13,OpTic Gaming,11,LOUD
+84371,926,2022,1,Ascent,FNATIC,7,Ninjas In Pyjamas,13,Ninjas In Pyjamas
+84371,926,2022,2,Split,FNATIC,8,Ninjas In Pyjamas,13,Ninjas In Pyjamas
+85528,926,2022,1,Ascent,KIWOOM DRX,13,OpTic Gaming,8,KIWOOM DRX
+85528,926,2022,2,Icebox,KIWOOM DRX,11,OpTic Gaming,13,OpTic Gaming
+85528,926,2022,3,Split,KIWOOM DRX,13,OpTic Gaming,15,OpTic Gaming
+84644,926,2022,1,Icebox,Ninjas In Pyjamas,4,KIWOOM DRX,13,KIWOOM DRX
+84644,926,2022,2,Breeze,Ninjas In Pyjamas,8,KIWOOM DRX,13,KIWOOM DRX
+84372,926,2022,1,Icebox,KIWOOM DRX,13,ZETA DIVISION,2,KIWOOM DRX
+84372,926,2022,2,Haven,KIWOOM DRX,13,ZETA DIVISION,3,KIWOOM DRX
+85523,926,2022,1,Split,G2 Esports,13,ZETA DIVISION,7,G2 Esports
+85523,926,2022,2,Bind,G2 Esports,13,ZETA DIVISION,10,G2 Esports
+85525,926,2022,1,Haven,Paper Rex,13,KIWOOM DRX,10,Paper Rex
+85525,926,2022,2,Bind,Paper Rex,8,KIWOOM DRX,13,KIWOOM DRX
+85525,926,2022,3,Ascent,Paper Rex,8,KIWOOM DRX,13,KIWOOM DRX
+85534,926,2022,1,Split,G2 Esports,10,Paper Rex,13,Paper Rex
+85534,926,2022,2,Bind,G2 Esports,7,Paper Rex,13,Paper Rex
+85532,926,2022,1,Haven,Paper Rex,13,The Guard,10,Paper Rex
+85532,926,2022,2,Split,Paper Rex,13,The Guard,8,Paper Rex
+85527,926,2022,1,Ascent,G2 Esports,5,LOUD,13,LOUD
+85527,926,2022,2,Breeze,G2 Esports,11,LOUD,13,LOUD
+85524,926,2022,1,Icebox,The Guard,7,OpTic Gaming,13,OpTic Gaming
+85524,926,2022,2,Haven,The Guard,13,OpTic Gaming,7,The Guard
+85524,926,2022,3,Fracture,The Guard,11,OpTic Gaming,13,OpTic Gaming
+84647,926,2022,1,Split,XERXIA Esports,7,Team Liquid,13,Team Liquid
+84647,926,2022,2,Icebox,XERXIA Esports,13,Team Liquid,11,XERXIA Esports
+84647,926,2022,3,Ascent,XERXIA Esports,15,Team Liquid,17,Team Liquid
+84648,926,2022,1,Bind,OpTic Gaming,13,KRÜ Esports,5,OpTic Gaming
+84648,926,2022,2,Ascent,OpTic Gaming,13,KRÜ Esports,10,OpTic Gaming
+84649,926,2022,1,Fracture,XERXIA Esports,9,OpTic Gaming,13,OpTic Gaming
+84649,926,2022,2,Haven,XERXIA Esports,6,OpTic Gaming,13,OpTic Gaming
+84374,926,2022,1,Fracture,KRÜ Esports,5,Team Liquid,13,Team Liquid
+84374,926,2022,2,Ascent,KRÜ Esports,14,Team Liquid,16,Team Liquid
+84645,926,2022,1,Fracture,FNATIC,7,ZETA DIVISION,13,ZETA DIVISION
+84645,926,2022,2,Icebox,FNATIC,11,ZETA DIVISION,13,ZETA DIVISION
+85530,926,2022,1,Ascent,LOUD,9,OpTic Gaming,13,OpTic Gaming
+85530,926,2022,2,Bind,LOUD,12,OpTic Gaming,14,OpTic Gaming
+85530,926,2022,3,Breeze,LOUD,13,OpTic Gaming,15,OpTic Gaming
+85533,926,2022,1,Icebox,KIWOOM DRX,11,ZETA DIVISION,13,ZETA DIVISION
+85533,926,2022,2,Ascent,KIWOOM DRX,13,ZETA DIVISION,10,KIWOOM DRX
+85533,926,2022,3,Split,KIWOOM DRX,4,ZETA DIVISION,13,ZETA DIVISION
+85536,926,2022,1,Haven,OpTic Gaming,15,ZETA DIVISION,13,OpTic Gaming
+85536,926,2022,2,Fracture,OpTic Gaming,13,ZETA DIVISION,5,OpTic Gaming
+85536,926,2022,3,Bind,OpTic Gaming,13,ZETA DIVISION,8,OpTic Gaming

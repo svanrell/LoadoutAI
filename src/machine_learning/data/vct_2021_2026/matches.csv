@@ -1,0 +1,446 @@
+match_id,event_id,event_title,year,date,time,stage,round,team1,team1_id,team1_score,team2,team2_id,team2_score,winner,map_count
+112287,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-11,17:00:00,Group Stage,Opening (B),FunPlus Phoenix,628,2,XERXIA Esports,7397,1,FunPlus Phoenix,3
+112325,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-17,20:00:00,Playoffs,Upper Semifinals,KIWOOM DRX,8185,1,OpTic Gaming,8127,2,OpTic Gaming,3
+112328,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-16,17:00:00,Playoffs,Lower Round 1,Guild Esports,1209,1,FunPlus Phoenix,628,2,FunPlus Phoenix,3
+112286,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-13,20:00:00,Group Stage,Decider (A),KRÜ Esports,2355,0,OpTic Gaming,8127,2,OpTic Gaming,2
+112329,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-16,20:25:00,Playoffs,Lower Round 1,LEVIATÁN,2359,2,XSET,533,1,LEVIATÁN,3
+112288,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-10,15:00:00,Group Stage,Opening (B),KIWOOM DRX,8185,2,NORTHEPTION,2988,0,KIWOOM DRX,2
+112290,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-12,18:35:00,Group Stage,Elimination (B),XERXIA Esports,7397,1,NORTHEPTION,2988,2,NORTHEPTION,3
+112291,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-13,17:00:00,Group Stage,Decider (B),FunPlus Phoenix,628,2,NORTHEPTION,2988,0,FunPlus Phoenix,2
+112283,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-10,17:45:00,Group Stage,Opening (A),LOUD,6961,1,KRÜ Esports,2355,2,KRÜ Esports,3
+112285,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-12,22:00:00,Group Stage,Elimination (A),OpTic Gaming,8127,2,LOUD,6961,1,OpTic Gaming,3
+112323,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-15,20:45:00,Playoffs,Upper Quarterfinals,XSET,533,0,OpTic Gaming,8127,2,OpTic Gaming,2
+112284,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-11,20:50:00,Group Stage,Winner's (A),Guild Esports,1209,2,KRÜ Esports,2355,1,Guild Esports,3
+112322,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-15,17:00:00,Playoffs,Upper Quarterfinals,LEVIATÁN,2359,1,KIWOOM DRX,8185,2,KIWOOM DRX,3
+112289,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-12,15:00:00,Group Stage,Winner's (B),FunPlus Phoenix,628,1,KIWOOM DRX,8185,2,KIWOOM DRX,3
+112332,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-22,20:15:00,Playoffs,Lower Round 3,FunPlus Phoenix,628,2,FNATIC,2593,1,FunPlus Phoenix,3
+112331,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-18,17:00:00,Playoffs,Lower Round 2,FNATIC,2593,2,LEVIATÁN,2359,1,FNATIC,3
+112327,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-24,17:00:00,Playoffs,Grand Final,Paper Rex,624,2,FunPlus Phoenix,628,3,FunPlus Phoenix,5
+112324,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-17,17:00:00,Playoffs,Upper Semifinals,Paper Rex,624,2,FNATIC,2593,0,Paper Rex,2
+112326,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-22,17:00:00,Playoffs,Upper Final,Paper Rex,624,2,OpTic Gaming,8127,1,Paper Rex,3
+112282,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-10,21:35:00,Group Stage,Opening (A),OpTic Gaming,8127,0,Guild Esports,1209,2,Guild Esports,2
+112334,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-23,17:00:00,Playoffs,Lower Final,OpTic Gaming,8127,1,FunPlus Phoenix,628,3,FunPlus Phoenix,4
+112330,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-18,21:25:00,Playoffs,Lower Round 2,KIWOOM DRX,8185,0,FunPlus Phoenix,628,2,FunPlus Phoenix,2
+112320,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-14,17:00:00,Playoffs,Upper Quarterfinals,Paper Rex,624,2,Guild Esports,1209,0,Paper Rex,2
+112321,1014,Valorant Champions Tour Stage 2: Masters Copenhagen,2022,2022-07-14,19:35:00,Playoffs,Upper Quarterfinals,FNATIC,2593,2,FunPlus Phoenix,628,0,FNATIC,2
+130628,1015,Valorant Champions 2022,2022,2022-09-03,14:00:00,Group Stage,Opening (C),XSET,533,2,XERXIA Esports,7397,0,XSET,2
+130680,1015,Valorant Champions 2022,2022,2022-09-10,16:00:00,Playoffs,Upper Quarterfinals,OpTic Gaming,8127,2,Team Liquid,474,1,OpTic Gaming,3
+130622,1015,Valorant Champions 2022,2022,2022-09-01,16:45:00,Group Stage,Opening (B),OpTic Gaming,8127,2,BOOM Esports,466,1,OpTic Gaming,3
+130629,1015,Valorant Champions 2022,2022,2022-09-05,21:10:00,Group Stage,Winner's (C),FunPlus Phoenix,628,1,XSET,533,2,XSET,3
+130687,1015,Valorant Champions 2022,2022,2022-09-11,18:55:00,Playoffs,Lower Round 1,Team Liquid,474,0,FNATIC,2593,2,FNATIC,2
+130632,1015,Valorant Champions 2022,2022,2022-09-02,14:00:00,Group Stage,Opening (D),KIWOOM DRX,8185,2,FURIA,2406,0,KIWOOM DRX,2
+130682,1015,Valorant Champions 2022,2022,2022-09-12,16:00:00,Playoffs,Upper Semifinals,KIWOOM DRX,8185,0,LOUD,6961,2,LOUD,2
+130685,1015,Valorant Champions 2022,2022,2022-09-18,16:10:00,Playoffs,Grand Final,LOUD,6961,3,OpTic Gaming,8127,1,LOUD,4
+130689,1015,Valorant Champions 2022,2022,2022-09-13,16:00:00,Playoffs,Lower Round 2,KIWOOM DRX,8185,2,FNATIC,2593,1,KIWOOM DRX,3
+130631,1015,Valorant Champions 2022,2022,2022-09-08,16:00:00,Group Stage,Decider (C),FunPlus Phoenix,628,2,KRÜ Esports,2355,0,FunPlus Phoenix,2
+130688,1015,Valorant Champions 2022,2022,2022-09-13,20:10:00,Playoffs,Lower Round 2,XSET,533,1,FunPlus Phoenix,628,2,FunPlus Phoenix,3
+130623,1015,Valorant Champions 2022,2022,2022-09-01,14:00:00,Group Stage,Opening (B),ZETA DIVISION,5448,0,LOUD,6961,2,LOUD,2
+130683,1015,Valorant Champions 2022,2022,2022-09-12,18:40:00,Playoffs,Upper Semifinals,OpTic Gaming,8127,2,XSET,533,1,OpTic Gaming,3
+130636,1015,Valorant Champions 2022,2022,2022-09-08,18:35:00,Group Stage,Decider (D),100 Thieves,120,0,FNATIC,2593,2,FNATIC,2
+130619,1015,Valorant Champions 2022,2022,2022-09-01,20:35:00,Group Stage,Winner's (A),Paper Rex,624,0,LEVIATÁN,2359,2,LEVIATÁN,2
+130690,1015,Valorant Champions 2022,2022,2022-09-16,18:45:00,Playoffs,Lower Round 3,FunPlus Phoenix,628,0,KIWOOM DRX,8185,2,KIWOOM DRX,2
+130681,1015,Valorant Champions 2022,2022,2022-09-10,19:50:00,Playoffs,Upper Quarterfinals,XSET,533,2,FNATIC,2593,0,XSET,2
+130634,1015,Valorant Champions 2022,2022,2022-09-03,19:45:00,Group Stage,Winner's (D),KIWOOM DRX,8185,2,100 Thieves,120,0,KIWOOM DRX,2
+130627,1015,Valorant Champions 2022,2022,2022-09-03,17:00:00,Group Stage,Opening (C),FunPlus Phoenix,628,2,KRÜ Esports,2355,0,FunPlus Phoenix,2
+130620,1015,Valorant Champions 2022,2022,2022-09-04,17:45:00,Group Stage,Elimination (A),EDward Gaming,1120,0,Team Liquid,474,2,Team Liquid,2
+130691,1015,Valorant Champions 2022,2022,2022-09-17,16:00:00,Playoffs,Lower Final,OpTic Gaming,8127,3,KIWOOM DRX,8185,2,OpTic Gaming,5
+130686,1015,Valorant Champions 2022,2022,2022-09-11,16:00:00,Playoffs,Lower Round 1,FunPlus Phoenix,628,2,LEVIATÁN,2359,0,FunPlus Phoenix,2
+130621,1015,Valorant Champions 2022,2022,2022-09-07,16:00:00,Group Stage,Decider (A),Paper Rex,624,1,Team Liquid,474,2,Team Liquid,3
+130633,1015,Valorant Champions 2022,2022,2022-09-02,17:10:00,Group Stage,Opening (D),FNATIC,2593,1,100 Thieves,120,2,100 Thieves,3
+130635,1015,Valorant Champions 2022,2022,2022-09-05,17:20:00,Group Stage,Elimination (D),FURIA,2406,1,FNATIC,2593,2,FNATIC,3
+130626,1015,Valorant Champions 2022,2022,2022-09-07,20:00:00,Group Stage,Decider (B),LOUD,6961,2,ZETA DIVISION,5448,0,LOUD,2
+130617,1015,Valorant Champions 2022,2022,2022-08-31,16:00:00,Group Stage,Opening (A),Paper Rex,624,2,EDward Gaming,1120,1,Paper Rex,3
+130684,1015,Valorant Champions 2022,2022,2022-09-16,16:15:00,Playoffs,Upper Final,LOUD,6961,2,OpTic Gaming,8127,0,LOUD,2
+130624,1015,Valorant Champions 2022,2022,2022-09-02,21:00:00,Group Stage,Winner's (B),OpTic Gaming,8127,2,LOUD,6961,1,OpTic Gaming,3
+130625,1015,Valorant Champions 2022,2022,2022-09-04,14:00:00,Group Stage,Elimination (B),BOOM Esports,466,1,ZETA DIVISION,5448,2,ZETA DIVISION,3
+130679,1015,Valorant Champions 2022,2022,2022-09-09,16:00:00,Playoffs,Upper Quarterfinals,LEVIATÁN,2359,0,LOUD,6961,2,LOUD,2
+130678,1015,Valorant Champions 2022,2022,2022-09-09,19:00:00,Playoffs,Upper Quarterfinals,KIWOOM DRX,8185,2,FunPlus Phoenix,628,0,KIWOOM DRX,2
+130630,1015,Valorant Champions 2022,2022,2022-09-05,14:00:00,Group Stage,Elimination (C),KRÜ Esports,2355,2,XERXIA Esports,7397,1,KRÜ Esports,3
+130618,1015,Valorant Champions 2022,2022,2022-08-31,19:35:00,Group Stage,Opening (A),LEVIATÁN,2359,2,Team Liquid,474,0,LEVIATÁN,2
+167391,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-03-02,19:00:00,Playoffs,Semifinals,LOUD,6961,3,KIWOOM DRX,8185,2,LOUD,5
+167350,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-16,00:20:00,Bracket Stage,Alpha - Round of 16,Gen.G,17,0,LOUD,6961,2,LOUD,2
+167360,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-19,19:05:00,Bracket Stage,Alpha - Semifinals,NRG,1034,1,LOUD,6961,2,LOUD,3
+167368,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-24,19:05:00,Bracket Stage,Omega - Round of 16,Sentinels,2,0,FNATIC,2593,2,FNATIC,2
+167367,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-24,00:30:00,Bracket Stage,Omega - Round of 16,100 Thieves,120,2,EDward Gaming,1120,1,100 Thieves,3
+180279,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-03-04,19:00:00,Showmatch,Showmatch,Team tarik,12065,0,Team FRTTT,12066,1,Team FRTTT,1
+167361,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-19,23:00:00,Bracket Stage,Alpha - Semifinals,KIWOOM DRX,8185,2,TALON,8304,1,KIWOOM DRX,3
+167352,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-14,22:45:00,Bracket Stage,Alpha - Round of 16,BBL Esports,397,1,KIWOOM DRX,8185,2,KIWOOM DRX,3
+167372,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-26,19:00:00,Bracket Stage,Omega - Quarterfinals,FUT Esports,1184,1,100 Thieves,120,2,100 Thieves,3
+167348,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-13,19:10:00,Bracket Stage,Alpha - Round of 16,KOI,7035,0,NRG,1034,2,NRG,2
+167365,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-23,19:05:00,Bracket Stage,Omega - Round of 16,Team Vitality,2059,2,Global Esports,918,1,Team Vitality,3
+167353,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-15,02:05:00,Bracket Stage,Alpha - Round of 16,Cloud9,188,2,Paper Rex,624,0,Cloud9,2
+167366,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-23,22:10:00,Bracket Stage,Omega - Round of 16,FUT Esports,1184,2,Rex Regum Qeon,878,0,FUT Esports,2
+167362,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-22,19:00:00,Bracket Stage,Omega - Round of 16,Team Liquid,474,0,Team Secret,6199,2,Team Secret,2
+167351,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-14,19:10:00,Bracket Stage,Alpha - Round of 16,FunPlus Phoenix,11328,1,Karmine Corp,8877,2,Karmine Corp,3
+167354,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-15,19:00:00,Bracket Stage,Alpha - Round of 16,Team Heretics,1001,0,Evil Geniuses,5248,2,Evil Geniuses,2
+167393,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-03-04,20:30:00,Playoffs,Grand Final,LOUD,6961,2,FNATIC,2593,3,FNATIC,5
+167373,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-26,22:35:00,Bracket Stage,Omega - Quarterfinals,FNATIC,2593,2,FURIA,2406,0,FNATIC,2
+167349,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-13,22:05:00,Bracket Stage,Alpha - Round of 16,DetonatioN FocusMe,278,0,Giants Gaming,2304,2,Giants Gaming,2
+167356,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-17,19:05:00,Bracket Stage,Alpha - Quarterfinals,NRG,1034,2,Giants Gaming,2304,1,NRG,3
+167392,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-03-03,19:00:00,Playoffs,Semifinals,Natus Vincere,4915,0,FNATIC,2593,3,FNATIC,3
+167358,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-18,19:05:00,Bracket Stage,Alpha - Quarterfinals,KIWOOM DRX,8185,2,Cloud9,188,1,KIWOOM DRX,3
+167375,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-27,21:25:00,Bracket Stage,Omega - Semifinals,100 Thieves,120,0,FNATIC,2593,2,FNATIC,2
+167374,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-27,19:00:00,Bracket Stage,Omega - Semifinals,Natus Vincere,4915,2,LEVIATÁN,2359,0,Natus Vincere,2
+167363,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-22,21:30:00,Bracket Stage,Omega - Round of 16,Natus Vincere,4915,2,KRÜ Esports,2355,0,Natus Vincere,2
+167370,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-25,19:00:00,Bracket Stage,Omega - Quarterfinals,Team Secret,6199,0,Natus Vincere,4915,2,Natus Vincere,2
+167357,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-17,22:35:00,Bracket Stage,Alpha - Quarterfinals,LOUD,6961,2,Karmine Corp,8877,0,LOUD,2
+167355,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-15,21:35:00,Bracket Stage,Alpha - Round of 16,MIBR,7386,0,TALON,8304,2,TALON,2
+167371,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-25,21:30:00,Bracket Stage,Omega - Quarterfinals,LEVIATÁN,2359,2,Team Vitality,2059,0,LEVIATÁN,2
+167364,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-23,00:00:00,Bracket Stage,Omega - Round of 16,ZETA DIVISION,5448,0,LEVIATÁN,2359,2,LEVIATÁN,2
+167359,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-18,22:00:00,Bracket Stage,Alpha - Quarterfinals,Evil Geniuses,5248,0,TALON,8304,2,TALON,2
+167369,1188,Champions Tour 2023: LOCK//IN São Paulo,2023,2023-02-24,21:50:00,Bracket Stage,Omega - Round of 16,T1,14,0,FURIA,2406,2,FURIA,2
+220447,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-21,05:00:00,Playoffs,Upper Final,FNATIC,2593,2,Evil Geniuses,5248,1,FNATIC,3
+220444,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-16,05:00:00,Playoffs,Upper Quarterfinals,LOUD,6961,0,Evil Geniuses,5248,2,Evil Geniuses,2
+220452,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-20,08:45:00,Playoffs,Lower Round 2,Paper Rex,624,2,EDward Gaming,1120,1,Paper Rex,3
+220448,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-25,06:30:00,Playoffs,Grand Final,FNATIC,2593,3,Evil Geniuses,5248,0,FNATIC,3
+220450,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-18,05:00:00,Playoffs,Lower Round 1,EDward Gaming,1120,2,LOUD,6961,0,EDward Gaming,2
+220441,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-17,07:30:00,Playoffs,Upper Quarterfinals,Paper Rex,624,2,KIWOOM DRX,8185,0,Paper Rex,2
+220297,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-11,05:00:00,Group Stage,Opening (B),FUT Esports,1184,0,Evil Geniuses,5248,2,Evil Geniuses,2
+220295,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-14,08:15:00,Group Stage,Decider (A),T1,14,0,EDward Gaming,1120,2,EDward Gaming,2
+220442,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-17,05:00:00,Playoffs,Upper Quarterfinals,FNATIC,2593,2,NRG,1034,0,FNATIC,2
+220446,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-19,05:00:00,Playoffs,Upper Semifinals,Team Liquid,474,0,Evil Geniuses,5248,2,Evil Geniuses,2
+220449,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-18,07:35:00,Playoffs,Lower Round 1,KIWOOM DRX,8185,0,NRG,1034,2,NRG,2
+220298,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-12,08:30:00,Group Stage,Winner's (B),KIWOOM DRX,8185,0,Evil Geniuses,5248,2,Evil Geniuses,2
+220300,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-14,05:00:00,Group Stage,Decider (B),KIWOOM DRX,8185,2,FUT Esports,1184,1,KIWOOM DRX,3
+220453,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-21,08:25:00,Playoffs,Lower Round 3,NRG,1034,1,Paper Rex,624,2,Paper Rex,3
+220299,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-13,08:45:00,Group Stage,Elimination (B),Attacking Soul Esports,1837,1,FUT Esports,1184,2,FUT Esports,3
+220294,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-13,11:45:00,Group Stage,Elimination (A),Natus Vincere,4915,0,EDward Gaming,1120,2,EDward Gaming,2
+220451,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-20,05:00:00,Playoffs,Lower Round 2,Team Liquid,474,1,NRG,1034,2,NRG,3
+220292,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-11,10:15:00,Group Stage,Opening (A),EDward Gaming,1120,1,T1,14,2,T1,3
+220293,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-13,05:00:00,Group Stage,Winner's (A),NRG,1034,2,T1,14,1,NRG,3
+220445,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-19,07:15:00,Playoffs,Upper Semifinals,Paper Rex,624,0,FNATIC,2593,2,FNATIC,2
+220443,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-16,07:30:00,Playoffs,Upper Quarterfinals,Team Liquid,474,2,EDward Gaming,1120,1,Team Liquid,3
+220290,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-12,05:00:00,Group Stage,Opening (A),NRG,1034,2,Natus Vincere,4915,1,NRG,3
+220454,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-24,05:00:00,Playoffs,Lower Final,Evil Geniuses,5248,3,Paper Rex,624,2,Evil Geniuses,5
+220296,1494,Champions Tour 2023: Masters Tokyo,2023,2023-06-11,07:45:00,Group Stage,Opening (B),KIWOOM DRX,8185,2,Attacking Soul Esports,1837,0,KIWOOM DRX,2
+247103,1657,Valorant Champions 2023,2023,2023-08-10,21:00:00,Group Stage,Elimination (D),Team Liquid,474,0,LOUD,6961,2,LOUD,2
+247086,1657,Valorant Champions 2023,2023,2023-08-07,23:10:00,Group Stage,Opening (B),Evil Geniuses,5248,2,FunPlus Phoenix,11328,0,Evil Geniuses,2
+248275,1657,Valorant Champions 2023,2023,2023-08-20,00:25:00,Playoffs,Upper Semifinals,KIWOOM DRX,8185,0,Evil Geniuses,5248,2,Evil Geniuses,2
+247096,1657,Valorant Champions 2023,2023,2023-08-11,23:45:00,Group Stage,Elimination (C),ZETA DIVISION,5448,0,NRG,1034,2,NRG,2
+247087,1657,Valorant Champions 2023,2023,2023-08-07,21:00:00,Group Stage,Opening (B),FUT Esports,1184,2,T1,14,0,FUT Esports,2
+248279,1657,Valorant Champions 2023,2023,2023-08-18,23:10:00,Playoffs,Lower Round 1,Bilibili Gaming,12010,1,EDward Gaming,1120,2,EDward Gaming,3
+247090,1657,Valorant Champions 2023,2023,2023-08-13,00:55:00,Group Stage,Decider (B),FUT Esports,1184,2,T1,14,0,FUT Esports,2
+248274,1657,Valorant Champions 2023,2023,2023-08-19,21:00:00,Playoffs,Upper Semifinals,LOUD,6961,1,Paper Rex,624,2,Paper Rex,3
+247075,1657,Valorant Champions 2023,2023,2023-08-09,21:00:00,Group Stage,Opening (A),Paper Rex,624,2,KRÜ Esports,2355,0,Paper Rex,2
+247098,1657,Valorant Champions 2023,2023,2023-08-13,23:15:00,Group Stage,Decider (C),Bilibili Gaming,12010,2,NRG,1034,0,Bilibili Gaming,2
+247102,1657,Valorant Champions 2023,2023,2023-08-08,01:15:00,Group Stage,Winner's (D),Natus Vincere,4915,1,KIWOOM DRX,8185,2,KIWOOM DRX,3
+247079,1657,Valorant Champions 2023,2023,2023-08-13,21:00:00,Group Stage,Decider (A),EDward Gaming,1120,2,Giants Gaming,2304,0,EDward Gaming,2
+248270,1657,Valorant Champions 2023,2023,2023-08-16,21:00:00,Playoffs,Upper Quarterfinals,FNATIC,2593,0,LOUD,6961,2,LOUD,2
+247101,1657,Valorant Champions 2023,2023,2023-08-07,00:20:00,Group Stage,Opening (D),KIWOOM DRX,8185,2,LOUD,6961,1,KIWOOM DRX,3
+248273,1657,Valorant Champions 2023,2023,2023-08-17,23:25:00,Playoffs,Upper Quarterfinals,Evil Geniuses,5248,2,EDward Gaming,1120,1,Evil Geniuses,3
+247078,1657,Valorant Champions 2023,2023,2023-08-11,21:00:00,Group Stage,Elimination (A),KRÜ Esports,2355,0,Giants Gaming,2304,2,Giants Gaming,2
+247088,1657,Valorant Champions 2023,2023,2023-08-09,01:40:00,Group Stage,Winner's (B),Evil Geniuses,5248,2,FUT Esports,1184,0,Evil Geniuses,2
+248282,1657,Valorant Champions 2023,2023,2023-08-25,00:45:00,Playoffs,Lower Round 3,FNATIC,2593,1,LOUD,6961,2,LOUD,3
+248281,1657,Valorant Champions 2023,2023,2023-08-20,21:00:00,Playoffs,Lower Round 2,LOUD,6961,2,EDward Gaming,1120,1,LOUD,3
+248278,1657,Valorant Champions 2023,2023,2023-08-18,21:00:00,Playoffs,Lower Round 1,FNATIC,2593,2,FUT Esports,1184,0,FNATIC,2
+248271,1657,Valorant Champions 2023,2023,2023-08-16,23:25:00,Playoffs,Upper Quarterfinals,Paper Rex,624,2,FUT Esports,1184,0,Paper Rex,2
+248280,1657,Valorant Champions 2023,2023,2023-08-21,00:20:00,Playoffs,Lower Round 2,KIWOOM DRX,8185,1,FNATIC,2593,2,FNATIC,3
+248277,1657,Valorant Champions 2023,2023,2023-08-26,21:30:00,Playoffs,Grand Final,Paper Rex,624,1,Evil Geniuses,5248,3,Evil Geniuses,4
+247089,1657,Valorant Champions 2023,2023,2023-08-10,23:25:00,Group Stage,Elimination (B),FunPlus Phoenix,11328,0,T1,14,2,T1,2
+247093,1657,Valorant Champions 2023,2023,2023-08-08,23:35:00,Group Stage,Opening (C),FNATIC,2593,2,ZETA DIVISION,5448,0,FNATIC,2
+248276,1657,Valorant Champions 2023,2023,2023-08-24,21:00:00,Playoffs,Upper Final,Paper Rex,624,2,Evil Geniuses,5248,1,Paper Rex,3
+248272,1657,Valorant Champions 2023,2023,2023-08-17,21:00:00,Playoffs,Upper Quarterfinals,KIWOOM DRX,8185,2,Bilibili Gaming,12010,0,KIWOOM DRX,2
+247094,1657,Valorant Champions 2023,2023,2023-08-08,21:00:00,Group Stage,Opening (C),NRG,1034,0,Bilibili Gaming,12010,2,Bilibili Gaming,2
+247076,1657,Valorant Champions 2023,2023,2023-08-09,23:15:00,Group Stage,Opening (A),EDward Gaming,1120,2,Giants Gaming,2304,1,EDward Gaming,3
+247104,1657,Valorant Champions 2023,2023,2023-08-12,21:00:00,Group Stage,Decider (D),Natus Vincere,4915,1,LOUD,6961,2,LOUD,3
+248283,1657,Valorant Champions 2023,2023,2023-08-25,21:00:00,Playoffs,Lower Final,Evil Geniuses,5248,3,LOUD,6961,2,Evil Geniuses,5
+247077,1657,Valorant Champions 2023,2023,2023-08-11,01:45:00,Group Stage,Winner's (A),Paper Rex,624,2,EDward Gaming,1120,0,Paper Rex,2
+247100,1657,Valorant Champions 2023,2023,2023-08-06,21:00:00,Group Stage,Opening (D),Team Liquid,474,0,Natus Vincere,4915,2,Natus Vincere,2
+247095,1657,Valorant Champions 2023,2023,2023-08-10,03:00:00,Group Stage,Winner's (C),FNATIC,2593,2,Bilibili Gaming,12010,0,FNATIC,2
+312777,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-21,17:00:00,Playoffs,Upper Semifinals,Gen.G,17,2,Paper Rex,624,0,Gen.G,2
+312776,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-21,19:10:00,Playoffs,Upper Semifinals,Sentinels,2,2,LOUD,6961,1,Sentinels,3
+312799,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-17,19:20:00,Swiss Stage,Round 2,Team Heretics,1001,1,Paper Rex,624,2,Paper Rex,3
+312768,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-15,20:15:00,Swiss Stage,Round 1,Sentinels,2,2,Team Heretics,1001,1,Sentinels,3
+312798,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-16,17:00:00,Swiss Stage,Round 2,Sentinels,2,2,Karmine Corp,8877,0,Sentinels,2
+312800,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-17,17:00:00,Swiss Stage,Round 2,FunPlus Phoenix,11328,0,LOUD,6961,2,LOUD,2
+312767,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-15,17:00:00,Swiss Stage,Round 1,EDward Gaming,1120,2,Paper Rex,624,1,EDward Gaming,3
+312765,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-14,17:00:00,Swiss Stage,Round 1,Karmine Corp,8877,2,FunPlus Phoenix,11328,0,Karmine Corp,2
+312781,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-23,17:00:00,Playoffs,Lower Final,Sentinels,2,3,Paper Rex,624,1,Sentinels,4
+312778,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-22,17:00:00,Playoffs,Upper Final,Gen.G,17,2,Sentinels,2,1,Gen.G,3
+312779,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-24,18:15:00,Playoffs,Grand Final,Gen.G,17,2,Sentinels,2,3,Sentinels,5
+321373,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-24,17:00:00,Showmatch,Showmatch,Team International,15315,0,Team Spain,15316,1,Team Spain,1
+312797,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-16,19:25:00,Swiss Stage,Round 2,EDward Gaming,1120,1,Gen.G,17,2,Gen.G,3
+312802,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-18,18:55:00,Swiss Stage,Round 3,Karmine Corp,8877,1,Paper Rex,624,2,Paper Rex,3
+312803,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-18,17:00:00,Swiss Stage,Round 3,LOUD,6961,2,EDward Gaming,1120,0,LOUD,2
+312766,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-14,19:25:00,Swiss Stage,Round 1,Gen.G,17,2,LOUD,6961,1,Gen.G,3
+312780,1921,Champions Tour 2024: Masters Madrid,2024,2024-03-22,19:55:00,Playoffs,Lower Round 1,Paper Rex,624,2,LOUD,6961,0,Paper Rex,2
+348476,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-09,10:15:00,Playoffs,Grand Final,Gen.G,17,3,Team Heretics,1001,2,Gen.G,5
+348459,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-26,10:00:00,Swiss Stage,Round 2,LEVIATÁN,2359,2,T1,14,0,LEVIATÁN,2
+348470,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-02,10:00:00,Playoffs,Upper Semifinals,100 Thieves,120,0,Gen.G,17,2,Gen.G,2
+348472,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-03,13:10:00,Playoffs,Lower Round 2,Team Heretics,1001,2,FUT Esports,1184,0,Team Heretics,2
+348461,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-27,13:35:00,Swiss Stage,Round 3,FUT Esports,1184,2,LEVIATÁN,2359,1,FUT Esports,3
+348064,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-24,10:00:00,Swiss Stage,Round 1,Gen.G,17,2,LEVIATÁN,2359,1,Gen.G,3
+348473,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-07,09:00:00,Playoffs,Upper Final,G2 Esports,11058,0,Gen.G,17,2,Gen.G,2
+348471,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-03,10:00:00,Playoffs,Lower Round 2,100 Thieves,120,2,Paper Rex,624,1,100 Thieves,3
+348475,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-08,09:00:00,Playoffs,Lower Final,G2 Esports,11058,0,Team Heretics,1001,3,Team Heretics,3
+348063,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-23,10:00:00,Swiss Stage,Round 1,G2 Esports,11058,2,T1,14,1,G2 Esports,3
+348467,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-01,13:00:00,Playoffs,Lower Round 1,Paper Rex,624,2,EDward Gaming,1120,0,Paper Rex,2
+348463,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-31,10:00:00,Playoffs,Upper Quarterfinals,Paper Rex,624,1,G2 Esports,11058,2,G2 Esports,3
+348464,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-31,13:00:00,Playoffs,Upper Quarterfinals,EDward Gaming,1120,0,Team Heretics,1001,2,Team Heretics,2
+348465,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-30,10:00:00,Playoffs,Upper Quarterfinals,100 Thieves,120,2,FUT Esports,1184,0,100 Thieves,2
+348474,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-07,11:25:00,Playoffs,Lower Round 3,100 Thieves,120,0,Team Heretics,1001,2,Team Heretics,2
+348462,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-27,10:00:00,Swiss Stage,Round 3,FunPlus Phoenix,11328,1,Team Heretics,1001,2,Team Heretics,3
+348469,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-02,12:15:00,Playoffs,Upper Semifinals,G2 Esports,11058,2,Team Heretics,1001,1,G2 Esports,3
+348468,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-01,10:00:00,Playoffs,Lower Round 1,FUT Esports,1184,2,FNATIC,2593,1,FUT Esports,3
+348460,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-26,12:10:00,Swiss Stage,Round 2,Dragon Ranger Gaming,11981,0,FUT Esports,1184,2,FUT Esports,2
+348458,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-25,10:00:00,Swiss Stage,Round 2,FunPlus Phoenix,11328,1,Gen.G,17,2,Gen.G,3
+348061,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-23,13:10:00,Swiss Stage,Round 1,FunPlus Phoenix,11328,2,FUT Esports,1184,1,FunPlus Phoenix,3
+348466,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-30,12:00:00,Playoffs,Upper Quarterfinals,FNATIC,2593,1,Gen.G,17,2,Gen.G,3
+348059,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-24,13:00:00,Swiss Stage,Round 1,Team Heretics,1001,2,Dragon Ranger Gaming,11981,0,Team Heretics,2
+348457,1999,Champions Tour 2024: Masters Shanghai,2024,2024-05-25,13:40:00,Swiss Stage,Round 2,G2 Esports,11058,2,Team Heretics,1001,1,G2 Esports,3
+359463,1999,Champions Tour 2024: Masters Shanghai,2024,2024-06-09,09:00:00,Showmatch,Showmatch,Team International,15315,0,Team China,15805,1,Team China,1
+378825,2097,Valorant Champions 2024,2024,2024-08-15,12:35:00,Playoffs,Upper Quarterfinals,Team Heretics,1001,2,FNATIC,2593,0,Team Heretics,2
+378667,2097,Valorant Champions 2024,2024,2024-08-03,10:00:00,Group Stage,Opening (C),LEVIATÁN,2359,2,TALON,8304,0,LEVIATÁN,2
+378660,2097,Valorant Champions 2024,2024,2024-08-10,12:15:00,Group Stage,Decider (A),FNATIC,2593,2,KRÜ Esports,2355,1,FNATIC,3
+378677,2097,Valorant Champions 2024,2024,2024-08-11,12:15:00,Group Stage,Decider (D),EDward Gaming,1120,2,Paper Rex,624,1,EDward Gaming,3
+378674,2097,Valorant Champions 2024,2024,2024-08-04,10:00:00,Group Stage,Opening (D),G2 Esports,11058,2,Paper Rex,624,0,G2 Esports,2
+378665,2097,Valorant Champions 2024,2024,2024-08-08,10:00:00,Group Stage,Elimination (B),Sentinels,2,2,FunPlus Phoenix,11328,0,Sentinels,2
+378836,2097,Valorant Champions 2024,2024,2024-08-24,09:00:00,Playoffs,Lower Final,LEVIATÁN,2359,1,Team Heretics,1001,3,Team Heretics,4
+378673,2097,Valorant Champions 2024,2024,2024-08-04,12:15:00,Group Stage,Opening (D),EDward Gaming,1120,2,FUT Esports,1184,0,EDward Gaming,2
+378824,2097,Valorant Champions 2024,2024,2024-08-15,10:00:00,Playoffs,Upper Quarterfinals,G2 Esports,11058,0,LEVIATÁN,2359,2,LEVIATÁN,2
+378663,2097,Valorant Champions 2024,2024,2024-08-01,12:25:00,Group Stage,Opening (B),FunPlus Phoenix,11328,1,Team Heretics,1001,2,Team Heretics,3
+378833,2097,Valorant Champions 2024,2024,2024-08-18,13:25:00,Playoffs,Lower Round 2,Team Heretics,1001,2,KIWOOM DRX,8185,1,Team Heretics,3
+378656,2097,Valorant Champions 2024,2024,2024-08-02,13:00:00,Group Stage,Opening (A),FNATIC,2593,2,Bilibili Gaming,12010,0,FNATIC,2
+378826,2097,Valorant Champions 2024,2024,2024-08-17,10:00:00,Playoffs,Upper Semifinals,Sentinels,2,1,EDward Gaming,1120,2,EDward Gaming,3
+378822,2097,Valorant Champions 2024,2024,2024-08-14,10:00:00,Playoffs,Upper Quarterfinals,KIWOOM DRX,8185,0,Sentinels,2,2,Sentinels,2
+378666,2097,Valorant Champions 2024,2024,2024-08-10,10:00:00,Group Stage,Decider (B),Gen.G,17,0,Sentinels,2,2,Sentinels,2
+378669,2097,Valorant Champions 2024,2024,2024-08-03,12:30:00,Group Stage,Opening (C),Team Vitality,2059,1,Trace Esports,12685,2,Trace Esports,3
+378834,2097,Valorant Champions 2024,2024,2024-08-18,10:00:00,Playoffs,Lower Round 2,Sentinels,2,2,FNATIC,2593,1,Sentinels,3
+378671,2097,Valorant Champions 2024,2024,2024-08-09,10:00:00,Group Stage,Elimination (C),TALON,8304,0,Team Vitality,2059,2,Team Vitality,2
+378676,2097,Valorant Champions 2024,2024,2024-08-09,12:25:00,Group Stage,Elimination (D),FUT Esports,1184,0,Paper Rex,624,2,Paper Rex,2
+378664,2097,Valorant Champions 2024,2024,2024-08-06,10:00:00,Group Stage,Winner's (B),Gen.G,17,1,Team Heretics,1001,2,Team Heretics,3
+378670,2097,Valorant Champions 2024,2024,2024-08-07,10:00:00,Group Stage,Winner's (C),LEVIATÁN,2359,1,Trace Esports,12685,2,Trace Esports,3
+378658,2097,Valorant Champions 2024,2024,2024-08-06,13:35:00,Group Stage,Winner's (A),FNATIC,2593,0,KIWOOM DRX,8185,2,KIWOOM DRX,2
+378659,2097,Valorant Champions 2024,2024,2024-08-08,12:10:00,Group Stage,Elimination (A),Bilibili Gaming,12010,0,KRÜ Esports,2355,2,KRÜ Esports,2
+378827,2097,Valorant Champions 2024,2024,2024-08-17,13:15:00,Playoffs,Upper Semifinals,LEVIATÁN,2359,2,Team Heretics,1001,0,LEVIATÁN,2
+378835,2097,Valorant Champions 2024,2024,2024-08-23,12:45:00,Playoffs,Lower Round 3,Team Heretics,1001,2,Sentinels,2,1,Team Heretics,3
+378832,2097,Valorant Champions 2024,2024,2024-08-16,11:50:00,Playoffs,Lower Round 1,G2 Esports,11058,0,FNATIC,2593,2,FNATIC,2
+378823,2097,Valorant Champions 2024,2024,2024-08-14,12:25:00,Playoffs,Upper Quarterfinals,Trace Esports,12685,0,EDward Gaming,1120,2,EDward Gaming,2
+378662,2097,Valorant Champions 2024,2024,2024-08-01,10:00:00,Group Stage,Opening (B),Gen.G,17,2,Sentinels,2,0,Gen.G,2
+378657,2097,Valorant Champions 2024,2024,2024-08-02,10:00:00,Group Stage,Opening (A),KIWOOM DRX,8185,2,KRÜ Esports,2355,1,KIWOOM DRX,3
+378828,2097,Valorant Champions 2024,2024,2024-08-23,09:00:00,Playoffs,Upper Final,EDward Gaming,1120,2,LEVIATÁN,2359,1,EDward Gaming,3
+378672,2097,Valorant Champions 2024,2024,2024-08-11,10:00:00,Group Stage,Decider (C),LEVIATÁN,2359,2,Team Vitality,2059,0,LEVIATÁN,2
+378829,2097,Valorant Champions 2024,2024,2024-08-25,09:00:00,Playoffs,Grand Final,EDward Gaming,1120,3,Team Heretics,1001,2,EDward Gaming,5
+378831,2097,Valorant Champions 2024,2024,2024-08-16,10:00:00,Playoffs,Lower Round 1,KIWOOM DRX,8185,2,Trace Esports,12685,0,KIWOOM DRX,2
+378675,2097,Valorant Champions 2024,2024,2024-08-07,13:15:00,Group Stage,Winner's (D),EDward Gaming,1120,1,G2 Esports,11058,2,G2 Esports,3
+449013,2281,Valorant Masters Bangkok 2025,2025,2025-03-01,12:00:00,Playoffs,Lower Final,EDward Gaming,1120,1,T1,14,3,T1,4
+449008,2281,Valorant Masters Bangkok 2025,2025,2025-02-27,12:00:00,Playoffs,Upper Semifinals,EDward Gaming,1120,2,T1,14,1,EDward Gaming,3
+448600,2281,Valorant Masters Bangkok 2025,2025,2025-02-20,15:00:00,Swiss Stage,Round 1,KIWOOM DRX,8185,2,Sentinels,2,0,KIWOOM DRX,2
+449000,2281,Valorant Masters Bangkok 2025,2025,2025-02-22,12:00:00,Swiss Stage,Round 2 (1-0),KIWOOM DRX,8185,1,Team Vitality,2059,2,Team Vitality,3
+448597,2281,Valorant Masters Bangkok 2025,2025,2025-02-21,14:25:00,Swiss Stage,Round 1,G2 Esports,11058,2,Trace Esports,12685,0,G2 Esports,2
+449004,2281,Valorant Masters Bangkok 2025,2025,2025-02-24,12:00:00,Swiss Stage,Round 3,T1,14,2,KIWOOM DRX,8185,0,T1,2
+448599,2281,Valorant Masters Bangkok 2025,2025,2025-02-21,12:00:00,Swiss Stage,Round 1,Team Vitality,2059,2,T1,14,0,Team Vitality,2
+449009,2281,Valorant Masters Bangkok 2025,2025,2025-02-27,15:15:00,Playoffs,Upper Semifinals,Team Vitality,2059,0,G2 Esports,11058,2,G2 Esports,2
+449011,2281,Valorant Masters Bangkok 2025,2025,2025-03-02,13:15:00,Playoffs,Grand Final,G2 Esports,11058,2,T1,14,3,T1,5
+449005,2281,Valorant Masters Bangkok 2025,2025,2025-02-24,14:10:00,Swiss Stage,Round 3,G2 Esports,11058,2,Team Liquid,474,0,G2 Esports,2
+449003,2281,Valorant Masters Bangkok 2025,2025,2025-02-23,13:55:00,Swiss Stage,Round 2 (0-1),Team Liquid,474,2,Sentinels,2,1,Team Liquid,3
+449002,2281,Valorant Masters Bangkok 2025,2025,2025-02-23,12:00:00,Swiss Stage,Round 2 (0-1),T1,14,2,Trace Esports,12685,0,T1,2
+448598,2281,Valorant Masters Bangkok 2025,2025,2025-02-20,12:00:00,Swiss Stage,Round 1,EDward Gaming,1120,2,Team Liquid,474,0,EDward Gaming,2
+450589,2281,Valorant Masters Bangkok 2025,2025,2025-03-02,12:00:00,Showmatch,Main Event,Team International,15315,0,Team Thailand,17715,1,Team Thailand,1
+449012,2281,Valorant Masters Bangkok 2025,2025,2025-02-28,14:05:00,Playoffs,Lower Round 1,T1,14,2,Team Vitality,2059,1,T1,3
+449010,2281,Valorant Masters Bangkok 2025,2025,2025-02-28,12:00:00,Playoffs,Upper Final,EDward Gaming,1120,0,G2 Esports,11058,2,G2 Esports,2
+449001,2281,Valorant Masters Bangkok 2025,2025,2025-02-22,15:25:00,Swiss Stage,Round 2 (1-0),EDward Gaming,1120,2,G2 Esports,11058,1,EDward Gaming,3
+498632,2282,Valorant Masters Toronto 2025,2025,2025-06-17,21:35:00,Playoffs,Lower Round 2,Sentinels,2,1,FNATIC,2593,2,FNATIC,3
+490314,2282,Valorant Masters Toronto 2025,2025,2025-06-11,20:30:00,Swiss Stage,Round 3 (1-1),Paper Rex,624,2,Team Liquid,474,1,Paper Rex,3
+490308,2282,Valorant Masters Toronto 2025,2025,2025-06-08,18:00:00,Swiss Stage,Round 1,Sentinels,2,2,Wolves Esports,13790,0,Sentinels,2
+498633,2282,Valorant Masters Toronto 2025,2025,2025-06-20,20:40:00,Playoffs,Lower Round 3,G2 Esports,11058,0,FNATIC,2593,2,FNATIC,2
+490307,2282,Valorant Masters Toronto 2025,2025,2025-06-07,20:10:00,Swiss Stage,Round 1,Guangzhou Huadu Bilibili Gaming(Bilibili Gaming),12010,2,Team Liquid,474,1,Guangzhou Huadu Bilibili Gaming(Bilibili Gaming),3
+498621,2282,Valorant Masters Toronto 2025,2025,2025-06-13,20:25:00,Playoffs,Upper Quarterfinals,Xi Lai Gaming,13581,0,Sentinels,2,2,Sentinels,2
+498628,2282,Valorant Masters Toronto 2025,2025,2025-06-22,19:15:00,Playoffs,Grand Final,Paper Rex,624,3,FNATIC,2593,1,Paper Rex,4
+498626,2282,Valorant Masters Toronto 2025,2025,2025-06-16,18:00:00,Playoffs,Upper Semifinals,Wolves Esports,13790,2,Gen.G,17,0,Wolves Esports,2
+498625,2282,Valorant Masters Toronto 2025,2025,2025-06-16,20:30:00,Playoffs,Upper Semifinals,Sentinels,2,0,Paper Rex,624,2,Paper Rex,2
+498631,2282,Valorant Masters Toronto 2025,2025,2025-06-17,18:00:00,Playoffs,Lower Round 2,Gen.G,17,1,G2 Esports,11058,2,G2 Esports,3
+498623,2282,Valorant Masters Toronto 2025,2025,2025-06-14,18:00:00,Playoffs,Upper Quarterfinals,Rex Regum Qeon,878,0,Wolves Esports,13790,2,Wolves Esports,2
+490313,2282,Valorant Masters Toronto 2025,2025,2025-06-10,20:30:00,Swiss Stage,Round 2 (0-1),Team Liquid,474,2,MIBR,7386,0,Team Liquid,2
+498627,2282,Valorant Masters Toronto 2025,2025,2025-06-20,18:00:00,Playoffs,Upper Final,Paper Rex,624,2,Wolves Esports,13790,0,Paper Rex,2
+490306,2282,Valorant Masters Toronto 2025,2025,2025-06-08,20:45:00,Swiss Stage,Round 1,Gen.G,17,2,MIBR,7386,0,Gen.G,2
+490312,2282,Valorant Masters Toronto 2025,2025,2025-06-10,18:00:00,Swiss Stage,Round 2 (0-1),Team Heretics,1001,0,Wolves Esports,13790,2,Wolves Esports,2
+490309,2282,Valorant Masters Toronto 2025,2025,2025-06-07,18:00:00,Swiss Stage,Round 1,Team Heretics,1001,0,Paper Rex,624,2,Paper Rex,2
+490310,2282,Valorant Masters Toronto 2025,2025,2025-06-09,21:30:00,Swiss Stage,Round 2 (1-0),Paper Rex,624,0,Gen.G,17,2,Gen.G,2
+507067,2282,Valorant Masters Toronto 2025,2025,2025-06-22,18:00:00,Showmatch,Showmatch,Team tarik,12065,0,Team Toast,19008,1,Team Toast,1
+498622,2282,Valorant Masters Toronto 2025,2025,2025-06-13,18:00:00,Playoffs,Upper Quarterfinals,G2 Esports,11058,0,Paper Rex,624,2,Paper Rex,2
+498634,2282,Valorant Masters Toronto 2025,2025,2025-06-21,18:00:00,Playoffs,Lower Final,Wolves Esports,13790,1,FNATIC,2593,3,FNATIC,4
+490315,2282,Valorant Masters Toronto 2025,2025,2025-06-11,18:00:00,Swiss Stage,Round 3 (1-1),Guangzhou Huadu Bilibili Gaming(Bilibili Gaming),12010,0,Wolves Esports,13790,2,Wolves Esports,2
+498629,2282,Valorant Masters Toronto 2025,2025,2025-06-15,18:00:00,Playoffs,Lower Round 1,Xi Lai Gaming,13581,0,G2 Esports,11058,2,G2 Esports,2
+490311,2282,Valorant Masters Toronto 2025,2025,2025-06-09,18:00:00,Swiss Stage,Round 2 (1-0),Guangzhou Huadu Bilibili Gaming(Bilibili Gaming),12010,1,Sentinels,2,2,Sentinels,3
+498624,2282,Valorant Masters Toronto 2025,2025,2025-06-14,20:30:00,Playoffs,Upper Quarterfinals,FNATIC,2593,1,Gen.G,17,2,Gen.G,3
+498630,2282,Valorant Masters Toronto 2025,2025,2025-06-15,20:10:00,Playoffs,Lower Round 1,Rex Regum Qeon,878,1,FNATIC,2593,2,FNATIC,3
+542266,2283,Valorant Champions 2025,2025,2025-09-26,15:00:00,Playoffs,Upper Quarterfinals,Team Heretics,1001,0,MIBR,7386,2,MIBR,2
+542195,2283,Valorant Champions 2025,2025,2025-09-12,15:00:00,Group Stage,Opening (A),Paper Rex,624,2,Xi Lai Gaming,13581,0,Paper Rex,2
+542210,2283,Valorant Champions 2025,2025,2025-09-21,15:00:00,Group Stage,Decider (C),KIWOOM DRX,8185,2,Team Liquid,474,0,KIWOOM DRX,2
+542273,2283,Valorant Champions 2025,2025,2025-09-27,15:00:00,Playoffs,Lower Round 1,KIWOOM DRX,8185,2,G2 Esports,11058,1,KIWOOM DRX,3
+542198,2283,Valorant Champions 2025,2025,2025-09-19,18:30:00,Group Stage,Elimination (A),Xi Lai Gaming,13581,2,Sentinels,2,1,Xi Lai Gaming,3
+542201,2283,Valorant Champions 2025,2025,2025-09-15,17:10:00,Group Stage,Opening (B),Rex Regum Qeon,878,0,FNATIC,2593,2,FNATIC,2
+542207,2283,Valorant Champions 2025,2025,2025-09-13,15:00:00,Group Stage,Opening (C),NRG,1034,2,EDward Gaming,1120,0,NRG,2
+542269,2283,Valorant Champions 2025,2025,2025-09-28,18:20:00,Playoffs,Upper Semifinals,MIBR,7386,1,NRG,1034,2,NRG,3
+542203,2283,Valorant Champions 2025,2025,2025-09-20,15:00:00,Group Stage,Elimination (B),Guangzhou Huadu Bilibili Gaming(Bilibili Gaming),12010,1,Rex Regum Qeon,878,2,Rex Regum Qeon,3
+542211,2283,Valorant Champions 2025,2025,2025-09-14,18:20:00,Group Stage,Opening (D),G2 Esports,11058,0,Team Heretics,1001,2,Team Heretics,2
+542270,2283,Valorant Champions 2025,2025,2025-10-03,13:00:00,Playoffs,Upper Final,FNATIC,2593,0,NRG,1034,2,NRG,2
+542197,2283,Valorant Champions 2025,2025,2025-09-17,15:00:00,Group Stage,Winner's (A),Paper Rex,624,2,GIANTX,14419,1,Paper Rex,3
+542196,2283,Valorant Champions 2025,2025,2025-09-12,17:25:00,Group Stage,Opening (A),GIANTX,14419,2,Sentinels,2,1,GIANTX,3
+542213,2283,Valorant Champions 2025,2025,2025-09-18,15:00:00,Group Stage,Winner's (D),Team Heretics,1001,2,T1,14,0,Team Heretics,2
+542272,2283,Valorant Champions 2025,2025,2025-10-05,13:00:00,Playoffs,Grand Final,NRG,1034,3,FNATIC,2593,2,NRG,5
+542208,2283,Valorant Champions 2025,2025,2025-09-17,18:10:00,Group Stage,Winner's (C),KIWOOM DRX,8185,1,NRG,1034,2,NRG,3
+542205,2283,Valorant Champions 2025,2025,2025-09-13,17:55:00,Group Stage,Opening (C),Team Liquid,474,0,KIWOOM DRX,8185,2,KIWOOM DRX,2
+542265,2283,Valorant Champions 2025,2025,2025-09-25,15:00:00,Playoffs,Upper Quarterfinals,Paper Rex,624,2,G2 Esports,11058,1,Paper Rex,3
+542268,2283,Valorant Champions 2025,2025,2025-09-28,15:00:00,Playoffs,Upper Semifinals,FNATIC,2593,2,Paper Rex,624,1,FNATIC,3
+542204,2283,Valorant Champions 2025,2025,2025-09-22,17:15:00,Group Stage,Decider (B),MIBR,7386,2,Rex Regum Qeon,878,0,MIBR,2
+542274,2283,Valorant Champions 2025,2025,2025-09-27,18:20:00,Playoffs,Lower Round 1,Team Heretics,1001,2,GIANTX,14419,1,Team Heretics,3
+542202,2283,Valorant Champions 2025,2025,2025-09-18,17:25:00,Group Stage,Winner's (B),MIBR,7386,1,FNATIC,2593,2,FNATIC,3
+542277,2283,Valorant Champions 2025,2025,2025-09-29,15:00:00,Playoffs,Lower Round 2,Paper Rex,624,2,Team Heretics,1001,1,Paper Rex,3
+542279,2283,Valorant Champions 2025,2025,2025-10-04,13:00:00,Playoffs,Lower Final,FNATIC,2593,3,KIWOOM DRX,8185,1,FNATIC,4
+542214,2283,Valorant Champions 2025,2025,2025-09-20,18:00:00,Group Stage,Elimination (D),G2 Esports,11058,2,Dragon Ranger Gaming,11981,0,G2 Esports,2
+542209,2283,Valorant Champions 2025,2025,2025-09-19,15:00:00,Group Stage,Elimination (C),Team Liquid,474,2,EDward Gaming,1120,1,Team Liquid,3
+542267,2283,Valorant Champions 2025,2025,2025-09-26,17:35:00,Playoffs,Upper Quarterfinals,NRG,1034,2,GIANTX,14419,0,NRG,2
+542212,2283,Valorant Champions 2025,2025,2025-09-14,15:00:00,Group Stage,Opening (D),Dragon Ranger Gaming,11981,0,T1,14,2,T1,2
+542200,2283,Valorant Champions 2025,2025,2025-09-15,15:00:00,Group Stage,Opening (B),Guangzhou Huadu Bilibili Gaming(Bilibili Gaming),12010,0,MIBR,7386,2,MIBR,2
+542278,2283,Valorant Champions 2025,2025,2025-10-03,15:35:00,Playoffs,Lower Round 3,KIWOOM DRX,8185,2,Paper Rex,624,0,KIWOOM DRX,2
+542264,2283,Valorant Champions 2025,2025,2025-09-25,18:50:00,Playoffs,Upper Quarterfinals,FNATIC,2593,2,KIWOOM DRX,8185,1,FNATIC,3
+542276,2283,Valorant Champions 2025,2025,2025-09-29,18:20:00,Playoffs,Lower Round 2,MIBR,7386,1,KIWOOM DRX,8185,2,KIWOOM DRX,3
+542215,2283,Valorant Champions 2025,2025,2025-09-22,15:00:00,Group Stage,Decider (D),T1,14,0,G2 Esports,11058,2,G2 Esports,2
+542199,2283,Valorant Champions 2025,2025,2025-09-21,17:20:00,Group Stage,Decider (A),GIANTX,14419,2,Xi Lai Gaming,13581,0,GIANTX,2
+626545,2760,Valorant Masters Santiago 2026,2026,2026-03-08,22:30:00,Playoffs,Lower Round 1,Gentle Mates,12694,1,All Gamers,1119,2,All Gamers,3
+625788,2760,Valorant Masters Santiago 2026,2026,2026-02-28,19:00:00,Swiss Stage,Round 1,Gentle Mates,12694,2,EDward Gaming,1120,0,Gentle Mates,2
+626546,2760,Valorant Masters Santiago 2026,2026,2026-03-08,19:00:00,Playoffs,Lower Round 1,FURIA,2406,1,BBL Esports,397,2,BBL Esports,3
+626544,2760,Valorant Masters Santiago 2026,2026,2026-03-15,20:00:00,Playoffs,Grand Final,Nongshim RedForce,11060,3,Paper Rex,624,0,Nongshim RedForce,3
+626535,2760,Valorant Masters Santiago 2026,2026,2026-03-04,20:00:00,Swiss Stage,Round 3,NRG,1034,2,Team Liquid,474,0,NRG,2
+626541,2760,Valorant Masters Santiago 2026,2026,2026-03-09,20:00:00,Playoffs,Upper Semifinals,Nongshim RedForce,11060,2,G2 Esports,11058,1,Nongshim RedForce,3
+626529,2760,Valorant Masters Santiago 2026,2026,2026-03-02,20:00:00,Swiss Stage,Round 2 (1-0),Paper Rex,624,2,NRG,1034,1,Paper Rex,3
+626548,2760,Valorant Masters Santiago 2026,2026,2026-03-10,20:00:00,Playoffs,Lower Round 2,G2 Esports,11058,2,BBL Esports,397,0,G2 Esports,2
+626539,2760,Valorant Masters Santiago 2026,2026,2026-03-06,20:00:00,Playoffs,Upper Quarterfinals,FURIA,2406,1,Paper Rex,624,2,Paper Rex,3
+625790,2760,Valorant Masters Santiago 2026,2026,2026-03-01,19:00:00,Swiss Stage,Round 1,G2 Esports,11058,0,Paper Rex,624,2,Paper Rex,2
+626537,2760,Valorant Masters Santiago 2026,2026,2026-03-06,23:00:00,Playoffs,Upper Quarterfinals,Nongshim RedForce,11060,2,Gentle Mates,12694,0,Nongshim RedForce,2
+626538,2760,Valorant Masters Santiago 2026,2026,2026-03-07,22:30:00,Playoffs,Upper Quarterfinals,All Gamers,1119,0,G2 Esports,11058,2,G2 Esports,2
+626549,2760,Valorant Masters Santiago 2026,2026,2026-03-13,21:25:00,Playoffs,Lower Round 3,Paper Rex,624,2,G2 Esports,11058,1,Paper Rex,3
+626543,2760,Valorant Masters Santiago 2026,2026,2026-03-13,19:00:00,Playoffs,Upper Final,Nongshim RedForce,11060,2,NRG,1034,0,Nongshim RedForce,2
+626547,2760,Valorant Masters Santiago 2026,2026,2026-03-10,22:10:00,Playoffs,Lower Round 2,Paper Rex,624,2,All Gamers,1119,1,Paper Rex,3
+626542,2760,Valorant Masters Santiago 2026,2026,2026-03-09,23:20:00,Playoffs,Upper Semifinals,Paper Rex,624,0,NRG,1034,2,NRG,2
+625791,2760,Valorant Masters Santiago 2026,2026,2026-02-28,21:30:00,Swiss Stage,Round 1,Xi Lai Gaming,13581,0,NRG,1034,2,NRG,2
+626533,2760,Valorant Masters Santiago 2026,2026,2026-03-03,22:10:00,Swiss Stage,Round 2 (0-1),Xi Lai Gaming,13581,0,G2 Esports,11058,2,G2 Esports,2
+625789,2760,Valorant Masters Santiago 2026,2026,2026-03-01,21:05:00,Swiss Stage,Round 1,T1,14,0,Team Liquid,474,2,Team Liquid,2
+626540,2760,Valorant Masters Santiago 2026,2026,2026-03-07,19:00:00,Playoffs,Upper Quarterfinals,BBL Esports,397,1,NRG,1034,2,NRG,3
+626550,2760,Valorant Masters Santiago 2026,2026,2026-03-14,19:00:00,Playoffs,Lower Final,NRG,1034,1,Paper Rex,624,3,Paper Rex,4
+626530,2760,Valorant Masters Santiago 2026,2026,2026-03-02,23:30:00,Swiss Stage,Round 2 (1-0),Gentle Mates,12694,2,Team Liquid,474,0,Gentle Mates,2
+626534,2760,Valorant Masters Santiago 2026,2026,2026-03-04,22:20:00,Swiss Stage,Round 3,G2 Esports,11058,2,T1,14,0,G2 Esports,2
+626532,2760,Valorant Masters Santiago 2026,2026,2026-03-03,20:00:00,Swiss Stage,Round 2 (0-1),EDward Gaming,1120,0,T1,14,2,T1,2
+670464,2765,Valorant Masters London 2026,2026,2026-06-13,19:00:00,Playoffs,Upper Quarterfinals,G2 Esports,11058,1,Xi Lai Gaming,13581,2,Xi Lai Gaming,3
+670477,2765,Valorant Masters London 2026,2026,2026-06-20,15:00:00,Playoffs,Lower Final,EDward Gaming,1120,0,LEVIATÁN,2359,3,LEVIATÁN,3
+684618,2765,Valorant Masters London 2026,2026,2026-06-10,19:40:00,Swiss Stage,Round 3 (1-1),Global Esports,918,1,Xi Lai Gaming,13581,2,Xi Lai Gaming,3
+684615,2765,Valorant Masters London 2026,2026,2026-06-08,19:15:00,Swiss Stage,Round 2 (1-0),NRG,1034,1,LEVIATÁN,2359,2,LEVIATÁN,3
+670474,2765,Valorant Masters London 2026,2026,2026-06-16,18:05:00,Playoffs,Lower Round 2,Team Vitality,2059,2,FUT Esports,1184,0,Team Vitality,2
+670467,2765,Valorant Masters London 2026,2026,2026-06-12,18:00:00,Playoffs,Upper Quarterfinals,Team Heretics,1001,0,Team Vitality,2059,2,Team Vitality,2
+684619,2765,Valorant Masters London 2026,2026,2026-06-10,16:00:00,Swiss Stage,Round 3 (1-1),FUT Esports,1184,2,NRG,1034,1,FUT Esports,3
+684614,2765,Valorant Masters London 2026,2026,2026-06-08,16:00:00,Swiss Stage,Round 2 (1-0),Team Vitality,2059,2,FUT Esports,1184,1,Team Vitality,3
+670472,2765,Valorant Masters London 2026,2026,2026-06-14,19:00:00,Playoffs,Lower Round 1,G2 Esports,11058,0,FUT Esports,1184,2,FUT Esports,2
+684611,2765,Valorant Masters London 2026,2026,2026-06-07,16:00:00,Swiss Stage,Round 1,FULL SENSE,4050,0,FUT Esports,1184,2,FUT Esports,2
+670469,2765,Valorant Masters London 2026,2026,2026-06-15,19:15:00,Playoffs,Upper Semifinals,Paper Rex,624,2,Team Vitality,2059,1,Paper Rex,3
+670470,2765,Valorant Masters London 2026,2026,2026-06-19,15:00:00,Playoffs,Upper Final,EDward Gaming,1120,1,Paper Rex,624,2,Paper Rex,3
+684612,2765,Valorant Masters London 2026,2026,2026-06-07,18:00:00,Swiss Stage,Round 1,LEVIATÁN,2359,2,Global Esports,918,1,LEVIATÁN,3
+670475,2765,Valorant Masters London 2026,2026,2026-06-16,16:00:00,Playoffs,Lower Round 2,Xi Lai Gaming,13581,0,LEVIATÁN,2359,2,LEVIATÁN,2
+684613,2765,Valorant Masters London 2026,2026,2026-06-06,16:00:00,Swiss Stage,Round 1,Xi Lai Gaming,13581,0,NRG,1034,2,NRG,2
+670468,2765,Valorant Masters London 2026,2026,2026-06-15,16:00:00,Playoffs,Upper Semifinals,Xi Lai Gaming,13581,1,EDward Gaming,1120,2,EDward Gaming,3
+670471,2765,Valorant Masters London 2026,2026,2026-06-21,16:20:00,Playoffs,Grand Final,Paper Rex,624,2,LEVIATÁN,2359,3,LEVIATÁN,5
+670465,2765,Valorant Masters London 2026,2026,2026-06-13,16:00:00,Playoffs,Upper Quarterfinals,EDward Gaming,1120,2,FUT Esports,1184,1,EDward Gaming,3
+684616,2765,Valorant Masters London 2026,2026,2026-06-09,16:00:00,Swiss Stage,Round 2 (0-1),Dragon Ranger Gaming,11981,1,Xi Lai Gaming,13581,2,Xi Lai Gaming,3
+670476,2765,Valorant Masters London 2026,2026,2026-06-19,18:35:00,Playoffs,Lower Round 3,Team Vitality,2059,0,LEVIATÁN,2359,2,LEVIATÁN,2
+670466,2765,Valorant Masters London 2026,2026,2026-06-12,16:00:00,Playoffs,Upper Quarterfinals,Paper Rex,624,2,LEVIATÁN,2359,0,Paper Rex,2
+684610,2765,Valorant Masters London 2026,2026,2026-06-06,18:30:00,Swiss Stage,Round 1,Team Vitality,2059,2,Dragon Ranger Gaming,11981,0,Team Vitality,2
+670473,2765,Valorant Masters London 2026,2026,2026-06-14,16:00:00,Playoffs,Lower Round 1,LEVIATÁN,2359,2,Team Heretics,1001,1,LEVIATÁN,3
+684617,2765,Valorant Masters London 2026,2026,2026-06-09,19:20:00,Swiss Stage,Round 2 (0-1),Global Esports,918,2,FULL SENSE,4050,1,Global Esports,3
+19084,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-27,22:45:00,Main Event,Lower Round 2,Team Liquid,474,2,KRÜ Esports,2355,0,Team Liquid,2
+19076,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-25,20:05:00,Main Event,Upper Quarterfinals,Team Liquid,474,1,Version1,2815,2,Version1,3
+19075,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-24,22:45:00,Main Event,Upper Quarterfinals,Sharks Esports,3512,1,NUTURN,2328,2,NUTURN,3
+19089,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-30,19:00:00,Main Event,Grand Final,Sentinels,2,3,FNATIC,2593,0,Sentinels,3
+19080,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-28,21:30:00,Main Event,Upper Final,Sentinels,2,2,NUTURN,2328,0,Sentinels,2
+19074,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-25,17:00:00,Main Event,Upper Quarterfinals,Team Vikings,420,2,X10 Esports,2112,0,Team Vikings,2
+19085,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-28,17:00:00,Main Event,Lower Round 3,Version1,2815,0,FNATIC,2593,2,FNATIC,2
+19079,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-27,17:00:00,Main Event,Upper Semifinals,Version1,2815,1,NUTURN,2328,2,NUTURN,3
+19086,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-28,19:25:00,Main Event,Lower Round 3,Team Vikings,420,0,Team Liquid,474,2,Team Liquid,2
+19073,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-26,00:05:00,Main Event,Upper Quarterfinals,Sentinels,2,2,FNATIC,2593,0,Sentinels,2
+19082,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-26,19:20:00,Main Event,Lower Round 1,Sharks Esports,3512,0,KRÜ Esports,2355,2,KRÜ Esports,2
+19071,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-24,17:00:00,Main Event,Upper Round 1,FNATIC,2593,2,KRÜ Esports,2355,0,FNATIC,2
+19087,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-29,19:00:00,Main Event,Lower Round 4,FNATIC,2593,2,Team Liquid,474,0,FNATIC,2
+19081,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-26,17:00:00,Main Event,Lower Round 1,X10 Esports,2112,2,Crazy Raccoon,277,0,X10 Esports,2
+19078,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-26,21:30:00,Main Event,Upper Semifinals,Sentinels,2,2,Team Vikings,420,0,Sentinels,2
+19083,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-27,20:40:00,Main Event,Lower Round 2,FNATIC,2593,2,X10 Esports,2112,0,FNATIC,2
+19088,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-29,21:30:00,Main Event,Lower Final,NUTURN,2328,1,FNATIC,2593,2,FNATIC,3
+19072,353,Valorant Champions Tour Stage 2: Masters Reykjavík,2021,2021-05-24,19:25:00,Main Event,Upper Round 1,Version1,2815,2,Crazy Raccoon,277,0,Version1,2
+51272,449,Valorant Champions 2021,2021,2021-12-02,23:45:00,Group Stage,Opening (B),KRÜ Esports,2355,0,Team Liquid,474,2,Team Liquid,2
+51290,449,Valorant Champions 2021,2021,2021-12-08,19:00:00,Playoffs,Quarterfinals,Acend,3531,2,Team Secret,6199,0,Acend,2
+51294,449,Valorant Champions 2021,2021,2021-12-11,19:00:00,Playoffs,Semifinals,Acend,3531,2,Team Liquid,474,0,Acend,2
+51275,449,Valorant Champions 2021,2021,2021-12-05,19:35:00,Group Stage,Elimination (B),KRÜ Esports,2355,2,FURIA,2406,1,KRÜ Esports,3
+51280,449,Valorant Champions 2021,2021,2021-12-05,17:00:00,Group Stage,Elimination (C),Team Secret,6199,2,Crazy Raccoon,277,0,Team Secret,2
+51295,449,Valorant Champions 2021,2021,2021-12-11,22:00:00,Playoffs,Semifinals,Gambit Esports,682,2,KRÜ Esports,2355,1,Gambit Esports,3
+51277,449,Valorant Champions 2021,2021,2021-12-02,16:00:00,Group Stage,Opening (C),Gambit Esports,682,2,Team Secret,6199,1,Gambit Esports,3
+51286,449,Valorant Champions 2021,2021,2021-12-07,16:00:00,Group Stage,Decider (D),Vision Strikers,198,1,Cloud9,188,2,Cloud9,3
+51296,449,Valorant Champions 2021,2021,2021-12-12,19:30:00,Playoffs,Grand Final,Acend,3531,3,Gambit Esports,682,2,Acend,5
+51281,449,Valorant Champions 2021,2021,2021-12-07,20:15:00,Group Stage,Decider (C),Team Vikings,420,0,Team Secret,6199,2,Team Secret,2
+51276,449,Valorant Champions 2021,2021,2021-12-06,21:40:00,Group Stage,Decider (B),Sentinels,2,1,KRÜ Esports,2355,2,KRÜ Esports,3
+51284,449,Valorant Champions 2021,2021,2021-12-03,19:55:00,Group Stage,Winner's (D),Vision Strikers,198,1,FNATIC,2593,2,FNATIC,3
+51266,449,Valorant Champions 2021,2021,2021-12-05,15:30:00,Group Stage,Opening (A),Acend,3531,2,Keyd Stars,4894,1,Acend,3
+51283,449,Valorant Champions 2021,2021,2021-12-01,21:45:00,Group Stage,Opening (D),FNATIC,2593,2,Cloud9,188,1,FNATIC,3
+51285,449,Valorant Champions 2021,2021,2021-12-05,23:30:00,Group Stage,Elimination (D),FULL SENSE,4050,0,Cloud9,188,2,Cloud9,2
+51267,449,Valorant Champions 2021,2021,2021-12-03,23:35:00,Group Stage,Opening (A),ENVY,427,2,X10 Esports,2112,0,ENVY,2
+51282,449,Valorant Champions 2021,2021,2021-12-01,16:00:00,Group Stage,Opening (D),Vision Strikers,198,2,FULL SENSE,4050,0,Vision Strikers,2
+51268,449,Valorant Champions 2021,2021,2021-12-06,16:00:00,Group Stage,Winner's (A),Acend,3531,2,ENVY,427,0,Acend,2
+51269,449,Valorant Champions 2021,2021,2021-12-06,19:00:00,Group Stage,Elimination (A),Keyd Stars,4894,0,X10 Esports,2112,2,X10 Esports,2
+51278,449,Valorant Champions 2021,2021,2021-12-01,19:00:00,Group Stage,Opening (C),Team Vikings,420,2,Crazy Raccoon,277,0,Team Vikings,2
+51273,449,Valorant Champions 2021,2021,2021-12-02,19:30:00,Group Stage,Opening (B),Sentinels,2,2,FURIA,2406,1,Sentinels,3
+51270,449,Valorant Champions 2021,2021,2021-12-07,23:00:00,Group Stage,Decider (A),ENVY,427,1,X10 Esports,2112,2,X10 Esports,3
+51279,449,Valorant Champions 2021,2021,2021-12-04,17:00:00,Group Stage,Winner's (C),Gambit Esports,682,2,Team Vikings,420,1,Gambit Esports,3
+51292,449,Valorant Champions 2021,2021,2021-12-09,19:00:00,Playoffs,Quarterfinals,Gambit Esports,682,2,X10 Esports,2112,1,Gambit Esports,3
+51293,449,Valorant Champions 2021,2021,2021-12-09,22:40:00,Playoffs,Quarterfinals,FNATIC,2593,1,KRÜ Esports,2355,2,KRÜ Esports,3
+51274,449,Valorant Champions 2021,2021,2021-12-04,21:00:00,Group Stage,Winner's (B),Team Liquid,474,2,Sentinels,2,1,Team Liquid,3
+51291,449,Valorant Champions 2021,2021,2021-12-08,22:00:00,Playoffs,Quarterfinals,Team Liquid,474,2,Cloud9,188,0,Team Liquid,2
+34978,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-18,20:35:00,Playoffs,Semifinals,100 Thieves,120,0,ENVY,427,2,ENVY,2
+34951,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-11,18:00:00,Group Stage,Opening (C),Gambit Esports,682,2,Crazy Raccoon,277,0,Gambit Esports,2
+35940,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-13,20:00:00,Group Stage,Group D,F4Q,1670,0,Sentinels,2,2,Sentinels,2
+34977,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-18,18:00:00,Playoffs,Semifinals,Gambit Esports,682,2,G2 Esports,257,0,Gambit Esports,2
+34965,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-14,20:15:00,Group Stage,Elimination (C),Crazy Raccoon,277,2,Liberty,581,0,Crazy Raccoon,2
+35943,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-16,22:05:00,Group Stage,Group D,Sentinels,2,2,F4Q,1670,1,Sentinels,3
+34950,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-12,15:00:00,Group Stage,Opening (B),KRÜ Esports,2355,2,ZETA DIVISION,5448,1,KRÜ Esports,3
+34964,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-12,22:35:00,Group Stage,Winner's (C),Gambit Esports,682,1,100 Thieves,120,2,100 Thieves,3
+35942,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-15,19:00:00,Group Stage,Group D,G2 Esports,257,2,Sentinels,2,0,G2 Esports,2
+34962,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-14,17:50:00,Group Stage,Elimination (B),Keyd Stars,4894,2,ZETA DIVISION,5448,0,Keyd Stars,2
+34963,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-15,21:50:00,Group Stage,Decider (B),KRÜ Esports,2355,2,Keyd Stars,4894,0,KRÜ Esports,2
+35939,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-12,18:50:00,Group Stage,Group D,Sentinels,2,2,G2 Esports,257,1,Sentinels,3
+34974,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-17,22:55:00,Playoffs,Quarterfinals,ENVY,427,2,Sentinels,2,0,ENVY,2
+35941,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-14,15:00:00,Group Stage,Group D,F4Q,1670,0,G2 Esports,257,2,G2 Esports,2
+34949,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-11,20:15:00,Group Stage,Opening (B),Keyd Stars,4894,0,ENVY,427,2,ENVY,2
+34961,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-13,15:00:00,Group Stage,Winner's (B),ENVY,427,2,KRÜ Esports,2355,0,ENVY,2
+34976,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-17,16:35:00,Playoffs,Quarterfinals,G2 Esports,257,2,KRÜ Esports,2355,0,G2 Esports,2
+34960,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-16,15:00:00,Group Stage,Decider (A),Acend,3531,2,Papara SuperMassive,4567,1,Acend,3
+34958,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-13,17:20:00,Group Stage,Winner's (A),Vision Strikers,198,2,Acend,3531,0,Vision Strikers,2
+34973,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-17,19:15:00,Playoffs,Quarterfinals,100 Thieves,120,2,Acend,3531,1,100 Thieves,3
+34948,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-10,15:00:00,Group Stage,Opening (A),Papara SuperMassive,4567,0,Acend,3531,2,Acend,2
+34979,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-19,18:00:00,Playoffs,Grand Final,ENVY,427,0,Gambit Esports,682,3,Gambit Esports,3
+35938,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-10,18:10:00,Group Stage,Group D,G2 Esports,257,2,F4Q,1670,1,G2 Esports,3
+34966,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-16,19:15:00,Group Stage,Decider (C),Gambit Esports,682,2,Crazy Raccoon,277,0,Gambit Esports,2
+34975,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-17,13:00:00,Playoffs,Quarterfinals,Vision Strikers,198,1,Gambit Esports,682,2,Gambit Esports,3
+34959,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-15,15:00:00,Group Stage,Elimination (A),Paper Rex,624,1,Papara SuperMassive,4567,2,Papara SuperMassive,3
+34947,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-11,15:00:00,Group Stage,Opening (A),Vision Strikers,198,2,Paper Rex,624,0,Vision Strikers,2
+34952,466,Valorant Champions Tour Stage 3: Masters Berlin,2021,2021-09-10,21:50:00,Group Stage,Opening (C),100 Thieves,120,2,Liberty,581,0,100 Thieves,2
+85526,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-14,21:40:00,Playoffs,Upper Quarterfinals,LOUD,6961,2,Team Liquid,474,1,LOUD,3
+85535,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-22,22:25:00,Playoffs,Lower Round 3,ZETA DIVISION,5448,2,Paper Rex,624,1,ZETA DIVISION,3
+84373,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-10,22:45:00,Group Stage,Opening (B),OpTic Gaming,8127,0,XERXIA Esports,7397,2,XERXIA Esports,2
+85531,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-16,19:00:00,Playoffs,Lower Round 1,ZETA DIVISION,5448,2,Team Liquid,474,1,ZETA DIVISION,3
+84646,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-13,21:30:00,Group Stage,Decider (A),Ninjas In Pyjamas,7391,1,ZETA DIVISION,5448,2,ZETA DIVISION,3
+85529,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-22,19:00:00,Playoffs,Upper Final,LOUD,6961,2,OpTic Gaming,8127,1,LOUD,3
+84371,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-11,19:00:00,Group Stage,Opening (A),FNATIC,2593,0,Ninjas In Pyjamas,7391,2,Ninjas In Pyjamas,2
+85528,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-17,19:00:00,Playoffs,Upper Semifinals,KIWOOM DRX,8185,1,OpTic Gaming,8127,2,OpTic Gaming,3
+84644,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-12,17:00:00,Group Stage,Winner's (A),Ninjas In Pyjamas,7391,0,KIWOOM DRX,8185,2,KIWOOM DRX,2
+84372,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-10,17:00:00,Group Stage,Opening (A),KIWOOM DRX,8185,2,ZETA DIVISION,5448,0,KIWOOM DRX,2
+85523,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-14,19:00:00,Playoffs,Upper Quarterfinals,G2 Esports,257,2,ZETA DIVISION,5448,0,G2 Esports,2
+85525,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-15,19:00:00,Playoffs,Upper Quarterfinals,Paper Rex,624,1,KIWOOM DRX,8185,2,KIWOOM DRX,3
+85534,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-18,23:00:00,Playoffs,Lower Round 2,G2 Esports,257,0,Paper Rex,624,2,Paper Rex,2
+85532,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-16,22:30:00,Playoffs,Lower Round 1,Paper Rex,624,2,The Guard,6675,0,Paper Rex,2
+85527,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-17,23:00:00,Playoffs,Upper Semifinals,G2 Esports,257,0,LOUD,6961,2,LOUD,2
+85524,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-15,23:00:00,Playoffs,Upper Quarterfinals,The Guard,6675,1,OpTic Gaming,8127,2,OpTic Gaming,3
+84647,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-11,21:50:00,Group Stage,Winner's (B),XERXIA Esports,7397,1,Team Liquid,474,2,Team Liquid,3
+84648,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-12,20:30:00,Group Stage,Elimination (B),OpTic Gaming,8127,2,KRÜ Esports,2355,0,OpTic Gaming,2
+84649,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-13,19:00:00,Group Stage,Decider (B),XERXIA Esports,7397,0,OpTic Gaming,8127,2,OpTic Gaming,2
+84374,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-10,19:55:00,Group Stage,Opening (B),KRÜ Esports,2355,0,Team Liquid,474,2,Team Liquid,2
+84645,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-12,23:40:00,Group Stage,Elimination (A),FNATIC,2593,0,ZETA DIVISION,5448,2,ZETA DIVISION,2
+85530,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-24,19:00:00,Playoffs,Grand Final,LOUD,6961,0,OpTic Gaming,8127,3,OpTic Gaming,3
+85533,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-18,19:00:00,Playoffs,Lower Round 2,KIWOOM DRX,8185,1,ZETA DIVISION,5448,2,ZETA DIVISION,3
+85536,926,Valorant Champions Tour Stage 1: Masters Reykjavík,2022,2022-04-23,19:00:00,Playoffs,Lower Final,OpTic Gaming,8127,3,ZETA DIVISION,5448,0,OpTic Gaming,3

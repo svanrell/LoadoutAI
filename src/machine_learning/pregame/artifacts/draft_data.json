@@ -3,9 +3,14 @@
     "Abyss",
     "Ascent",
     "Bind",
+    "Breeze",
     "Corrode",
+    "Fracture",
     "Haven",
+    "Icebox",
     "Lotus",
+    "Pearl",
+    "Split",
     "Sunset"
   ],
   "agents": [
@@ -41,529 +46,1024 @@
   ],
   "pick_rates": {
     "lotus": {
+      "tejo": 13.9,
+      "viper": 50.9,
       "omen": 100.0,
-      "sova": 0.0,
-      "yoru": 56.0,
-      "viper": 47.0,
-      "fade": 94.0,
-      "vyse": 53.0,
-      "cypher": 11.0,
-      "waylay": 14.0,
-      "neon": 8.0,
-      "raze": 61.0,
-      "kayo": 0.0,
-      "astra": 0.0,
-      "jett": 0.0,
-      "breach": 6.0,
-      "brimstone": 0.0,
-      "killjoy": 8.0,
-      "tejo": 14.0,
-      "sage": 3.0,
-      "deadlock": 14.0,
-      "chamber": 11.0,
-      "harbor": 0.0,
-      "gekko": 0.0,
-      "skye": 0.0,
-      "iso": 0.0,
-      "phoenix": 0.0,
-      "reyna": 0.0,
-      "clove": 0.0
-    },
-    "abyss": {
-      "omen": 68.0,
-      "sova": 100.0,
-      "yoru": 50.0,
-      "viper": 0.0,
-      "fade": 0.0,
-      "vyse": 18.0,
-      "cypher": 61.0,
-      "waylay": 32.0,
-      "neon": 4.0,
-      "raze": 0.0,
-      "kayo": 36.0,
-      "astra": 43.0,
-      "jett": 39.0,
-      "breach": 14.0,
-      "brimstone": 0.0,
-      "killjoy": 0.0,
-      "tejo": 7.0,
-      "sage": 4.0,
-      "deadlock": 4.0,
-      "chamber": 4.0,
-      "harbor": 18.0,
-      "gekko": 0.0,
-      "skye": 0.0,
-      "iso": 0.0,
-      "phoenix": 0.0,
-      "reyna": 0.0,
-      "clove": 0.0
-    },
-    "corrode": {
-      "omen": 85.0,
-      "sova": 35.0,
-      "yoru": 46.0,
-      "viper": 77.0,
-      "fade": 65.0,
-      "vyse": 42.0,
-      "cypher": 4.0,
-      "waylay": 54.0,
-      "neon": 23.0,
-      "raze": 8.0,
-      "kayo": 31.0,
-      "astra": 15.0,
-      "jett": 0.0,
-      "breach": 0.0,
-      "brimstone": 0.0,
-      "killjoy": 0.0,
-      "tejo": 8.0,
-      "sage": 4.0,
-      "deadlock": 4.0,
-      "chamber": 0.0,
-      "harbor": 0.0,
-      "gekko": 0.0,
-      "skye": 0.0,
-      "iso": 0.0,
-      "phoenix": 0.0,
-      "reyna": 0.0,
-      "clove": 0.0
-    },
-    "ascent": {
-      "omen": 100.0,
-      "sova": 100.0,
-      "yoru": 68.0,
-      "viper": 0.0,
-      "fade": 0.0,
-      "vyse": 68.0,
-      "cypher": 32.0,
-      "waylay": 14.0,
-      "neon": 0.0,
-      "raze": 0.0,
-      "kayo": 32.0,
-      "astra": 0.0,
-      "jett": 41.0,
-      "breach": 0.0,
-      "brimstone": 0.0,
-      "killjoy": 0.0,
-      "tejo": 5.0,
-      "sage": 36.0,
-      "deadlock": 0.0,
-      "chamber": 5.0,
-      "harbor": 0.0,
-      "gekko": 0.0,
-      "skye": 0.0,
-      "iso": 0.0,
-      "phoenix": 0.0,
-      "reyna": 0.0,
-      "clove": 0.0
-    },
-    "bind": {
-      "omen": 0.0,
-      "sova": 0.0,
-      "yoru": 77.0,
-      "viper": 95.0,
-      "fade": 77.0,
-      "vyse": 0.0,
-      "cypher": 0.0,
-      "waylay": 32.0,
-      "neon": 0.0,
-      "raze": 45.0,
-      "kayo": 0.0,
-      "astra": 23.0,
-      "jett": 0.0,
-      "breach": 0.0,
-      "brimstone": 77.0,
-      "killjoy": 0.0,
-      "tejo": 23.0,
-      "sage": 0.0,
-      "deadlock": 14.0,
-      "chamber": 0.0,
-      "harbor": 0.0,
-      "gekko": 23.0,
-      "skye": 14.0,
-      "iso": 0.0,
-      "phoenix": 0.0,
-      "reyna": 0.0,
-      "clove": 0.0
-    },
-    "sunset": {
-      "omen": 100.0,
-      "sova": 73.0,
-      "yoru": 41.0,
-      "viper": 23.0,
-      "fade": 27.0,
-      "vyse": 9.0,
-      "cypher": 82.0,
-      "waylay": 14.0,
-      "neon": 68.0,
-      "raze": 18.0,
-      "kayo": 0.0,
-      "astra": 0.0,
-      "jett": 0.0,
-      "breach": 36.0,
-      "brimstone": 0.0,
-      "killjoy": 0.0,
-      "tejo": 0.0,
-      "sage": 9.0,
-      "deadlock": 0.0,
-      "chamber": 0.0,
-      "harbor": 0.0,
-      "gekko": 0.0,
-      "skye": 0.0,
-      "iso": 0.0,
-      "phoenix": 0.0,
-      "reyna": 0.0,
-      "clove": 0.0
+      "breach": 12.0,
+      "yoru": 30.6,
+      "fade": 75.9,
+      "raze": 69.4,
+      "vyse": 54.6,
+      "cypher": 16.7,
+      "sova": 4.6,
+      "iso": 2.8,
+      "neon": 11.1,
+      "clove": 0.9,
+      "killjoy": 11.1,
+      "waylay": 6.5,
+      "sage": 5.6,
+      "deadlock": 9.3,
+      "chamber": 4.6,
+      "jett": 9.3,
+      "skye": 10.2
     },
     "haven": {
+      "cypher": 47.6,
+      "breach": 15.9,
+      "tejo": 7.3,
+      "yoru": 40.2,
+      "omen": 86.6,
+      "astra": 13.4,
+      "jett": 18.3,
+      "vyse": 7.3,
+      "iso": 8.5,
+      "sova": 75.6,
+      "neon": 48.8,
+      "viper": 32.9,
+      "killjoy": 30.5,
+      "phoenix": 19.5,
+      "fade": 13.4,
+      "waylay": 12.2,
+      "chamber": 14.6,
+      "raze": 2.4,
+      "skye": 3.7,
+      "deadlock": 1.2
+    },
+    "split": {
+      "viper": 96.1,
+      "jett": 18.4,
+      "tejo": 11.8,
+      "breach": 17.1,
+      "omen": 84.2,
+      "yoru": 40.8,
+      "raze": 59.2,
+      "astra": 15.8,
+      "fade": 60.5,
+      "cypher": 7.9,
+      "skye": 27.6,
+      "neon": 23.7,
+      "deadlock": 2.6,
+      "waylay": 14.5,
+      "vyse": 7.9,
+      "phoenix": 7.9,
+      "sage": 3.9
+    },
+    "abyss": {
+      "chamber": 5.6,
+      "sova": 94.4,
+      "breach": 13.0,
+      "astra": 48.1,
+      "yoru": 50.0,
+      "jett": 29.6,
+      "kayo": 24.1,
+      "omen": 68.5,
+      "tejo": 20.4,
+      "cypher": 42.6,
+      "fade": 1.9,
+      "reyna": 1.9,
+      "waylay": 48.1,
+      "vyse": 11.1,
+      "harbor": 18.5,
+      "sage": 1.9,
+      "neon": 9.3,
+      "deadlock": 1.9,
+      "viper": 7.4,
+      "skye": 1.9
+    },
+    "ascent": {
+      "jett": 38.0,
+      "omen": 98.0,
+      "killjoy": 4.0,
+      "sova": 94.0,
+      "kayo": 26.0,
+      "raze": 2.0,
+      "viper": 4.0,
+      "fade": 4.0,
+      "gekko": 2.0,
+      "neon": 14.0,
+      "cypher": 34.0,
+      "deadlock": 8.0,
+      "yoru": 48.0,
+      "chamber": 16.0,
+      "vyse": 50.0,
+      "waylay": 10.0,
+      "tejo": 4.0,
+      "sage": 24.0,
+      "phoenix": 18.0,
+      "astra": 2.0
+    },
+    "pearl": {
+      "vyse": 41.3,
+      "astra": 97.8,
+      "fade": 47.8,
+      "tejo": 21.7,
+      "yoru": 58.7,
+      "chamber": 21.7,
+      "sova": 50.0,
+      "neon": 41.3,
+      "killjoy": 30.4,
+      "raze": 6.5,
+      "breach": 2.2,
+      "jett": 15.2,
+      "cypher": 10.9,
+      "waylay": 17.4,
+      "veto": 2.2,
+      "viper": 2.2,
+      "skye": 2.2,
+      "harbor": 2.2,
+      "phoenix": 21.7,
+      "kayo": 6.5
+    },
+    "bind": {
+      "kayo": 13.0,
+      "vyse": 15.2,
+      "fade": 58.7,
+      "raze": 56.5,
+      "brimstone": 84.8,
+      "skye": 26.1,
+      "viper": 78.3,
+      "tejo": 32.6,
+      "yoru": 56.5,
+      "breach": 4.3,
+      "cypher": 2.2,
+      "gekko": 15.2,
+      "deadlock": 6.5,
+      "astra": 15.2,
+      "waylay": 23.9,
+      "neon": 6.5,
+      "chamber": 2.2,
+      "harbor": 2.2
+    },
+    "sunset": {
+      "deadlock": 6.8,
       "omen": 100.0,
-      "sova": 95.0,
-      "yoru": 30.0,
-      "viper": 65.0,
-      "fade": 5.0,
-      "vyse": 5.0,
-      "cypher": 30.0,
-      "waylay": 20.0,
-      "neon": 70.0,
-      "raze": 0.0,
-      "kayo": 0.0,
-      "astra": 0.0,
-      "jett": 0.0,
-      "breach": 15.0,
-      "brimstone": 0.0,
-      "killjoy": 65.0,
-      "tejo": 0.0,
-      "sage": 0.0,
-      "deadlock": 0.0,
-      "chamber": 0.0,
-      "harbor": 0.0,
-      "gekko": 0.0,
-      "skye": 0.0,
-      "iso": 0.0,
-      "phoenix": 0.0,
-      "reyna": 0.0,
-      "clove": 0.0
+      "sova": 77.3,
+      "neon": 72.7,
+      "viper": 36.4,
+      "cypher": 77.3,
+      "breach": 31.8,
+      "kayo": 4.5,
+      "iso": 2.3,
+      "fade": 22.7,
+      "raze": 20.5,
+      "gekko": 2.3,
+      "sage": 11.4,
+      "yoru": 22.7,
+      "waylay": 6.8,
+      "vyse": 4.5
+    },
+    "corrode": {
+      "jett": 2.4,
+      "omen": 78.6,
+      "fade": 66.7,
+      "cypher": 4.8,
+      "gekko": 2.4,
+      "reyna": 2.4,
+      "vyse": 42.9,
+      "sova": 28.6,
+      "astra": 21.4,
+      "sage": 4.8,
+      "yoru": 38.1,
+      "viper": 76.2,
+      "neon": 28.6,
+      "deadlock": 2.4,
+      "waylay": 52.4,
+      "kayo": 21.4,
+      "raze": 4.8,
+      "tejo": 4.8,
+      "skye": 7.1,
+      "iso": 4.8,
+      "phoenix": 2.4,
+      "chamber": 2.4
+    },
+    "breeze": {
+      "sova": 100.0,
+      "viper": 96.9,
+      "yoru": 50.0,
+      "jett": 68.8,
+      "astra": 18.8,
+      "neon": 43.8,
+      "omen": 50.0,
+      "cypher": 6.2,
+      "sage": 12.5,
+      "chamber": 12.5,
+      "harbor": 18.8,
+      "kayo": 15.6,
+      "phoenix": 6.2
+    },
+    "fracture": {
+      "raze": 53.8,
+      "brimstone": 96.2,
+      "vyse": 19.2,
+      "tejo": 42.3,
+      "breach": 50.0,
+      "cypher": 57.7,
+      "neon": 26.9,
+      "yoru": 3.8,
+      "fade": 46.2,
+      "phoenix": 30.8,
+      "jett": 15.4,
+      "killjoy": 11.5,
+      "skye": 15.4,
+      "waylay": 23.1,
+      "chamber": 3.8,
+      "astra": 3.8
+    },
+    "icebox": {
+      "harbor": 22.7,
+      "jett": 72.7,
+      "killjoy": 90.9,
+      "viper": 95.5,
+      "sova": 86.4,
+      "kayo": 13.6,
+      "clove": 4.5,
+      "omen": 50.0,
+      "gekko": 31.8,
+      "neon": 4.5,
+      "chamber": 4.5,
+      "sage": 22.7
     }
   },
   "pair_stats": {
-    "raze__yoru": {
-      "matches": 16,
-      "wins": 10
-    },
-    "brimstone__yoru": {
-      "matches": 14,
-      "wins": 9
-    },
-    "viper__yoru": {
-      "matches": 36,
-      "wins": 22
-    },
-    "fade__yoru": {
-      "matches": 51,
-      "wins": 24
-    },
-    "brimstone__raze": {
-      "matches": 8,
-      "wins": 4
-    },
-    "raze__viper": {
-      "matches": 24,
-      "wins": 14
-    },
-    "fade__raze": {
-      "matches": 31,
-      "wins": 17
-    },
-    "brimstone__viper": {
-      "matches": 16,
-      "wins": 9
-    },
-    "brimstone__fade": {
-      "matches": 14,
-      "wins": 9
-    },
-    "fade__viper": {
-      "matches": 44,
-      "wins": 25
-    },
-    "raze__skye": {
-      "matches": 2,
-      "wins": 0
-    },
-    "gekko__raze": {
-      "matches": 4,
-      "wins": 1
-    },
-    "brimstone__skye": {
-      "matches": 3,
-      "wins": 0
-    },
-    "brimstone__gekko": {
-      "matches": 3,
-      "wins": 0
-    },
-    "gekko__skye": {
-      "matches": 3,
-      "wins": 0
-    },
-    "skye__viper": {
-      "matches": 3,
-      "wins": 0
-    },
-    "gekko__viper": {
-      "matches": 5,
-      "wins": 1
-    },
-    "omen__sova": {
-      "matches": 85,
-      "wins": 48
-    },
-    "omen__raze": {
-      "matches": 28,
+    "chamber__sova": {
+      "matches": 27,
       "wins": 16
     },
-    "omen__sage": {
-      "matches": 13,
-      "wins": 7
+    "breach__chamber": {
+      "matches": 2,
+      "wins": 2
     },
-    "omen__viper": {
-      "matches": 51,
-      "wins": 32
+    "astra__chamber": {
+      "matches": 21,
+      "wins": 13
     },
-    "raze__sova": {
-      "matches": 3,
-      "wins": 3
+    "chamber__yoru": {
+      "matches": 18,
+      "wins": 12
     },
-    "sage__sova": {
+    "breach__sova": {
+      "matches": 23,
+      "wins": 10
+    },
+    "astra__sova": {
+      "matches": 60,
+      "wins": 28
+    },
+    "sova__yoru": {
+      "matches": 106,
+      "wins": 56
+    },
+    "astra__breach": {
       "matches": 11,
       "wins": 6
     },
-    "sova__viper": {
-      "matches": 27,
+    "breach__yoru": {
+      "matches": 26,
+      "wins": 13
+    },
+    "astra__yoru": {
+      "matches": 67,
+      "wins": 31
+    },
+    "astra__jett": {
+      "matches": 21,
+      "wins": 3
+    },
+    "astra__kayo": {
+      "matches": 10,
+      "wins": 3
+    },
+    "astra__omen": {
+      "matches": 9,
+      "wins": 1
+    },
+    "jett__sova": {
+      "matches": 83,
+      "wins": 37
+    },
+    "jett__kayo": {
+      "matches": 31,
+      "wins": 13
+    },
+    "jett__omen": {
+      "matches": 86,
+      "wins": 38
+    },
+    "kayo__sova": {
+      "matches": 40,
+      "wins": 21
+    },
+    "omen__sova": {
+      "matches": 212,
+      "wins": 111
+    },
+    "kayo__omen": {
+      "matches": 36,
+      "wins": 17
+    },
+    "tejo__viper": {
+      "matches": 35,
       "wins": 19
     },
-    "raze__sage": {
-      "matches": 3,
-      "wins": 2
+    "omen__tejo": {
+      "matches": 39,
+      "wins": 19
     },
-    "sage__viper": {
-      "matches": 2,
-      "wins": 2
+    "breach__tejo": {
+      "matches": 34,
+      "wins": 17
     },
-    "cypher__neon": {
+    "tejo__yoru": {
+      "matches": 38,
+      "wins": 21
+    },
+    "omen__viper": {
+      "matches": 218,
+      "wins": 124
+    },
+    "breach__viper": {
+      "matches": 18,
+      "wins": 10
+    },
+    "viper__yoru": {
+      "matches": 101,
+      "wins": 63
+    },
+    "breach__omen": {
+      "matches": 50,
+      "wins": 20
+    },
+    "omen__yoru": {
+      "matches": 158,
+      "wins": 89
+    },
+    "fade__viper": {
+      "matches": 140,
+      "wins": 82
+    },
+    "fade__omen": {
+      "matches": 159,
+      "wins": 80
+    },
+    "fade__raze": {
+      "matches": 117,
+      "wins": 65
+    },
+    "fade__vyse": {
+      "matches": 85,
+      "wins": 42
+    },
+    "raze__viper": {
+      "matches": 111,
+      "wins": 61
+    },
+    "viper__vyse": {
+      "matches": 44,
+      "wins": 23
+    },
+    "omen__raze": {
+      "matches": 126,
+      "wins": 67
+    },
+    "omen__vyse": {
+      "matches": 109,
+      "wins": 54
+    },
+    "raze__vyse": {
+      "matches": 67,
+      "wins": 37
+    },
+    "astra__vyse": {
+      "matches": 32,
+      "wins": 12
+    },
+    "tejo__vyse": {
+      "matches": 19,
+      "wins": 8
+    },
+    "vyse__yoru": {
+      "matches": 70,
+      "wins": 36
+    },
+    "astra__fade": {
+      "matches": 49,
+      "wins": 24
+    },
+    "astra__tejo": {
+      "matches": 21,
+      "wins": 10
+    },
+    "fade__tejo": {
       "matches": 19,
       "wins": 9
     },
-    "neon__yoru": {
+    "fade__yoru": {
+      "matches": 117,
+      "wins": 67
+    },
+    "chamber__vyse": {
+      "matches": 8,
+      "wins": 5
+    },
+    "sova__vyse": {
+      "matches": 40,
+      "wins": 19
+    },
+    "jett__viper": {
+      "matches": 51,
+      "wins": 27
+    },
+    "jett__tejo": {
       "matches": 10,
       "wins": 2
     },
-    "neon__omen": {
-      "matches": 39,
-      "wins": 15
+    "breach__jett": {
+      "matches": 10,
+      "wins": 2
     },
-    "neon__sova": {
-      "matches": 27,
-      "wins": 13
-    },
-    "cypher__yoru": {
-      "matches": 16,
-      "wins": 7
-    },
-    "cypher__omen": {
-      "matches": 46,
-      "wins": 21
-    },
-    "cypher__sova": {
-      "matches": 43,
-      "wins": 23
-    },
-    "omen__yoru": {
-      "matches": 70,
+    "raze__yoru": {
+      "matches": 47,
       "wins": 33
     },
-    "sova__yoru": {
-      "matches": 40,
-      "wins": 22
+    "astra__raze": {
+      "matches": 13,
+      "wins": 7
     },
-    "vyse__yoru": {
-      "matches": 41,
-      "wins": 18
-    },
-    "fade__vyse": {
-      "matches": 30,
+    "astra__viper": {
+      "matches": 29,
       "wins": 12
     },
-    "fade__omen": {
-      "matches": 54,
-      "wins": 22
+    "kayo__vyse": {
+      "matches": 10,
+      "wins": 4
     },
-    "viper__vyse": {
+    "fade__kayo": {
+      "matches": 6,
+      "wins": 3
+    },
+    "kayo__raze": {
+      "matches": 6,
+      "wins": 3
+    },
+    "brimstone__kayo": {
+      "matches": 6,
+      "wins": 3
+    },
+    "brimstone__vyse": {
       "matches": 12,
       "wins": 6
     },
-    "omen__vyse": {
-      "matches": 49,
-      "wins": 21
+    "brimstone__fade": {
+      "matches": 33,
+      "wins": 19
     },
-    "fade__neon": {
-      "matches": 12,
-      "wins": 2
+    "brimstone__raze": {
+      "matches": 38,
+      "wins": 20
     },
-    "neon__viper": {
-      "matches": 15,
+    "brimstone__skye": {
+      "matches": 16,
       "wins": 7
     },
-    "neon__vyse": {
-      "matches": 7,
-      "wins": 2
+    "brimstone__viper": {
+      "matches": 29,
+      "wins": 16
     },
-    "breach__sova": {
-      "matches": 12,
-      "wins": 8
+    "brimstone__tejo": {
+      "matches": 23,
+      "wins": 10
     },
-    "breach__neon": {
-      "matches": 10,
-      "wins": 5
+    "raze__skye": {
+      "matches": 39,
+      "wins": 17
     },
-    "breach__omen": {
+    "skye__viper": {
+      "matches": 36,
+      "wins": 12
+    },
+    "skye__tejo": {
+      "matches": 6,
+      "wins": 3
+    },
+    "raze__tejo": {
       "matches": 13,
       "wins": 5
     },
+    "breach__raze": {
+      "matches": 10,
+      "wins": 6
+    },
+    "breach__brimstone": {
+      "matches": 15,
+      "wins": 9
+    },
+    "breach__vyse": {
+      "matches": 12,
+      "wins": 4
+    },
     "breach__cypher": {
+      "matches": 36,
+      "wins": 15
+    },
+    "cypher__tejo": {
+      "matches": 14,
+      "wins": 6
+    },
+    "cypher__yoru": {
+      "matches": 53,
+      "wins": 27
+    },
+    "cypher__omen": {
+      "matches": 130,
+      "wins": 55
+    },
+    "jett__vyse": {
+      "matches": 21,
+      "wins": 8
+    },
+    "sova__tejo": {
+      "matches": 16,
+      "wins": 9
+    },
+    "cypher__sova": {
+      "matches": 106,
+      "wins": 49
+    },
+    "brimstone__yoru": {
+      "matches": 22,
+      "wins": 14
+    },
+    "brimstone__cypher": {
+      "matches": 16,
+      "wins": 7
+    },
+    "breach__fade": {
+      "matches": 13,
+      "wins": 4
+    },
+    "kayo__tejo": {
+      "matches": 5,
+      "wins": 1
+    },
+    "cypher__neon": {
+      "matches": 54,
+      "wins": 25
+    },
+    "neon__tejo": {
+      "matches": 7,
+      "wins": 3
+    },
+    "breach__neon": {
+      "matches": 25,
+      "wins": 11
+    },
+    "brimstone__neon": {
+      "matches": 10,
+      "wins": 5
+    },
+    "iso__yoru": {
+      "matches": 7,
+      "wins": 4
+    },
+    "cypher__iso": {
+      "matches": 11,
+      "wins": 5
+    },
+    "iso__sova": {
+      "matches": 11,
+      "wins": 5
+    },
+    "iso__omen": {
+      "matches": 11,
+      "wins": 5
+    },
+    "cypher__jett": {
+      "matches": 44,
+      "wins": 15
+    },
+    "cypher__raze": {
+      "matches": 25,
+      "wins": 9
+    },
+    "raze__sova": {
+      "matches": 11,
+      "wins": 8
+    },
+    "iso__raze": {
+      "matches": 3,
+      "wins": 1
+    },
+    "cypher__kayo": {
+      "matches": 18,
+      "wins": 7
+    },
+    "gekko__viper": {
+      "matches": 13,
+      "wins": 3
+    },
+    "gekko__raze": {
+      "matches": 8,
+      "wins": 2
+    },
+    "brimstone__gekko": {
+      "matches": 5,
+      "wins": 1
+    },
+    "gekko__skye": {
+      "matches": 5,
+      "wins": 1
+    },
+    "neon__yoru": {
+      "matches": 44,
+      "wins": 22
+    },
+    "killjoy__yoru": {
+      "matches": 13,
+      "wins": 7
+    },
+    "neon__sova": {
+      "matches": 103,
+      "wins": 50
+    },
+    "killjoy__sova": {
+      "matches": 54,
+      "wins": 33
+    },
+    "astra__neon": {
+      "matches": 35,
+      "wins": 20
+    },
+    "astra__killjoy": {
       "matches": 14,
       "wins": 8
     },
     "killjoy__neon": {
-      "matches": 9,
-      "wins": 4
+      "matches": 31,
+      "wins": 16
     },
-    "killjoy__viper": {
-      "matches": 16,
-      "wins": 10
+    "neon__omen": {
+      "matches": 120,
+      "wins": 56
     },
-    "killjoy__omen": {
-      "matches": 16,
-      "wins": 10
-    },
-    "killjoy__sova": {
-      "matches": 13,
-      "wins": 8
-    },
-    "cypher__fade": {
-      "matches": 10,
-      "wins": 2
-    },
-    "breach__fade": {
-      "matches": 3,
+    "clove__fade": {
+      "matches": 1,
       "wins": 0
     },
-    "jett__sova": {
-      "matches": 20,
-      "wins": 8
+    "clove__omen": {
+      "matches": 2,
+      "wins": 0
     },
-    "cypher__jett": {
+    "clove__neon": {
+      "matches": 1,
+      "wins": 0
+    },
+    "breach__clove": {
+      "matches": 1,
+      "wins": 0
+    },
+    "fade__neon": {
+      "matches": 50,
+      "wins": 26
+    },
+    "reyna__tejo": {
+      "matches": 1,
+      "wins": 0
+    },
+    "fade__jett": {
       "matches": 15,
+      "wins": 5
+    },
+    "fade__reyna": {
+      "matches": 1,
+      "wins": 0
+    },
+    "omen__reyna": {
+      "matches": 1,
+      "wins": 0
+    },
+    "jett__reyna": {
+      "matches": 1,
+      "wins": 0
+    },
+    "jett__yoru": {
+      "matches": 14,
+      "wins": 5
+    },
+    "neon__viper": {
+      "matches": 75,
+      "wins": 38
+    },
+    "sova__viper": {
+      "matches": 106,
+      "wins": 60
+    },
+    "killjoy__omen": {
+      "matches": 49,
+      "wins": 27
+    },
+    "killjoy__viper": {
+      "matches": 55,
+      "wins": 30
+    },
+    "deadlock__omen": {
+      "matches": 21,
+      "wins": 9
+    },
+    "deadlock__sova": {
+      "matches": 10,
       "wins": 6
     },
-    "jett__kayo": {
-      "matches": 17,
-      "wins": 7
+    "deadlock__neon": {
+      "matches": 7,
+      "wins": 3
     },
-    "jett__omen": {
-      "matches": 17,
-      "wins": 7
+    "deadlock__viper": {
+      "matches": 8,
+      "wins": 3
     },
-    "kayo__sova": {
+    "omen__phoenix": {
       "matches": 25,
       "wins": 14
     },
-    "cypher__kayo": {
-      "matches": 13,
-      "wins": 5
+    "neon__phoenix": {
+      "matches": 23,
+      "wins": 16
     },
-    "kayo__omen": {
-      "matches": 22,
-      "wins": 13
-    },
-    "sage__yoru": {
-      "matches": 9,
-      "wins": 4
-    },
-    "sage__vyse": {
-      "matches": 8,
-      "wins": 4
-    },
-    "sova__vyse": {
-      "matches": 21,
-      "wins": 11
-    },
-    "cypher__viper": {
-      "matches": 5,
+    "killjoy__phoenix": {
+      "matches": 3,
       "wins": 3
     },
-    "cypher__raze": {
-      "matches": 6,
-      "wins": 2
+    "phoenix__sova": {
+      "matches": 24,
+      "wins": 12
     },
-    "raze__vyse": {
-      "matches": 12,
-      "wins": 7
-    },
-    "astra__omen": {
-      "matches": 3,
-      "wins": 1
-    },
-    "astra__kayo": {
-      "matches": 4,
-      "wins": 2
-    },
-    "astra__sova": {
-      "matches": 12,
+    "harbor__jett": {
+      "matches": 10,
       "wins": 6
     },
-    "astra__jett": {
+    "harbor__killjoy": {
+      "matches": 3,
+      "wins": 2
+    },
+    "harbor__viper": {
+      "matches": 10,
+      "wins": 6
+    },
+    "harbor__sova": {
+      "matches": 19,
+      "wins": 12
+    },
+    "jett__killjoy": {
+      "matches": 16,
+      "wins": 9
+    },
+    "harbor__kayo": {
+      "matches": 6,
+      "wins": 3
+    },
+    "clove__harbor": {
+      "matches": 1,
+      "wins": 0
+    },
+    "harbor__omen": {
+      "matches": 7,
+      "wins": 3
+    },
+    "gekko__harbor": {
+      "matches": 2,
+      "wins": 0
+    },
+    "clove__kayo": {
+      "matches": 1,
+      "wins": 0
+    },
+    "gekko__kayo": {
+      "matches": 3,
+      "wins": 0
+    },
+    "clove__gekko": {
+      "matches": 1,
+      "wins": 0
+    },
+    "gekko__omen": {
+      "matches": 6,
+      "wins": 0
+    },
+    "kayo__neon": {
       "matches": 5,
       "wins": 2
     },
-    "astra__yoru": {
-      "matches": 11,
+    "iso__neon": {
+      "matches": 1,
+      "wins": 0
+    },
+    "fade__killjoy": {
+      "matches": 17,
+      "wins": 8
+    },
+    "killjoy__raze": {
+      "matches": 15,
+      "wins": 9
+    },
+    "breach__skye": {
+      "matches": 5,
       "wins": 4
     },
-    "jett__yoru": {
+    "omen__skye": {
+      "matches": 36,
+      "wins": 15
+    },
+    "skye__yoru": {
       "matches": 3,
       "wins": 1
     },
-    "cypher__sage": {
-      "matches": 2,
+    "cypher__fade": {
+      "matches": 39,
+      "wins": 15
+    },
+    "cypher__viper": {
+      "matches": 17,
+      "wins": 6
+    },
+    "gekko__killjoy": {
+      "matches": 6,
       "wins": 1
+    },
+    "gekko__sova": {
+      "matches": 5,
+      "wins": 1
+    },
+    "gekko__neon": {
+      "matches": 1,
+      "wins": 0
+    },
+    "breach__killjoy": {
+      "matches": 4,
+      "wins": 3
+    },
+    "kayo__killjoy": {
+      "matches": 4,
+      "wins": 1
+    },
+    "fade__gekko": {
+      "matches": 2,
+      "wins": 0
+    },
+    "kayo__viper": {
+      "matches": 16,
+      "wins": 11
+    },
+    "astra__cypher": {
+      "matches": 14,
+      "wins": 8
+    },
+    "chamber__fade": {
+      "matches": 17,
+      "wins": 9
+    },
+    "chamber__harbor": {
+      "matches": 1,
+      "wins": 1
+    },
+    "chamber__viper": {
+      "matches": 9,
+      "wins": 3
+    },
+    "chamber__jett": {
+      "matches": 4,
+      "wins": 1
+    },
+    "cypher__gekko": {
+      "matches": 2,
+      "wins": 0
+    },
+    "fade__waylay": {
+      "matches": 34,
+      "wins": 12
+    },
+    "omen__waylay": {
+      "matches": 71,
+      "wins": 34
+    },
+    "raze__waylay": {
+      "matches": 8,
+      "wins": 3
+    },
+    "cypher__waylay": {
+      "matches": 29,
+      "wins": 18
+    },
+    "raze__sage": {
+      "matches": 8,
+      "wins": 5
+    },
+    "sage__viper": {
+      "matches": 17,
+      "wins": 12
+    },
+    "omen__sage": {
+      "matches": 31,
+      "wins": 16
+    },
+    "sage__sova": {
+      "matches": 28,
+      "wins": 17
     },
     "cypher__deadlock": {
-      "matches": 1,
+      "matches": 11,
+      "wins": 5
+    },
+    "deadlock__yoru": {
+      "matches": 6,
+      "wins": 3
+    },
+    "cypher__skye": {
+      "matches": 6,
+      "wins": 2
+    },
+    "gekko__jett": {
+      "matches": 4,
       "wins": 1
+    },
+    "deadlock__tejo": {
+      "matches": 4,
+      "wins": 1
+    },
+    "jett__sage": {
+      "matches": 7,
+      "wins": 5
+    },
+    "killjoy__sage": {
+      "matches": 5,
+      "wins": 5
+    },
+    "chamber__omen": {
+      "matches": 20,
+      "wins": 10
+    },
+    "tejo__waylay": {
+      "matches": 15,
+      "wins": 9
+    },
+    "vyse__waylay": {
+      "matches": 23,
+      "wins": 8
+    },
+    "kayo__waylay": {
+      "matches": 9,
+      "wins": 7
+    },
+    "reyna__vyse": {
+      "matches": 1,
+      "wins": 0
+    },
+    "reyna__sova": {
+      "matches": 1,
+      "wins": 0
+    },
+    "astra__reyna": {
+      "matches": 1,
+      "wins": 0
+    },
+    "reyna__sage": {
+      "matches": 1,
+      "wins": 0
+    },
+    "sage__vyse": {
+      "matches": 11,
+      "wins": 5
+    },
+    "astra__sage": {
+      "matches": 1,
+      "wins": 0
+    },
+    "neon__vyse": {
+      "matches": 20,
+      "wins": 6
+    },
+    "sage__yoru": {
+      "matches": 11,
+      "wins": 5
+    },
+    "cypher__sage": {
+      "matches": 9,
+      "wins": 3
     },
     "fade__sage": {
-      "matches": 2,
-      "wins": 1
+      "matches": 10,
+      "wins": 3
     },
     "deadlock__sage": {
-      "matches": 1,
-      "wins": 1
+      "matches": 6,
+      "wins": 2
     },
     "deadlock__fade": {
-      "matches": 6,
-      "wins": 3
-    },
-    "deadlock__omen": {
-      "matches": 6,
-      "wins": 3
+      "matches": 11,
+      "wins": 4
     },
     "deadlock__raze": {
       "matches": 6,
       "wins": 3
-    },
-    "astra__raze": {
-      "matches": 2,
-      "wins": 1
     },
     "astra__deadlock": {
       "matches": 3,
@@ -573,228 +1073,260 @@
       "matches": 2,
       "wins": 1
     },
-    "deadlock__viper": {
-      "matches": 3,
-      "wins": 1
-    },
     "astra__gekko": {
       "matches": 2,
       "wins": 1
     },
-    "astra__viper": {
-      "matches": 9,
-      "wins": 4
-    },
     "brimstone__waylay": {
-      "matches": 7,
-      "wins": 5
+      "matches": 14,
+      "wins": 8
     },
     "viper__waylay": {
-      "matches": 17,
-      "wins": 12
+      "matches": 45,
+      "wins": 24
     },
     "skye__waylay": {
-      "matches": 1,
-      "wins": 0
+      "matches": 17,
+      "wins": 6
     },
     "gekko__waylay": {
       "matches": 1,
       "wins": 0
     },
-    "deadlock__sova": {
-      "matches": 2,
-      "wins": 1
-    },
-    "deadlock__neon": {
-      "matches": 1,
-      "wins": 0
-    },
-    "kayo__waylay": {
-      "matches": 8,
-      "wins": 7
-    },
     "sova__waylay": {
-      "matches": 25,
-      "wins": 18
-    },
-    "omen__waylay": {
-      "matches": 34,
-      "wins": 16
-    },
-    "kayo__viper": {
-      "matches": 8,
-      "wins": 7
-    },
-    "astra__breach": {
-      "matches": 4,
-      "wins": 3
-    },
-    "astra__cypher": {
-      "matches": 7,
-      "wins": 4
+      "matches": 54,
+      "wins": 36
     },
     "astra__waylay": {
-      "matches": 5,
-      "wins": 3
+      "matches": 28,
+      "wins": 13
     },
     "breach__waylay": {
-      "matches": 7,
-      "wins": 3
-    },
-    "cypher__waylay": {
-      "matches": 14,
-      "wins": 8
-    },
-    "sova__tejo": {
-      "matches": 3,
-      "wins": 1
-    },
-    "tejo__yoru": {
-      "matches": 15,
-      "wins": 7
-    },
-    "cypher__tejo": {
-      "matches": 1,
-      "wins": 0
-    },
-    "omen__tejo": {
-      "matches": 8,
-      "wins": 5
-    },
-    "tejo__viper": {
-      "matches": 11,
-      "wins": 6
-    },
-    "fade__tejo": {
-      "matches": 12,
-      "wins": 6
-    },
-    "astra__tejo": {
-      "matches": 5,
-      "wins": 2
-    },
-    "astra__fade": {
-      "matches": 7,
-      "wins": 3
-    },
-    "killjoy__yoru": {
-      "matches": 4,
+      "matches": 9,
       "wins": 4
-    },
-    "harbor__omen": {
-      "matches": 5,
-      "wins": 3
     },
     "harbor__vyse": {
       "matches": 5,
       "wins": 3
     },
-    "harbor__sova": {
-      "matches": 5,
-      "wins": 3
-    },
     "harbor__yoru": {
-      "matches": 5,
+      "matches": 7,
       "wins": 3
-    },
-    "fade__waylay": {
-      "matches": 17,
-      "wins": 6
     },
     "neon__waylay": {
-      "matches": 6,
-      "wins": 1
+      "matches": 18,
+      "wins": 8
     },
     "waylay__yoru": {
-      "matches": 25,
-      "wins": 13
+      "matches": 39,
+      "wins": 19
     },
     "neon__sage": {
-      "matches": 1,
-      "wins": 0
-    },
-    "vyse__waylay": {
-      "matches": 13,
-      "wins": 4
-    },
-    "brimstone__tejo": {
-      "matches": 2,
-      "wins": 0
-    },
-    "astra__vyse": {
       "matches": 4,
-      "wins": 2
-    },
-    "chamber__fade": {
-      "matches": 4,
-      "wins": 2
+      "wins": 1
     },
     "chamber__raze": {
       "matches": 4,
-      "wins": 2
-    },
-    "chamber__omen": {
-      "matches": 5,
       "wins": 2
     },
     "chamber__deadlock": {
       "matches": 4,
       "wins": 2
     },
-    "breach__yoru": {
-      "matches": 2,
-      "wins": 0
-    },
-    "breach__vyse": {
-      "matches": 3,
-      "wins": 0
-    },
-    "deadlock__yoru": {
-      "matches": 2,
-      "wins": 1
-    },
-    "deadlock__tejo": {
-      "matches": 2,
-      "wins": 1
-    },
-    "killjoy__raze": {
-      "matches": 3,
-      "wins": 2
-    },
-    "fade__killjoy": {
-      "matches": 3,
-      "wins": 2
-    },
-    "chamber__sova": {
-      "matches": 2,
-      "wins": 0
-    },
-    "chamber__vyse": {
-      "matches": 1,
-      "wins": 0
-    },
-    "chamber__yoru": {
-      "matches": 2,
-      "wins": 0
-    },
-    "kayo__vyse": {
-      "matches": 3,
-      "wins": 1
-    },
-    "jett__vyse": {
-      "matches": 3,
-      "wins": 1
-    },
     "chamber__tejo": {
-      "matches": 1,
-      "wins": 0
-    },
-    "astra__chamber": {
       "matches": 1,
       "wins": 0
     },
     "brimstone__deadlock": {
       "matches": 1,
+      "wins": 0
+    },
+    "chamber__neon": {
+      "matches": 18,
+      "wins": 10
+    },
+    "neon__skye": {
+      "matches": 10,
+      "wins": 3
+    },
+    "astra__skye": {
+      "matches": 3,
+      "wins": 0
+    },
+    "astra__iso": {
+      "matches": 2,
+      "wins": 0
+    },
+    "iso__skye": {
+      "matches": 2,
+      "wins": 0
+    },
+    "iso__viper": {
+      "matches": 2,
+      "wins": 0
+    },
+    "iso__waylay": {
+      "matches": 2,
+      "wins": 0
+    },
+    "chamber__phoenix": {
+      "matches": 18,
+      "wins": 12
+    },
+    "fade__phoenix": {
+      "matches": 28,
+      "wins": 15
+    },
+    "phoenix__yoru": {
+      "matches": 8,
+      "wins": 5
+    },
+    "killjoy__waylay": {
+      "matches": 5,
+      "wins": 4
+    },
+    "killjoy__tejo": {
+      "matches": 4,
+      "wins": 4
+    },
+    "fade__veto": {
+      "matches": 1,
+      "wins": 0
+    },
+    "raze__veto": {
+      "matches": 1,
+      "wins": 0
+    },
+    "veto__yoru": {
+      "matches": 1,
+      "wins": 0
+    },
+    "astra__veto": {
+      "matches": 1,
+      "wins": 0
+    },
+    "skye__vyse": {
+      "matches": 13,
+      "wins": 6
+    },
+    "harbor__waylay": {
+      "matches": 5,
+      "wins": 3
+    },
+    "harbor__skye": {
+      "matches": 3,
+      "wins": 0
+    },
+    "harbor__neon": {
+      "matches": 6,
+      "wins": 3
+    },
+    "brimstone__chamber": {
+      "matches": 1,
+      "wins": 0
+    },
+    "chamber__skye": {
+      "matches": 2,
+      "wins": 0
+    },
+    "astra__harbor": {
+      "matches": 5,
+      "wins": 3
+    },
+    "astra__phoenix": {
+      "matches": 20,
+      "wins": 11
+    },
+    "kayo__phoenix": {
+      "matches": 1,
+      "wins": 0
+    },
+    "brimstone__harbor": {
+      "matches": 1,
+      "wins": 0
+    },
+    "harbor__raze": {
+      "matches": 1,
+      "wins": 0
+    },
+    "phoenix__vyse": {
+      "matches": 10,
+      "wins": 2
+    },
+    "skye__sova": {
+      "matches": 1,
+      "wins": 0
+    },
+    "cypher__phoenix": {
+      "matches": 13,
+      "wins": 3
+    },
+    "jett__phoenix": {
+      "matches": 15,
+      "wins": 5
+    },
+    "brimstone__phoenix": {
+      "matches": 7,
+      "wins": 2
+    },
+    "brimstone__jett": {
+      "matches": 4,
+      "wins": 2
+    },
+    "jett__raze": {
+      "matches": 22,
+      "wins": 10
+    },
+    "jett__waylay": {
+      "matches": 4,
+      "wins": 4
+    },
+    "chamber__kayo": {
+      "matches": 3,
+      "wins": 1
+    },
+    "jett__skye": {
+      "matches": 18,
+      "wins": 8
+    },
+    "chamber__sage": {
+      "matches": 3,
+      "wins": 1
+    },
+    "neon__raze": {
+      "matches": 7,
+      "wins": 2
+    },
+    "phoenix__viper": {
+      "matches": 7,
+      "wins": 7
+    },
+    "jett__neon": {
+      "matches": 5,
+      "wins": 2
+    },
+    "brimstone__killjoy": {
+      "matches": 3,
+      "wins": 3
+    },
+    "killjoy__skye": {
+      "matches": 3,
+      "wins": 3
+    },
+    "phoenix__raze": {
+      "matches": 2,
+      "wins": 1
+    },
+    "phoenix__waylay": {
+      "matches": 4,
+      "wins": 0
+    },
+    "chamber__cypher": {
+      "matches": 1,
+      "wins": 0
+    },
+    "chamber__waylay": {
+      "matches": 2,
       "wins": 0
     }
   }
