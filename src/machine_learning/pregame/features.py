@@ -25,6 +25,7 @@ def build_matchup_feature_matrix(
         if len(group) == 2:
             team_a = group.iloc[0]
             team_b = group.iloc[1]
+            weight = float(team_a.get("weight", 1.0))
 
             # Perspectiva 1: Equipo A (aliado) vs Equipo B (rival)
             matchups.append({
@@ -32,6 +33,7 @@ def build_matchup_feature_matrix(
                 "ally_agents": team_a["agents"],
                 "enemy_agents": team_b["agents"],
                 "won": team_a["won"],
+                "weight": weight,
             })
 
             # Perspectiva 2: Equipo B (aliado) vs Equipo A (rival) [Simetría]
@@ -40,6 +42,7 @@ def build_matchup_feature_matrix(
                 "ally_agents": team_b["agents"],
                 "enemy_agents": team_a["agents"],
                 "won": team_b["won"],
+                "weight": weight,
             })
 
     matchup_df = pd.DataFrame(matchups)
@@ -60,9 +63,10 @@ def build_matchup_feature_matrix(
 
     features_matrix_X = pd.DataFrame(X_rows)
     target_y = matchup_df["won"].astype(int)
+    sample_weights = matchup_df["weight"].astype(float) if "weight" in matchup_df.columns else pd.Series([1.0] * len(matchup_df))
     feature_column_names = features_matrix_X.columns.tolist()
 
-    return features_matrix_X, target_y, feature_column_names
+    return features_matrix_X, target_y, feature_column_names, sample_weights
 
 
 def encode_single_composition(

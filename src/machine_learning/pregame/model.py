@@ -14,6 +14,7 @@ if PROJECT_ROOT not in sys.path:
 def train_draft_model(
     features_matrix_X: pd.DataFrame,
     target_y: pd.Series,
+    sample_weights: pd.Series | None = None,
 ) -> LogisticRegression:
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     auc_scores = cross_val_score(
@@ -22,6 +23,7 @@ def train_draft_model(
         target_y,
         cv=cv,
         scoring="roc_auc",
+        params={"sample_weight": sample_weights} if sample_weights is not None else None,
     )
     acc_scores = cross_val_score(
         LogisticRegression(C=1.0, random_state=42),
@@ -29,13 +31,14 @@ def train_draft_model(
         target_y,
         cv=cv,
         scoring="accuracy",
+        params={"sample_weight": sample_weights} if sample_weights is not None else None,
     )
 
     print(f"ROC-AUC Score (Capacidad predictiva): {auc_scores.mean():.4f} (+/- {auc_scores.std():.4f})")
     print(f"Accuracy (Precisión en partidas):    {acc_scores.mean() * 100:.1f}%")
 
     trained_model = LogisticRegression(C=1.0, random_state=42)
-    trained_model.fit(features_matrix_X, target_y)
+    trained_model.fit(features_matrix_X, target_y, sample_weight=sample_weights)
 
     return trained_model
 
@@ -73,11 +76,11 @@ def run_training_pipeline(csv_path: str | None = None, output_path: str | None =
     maps, agents_in_df = extract_unique_entities(clean_df)
     all_agents = sorted(list(set(agents_in_df + list(AGENT_NAME_TO_UUID_MAP.keys()))))
 
-    X, y, feature_cols = build_matchup_feature_matrix(clean_df, maps, all_agents)
+    X, y, feature_cols, sample_weights = build_matchup_feature_matrix(clean_df, maps, all_agents)
     pick_rates = load_agent_pick_rates()
     pair_stats = extract_pairwise_win_rates(clean_df)
 
-    model = train_draft_model(X, y)
+    model = train_draft_model(X, y, sample_weights=sample_weights)
 
     bundle = {
         "model": model,
