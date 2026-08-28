@@ -68,21 +68,39 @@ export const DEFAULT_GAME_MODES = VALORANT_GAME_MODES.map((m) => ({
 }));
 
 /**
- * Normaliza y devuelve el nombre legible de cualquier modo de juego de VALORANT.
+ * Normaliza y devuelve el nombre legible de cualquier modo de juego de VALORANT según el idioma.
  */
-export function getGameModeName(modeIdOrName: string = ""): string {
+export function getGameModeName(modeIdOrName: string = "", lang: "es" | "en" = "es"): string {
   const norm = modeIdOrName.trim().toLowerCase().replace(/[\s\-_]/g, "");
-  if (!norm) return "Competitive";
+  if (!norm) return lang === "es" ? "Competitivo" : "Competitive";
 
-  if (norm === "hurm" || norm.includes("teamdeathmatch")) return "Team Deathmatch";
-  if (norm === "spikerush") return "Spike Rush";
-  if (norm === "swiftplay") return "Swiftplay";
-  if (norm === "competitive" || norm === "comp") return "Competitive";
-  if (norm === "unrated") return "Unrated";
-  if (norm === "deathmatch" || norm === "dm") return "Deathmatch";
-  if (norm === "premier") return "Premier";
-  if (norm === "escalation") return "Escalation";
-  if (norm === "custom" || norm === "customgame") return "Custom Game";
+  if (norm === "hurm" || norm.includes("teamdeathmatch") || norm === "tdm") {
+    return lang === "es" ? "Combate a Muerte por Equipos" : "Team Deathmatch";
+  }
+  if (norm === "spikerush" || norm.includes("spike")) {
+    return lang === "es" ? "Fiebre de la Spike" : "Spike Rush";
+  }
+  if (norm === "swiftplay" || norm.includes("swift")) {
+    return lang === "es" ? "Modo Rápido" : "Swiftplay";
+  }
+  if (norm === "competitive" || norm.includes("compet") || norm === "comp") {
+    return lang === "es" ? "Competitivo" : "Competitive";
+  }
+  if (norm === "unrated" || norm === "standard") {
+    return lang === "es" ? "No Clasificatoria" : "Unrated";
+  }
+  if (norm === "deathmatch" || norm === "dm") {
+    return lang === "es" ? "Combate a Muerte" : "Deathmatch";
+  }
+  if (norm === "premier") {
+    return "Premier";
+  }
+  if (norm === "escalation" || norm === "ggteam") {
+    return lang === "es" ? "Carrera Armamentística" : "Escalation";
+  }
+  if (norm === "custom" || norm.includes("custom")) {
+    return lang === "es" ? "Personalizada" : "Custom Game";
+  }
 
   const found = VALORANT_GAME_MODES.find(
     (m) =>
@@ -90,7 +108,7 @@ export function getGameModeName(modeIdOrName: string = ""): string {
       m.name.toLowerCase().replace(/[\s\-_]/g, "") === norm
   );
 
-  return found ? found.name : modeIdOrName;
+  return found ? (lang === "es" ? getGameModeName(found.id, "es") : found.name) : modeIdOrName;
 }
 
 /**

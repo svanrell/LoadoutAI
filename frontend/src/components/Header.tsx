@@ -3,7 +3,7 @@
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 import { DEFAULT_MAP_NAMES } from "@/data/mapsData";
-import { DEFAULT_GAME_MODES } from "@/data/gameModesData";
+import { DEFAULT_GAME_MODES, getGameModeName } from "@/data/gameModesData";
 import {
   ProfileIcon,
   DraftIcon,
@@ -132,7 +132,7 @@ export default function Header() {
             >
               <span className="compact-select-label">{t.mode}:</span>
               <span className="compact-select-value">
-                {selectedMode || DEFAULT_GAME_MODES[0].name.toUpperCase()}
+                {getGameModeName(selectedMode || DEFAULT_GAME_MODES[0].name, language).toUpperCase()}
               </span>
             </div>
           </div>

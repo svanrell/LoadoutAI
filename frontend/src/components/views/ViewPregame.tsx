@@ -5,6 +5,7 @@ import { useValorantData } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 import { calculateScore, getScoreMeta } from "@/lib/scoreUtils";
+import { getGameModeName } from "@/data/gameModesData";
 
 // ============================================================================
 // VISTA PRE-GAME: ASISTENTE DE DRAFT Y COACH DE SINERGIA CON IA
@@ -249,7 +250,7 @@ export default function ViewPregame() {
         <div className="sandbox-controls-card">
           <div className="sandbox-header">
             <span>{t.modeSpecs}</span>
-            <span className="sandbox-badge">{selectedMode}</span>
+            <span className="sandbox-badge">{getGameModeName(selectedMode, language).toUpperCase()}</span>
           </div>
 
           <div className="sandbox-fields">
