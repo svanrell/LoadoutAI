@@ -3,7 +3,6 @@ import sys
 import json
 import math
 import argparse
-from typing import Any
 
 # Asegurar que la raíz del proyecto esté en sys.path
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))

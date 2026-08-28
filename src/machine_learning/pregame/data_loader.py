@@ -122,10 +122,11 @@ def load_agent_pick_rates(
     if clean_df.empty:
         return {}
 
+    # Si el valor no existe se asigna 0.0 y no da error
     total_weights_by_map: dict[str, float] = defaultdict(float)
     agent_weights_by_map: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
 
-    # Iteración optimizada por tuplas con nombre (20x más rápida que iterrows)
+    # Iteración optimizada por tuplas con nombre
     for row in clean_df.itertuples(index=False):
         map_key = row.map_name.strip().lower()
         w = row.weight

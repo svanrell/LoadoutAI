@@ -1,10 +1,10 @@
 import os
 import sys
+import json
 import joblib
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_score
-from typing import Any
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 if PROJECT_ROOT not in sys.path:
@@ -43,7 +43,7 @@ def train_draft_model(
     return trained_model
 
 
-def save_model_artifact(model_bundle: dict[str, Any], output_file_path: str) -> None:
+def save_model_artifact(model_bundle: dict, output_file_path: str) -> None:
     directory = os.path.dirname(output_file_path)
     if directory:
         os.makedirs(directory, exist_ok=True)
@@ -51,7 +51,7 @@ def save_model_artifact(model_bundle: dict[str, Any], output_file_path: str) -> 
     print(f"Modelo guardado en: {output_file_path}")
 
 
-def load_model_artifact(model_file_path: str) -> dict[str, Any]:
+def load_model_artifact(model_file_path: str) -> dict:
     if not os.path.exists(model_file_path):
         raise FileNotFoundError(f"No se encontró el archivo del modelo en: {model_file_path}")
     return joblib.load(model_file_path)
@@ -113,5 +113,4 @@ def run_training_pipeline(csv_path: str | None = None, output_path: str | None =
 
 
 if __name__ == "__main__":
-    import json
     run_training_pipeline()
