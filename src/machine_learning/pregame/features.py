@@ -45,25 +45,32 @@ def build_matchup_feature_matrix(
                 "weight": weight,
             })
 
-    matchup_df = pd.DataFrame(matchups)
-
-    # Construir filas de características
+    # Construir filas de características de forma optimizada en memoria
     X_rows = []
-    for _, row in matchup_df.iterrows():
-        # 1. Mapa activo
-        map_dict = {f"map_{m}": int(row["map"] == m) for m in all_available_maps}
+    y_list = []
+    weights_list = []
 
-        # 2. Ventaja diferencial de agentes (+1 aliado, -1 rival, 0 neutro)
+    for m in matchups:
+        map_name = m["map"]
+        ally_set = m["ally_agents"]
+        enemy_set = m["enemy_agents"]
+
+        # 1. One-hot encoding del mapa activo
+        map_dict = {f"map_{mk}": int(map_name == mk) for mk in all_available_maps}
+
+        # 2. Ventaja diferencial de agentes (+1 aliado, -1 rival, 0 neutro) en O(1)
         agent_diff_dict = {
-            f"diff_{a}": int(a in row["ally_agents"]) - int(a in row["enemy_agents"])
+            f"diff_{a}": int(a in ally_set) - int(a in enemy_set)
             for a in all_available_agents
         }
 
         X_rows.append({**map_dict, **agent_diff_dict})
+        y_list.append(int(m["won"]))
+        weights_list.append(m["weight"])
 
     features_matrix_X = pd.DataFrame(X_rows)
-    target_y = matchup_df["won"].astype(int)
-    sample_weights = matchup_df["weight"].astype(float) if "weight" in matchup_df.columns else pd.Series([1.0] * len(matchup_df))
+    target_y = pd.Series(y_list, dtype=int)
+    sample_weights = pd.Series(weights_list, dtype=float)
     feature_column_names = features_matrix_X.columns.tolist()
 
     return features_matrix_X, target_y, feature_column_names, sample_weights
