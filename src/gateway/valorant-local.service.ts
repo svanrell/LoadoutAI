@@ -9,90 +9,16 @@ import { ValorantGateway } from "./valorant.gateway";
 import * as fs from "fs";
 import * as path from "path";
 import * as https from "https";
-import { exec } from "child_process";
-import { promisify } from "util";
 import { firstValueFrom } from "rxjs";
 import { ValorantMlEngine } from "./valorant-ml-engine";
+import {
+  MAPS_MAP,
+  QUEUES_MAP,
+  resolveMapName,
+  resolveQueueName,
+} from "./valorant.constants";
 
-const execPromise = promisify(exec);
-
-const MAPS_MAP: Record<string, string> = {
-  // Mapas Estándar
-  "/Game/Maps/Ascent/Ascent": "Ascent",
-  "/Game/Maps/Bonsai/Bonsai": "Split",
-  "/Game/Maps/Canyon/Canyon": "Fracture",
-  "/Game/Maps/Duality/Duality": "Bind",
-  "/Game/Maps/Foxtrot/Foxtrot": "Breeze",
-  "/Game/Maps/Jam/Jam": "Lotus",
-  "/Game/Maps/Infinity/Infinity": "Abyss",
-  "/Game/Maps/Jamboree/Jamboree": "Abyss",
-  "/Game/Maps/Pitt/Pitt": "Pearl",
-  "/Game/Maps/Port/Port": "Icebox",
-  "/Game/Maps/Juliett/Juliett": "Sunset",
-  "/Game/Maps/Rook/Rook": "Corrode",
-  "/Game/Maps/Triad/Triad": "Haven",
-  "/Game/Maps/Plummet/Plummet": "Summit",
-  // Mapas Team Deathmatch (HURM)
-  "/Game/Maps/Kasbah/Kasbah": "Kasbah",
-  "/Game/Maps/HURM/HURM_Bowl/HURM_Bowl": "Kasbah",
-  "/Game/Maps/Piazza/Piazza": "Piazza",
-  "/Game/Maps/HURM/HURM_Yard/HURM_Yard": "Piazza",
-  "/Game/Maps/District/District": "District",
-  "/Game/Maps/HURM/HURM_Alley/HURM_Alley": "District",
-  "/Game/Maps/Drift/Drift": "Drift",
-  "/Game/Maps/HURM/HURM_Helix/HURM_Helix": "Drift",
-  "/Game/Maps/HURM/HURM_HighTide/HURM_HighTide": "Glitch",
-  // Campo de tiro / The Range
-  "/Game/Maps/Poveglia/Range": "The Range",
-  "/Game/Maps/PovegliaV2/RangeV2": "The Range",
-};
-
-const QUEUES_MAP: Record<string, string> = {
-  unrated: "Unrated",
-  competitive: "Competitive",
-  swiftplay: "Swiftplay",
-  spikerush: "Spike Rush",
-  deathmatch: "Deathmatch",
-  hurm: "Team Deathmatch",
-  ggteam: "Escalation",
-  onefa: "Replication",
-  snowball: "Snowball Fight",
-  newmap: "New Map",
-  premier: "Premier",
-  "premier-tournament": "Premier Tournament",
-  seeding: "Seeding",
-  custom: "Custom Game",
-};
-
-export function resolveMapName(mapPath: string): string {
-  if (!mapPath) return "Ascent";
-  if (MAPS_MAP[mapPath]) return MAPS_MAP[mapPath];
-
-  // Buscar coincidencia parcial insensible a mayúsculas
-  const lower = mapPath.toLowerCase();
-  for (const [key, name] of Object.entries(MAPS_MAP)) {
-    if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) {
-      return name;
-    }
-  }
-
-  const parts = mapPath.split("/").filter(Boolean);
-  const lastPart = parts.length > 0 ? parts[parts.length - 1] : "Ascent";
-  const reconstructed = `/Game/Maps/${lastPart}/${lastPart}`;
-  if (MAPS_MAP[reconstructed]) return MAPS_MAP[reconstructed];
-
-  return lastPart;
-}
-
-export function resolveQueueName(queueId: string): string {
-  if (!queueId) return "Custom Game";
-  const lower = queueId.toLowerCase();
-  if (QUEUES_MAP[lower]) return QUEUES_MAP[lower];
-  return lower
-    .split(/[-_]/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+export { MAPS_MAP, QUEUES_MAP, resolveMapName, resolveQueueName };
 
 interface ChatSessionResponse {
   puuid: string;
@@ -197,14 +123,14 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private readonly httpsAgent: https.Agent;
   private currentStatus: string = "CLOSED";
   private currentExtraData: Record<string, unknown> = {};
-  private intervalId: NodeJS.Timeout;
+  private pollTimeout: NodeJS.Timeout | null = null;
+  private isDestroyed: boolean = false;
   private allyScore: number = -1;
   private enemyScore: number = -1;
   private buyPhaseSecondsRemaining: number = 0;
   private buyPhaseInterval: NodeJS.Timeout | null = null;
   private currentCredits: number = 800;
   private isCheckingStatus: boolean = false;
-  private isPredicting: boolean = false;
   private lastMlDraftKey: string = "";
   private lastMlDraftResult: {
     recommendations: any[];
@@ -215,6 +141,20 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     currentSynergy: 50.0,
     agentImpacts: [],
   };
+
+  private cachedRemoteConfig: {
+    config: {
+      glzUrl: string;
+      headers: {
+        Authorization: string;
+        "X-Riot-Entitlements-JWT": string;
+        "X-Riot-ClientVersion": string;
+        "X-Riot-ClientPlatform": string;
+        "Content-Type": string;
+      };
+    };
+    expiresAt: number;
+  } | null = null;
 
   constructor(
     private readonly httpService: HttpService,
@@ -231,11 +171,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit() {
-    this.logger.log("Iniciando radar local de Valorant...");
-    // Sondeo periódico cada 2 segundos para verificar el estado de la partida
-    this.intervalId = setInterval(() => {
-      void this.checkStatus();
-    }, 2000);
+    this.logger.log("Iniciando radar local de Valorant con sondeo adaptativo...");
+    this.scheduleNextCheck(500);
 
     // Escucha eventos del Frontend para pre-seleccionar agente
     this.gateway.pregameSelect$.subscribe(async (data) => {
@@ -264,13 +201,37 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleDestroy() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.logger.log("Radar local de Valorant detenido.");
+    this.isDestroyed = true;
+    if (this.pollTimeout) {
+      clearTimeout(this.pollTimeout);
+      this.pollTimeout = null;
     }
     if (this.buyPhaseInterval) {
       clearInterval(this.buyPhaseInterval);
+      this.buyPhaseInterval = null;
     }
+    this.logger.log("Radar local de Valorant detenido.");
+  }
+
+  private scheduleNextCheck(delayMs?: number) {
+    if (this.isDestroyed) return;
+    if (this.pollTimeout) clearTimeout(this.pollTimeout);
+
+    let nextDelay = delayMs;
+    if (nextDelay === undefined) {
+      if (this.currentStatus === "CLOSED") {
+        nextDelay = 3500; // Si el juego está cerrado, ahorrar CPU
+      } else if (this.currentStatus === "PREGAME" || this.currentStatus === "INGAME") {
+        nextDelay = 1500; // Máxima reactividad durante selección o partida
+      } else {
+        nextDelay = 2500; // En menú
+      }
+    }
+
+    this.pollTimeout = setTimeout(async () => {
+      await this.checkStatus();
+      this.scheduleNextCheck();
+    }, nextDelay);
   }
 
   /**
@@ -402,8 +363,16 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async getRemoteConfig() {
+    const now = Date.now();
+    if (this.cachedRemoteConfig && this.cachedRemoteConfig.expiresAt > now) {
+      return this.cachedRemoteConfig.config;
+    }
+
     const credentials = this.getCredentials();
-    if (!credentials) return null;
+    if (!credentials) {
+      this.cachedRemoteConfig = null;
+      return null;
+    }
 
     const config = {
       headers: { Authorization: credentials.token },
@@ -438,7 +407,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
       const { glzUrl } = await this.getRegionAndGlzUrl(credentials);
 
-      return {
+      const resolvedConfig = {
         glzUrl,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -449,7 +418,15 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           "Content-Type": "application/json",
         },
       };
+
+      this.cachedRemoteConfig = {
+        config: resolvedConfig,
+        expiresAt: now + 45000, // 45 segundos de caché
+      };
+
+      return resolvedConfig;
     } catch (error) {
+      this.cachedRemoteConfig = null;
       this.logger.error(
         `Error getting remote config: ${error instanceof Error ? error.message : String(error)}`,
       );
@@ -932,126 +909,30 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       return this.lastMlDraftResult;
     }
 
-    // 2. Ejecutar inferencia ultra-rápida In-Memory en TypeScript (<1ms)
+    // 2. Ejecutar inferencia ultra-rápida In-Memory en TypeScript (<0.5ms)
     try {
       const mlEngine = ValorantMlEngine.getInstance();
-      if (mlEngine.isLoaded()) {
-        const prediction = mlEngine.predict(
-          mapName || "Ascent",
-          alliesAgentUuids || [],
-          modeName || "competitive",
-        );
-        if (prediction && prediction.success) {
-          this.lastMlDraftKey = cacheKey;
-          this.lastMlDraftResult = {
-            recommendations: prediction.recommendations || [],
-            currentSynergy: prediction.currentSynergy || 0.0,
-            agentImpacts: prediction.agentImpacts || [],
-          };
-          return this.lastMlDraftResult;
-        }
-      }
-    } catch (engineError) {
-      this.logger.debug(
-        `In-memory ML Engine evaluation skipped, trying Python fallback: ${engineError instanceof Error ? engineError.message : String(engineError)}`,
-      );
-    }
-
-    // 3. Fallback secundario a subproceso de Python si el motor in-memory no estuviera disponible
-    if (this.isPredicting) {
-      return this.lastMlDraftResult;
-    }
-
-    this.isPredicting = true;
-
-    try {
-      const alliesArg = alliesAgentUuids.filter(Boolean).join(",") || "none";
-
-      const scriptPath = path.join(
-        process.cwd(),
-        "src",
-        "machine_learning",
-        "predict.py",
+      const prediction = mlEngine.predict(
+        mapName || "Ascent",
+        alliesAgentUuids || [],
+        modeName || "competitive",
       );
 
-      const candidateVenvPythonPaths = [
-        path.join(process.cwd(), ".venv", "bin", "python3"),
-        path.join(process.cwd(), ".venv", "bin", "python"),
-        path.join(process.cwd(), ".venv", "Scripts", "python.exe"),
-        path.join(process.cwd(), ".venv", "Scripts", "python"),
-      ];
-
-      const venvPython = candidateVenvPythonPaths.find((p) => fs.existsSync(p));
-
-      let cmd: string;
-      if (venvPython && fs.existsSync(scriptPath)) {
-        cmd = `"${venvPython}" "${scriptPath}" --map "${mapName}" --mode "${normalizedMode}" --allies "${alliesArg}"`;
-      } else {
-        const electronResources =
-          process.env.ELECTRON_RESOURCES_PATH ||
-          (process as any).resourcesPath ||
-          "";
-        const possibleExePaths = [
-          path.join(electronResources, "bin", "predict.exe"),
-          path.join(electronResources, "bin", "predict"),
-          path.join(electronResources, "resources", "bin", "predict.exe"),
-          path.join(electronResources, "resources", "bin", "predict"),
-          path.join(process.cwd(), "resources", "bin", "predict.exe"),
-          path.join(process.cwd(), "resources", "bin", "predict"),
-          path.join(
-            process.cwd(),
-            "resources",
-            "app.asar.unpacked",
-            "resources",
-            "bin",
-            "predict.exe",
-          ),
-          path.join(__dirname, "..", "..", "resources", "bin", "predict.exe"),
-          path.join(
-            __dirname,
-            "..",
-            "..",
-            "..",
-            "resources",
-            "bin",
-            "predict.exe",
-          ),
-          path.join(__dirname, "..", "..", "..", "bin", "predict.exe"),
-        ];
-        const standaloneExe = possibleExePaths.find((candidatePath) =>
-          fs.existsSync(candidatePath),
-        );
-
-        if (standaloneExe) {
-          cmd = `"${standaloneExe}" --map "${mapName}" --mode "${normalizedMode}" --allies "${alliesArg}"`;
-        } else {
-          const pythonCmd = process.platform === "win32" ? "python" : "python3";
-          cmd = `${process.env.PYTHON_PATH || pythonCmd} "${scriptPath}" --map "${mapName}" --mode "${normalizedMode}" --allies "${alliesArg}"`;
-        }
-      }
-
-      const { stdout } = await execPromise(cmd, { timeout: 10000 });
-      const jsonMatch = stdout.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error(`Salida de Python no contiene JSON válido: ${stdout}`);
-      }
-      const parsed = JSON.parse(jsonMatch[0]);
-      if (parsed && parsed.success) {
+      if (prediction && prediction.success) {
         this.lastMlDraftKey = cacheKey;
         this.lastMlDraftResult = {
-          recommendations: parsed.recommendations || [],
-          currentSynergy: parsed.currentSynergy || 0.0,
-          agentImpacts: parsed.agentImpacts || [],
+          recommendations: prediction.recommendations || [],
+          currentSynergy: prediction.currentSynergy || 50.0,
+          agentImpacts: prediction.agentImpacts || [],
         };
         return this.lastMlDraftResult;
       }
-    } catch (error) {
+    } catch (engineError) {
       this.logger.warn(
-        `ML Draft prediction failed or timed out: ${error instanceof Error ? error.message : String(error)}`,
+        `ML Draft prediction calculation error: ${engineError instanceof Error ? engineError.message : String(engineError)}`,
       );
-    } finally {
-      this.isPredicting = false;
     }
+
     return this.lastMlDraftResult;
   }
 }
