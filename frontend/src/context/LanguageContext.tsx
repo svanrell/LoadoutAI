@@ -149,6 +149,12 @@ export interface Translations {
   scoreGradeStandard: string;
   scoreGradeDeficit: string;
   scoreGradeBreakdown: string;
+  abilitiesTitle: string;
+  abilityFull: string;
+  abilityFree: string;
+  abilityPurchased: string;
+  abilityNotPurchased: string;
+  notDetectedDemo: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -290,6 +296,12 @@ const translations: Record<Language, Translations> = {
     scoreGradeStandard: "Estándar",
     scoreGradeDeficit: "Déficit Táctico",
     scoreGradeBreakdown: "Desbalance",
+    abilitiesTitle: "HABILIDADES",
+    abilityFull: "LLENA",
+    abilityFree: "GRATIS",
+    abilityPurchased: "COMPRADO",
+    abilityNotPurchased: "NO COMPRADO",
+    notDetectedDemo: "NO DETECTADO (DEMO JETT)",
   },
   en: {
     profile: "Profile",
@@ -429,6 +441,12 @@ const translations: Record<Language, Translations> = {
     scoreGradeStandard: "Standard",
     scoreGradeDeficit: "Deficit",
     scoreGradeBreakdown: "Breakdown",
+    abilitiesTitle: "ABILITIES",
+    abilityFull: "FULL",
+    abilityFree: "FREE",
+    abilityPurchased: "PURCHASED",
+    abilityNotPurchased: "NOT PURCHASED",
+    notDetectedDemo: "NOT DETECTED (DEMO JETT)",
   },
 };
 

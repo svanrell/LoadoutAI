@@ -5,6 +5,7 @@ import { useGameState } from "@/hooks/useGameState";
 import { getAbilityPrice } from "@/data/agentAbilitiesData";
 import { getMapSplash } from "@/data/mapsData";
 import { calculateNextRoundProjection } from "@/data/economyEngine";
+import AbilitiesShop, { AGENT_ABILITIES_DATABASE } from "@/components/shop/AbilitiesShop";
 import {
   ARMORS_DATA,
   WeaponCategoryConfig,
@@ -66,8 +67,8 @@ export default function ViewIngame() {
     return myAbilities.filter((a) => a.slot !== "Ultimate").slice(0, 3);
   }, [myAbilities]);
 
-  // useState: Diccionario para registrar si cada habilidad está comprada o no
-  const [abilityStatuses, setAbilityStatuses] = useState<Record<string, AbilityStatus>>({});
+  // useState: Diccionario para registrar las cargas de cada habilidad (soporte multicargas)
+  const [abilityChargesState, setAbilityChargesState] = useState<Record<string, number>>({});
 
   // useState: Blindaje/escudo equipado actualmente (null = sin escudo / no comprado; o Ligera, Regen, Pesada)
   const [equippedArmorName, setEquippedArmorName] = useState<string | null>(null);
@@ -81,17 +82,21 @@ export default function ViewIngame() {
     setIsFollowingAiRecommendation(false);
   }, [setIsFollowingAiRecommendation]);
 
-  // useCallback: Función memorizada para alternar el estado de compra de una habilidad (comprado <-> no comprado)
-  const toggleAbilityStatus = useCallback((slotOrName: string) => {
-    setAbilityStatuses((prev) => {
-      const current = prev[slotOrName] || "buy";
-      return {
-        ...prev,
-        [slotOrName]: current === "owned" ? "buy" : "owned",
-      };
-    });
-    setIsFollowingAiRecommendation(false);
-  }, [setIsFollowingAiRecommendation]);
+  // useCallback: Función memorizada para alternar/ciclar cargas de una habilidad
+  const handleToggleAbilityCharge = useCallback(
+    (abilityId: string, maxCharges: number, defaultCharges: number) => {
+      setAbilityChargesState((prev) => {
+        const current = prev[abilityId] !== undefined ? prev[abilityId] : defaultCharges;
+        const next = current + 1 > maxCharges ? defaultCharges : current + 1;
+        return {
+          ...prev,
+          [abilityId]: next,
+        };
+      });
+      setIsFollowingAiRecommendation(false);
+    },
+    [setIsFollowingAiRecommendation]
+  );
 
   // useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
   const toggleArmor = useCallback((armorName: string) => {
@@ -115,19 +120,21 @@ export default function ViewIngame() {
     return found?.cost || 0;
   }, [equippedArmorName]);
 
+  // useMemo: Cálculo del gasto en habilidades considerando cargas compradas
   const manualAbilitiesSpend = useMemo(() => {
     let sum = 0;
-    for (let i = 0; i < basicAbilities.length; i++) {
-      const ab = basicAbilities[i];
-      const abilityKey = `${myAgentName}_${ab.displayName || ab.slot || i}`;
-      const priceData = getAbilityPrice(myAgentName, ab.displayName, ab.slot);
-      const isOwned = abilityStatuses[abilityKey] === "owned";
-      if (isOwned && !priceData.isSignature) {
-        sum += priceData.cost;
-      }
+    const normKey = (myAgentName || "jett").toLowerCase().trim();
+    const list = AGENT_ABILITIES_DATABASE[normKey] || [];
+    for (const ab of list) {
+      const current =
+        abilityChargesState[ab.id] !== undefined
+          ? abilityChargesState[ab.id]
+          : ab.defaultCharges;
+      const boughtCharges = Math.max(0, current - ab.defaultCharges);
+      sum += boughtCharges * ab.cost;
     }
     return sum;
-  }, [basicAbilities, abilityStatuses, myAgentName]);
+  }, [myAgentName, abilityChargesState]);
 
   const totalCalculatedSpend = useMemo(() => {
     if (isFollowingAiRecommendation && buyRecommendations) {
@@ -1237,191 +1244,13 @@ export default function ViewIngame() {
 
         {/* Bottom Section: Abilities (Separated with clean breathing room - "un palmo") */}
         {basicAbilities.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "0.3rem",
-              width: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "clamp(0.58rem, 0.9vh, 0.7rem)",
-                fontWeight: 900,
-                letterSpacing: "0.15em",
-                color: "var(--text-muted)",
-                textTransform: "uppercase",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
-              <span>HABILIDADES</span>
-              {!isAgentDetected && (
-                <span
-                  style={{
-                    fontSize: "clamp(0.48rem, 0.75vh, 0.58rem)",
-                    color: "var(--color-yellow)",
-                    fontWeight: 800,
-                    padding: "1px 6px",
-                    background: "rgba(245, 158, 11, 0.15)",
-                    border: "1px solid rgba(245, 158, 11, 0.35)",
-                    borderRadius: "3px",
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  NO DETECTADO (DEMO JETT)
-                </span>
-              )}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                gap: "clamp(0.6rem, 1.4vw, 1.4rem)",
-                width: "100%",
-                maxWidth: "50rem",
-                justifyContent: "center",
-              }}
-            >
-              {basicAbilities.map((ab, idx) => {
-                const abilityPriceData = getAbilityPrice(myAgentName, ab.displayName, ab.slot);
-                const isSignature = abilityPriceData.isSignature;
-                const cost = abilityPriceData.cost;
-
-                // Unique key based on agent & slot/name
-                const abilityKey = `${myAgentName}_${ab.displayName || ab.slot || idx}`;
-
-                // Default status: signature abilities are 'owned', regular abilities start as 'buy' unless toggled
-                const status: AbilityStatus =
-                  abilityStatuses[abilityKey] || (isSignature ? "owned" : "buy");
-                const isOwned = status === "owned";
-
-                // Cost display: If owned, show "LLENA", if buy show cost (e.g. ¤150, ¤200, ¤250 or GRATIS)
-                const costDisplay = isOwned
-                  ? "LLENA"
-                  : cost > 0
-                    ? `¤${cost}`
-                    : "GRATIS";
-
-                // Status text / badge
-                const statusLabel = isOwned ? "COMPRADO" : "NO COMPRADO";
-
-                const cardStyle: React.CSSProperties = isOwned
-                  ? {
-                    flex: 1,
-                    maxWidth: "16rem",
-                    height: "clamp(3.1rem, 5.8vh, 4.2rem)",
-                    background: "rgba(56, 189, 248, 0.12)",
-                    border: "1.5px solid var(--color-cyan)",
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "clamp(0.3rem, 0.7vh, 0.55rem) clamp(0.55rem, 1.1vw, 0.95rem)",
-                    position: "relative",
-                    borderRadius: "0.25rem",
-                    boxShadow: "0 0 14px rgba(56, 189, 248, 0.22)",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                  }
-                  : {
-                    flex: 1,
-                    maxWidth: "16rem",
-                    height: "clamp(3.1rem, 5.8vh, 4.2rem)",
-                    background: "rgba(16, 24, 38, 0.65)",
-                    border: "1px solid rgba(255, 255, 255, 0.18)",
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "clamp(0.3rem, 0.7vh, 0.55rem) clamp(0.55rem, 1.1vw, 0.95rem)",
-                    position: "relative",
-                    borderRadius: "0.25rem",
-                    boxShadow: "none",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                  };
-
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => toggleAbilityStatus(abilityKey)}
-                    style={cardStyle}
-                    onMouseOver={(e) => {
-                      if (!isOwned) {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                        e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.35)";
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (!isOwned) {
-                        e.currentTarget.style.background = "rgba(16, 24, 38, 0.65)";
-                        e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
-                      }
-                    }}
-                    title={`Click para alternar: ${statusLabel}`}
-                  >
-                    {/* Status Dot */}
-                    <div
-                      style={{
-                        width: "0.45rem",
-                        height: "0.45rem",
-                        borderRadius: "50%",
-                        background: isOwned ? "var(--color-yellow)" : "rgba(255, 255, 255, 0.25)",
-                        marginRight: "clamp(0.45rem, 0.9vw, 0.8rem)",
-                        flexShrink: 0,
-                        boxShadow: isOwned ? "0 0 6px var(--color-yellow)" : "none",
-                      }}
-                    ></div>
-
-                    {/* Icon */}
-                    {ab.displayIcon && (
-                      <img
-                        src={ab.displayIcon}
-                        alt={ab.displayName}
-                        style={{
-                          width: "clamp(1.7rem, 3.4vh, 2.5rem)",
-                          height: "clamp(1.7rem, 3.4vh, 2.5rem)",
-                          objectFit: "contain",
-                          filter: isOwned
-                            ? "drop-shadow(0 0 6px var(--color-cyan))"
-                            : "grayscale(40%) opacity(0.65)",
-                          flexShrink: 0,
-                          transition: "filter 0.2s ease",
-                        }}
-                      />
-                    )}
-
-                    {/* Text block */}
-                    <div style={{ marginLeft: "auto", textAlign: "right", minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: "clamp(0.5rem, 0.8vh, 0.62rem)",
-                          color: isOwned ? "var(--color-cyan)" : "var(--color-yellow)",
-                          fontWeight: 800,
-                          letterSpacing: "0.06em",
-                        }}
-                      >
-                        {costDisplay}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "clamp(0.64rem, 1vh, 0.78rem)",
-                          fontWeight: 900,
-                          textTransform: "uppercase",
-                          color: isOwned ? "var(--text-main)" : "var(--text-muted)",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {ab.displayName}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <AbilitiesShop
+            agentName={myAgentName}
+            apiAbilities={myAbilities}
+            isAgentDetected={isAgentDetected}
+            chargesState={abilityChargesState}
+            onToggleCharge={handleToggleAbilityCharge}
+          />
         )}
       </div>
     </div>
