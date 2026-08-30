@@ -215,17 +215,17 @@ export default function AbilitiesShop({
                   justifyContent: "center",
                 }}
               >
-                {Array.from({ length: Math.min(ab.maxCharges, 4) }).map((_, dotIdx) => {
-                  const isDotActive = dotIdx < currentCharges;
+                {Array.from({ length: Math.min(ab.maxCharges, 4) }).map((_, chargeIndex) => {
+                  const isChargeActive = chargeIndex < currentCharges;
                   return (
                     <div
-                      key={dotIdx}
+                      key={chargeIndex}
                       style={{
                         width: "0.45rem",
                         height: "0.45rem",
                         borderRadius: "50%",
-                        background: isDotActive ? "var(--color-yellow)" : "rgba(255, 255, 255, 0.22)",
-                        boxShadow: isDotActive ? "0 0 6px var(--color-yellow)" : "none",
+                        background: isChargeActive ? "var(--color-yellow)" : "rgba(255, 255, 255, 0.22)",
+                        boxShadow: isChargeActive ? "0 0 6px var(--color-yellow)" : "none",
                         transition: "all 0.2s ease",
                       }}
                     />
