@@ -31,6 +31,7 @@ export interface Translations {
   reset: string;
   search: string;
   refresh: string;
+  syncing: string;
   filterAgents: string;
 
   // Modes
@@ -74,6 +75,13 @@ export interface Translations {
   winsShort: string;
   lossesShort: string;
   unrankedLabel: string;
+  recents: string;
+  noRecentMatches: string;
+  noAgentsPlayedSeason: string;
+  noCompetitiveMatches6Months: string;
+  playCompetitiveToTrackRR: string;
+  noMatchesFound6Months: string;
+  playMatchesToSyncHistory: string;
 
   inDevelopment: string;
   inDevelopmentDesc: string;
@@ -168,6 +176,7 @@ const translations: Record<Language, Translations> = {
     reset: "Restablecer",
     search: "Buscar",
     refresh: "Actualizar",
+    syncing: "Sincronizando...",
     filterAgents: "Filtrar Agentes",
 
     soloRanked: "Clasificatoria en Solitario",
@@ -207,6 +216,13 @@ const translations: Record<Language, Translations> = {
     winsShort: "V",
     lossesShort: "D",
     unrankedLabel: "Sin clasificar",
+    recents: "Recientes",
+    noRecentMatches: "Sin partidas recientes",
+    noAgentsPlayedSeason: "Sin agentes jugados en la temporada actual",
+    noCompetitiveMatches6Months: "Sin partidas clasificatorias en los últimos 6 meses",
+    playCompetitiveToTrackRR: "Juega en modo Competitivo para registrar tu evolución de RR",
+    noMatchesFound6Months: "No se encontraron partidas en los últimos 6 meses en esta cuenta",
+    playMatchesToSyncHistory: "Juega partidas en Valorant para sincronizar tu historial y estadísticas en tiempo real.",
 
     inDevelopment: "Módulo en Desarrollo",
     inDevelopmentDesc: "Esta funcionalidad está siendo desarrollada e integrada con los modelos de IA y la API de Valorant. Estará disponible próximamente.",
@@ -299,6 +315,7 @@ const translations: Record<Language, Translations> = {
     reset: "Reset",
     search: "Search",
     refresh: "Refresh",
+    syncing: "Syncing...",
     filterAgents: "Filter Agents",
 
     soloRanked: "Solo Ranked",
@@ -338,6 +355,13 @@ const translations: Record<Language, Translations> = {
     winsShort: "W",
     lossesShort: "L",
     unrankedLabel: "Unranked",
+    recents: "Recent",
+    noRecentMatches: "No recent matches",
+    noAgentsPlayedSeason: "No agents played in the current season",
+    noCompetitiveMatches6Months: "No competitive matches in the last 6 months",
+    playCompetitiveToTrackRR: "Play in Competitive mode to track your RR progress",
+    noMatchesFound6Months: "No matches found in the last 6 months on this account",
+    playMatchesToSyncHistory: "Play matches in Valorant to synchronize your history and real-time stats.",
 
     inDevelopment: "Module In Development",
     inDevelopmentDesc: "This feature is currently under development and being integrated with our AI models and the Valorant API. It will be available soon.",

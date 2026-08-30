@@ -29,17 +29,6 @@ export default function ViewMenu() {
     x: number;
     y: number;
   } | null>(null);
-  const [hoveredDivision, setHoveredDivision] = useState<{
-    tierNum: number;
-    exactName: string;
-    globalName: string;
-    color: string;
-    iconUrl: string;
-    centerY: number;
-    x: number;
-    y: number;
-  } | null>(null);
-  const [hoveredGlobalBandKey, setHoveredGlobalBandKey] = useState<string | null>(null);
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [chartDimensions, setChartDimensions] = useState({ width: 500, height: 140 });
@@ -128,9 +117,6 @@ export default function ViewMenu() {
   };
 
   const defaultAvatar = getAgentIcon("Jett", "add6443c-41c1-48b0-a04a-a71c8b3269a9");
-  const yoruIcon = getAgentIcon("Yoru", "7f94d92c-4234-0922-4ce0-46670fae4536");
-  const omenIcon = getAgentIcon("Omen", "8e253930-4c05-31dd-1b6c-968525494517");
-  const sovaIcon = getAgentIcon("Sova", "ded3520f-4264-bfed-162d-b080e2abccf9");
 
   // Obtener la tarjeta de jugador real (Player Card) del juego o fallback oficial
   const getPlayerCardUrl = (cardId?: string) => {
@@ -154,10 +140,16 @@ export default function ViewMenu() {
   const chartData = useMemo(() => {
     if (competitiveUpdates.length === 0) return null;
 
-    const padLeft = 82;
-    const padRight = 16;
-    const padTop = 14;
-    const padBottom = 16;
+    const rootFontSize =
+      typeof window !== "undefined"
+        ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+        : 16;
+    const rem = (v: number) => v * rootFontSize;
+
+    const padLeft = rem(5.875); // ~94px en base 16px
+    const padRight = rem(1);    // ~16px
+    const padTop = rem(0.875);  // ~14px
+    const padBottom = rem(1);   // ~16px
     const width = chartDimensions.width;
     const height = chartDimensions.height;
     const chartW = Math.max(10, width - padLeft - padRight);
@@ -168,14 +160,18 @@ export default function ViewMenu() {
     const minTier = Math.min(...tierValues);
     const maxTier = Math.max(...tierValues);
 
-    // Rango visible de divisiones (Tier Bands)
-    let displayMinTier = Math.max(3, minTier - 1);
-    let displayMaxTier = Math.min(27, maxTier + 1);
+    // Garantizar que siempre hayan 4 bloques de rangos completos (simétricos y consistentes)
+    const getBaseTierIndex = (tier: number) => (tier >= 27 ? 8 : Math.floor((tier - 3) / 3));
+    let minBaseIdx = getBaseTierIndex(minTier);
+    let maxBaseIdx = getBaseTierIndex(maxTier);
 
-    while (displayMaxTier - displayMinTier < 3 && (displayMinTier > 3 || displayMaxTier < 27)) {
-      if (displayMinTier > 3) displayMinTier--;
-      if (displayMaxTier - displayMinTier < 3 && displayMaxTier < 27) displayMaxTier++;
+    while (maxBaseIdx - minBaseIdx < 3 && (minBaseIdx > 0 || maxBaseIdx < 8)) {
+      if (minBaseIdx > 0) minBaseIdx--;
+      if (maxBaseIdx - minBaseIdx < 3 && maxBaseIdx < 8) maxBaseIdx++;
     }
+
+    const displayMinTier = minBaseIdx * 3 + 3;
+    const displayMaxTier = maxBaseIdx >= 8 ? 27 : maxBaseIdx * 3 + 5;
 
     const yMin = displayMinTier * 100;
     const yMax = (displayMaxTier + 1) * 100;
@@ -316,10 +312,11 @@ export default function ViewMenu() {
       chartH,
       width,
       height,
+      rem,
     };
   }, [competitiveUpdates, chartDimensions, language]);
 
-  // Agrupación dinámica de las partidas sincronizadas de Riot
+  // Agrupación de las partidas sincronizadas de Riot
   const matchGroups = useMemo(() => {
     if (!playerProfile || !playerProfile.matches || playerProfile.matches.length === 0) {
       return [];
@@ -327,7 +324,13 @@ export default function ViewMenu() {
 
     const groupMap: Record<string, typeof playerProfile.matches> = {};
     for (const m of playerProfile.matches) {
-      const d = m.dateTitle || "Recientes";
+      const rawTitle = m.dateTitle || "";
+      const d =
+        !rawTitle ||
+        rawTitle.toLowerCase() === "recientes" ||
+        rawTitle.toLowerCase() === "recent"
+          ? t.recents
+          : rawTitle;
       if (!groupMap[d]) groupMap[d] = [];
       groupMap[d].push(m);
     }
@@ -403,7 +406,7 @@ export default function ViewMenu() {
             <span style={{ display: "flex", transform: (isRefreshing || isProfileLoading) ? "rotate(360deg)" : "none", transition: "transform 0.5s ease" }}>
               <RefreshIcon size={12} />
             </span>
-            <span>{isProfileLoading ? "Sincronizando..." : t.refresh}</span>
+            <span>{isProfileLoading ? t.syncing : t.refresh}</span>
           </button>
         </div>
       </div>
@@ -444,7 +447,7 @@ export default function ViewMenu() {
                 ))
               ) : (
                 <div style={{ fontSize: "0.625rem", color: "var(--text-dim)", padding: "0.125rem 0" }}>
-                  Sin partidas recientes
+                  {t.noRecentMatches}
                 </div>
               )}
             </div>
@@ -474,7 +477,7 @@ export default function ViewMenu() {
               })
             ) : (
               <div style={{ fontSize: "0.625rem", color: "var(--text-dim)", padding: "0.25rem 0" }}>
-                Sin agentes jugados en la temporada actual
+                {t.noAgentsPlayedSeason}
               </div>
             )}
           </div>
@@ -511,8 +514,6 @@ export default function ViewMenu() {
             className="lp-chart-container"
             onMouseLeave={() => {
               setHoveredPoint(null);
-              setHoveredDivision(null);
-              setHoveredGlobalBandKey(null);
             }}
           >
             {chartData ? (
@@ -561,9 +562,8 @@ export default function ViewMenu() {
                     </g>
                   ))}
 
-                  {/* Division Subtle Subdivisions & Interactive Hover Strips */}
+                  {/* Division Subtle Subdivisions */}
                   {chartData.divisionBands.map((div) => {
-                    const isDivHovered = hoveredDivision?.tierNum === div.tierNum;
                     return (
                       <g key={div.tierNum} className="chart-division-group">
                         {/* Division dashed line */}
@@ -575,117 +575,54 @@ export default function ViewMenu() {
                           stroke="rgba(255, 255, 255, 0.08)"
                           strokeDasharray="3 3"
                         />
-                        {/* Interactive hoverable strip */}
-                        <rect
-                          x={chartData.padLeft}
-                          y={div.topY}
-                          width={chartData.chartW}
-                          height={div.bandHeight}
-                          fill={div.color}
-                          fillOpacity={isDivHovered ? 0.12 : 0}
-                          style={{ cursor: "pointer", transition: "fill-opacity 0.15s ease" }}
-                          onMouseEnter={() => {
-                            setHoveredDivision({
-                              tierNum: div.tierNum,
-                              exactName: div.exactName,
-                              globalName: div.globalName,
-                              color: div.color,
-                              iconUrl: div.iconUrl,
-                              centerY: div.centerY,
-                              x: chartData.padLeft + 12,
-                              y: div.centerY,
-                            });
-                          }}
-                        />
                       </g>
                     );
                   })}
 
                   {/* Y-Axis Rank Badge Pills on Left Side */}
                   {chartData.globalTierBands.map((globalBand) => {
-                    const activeDiv =
-                      hoveredDivision &&
-                      hoveredDivision.globalName.toLowerCase() === globalBand.globalName.toLowerCase()
-                        ? hoveredDivision
-                        : null;
-
-                    const isHovered =
-                      activeDiv !== null || hoveredGlobalBandKey === globalBand.globalName;
-
-                    const displayExactName = activeDiv
-                      ? activeDiv.exactName
-                      : globalBand.divisions[globalBand.divisions.length - 1]?.exactName || globalBand.globalName;
-
-                    const displayIcon = activeDiv
-                      ? activeDiv.iconUrl
-                      : isHovered
-                      ? globalBand.divisions[globalBand.divisions.length - 1]?.iconUrl || globalBand.globalIconUrl
-                      : globalBand.globalIconUrl;
-
                     const pillY = Math.max(
                       2,
-                      Math.min(chartData.height - 24, (activeDiv ? activeDiv.centerY : globalBand.centerY) - 11)
+                      Math.min(chartData.height - chartData.rem(1.5), globalBand.centerY - chartData.rem(0.6875))
                     );
 
                     return (
                       <g
                         key={globalBand.globalName}
-                        transform={`translate(5, ${pillY})`}
-                        style={{ cursor: "pointer", transition: "transform 0.15s ease" }}
-                        onMouseEnter={() => {
-                          setHoveredGlobalBandKey(globalBand.globalName);
-                          if (!hoveredDivision && globalBand.divisions.length > 0) {
-                            const targetDiv = globalBand.divisions[globalBand.divisions.length - 1];
-                            setHoveredDivision({
-                              tierNum: targetDiv.tierNum,
-                              exactName: targetDiv.exactName,
-                              globalName: targetDiv.globalName,
-                              color: targetDiv.color,
-                              iconUrl: targetDiv.iconUrl,
-                              centerY: targetDiv.centerY,
-                              x: chartData.padLeft + 12,
-                              y: targetDiv.centerY,
-                            });
-                          }
-                        }}
-                        onMouseLeave={() => {
-                          setHoveredGlobalBandKey(null);
-                          setHoveredDivision(null);
-                        }}
+                        transform={`translate(${chartData.rem(0.25)}, ${pillY})`}
                       >
                         {/* Sleek Pill Background */}
                         <rect
                           x={0}
                           y={0}
-                          width={72}
-                          height={22}
-                          rx={6}
-                          fill={isHovered ? "rgba(18, 25, 42, 0.95)" : "rgba(10, 15, 26, 0.85)"}
+                          width={chartData.rem(5.3125)}
+                          height={chartData.rem(1.375)}
+                          rx={chartData.rem(0.375)}
+                          fill="rgba(10, 15, 26, 0.85)"
                           stroke={globalBand.color}
-                          strokeWidth={isHovered ? 1.5 : 1}
-                          strokeOpacity={isHovered ? 0.9 : 0.4}
-                          filter={isHovered ? `drop-shadow(0 0 6px ${globalBand.color}66)` : undefined}
+                          strokeWidth={1}
+                          strokeOpacity={0.4}
                         />
                         {/* Tier Icon */}
                         <image
-                          href={displayIcon}
-                          x={4}
-                          y={3}
-                          width={16}
-                          height={16}
+                          href={globalBand.globalIconUrl}
+                          x={chartData.rem(0.25)}
+                          y={chartData.rem(0.1875)}
+                          width={chartData.rem(1)}
+                          height={chartData.rem(1)}
                           preserveAspectRatio="xMidYMid meet"
                         />
-                        {/* Tier Name: Global (e.g. "ORO") or Exact on hover (e.g. "Oro II") */}
+                        {/* Tier Name: General Rank */}
                         <text
-                          x={23}
-                          y={15}
-                          fill={isHovered ? "#ffffff" : globalBand.color}
-                          fontSize={isHovered ? "9" : "9.5"}
+                          x={chartData.rem(1.5)}
+                          y={chartData.rem(0.9375)}
+                          fill={globalBand.color}
+                          fontSize="9"
                           fontWeight="800"
                           fontFamily="'Inter', system-ui, sans-serif"
-                          letterSpacing={isHovered ? "0.01em" : "0.03em"}
+                          letterSpacing="0.02em"
                         >
-                          {isHovered ? displayExactName : globalBand.globalName.toUpperCase()}
+                          {globalBand.globalName.toUpperCase()}
                         </text>
                       </g>
                     );
@@ -818,28 +755,6 @@ export default function ViewMenu() {
                     </div>
                   </div>
                 )}
-                {/* Division Exact Rank Hover Indicator / Tooltip */}
-                {hoveredDivision && !hoveredPoint && (
-                  <div
-                    className="lp-division-tooltip"
-                    style={{
-                      left: `${chartData.padLeft + 8}px`,
-                      top: `${hoveredDivision.centerY}px`,
-                    }}
-                  >
-                    <img
-                      src={hoveredDivision.iconUrl}
-                      alt={hoveredDivision.exactName}
-                      className="lp-division-tooltip-icon"
-                    />
-                    <span
-                      className="lp-division-tooltip-name"
-                      style={{ color: hoveredDivision.color }}
-                    >
-                      {hoveredDivision.exactName}
-                    </span>
-                  </div>
-                )}
               </>
             ) : (
               <div className="lp-chart-empty-container">
@@ -850,60 +765,74 @@ export default function ViewMenu() {
                   height={chartDimensions.height}
                 >
                   {[
-                    { tierNum: 15, label: language === "es" ? "PLATINO" : "PLATINUM", color: "#06b6d4", topRatio: 0.08, heightRatio: 0.26 },
-                    { tierNum: 12, label: language === "es" ? "ORO" : "GOLD", color: "#eab308", topRatio: 0.38, heightRatio: 0.26 },
-                    { tierNum: 9, label: language === "es" ? "PLATA" : "SILVER", color: "#cbd5e1", topRatio: 0.68, heightRatio: 0.26 },
-                  ].map((band, i) => (
-                    <g key={i}>
-                      <rect
-                        x={82}
-                        y={band.topRatio * chartDimensions.height}
-                        width={Math.max(10, chartDimensions.width - 98)}
-                        height={band.heightRatio * chartDimensions.height}
-                        fill={band.color}
-                        fillOpacity={0.04}
-                      />
-                      <line
-                        x1={82}
-                        y1={band.topRatio * chartDimensions.height}
-                        x2={chartDimensions.width - 16}
-                        y2={band.topRatio * chartDimensions.height}
-                        stroke="rgba(255, 255, 255, 0.06)"
-                        strokeDasharray="4 4"
-                      />
-                      {/* Sleek Pill Badge */}
-                      <g transform={`translate(5, ${band.topRatio * chartDimensions.height + 6})`}>
+                    { tierNum: 15, label: language === "es" ? "PLATINO" : "PLATINUM", color: "#06b6d4", topRatio: 0.00, heightRatio: 0.25 },
+                    { tierNum: 12, label: language === "es" ? "ORO" : "GOLD", color: "#eab308", topRatio: 0.25, heightRatio: 0.25 },
+                    { tierNum: 9, label: language === "es" ? "PLATA" : "SILVER", color: "#cbd5e1", topRatio: 0.50, heightRatio: 0.25 },
+                    { tierNum: 6, label: language === "es" ? "BRONCE" : "BRONZE", color: "#b45309", topRatio: 0.75, heightRatio: 0.25 },
+                  ].map((band, i) => {
+                    const rootFontSize =
+                      typeof window !== "undefined"
+                        ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+                        : 16;
+                    const rem = (v: number) => v * rootFontSize;
+                    const topY = band.topRatio * chartDimensions.height;
+                    const bandH = band.heightRatio * chartDimensions.height;
+                    const pillY = topY + (bandH - rem(1.375)) / 2;
+                    const padLeftFallback = rem(5.875);
+
+                    return (
+                      <g key={i}>
                         <rect
-                          x={0}
-                          y={0}
-                          width={72}
-                          height={22}
-                          rx={6}
-                          fill="rgba(12, 17, 29, 0.75)"
-                          stroke={band.color}
-                          strokeWidth={1}
-                          strokeOpacity={0.35}
-                        />
-                        <image
-                          href={getBaseTierIconUrl(band.tierNum)}
-                          x={4}
-                          y={3}
-                          width={16}
-                          height={16}
-                        />
-                        <text
-                          x={23}
-                          y={15}
+                          x={padLeftFallback}
+                          y={topY}
+                          width={Math.max(10, chartDimensions.width - padLeftFallback - rem(1))}
+                          height={bandH}
                           fill={band.color}
-                          fontSize="9.5"
-                          fontWeight="800"
-                          fontFamily="'Inter', system-ui, sans-serif"
-                        >
-                          {band.label}
-                        </text>
+                          fillOpacity={0.04}
+                        />
+                        <line
+                          x1={padLeftFallback}
+                          y1={topY}
+                          x2={chartDimensions.width - rem(1)}
+                          y2={topY}
+                          stroke="rgba(255, 255, 255, 0.06)"
+                          strokeDasharray="4 4"
+                        />
+                        {/* Sleek Pill Badge */}
+                        <g transform={`translate(${rem(0.25)}, ${pillY})`}>
+                          <rect
+                            x={0}
+                            y={0}
+                            width={rem(5.3125)}
+                            height={rem(1.375)}
+                            rx={rem(0.375)}
+                            fill="rgba(12, 17, 29, 0.75)"
+                            stroke={band.color}
+                            strokeWidth={1}
+                            strokeOpacity={0.35}
+                          />
+                          <image
+                            href={getBaseTierIconUrl(band.tierNum)}
+                            x={rem(0.25)}
+                            y={rem(0.1875)}
+                            width={rem(1)}
+                            height={rem(1)}
+                          />
+                          <text
+                            x={rem(1.5)}
+                            y={rem(0.9375)}
+                            fill={band.color}
+                            fontSize="9"
+                            fontWeight="800"
+                            fontFamily="'Inter', system-ui, sans-serif"
+                            letterSpacing="0.02em"
+                          >
+                            {band.label}
+                          </text>
+                        </g>
                       </g>
-                    </g>
-                  ))}
+                    );
+                  })}
                 </svg>
                 <div className="lp-chart-empty-overlay">
                   <div className="lp-empty-icon-wrap">
@@ -914,10 +843,10 @@ export default function ViewMenu() {
                     />
                   </div>
                   <span className="lp-empty-title">
-                    Sin partidas clasificatorias en los últimos 6 meses
+                    {t.noCompetitiveMatches6Months}
                   </span>
                   <span className="lp-empty-subtitle">
-                    Juega en modo Competitivo para registrar tu evolución de RR
+                    {t.playCompetitiveToTrackRR}
                   </span>
                 </div>
               </div>
@@ -1102,10 +1031,10 @@ export default function ViewMenu() {
             }}
           >
             <span style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--text-main)" }}>
-              No se encontraron partidas en los últimos 6 meses en esta cuenta
+              {t.noMatchesFound6Months}
             </span>
             <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-              Juega partidas en Valorant para sincronizar tu historial y estadísticas en tiempo real.
+              {t.playMatchesToSyncHistory}
             </span>
           </div>
         )}
