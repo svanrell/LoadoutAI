@@ -87,7 +87,10 @@ export function resolveMapName(mapPath: string): string {
 
   const lower = mapPath.toLowerCase();
   for (const [key, name] of Object.entries(MAPS_MAP)) {
-    if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) {
+    if (
+      key.toLowerCase().includes(lower) ||
+      lower.includes(key.toLowerCase())
+    ) {
       return name;
     }
   }

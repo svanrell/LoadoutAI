@@ -151,21 +151,62 @@ export class ValorantMlEngine {
   }
 
   public loadData(): boolean {
-    const resourcesPath =
-      process.env.ELECTRON_RESOURCES_PATH ||
-      (process as any).resourcesPath ||
-      "";
+    const resourcesPath = process.env.ELECTRON_RESOURCES_PATH || "";
 
     const candidatePaths = [
       path.join(resourcesPath, "artifacts", "draft_data.json"),
       path.join(resourcesPath, "bin", "draft_data.json"),
       path.join(resourcesPath, "draft_data.json"),
-      path.join(resourcesPath, "app.asar.unpacked", "dist", "machine_learning", "pregame", "artifacts", "draft_data.json"),
-      path.join(__dirname, "machine_learning", "pregame", "artifacts", "draft_data.json"),
-      path.join(__dirname, "..", "machine_learning", "pregame", "artifacts", "draft_data.json"),
-      path.join(process.cwd(), "src", "machine_learning", "pregame", "artifacts", "draft_data.json"),
-      path.join(process.cwd(), "dist", "machine_learning", "pregame", "artifacts", "draft_data.json"),
-      path.join(__dirname, "..", "..", "src", "machine_learning", "pregame", "artifacts", "draft_data.json"),
+      path.join(
+        resourcesPath,
+        "app.asar.unpacked",
+        "dist",
+        "machine_learning",
+        "pregame",
+        "artifacts",
+        "draft_data.json",
+      ),
+      path.join(
+        __dirname,
+        "machine_learning",
+        "pregame",
+        "artifacts",
+        "draft_data.json",
+      ),
+      path.join(
+        __dirname,
+        "..",
+        "machine_learning",
+        "pregame",
+        "artifacts",
+        "draft_data.json",
+      ),
+      path.join(
+        process.cwd(),
+        "src",
+        "machine_learning",
+        "pregame",
+        "artifacts",
+        "draft_data.json",
+      ),
+      path.join(
+        process.cwd(),
+        "dist",
+        "machine_learning",
+        "pregame",
+        "artifacts",
+        "draft_data.json",
+      ),
+      path.join(
+        __dirname,
+        "..",
+        "..",
+        "src",
+        "machine_learning",
+        "pregame",
+        "artifacts",
+        "draft_data.json",
+      ),
     ];
 
     for (const p of candidatePaths) {
@@ -184,7 +225,20 @@ export class ValorantMlEngine {
     if (!this.modelData) {
       const allAgentNames = Object.values(AGENT_UUID_TO_NAME);
       this.modelData = {
-        maps: ["Ascent", "Bind", "Haven", "Split", "Icebox", "Breeze", "Fracture", "Pearl", "Lotus", "Sunset", "Abyss", "Corrode"],
+        maps: [
+          "Ascent",
+          "Bind",
+          "Haven",
+          "Split",
+          "Icebox",
+          "Breeze",
+          "Fracture",
+          "Pearl",
+          "Lotus",
+          "Sunset",
+          "Abyss",
+          "Corrode",
+        ],
         agents: allAgentNames,
         pick_rates: {},
         pair_stats: {},
@@ -274,7 +328,10 @@ export class ValorantMlEngine {
    * ------------------------------
    * Mide la tasa media de uso y efectividad de los agentes elegidos en el mapa concreto.
    */
-  public computeMapMetaScore(teamAgents: string[], targetMapName: string): number {
+  public computeMapMetaScore(
+    teamAgents: string[],
+    targetMapName: string,
+  ): number {
     const cleaned = teamAgents.map(normalizeAgentName).filter(Boolean);
     if (cleaned.length === 0 || !this.modelData) return 50.0;
 
@@ -282,7 +339,8 @@ export class ValorantMlEngine {
     const mapDict = (this.modelData.pick_rates || {})[mapKey] || {};
 
     const rates = cleaned.map((a) => mapDict[a] || 0.0);
-    const avgPick = rates.length > 0 ? rates.reduce((a, b) => a + b, 0) / rates.length : 0.0;
+    const avgPick =
+      rates.length > 0 ? rates.reduce((a, b) => a + b, 0) / rates.length : 0.0;
     return Math.min(80.0, Math.max(35.0, 42.0 + avgPick * 0.35));
   }
 
@@ -312,7 +370,7 @@ export class ValorantMlEngine {
     const pairwiseScore = this.computePairwiseSynergy(cleaned);
     const metaScore = this.computeMapMetaScore(cleaned, targetMapName);
 
-    const overall = 0.35 * metaScore + 0.35 * pairwiseScore + 0.30 * roleHarmony;
+    const overall = 0.35 * metaScore + 0.35 * pairwiseScore + 0.3 * roleHarmony;
     return Math.round(Math.max(15.0, Math.min(95.0, overall)) * 10) / 10;
   }
 
@@ -351,7 +409,10 @@ export class ValorantMlEngine {
     for (let i = 0; i < cleaned.length; i++) {
       const agentName = cleaned[i];
       const teamWithout = cleaned.filter((_, idx) => idx !== i);
-      const synergyWithout = this.predictCompositionWinRate(targetMapName, teamWithout);
+      const synergyWithout = this.predictCompositionWinRate(
+        targetMapName,
+        teamWithout,
+      );
       const delta = Math.round((fullSynergy - synergyWithout) * 10) / 10;
 
       impacts.push({
@@ -378,14 +439,16 @@ export class ValorantMlEngine {
   ): AgentRecommendation[] {
     if (!this.modelData) return [];
 
-    const allAgents = this.modelData.agents || Object.values(AGENT_UUID_TO_NAME);
-    const cleanedAllies = alreadyPickedAgents.map(normalizeAgentName).filter(Boolean);
+    const allAgents =
+      this.modelData.agents || Object.values(AGENT_UUID_TO_NAME);
+    const cleanedAllies = alreadyPickedAgents
+      .map(normalizeAgentName)
+      .filter(Boolean);
     const lockedSet = new Set(cleanedAllies);
     const availableCandidates = allAgents.filter((a) => !lockedSet.has(a));
 
     const mapKey = (targetMapName || "Ascent").trim().toLowerCase();
     const mapPickRates = (this.modelData.pick_rates || {})[mapKey] || {};
-    const pairStats = this.modelData.pair_stats || {};
 
     const candidateResults: AgentRecommendation[] = [];
     const isInitialDraft = cleanedAllies.length === 0;
@@ -419,10 +482,12 @@ export class ValorantMlEngine {
           roleScore += 4.0;
         }
 
-        composite = 0.35 * candidateMeta + 0.35 * pairwiseScore + 0.30 * roleScore;
+        composite =
+          0.35 * candidateMeta + 0.35 * pairwiseScore + 0.3 * roleScore;
       }
 
-      const finalScore = Math.round(Math.max(15.0, Math.min(95.0, composite)) * 10) / 10;
+      const finalScore =
+        Math.round(Math.max(15.0, Math.min(95.0, composite)) * 10) / 10;
 
       candidateResults.push({
         agent: candidate,
@@ -453,8 +518,14 @@ export class ValorantMlEngine {
     const cleanedAllies = allies.map(normalizeAgentName).filter(Boolean);
 
     const recommendations = this.recommendAgentPicks(targetMap, cleanedAllies);
-    const currentSynergy = this.predictCompositionWinRate(targetMap, cleanedAllies);
-    const agentImpacts = this.computeAgentMarginalImpacts(targetMap, cleanedAllies);
+    const currentSynergy = this.predictCompositionWinRate(
+      targetMap,
+      cleanedAllies,
+    );
+    const agentImpacts = this.computeAgentMarginalImpacts(
+      targetMap,
+      cleanedAllies,
+    );
 
     return {
       success: true,

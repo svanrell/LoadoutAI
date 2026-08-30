@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useGameState } from "@/hooks/useGameState";
+import { useGameState, SyncedCompetitiveUpdate } from "@/hooks/useGameState";
 import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
 import { RefreshIcon } from "@/components/Icons";
@@ -25,7 +25,7 @@ export default function ViewMenu() {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<{
-    point: any;
+    point: SyncedCompetitiveUpdate;
     x: number;
     y: number;
   } | null>(null);

@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { useValorantData } from "@/hooks/useValorantData";
-import { useGameState } from "@/hooks/useGameState";
+import { useGameState, MLDraftRecommendation } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
-import { calculateScore, getScoreMeta } from "@/lib/scoreUtils";
+import { getScoreMeta } from "@/lib/scoreUtils";
 import { getGameModeName } from "@/data/gameModesData";
 
 // ============================================================================
@@ -467,7 +467,7 @@ export default function ViewPregame() {
                   </div>
                 ))
               ) : mlRecommendations && mlRecommendations.length > 0 ? (
-                mlRecommendations.slice(0, 5).map((recommendation: any, rankIndex: number) => {
+                mlRecommendations.slice(0, 5).map((recommendation: MLDraftRecommendation, rankIndex: number) => {
                   const targetAgent =
                     typeof recommendation === "object" && recommendation.uuid
                       ? agents.find(

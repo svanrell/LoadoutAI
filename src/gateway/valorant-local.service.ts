@@ -10,7 +10,11 @@ import * as fs from "fs";
 import * as path from "path";
 import * as https from "https";
 import { firstValueFrom } from "rxjs";
-import { ValorantMlEngine } from "./valorant-ml-engine";
+import {
+  ValorantMlEngine,
+  AgentRecommendation,
+  AgentMarginalImpact,
+} from "./valorant-ml-engine";
 import {
   MAPS_MAP,
   QUEUES_MAP,
@@ -19,6 +23,15 @@ import {
 } from "./valorant.constants";
 
 export { MAPS_MAP, QUEUES_MAP, resolveMapName, resolveQueueName };
+
+export interface LocalPlayerInfo {
+  puuid: string;
+  agentId: string;
+  state?: string;
+  level?: number | null;
+  rank?: number;
+  playerCardId?: string;
+}
 
 interface ChatSessionResponse {
   puuid: string;
@@ -133,9 +146,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private isCheckingStatus: boolean = false;
   private lastMlDraftKey: string = "";
   private lastMlDraftResult: {
-    recommendations: any[];
+    recommendations: AgentRecommendation[];
     currentSynergy: number;
-    agentImpacts?: any[];
+    agentImpacts?: AgentMarginalImpact[];
   } = {
     recommendations: [],
     currentSynergy: 50.0,
@@ -171,7 +184,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit() {
-    this.logger.log("Iniciando radar local de Valorant con sondeo adaptativo...");
+    this.logger.log(
+      "Iniciando radar local de Valorant con sondeo adaptativo...",
+    );
     this.scheduleNextCheck(500);
 
     // Escucha eventos del Frontend para pre-seleccionar agente
@@ -191,10 +206,11 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
     // Solicitud manual de predicción de draft desde el cliente
     this.gateway.requestMlDraft$.subscribe(
-      async ({ mapName, modeName, allies, client }) => {
+      ({ mapName, modeName, allies, client }) => {
         const map = mapName || "Ascent";
-        const mode = modeName || (this.currentExtraData?.mode as string) || "competitive";
-        const result = await this.getMLDraftRecommendations(map, allies || [], mode);
+        const mode =
+          modeName || (this.currentExtraData?.mode as string) || "competitive";
+        const result = this.getMLDraftRecommendations(map, allies || [], mode);
         this.gateway.emitMlDraftResult(client, result);
       },
     );
@@ -221,7 +237,10 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     if (nextDelay === undefined) {
       if (this.currentStatus === "CLOSED") {
         nextDelay = 3500; // Si el juego está cerrado, ahorrar CPU
-      } else if (this.currentStatus === "PREGAME" || this.currentStatus === "INGAME") {
+      } else if (
+        this.currentStatus === "PREGAME" ||
+        this.currentStatus === "INGAME"
+      ) {
         nextDelay = 1500; // Máxima reactividad durante selección o partida
       } else {
         nextDelay = 2500; // En menú
@@ -298,7 +317,10 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     return null;
   }
 
-  private async getRegionAndGlzUrl(credentials: { url: string; token: string }) {
+  private async getRegionAndGlzUrl(credentials: {
+    url: string;
+    token: string;
+  }) {
     let region = (process.env.VALORANT_REGION || "").toLowerCase();
 
     // 1. Intentar leer región de ShooterGame.log
@@ -312,7 +334,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       );
       if (fs.existsSync(logPath)) {
         const content = fs.readFileSync(logPath, "utf8");
-        const glzMatch = content.match(/https:\/\/(glz-[a-z0-9-]+)\.([a-z0-9-]+)\.a\.pvp\.net/i);
+        const glzMatch = content.match(
+          /https:\/\/(glz-[a-z0-9-]+)\.([a-z0-9-]+)\.a\.pvp\.net/i,
+        );
         if (glzMatch && glzMatch[0]) {
           return {
             glzUrl: `https://${glzMatch[1]}.${glzMatch[2]}.a.pvp.net`,
@@ -440,7 +464,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   ): Promise<boolean> {
     const remote = await this.getRemoteConfig();
     if (!remote) {
-      this.logger.warn("selectAgent failed: remote config unavailable (Valorant closed?)");
+      this.logger.warn(
+        "selectAgent failed: remote config unavailable (Valorant closed?)",
+      );
       return false;
     }
 
@@ -493,7 +519,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       return true;
     } catch (error: any) {
       this.logger.error(
-        `Error selecting agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : (error instanceof Error ? error.message : String(error))}`,
+        `Error selecting agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : error instanceof Error ? error.message : String(error)}`,
       );
       return false;
     }
@@ -502,7 +528,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   async lockAgent(pregameMatchId: string, agentUuid: string): Promise<boolean> {
     const remote = await this.getRemoteConfig();
     if (!remote) {
-      this.logger.warn("lockAgent failed: remote config unavailable (Valorant closed?)");
+      this.logger.warn(
+        "lockAgent failed: remote config unavailable (Valorant closed?)",
+      );
       return false;
     }
 
@@ -553,7 +581,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       return true;
     } catch (error: any) {
       this.logger.error(
-        `Error locking agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : (error instanceof Error ? error.message : String(error))}`,
+        `Error locking agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : error instanceof Error ? error.message : String(error)}`,
       );
       return false;
     }
@@ -614,7 +642,9 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           try {
             const remoteConfig = await this.getRemoteConfig();
             if (!remoteConfig) {
-              throw new Error("Unable to obtain remote GLZ configuration for pregame");
+              throw new Error(
+                "Unable to obtain remote GLZ configuration for pregame",
+              );
             }
 
             // 4. Buscar el MatchID del pregame del jugador
@@ -657,7 +687,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
               .map((p) => p.agentId);
 
             // Inferencia de Machine Learning en tiempo real
-            const mlResult = await this.getMLDraftRecommendations(
+            const mlResult = this.getMLDraftRecommendations(
               mapName,
               alliesAgentUuids,
             );
@@ -693,11 +723,13 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           const mapName = resolveMapName(mapPath);
           const mode = resolveQueueName(queueId);
 
-          let players: any[] = [];
+          let players: LocalPlayerInfo[] = [];
           try {
             const remoteConfig = await this.getRemoteConfig();
             if (!remoteConfig) {
-              throw new Error("Unable to obtain remote GLZ configuration for in-game");
+              throw new Error(
+                "Unable to obtain remote GLZ configuration for in-game",
+              );
             }
 
             const coregamePlayer = await firstValueFrom(
@@ -887,11 +919,15 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     this.currentCredits = credits;
   }
 
-  async getMLDraftRecommendations(
+  getMLDraftRecommendations(
     mapName: string,
     alliesAgentUuids: string[],
     modeName: string = "competitive",
-  ): Promise<{ recommendations: any[]; currentSynergy: number; agentImpacts?: any[] }> {
+  ): {
+    recommendations: AgentRecommendation[];
+    currentSynergy: number;
+    agentImpacts?: AgentMarginalImpact[];
+  } {
     const normalizedMap = (mapName || "Ascent").trim().toLowerCase();
     const normalizedMode = (modeName || "competitive").trim().toLowerCase();
     const sortedAllies = (alliesAgentUuids || [])
