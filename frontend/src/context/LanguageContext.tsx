@@ -90,6 +90,7 @@ export interface Translations {
   openStatus: string;
   lockedStatus: string;
   prepickStatus: string;
+  fixed: string;
   lvl: string;
   modeSpecs: string;
   teamCapacity: string;
@@ -110,6 +111,7 @@ export interface Translations {
   top5PicksGlobal: string;
   waitingDraftPicks: string;
   estWinRate: string;
+  winRateEstimated: string;
   roleSynergyExplorer: string;
   allAgentsSortedWinRate: string;
   available: string;
@@ -122,6 +124,9 @@ export interface Translations {
   selectAgent: string;
   classRole: string;
   lockAgentBtn: string;
+  teamStatus: string;
+  selectionCompleted: string;
+  draftFinished: string;
   draftCompleted: string;
   draftCompleteSubtitle: string;
   tacticalOverview: string;
@@ -218,6 +223,7 @@ const translations: Record<Language, Translations> = {
     openStatus: "LIBRE",
     lockedStatus: "FIJADO",
     prepickStatus: "PRE-PICK",
+    fixed: "FIJADO",
     lvl: "NIVEL",
     modeSpecs: "Especificaciones del Modo",
     teamCapacity: "Capacidad de Equipo:",
@@ -237,7 +243,8 @@ const translations: Record<Language, Translations> = {
     aiDraftCoach: "Selección de Agentes IA",
     top5PicksGlobal: "Top 5 Picks (Global)",
     waitingDraftPicks: "Esperando selección de agentes...",
-    estWinRate: "WR EST.",
+    estWinRate: "PORCENTAJE DE VICTORIA ESTIMADO",
+    winRateEstimated: "PORCENTAJE DE VICTORIA ESTIMADO",
     roleSynergyExplorer: "Explorador de Sinergias",
     allAgentsSortedWinRate: "Todos los Agentes por Win Rate",
     available: "Disponibles",
@@ -250,8 +257,11 @@ const translations: Record<Language, Translations> = {
     selectAgent: "SELECCIONAR AGENTE",
     classRole: "CLASE",
     lockAgentBtn: "FIJAR AGENTE",
-    draftCompleted: "Equipo Completo (5/5)",
-    draftCompleteSubtitle: "Todos los personajes han sido elegidos",
+    teamStatus: "ESTADO DEL EQUIPO",
+    selectionCompleted: "SELECCIÓN FINALIZADA",
+    draftFinished: "DRAFT FINALIZADO",
+    draftCompleted: "EQUIPO COMPLETO (5/5)",
+    draftCompleteSubtitle: "Todos los agentes han sido seleccionados. La selección está cerrada.",
     tacticalOverview: "Análisis Táctico de la Composición",
     tacticalStrengths: "Puntos Fuertes del Equipo",
     tacticalPlaystyle: "Estrategia Recomendada",
@@ -344,6 +354,7 @@ const translations: Record<Language, Translations> = {
     openStatus: "OPEN",
     lockedStatus: "LOCKED",
     prepickStatus: "PRE-PICK",
+    fixed: "FIXED",
     lvl: "LVL",
     modeSpecs: "Mode Specifications",
     teamCapacity: "Team Capacity:",
@@ -363,7 +374,8 @@ const translations: Record<Language, Translations> = {
     aiDraftCoach: "AI Agent Selection",
     top5PicksGlobal: "Top 5 Picks (Global)",
     waitingDraftPicks: "Waiting for pregame draft picks...",
-    estWinRate: "EST. WR",
+    estWinRate: "WIN RATE ESTIMATED",
+    winRateEstimated: "WIN RATE ESTIMATED",
     roleSynergyExplorer: "Role Synergy Explorer",
     allAgentsSortedWinRate: "All Agents Sorted by Win Rate",
     available: "Available",
@@ -376,8 +388,11 @@ const translations: Record<Language, Translations> = {
     selectAgent: "Select Agent",
     classRole: "Class Role",
     lockAgentBtn: "Lock Agent",
-    draftCompleted: "Team Complete (5/5)",
-    draftCompleteSubtitle: "All characters have been selected",
+    teamStatus: "TEAM STATUS",
+    selectionCompleted: "SELECTION COMPLETED",
+    draftFinished: "DRAFT FINISHED",
+    draftCompleted: "TEAM COMPLETE (5/5)",
+    draftCompleteSubtitle: "All agents have been selected. Selection is closed.",
     tacticalOverview: "Tactical Composition Overview",
     tacticalStrengths: "Team Strengths",
     tacticalPlaystyle: "Recommended Strategy",

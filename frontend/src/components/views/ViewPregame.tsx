@@ -359,7 +359,7 @@ export default function ViewPregame() {
                         </span>
                       </div>
                       <div className="synergy-analysis-item">
-                        <strong className="weak-label">WIN RATE EST.</strong>
+                        <strong className="weak-label">{t.winRateEstimated}</strong>
                         <span className="synergy-analysis-text" style={{ color: compositionThemeColor, fontWeight: 700 }}>
                           {synergyScorePercent}%
                         </span>
@@ -398,7 +398,7 @@ export default function ViewPregame() {
                   fontWeight: "bold",
                 }}
               >
-                {isDraftComplete ? "DRAFT FINALIZADO" : t.top5PicksGlobal}
+                {isDraftComplete ? t.draftFinished : t.top5PicksGlobal}
               </span>
             </div>
 
@@ -462,7 +462,7 @@ export default function ViewPregame() {
                         letterSpacing: "0.5px",
                       }}
                     >
-                      FIJADO
+                      {t.fixed}
                     </span>
                   </div>
                 ))
@@ -635,7 +635,7 @@ export default function ViewPregame() {
           <div className="panel-header synergy-panel-header">
             <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
               <span style={{ color: isDraftComplete ? "#00ff88" : "var(--color-cyan)", fontWeight: "bold" }}>●</span>{" "}
-              {isDraftComplete ? "ESTADO DEL EQUIPO" : t.roleSynergyExplorer}
+              {isDraftComplete ? t.teamStatus : t.roleSynergyExplorer}
             </span>
             <span
               style={{
@@ -647,7 +647,7 @@ export default function ViewPregame() {
               }}
             >
               {isDraftComplete
-                ? "SELECCIÓN FINALIZADA"
+                ? t.selectionCompleted
                 : selectedRoleCategory === "all"
                 ? t.allAgentsSortedWinRate
                 : `${roleCategoryLabels[selectedRoleCategory]} (${filteredAgents.length} ${t.available})`}
@@ -696,7 +696,7 @@ export default function ViewPregame() {
                     textTransform: "uppercase",
                   }}
                 >
-                  EQUIPO COMPLETO (5/5)
+                  {t.draftCompleted}
                 </div>
                 <div
                   style={{
@@ -705,7 +705,7 @@ export default function ViewPregame() {
                     marginTop: "0.25rem",
                   }}
                 >
-                  Todos los agentes han sido seleccionados. La selección está cerrada.
+                  {t.draftCompleteSubtitle}
                 </div>
               </div>
 
@@ -727,7 +727,7 @@ export default function ViewPregame() {
                   transition: "all 0.2s ease",
                 }}
               >
-                IR A SELECCIÓN DE ARMAS →
+                {t.goToWeaponShop} →
               </button>
             </div>
           ) : (
@@ -988,7 +988,7 @@ export default function ViewPregame() {
                         }}
                       >
                         {isAgentPickedByTeam
-                          ? "FIJADO"
+                          ? t.fixed
                           : isCurrentAgentSelected
                           ? t.lock
                           : t.pick}
