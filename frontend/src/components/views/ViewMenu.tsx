@@ -146,8 +146,8 @@ export default function ViewMenu() {
         : 16;
     const rem = (v: number) => v * rootFontSize;
 
-    const padLeft = rem(5.875); // ~94px en base 16px
-    const padRight = rem(1);    // ~16px
+    const padLeft = rem(7.5);   // ~120px en base 16px - amplio margen responsive para separar nítidamente los badges de la gráfica
+    const padRight = rem(1.25); // ~20px
     const padTop = rem(0.875);  // ~14px
     const padBottom = rem(1);   // ~16px
     const width = chartDimensions.width;
@@ -589,13 +589,13 @@ export default function ViewMenu() {
                     return (
                       <g
                         key={globalBand.globalName}
-                        transform={`translate(${chartData.rem(0.25)}, ${pillY})`}
+                        transform={`translate(${chartData.rem(0.375)}, ${pillY})`}
                       >
                         {/* Sleek Pill Background */}
                         <rect
                           x={0}
                           y={0}
-                          width={chartData.rem(5.3125)}
+                          width={chartData.rem(5.25)}
                           height={chartData.rem(1.375)}
                           rx={chartData.rem(0.375)}
                           fill="rgba(10, 15, 26, 0.85)"
@@ -617,7 +617,7 @@ export default function ViewMenu() {
                           x={chartData.rem(1.5)}
                           y={chartData.rem(0.9375)}
                           fill={globalBand.color}
-                          fontSize="9"
+                          fontSize="0.5625rem"
                           fontWeight="800"
                           fontFamily="'Inter', system-ui, sans-serif"
                           letterSpacing="0.02em"
@@ -778,14 +778,14 @@ export default function ViewMenu() {
                     const topY = band.topRatio * chartDimensions.height;
                     const bandH = band.heightRatio * chartDimensions.height;
                     const pillY = topY + (bandH - rem(1.375)) / 2;
-                    const padLeftFallback = rem(5.875);
+                    const padLeftFallback = rem(7.5);
 
                     return (
                       <g key={i}>
                         <rect
                           x={padLeftFallback}
                           y={topY}
-                          width={Math.max(10, chartDimensions.width - padLeftFallback - rem(1))}
+                          width={Math.max(10, chartDimensions.width - padLeftFallback - rem(1.25))}
                           height={bandH}
                           fill={band.color}
                           fillOpacity={0.04}
@@ -793,17 +793,17 @@ export default function ViewMenu() {
                         <line
                           x1={padLeftFallback}
                           y1={topY}
-                          x2={chartDimensions.width - rem(1)}
+                          x2={chartDimensions.width - rem(1.25)}
                           y2={topY}
                           stroke="rgba(255, 255, 255, 0.06)"
                           strokeDasharray="4 4"
                         />
                         {/* Sleek Pill Badge */}
-                        <g transform={`translate(${rem(0.25)}, ${pillY})`}>
+                        <g transform={`translate(${rem(0.375)}, ${pillY})`}>
                           <rect
                             x={0}
                             y={0}
-                            width={rem(5.3125)}
+                            width={rem(5.25)}
                             height={rem(1.375)}
                             rx={rem(0.375)}
                             fill="rgba(12, 17, 29, 0.75)"
@@ -822,7 +822,7 @@ export default function ViewMenu() {
                             x={rem(1.5)}
                             y={rem(0.9375)}
                             fill={band.color}
-                            fontSize="9"
+                            fontSize="0.5625rem"
                             fontWeight="800"
                             fontFamily="'Inter', system-ui, sans-serif"
                             letterSpacing="0.02em"

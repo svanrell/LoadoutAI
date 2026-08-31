@@ -73,12 +73,34 @@ export default function ViewIngame() {
   // useState: Blindaje/escudo equipado actualmente (null = sin escudo / no comprado; o Ligera, Regen, Pesada)
   const [equippedArmorName, setEquippedArmorName] = useState<string | null>(null);
 
-  // useState: Arma principal equipada (por defecto "Classic")
-  const [equippedWeaponName, setEquippedWeaponName] = useState<string>("Classic");
+  // useState: Pistola / Arma de mano equipada (por defecto "Classic")
+  const [equippedSidearmName, setEquippedSidearmName] = useState<string>("Classic");
 
-  // useCallback: Función memorizada para alternar el arma equipada al hacer clic
-  const toggleWeapon = useCallback((weaponName: string) => {
-    setEquippedWeaponName((current) => (current === weaponName ? "Classic" : weaponName));
+  // useState: Arma principal / larga equipada (null = sin arma larga; o Vandal, Phantom, etc.)
+  const [equippedPrimaryName, setEquippedPrimaryName] = useState<string | null>(null);
+
+  // useCallback: Función memorizada para alternar armas de forma independiente (pistola y arma larga)
+  const toggleWeapon = useCallback((weapon: Weapon) => {
+    const isSidearm = weapon.category === "EEquippableCategory::Sidearm";
+    const name = weapon.displayName;
+
+    if (isSidearm) {
+      setEquippedSidearmName((current) => {
+        // Si hace click en la misma pistola (y no es Classic), vuelve a Classic
+        if (current.toUpperCase() === name.toUpperCase()) {
+          return "Classic";
+        }
+        return name;
+      });
+    } else {
+      setEquippedPrimaryName((current) => {
+        // Si hace click en la misma arma larga, se desequipa (null)
+        if (current && current.toUpperCase() === name.toUpperCase()) {
+          return null;
+        }
+        return name;
+      });
+    }
     setIsFollowingAiRecommendation(false);
   }, [setIsFollowingAiRecommendation]);
 
@@ -107,12 +129,60 @@ export default function ViewIngame() {
   // useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
   const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
 
-  // Cálculo dinámico del gasto actual (armas + escudos + habilidades)
-  const manualWeaponSpend = useMemo(() => {
-    if (!equippedWeaponName || equippedWeaponName.toUpperCase() === "CLASSIC") return 0;
-    const found = allWeapons.find((w) => w.displayName.toUpperCase() === equippedWeaponName.toUpperCase());
+  // Sincronizar equipamiento cuando se sigue la recomendación de la IA
+  useEffect(() => {
+    if (!isFollowingAiRecommendation || !buyRecommendations) return;
+
+    const recWeapon = (buyRecommendations.weapon || "").trim();
+    if (!recWeapon || recWeapon.toLowerCase() === "save" || recWeapon.toLowerCase() === "eco") {
+      setEquippedSidearmName("Classic");
+      setEquippedPrimaryName(null);
+    } else {
+      const found = allWeapons.find((w) => w.displayName.toUpperCase() === recWeapon.toUpperCase());
+      if (found) {
+        if (found.category === "EEquippableCategory::Sidearm") {
+          setEquippedSidearmName(found.displayName);
+          setEquippedPrimaryName(null);
+        } else {
+          setEquippedSidearmName("Classic");
+          setEquippedPrimaryName(found.displayName);
+        }
+      }
+    }
+
+    const recShield = (buyRecommendations.shield || "").trim();
+    if (!recShield || recShield.toLowerCase().includes("sin") || recShield.toLowerCase().includes("none")) {
+      setEquippedArmorName(null);
+    } else {
+      const foundArmor = ARMORS_DATA.find(
+        (a) =>
+          a.name.toLowerCase() === recShield.toLowerCase() ||
+          a.name.toLowerCase().includes(recShield.toLowerCase())
+      );
+      if (foundArmor) {
+        setEquippedArmorName(foundArmor.name);
+      }
+    }
+  }, [isFollowingAiRecommendation, buyRecommendations, allWeapons]);
+
+  // Cálculo dinámico del gasto en arma de mano (pistola)
+  const manualSidearmSpend = useMemo(() => {
+    if (!equippedSidearmName || equippedSidearmName.toUpperCase() === "CLASSIC") return 0;
+    const found = allWeapons.find((w) => w.displayName.toUpperCase() === equippedSidearmName.toUpperCase());
     return found?.shopData?.cost || 0;
-  }, [equippedWeaponName, allWeapons]);
+  }, [equippedSidearmName, allWeapons]);
+
+  // Cálculo dinámico del gasto en arma principal (arma larga)
+  const manualPrimarySpend = useMemo(() => {
+    if (!equippedPrimaryName) return 0;
+    const found = allWeapons.find((w) => w.displayName.toUpperCase() === equippedPrimaryName.toUpperCase());
+    return found?.shopData?.cost || 0;
+  }, [equippedPrimaryName, allWeapons]);
+
+  // Gasto total en armamento (pistola + arma larga)
+  const manualWeaponSpend = useMemo(() => {
+    return manualSidearmSpend + manualPrimarySpend;
+  }, [manualSidearmSpend, manualPrimarySpend]);
 
   const manualArmorSpend = useMemo(() => {
     if (!equippedArmorName) return 0;
@@ -202,7 +272,10 @@ export default function ViewIngame() {
               </div>
               {groupWeapons.map((w) => {
                 if (!w.shopData) return null;
-                const isEquipped = equippedWeaponName.toUpperCase() === w.displayName.toUpperCase();
+                const isSidearm = w.category === "EEquippableCategory::Sidearm";
+                const isEquipped = isSidearm
+                  ? equippedSidearmName.toUpperCase() === w.displayName.toUpperCase()
+                  : Boolean(equippedPrimaryName && equippedPrimaryName.toUpperCase() === w.displayName.toUpperCase());
                 const status = getWeaponAffordability(w.shopData.cost, myCredits);
 
                 const border = isEquipped
@@ -224,7 +297,7 @@ export default function ViewIngame() {
                 return (
                   <div
                     key={w.uuid}
-                    onClick={() => toggleWeapon(w.displayName)}
+                    onClick={() => toggleWeapon(w)}
                     onMouseEnter={() => setHoveredWeapon(w)}
                     onMouseLeave={() => setHoveredWeapon(null)}
                     style={{
@@ -254,7 +327,15 @@ export default function ViewIngame() {
                         e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
                       }
                     }}
-                    title={`Click para equipar: ${w.displayName}`}
+                    title={
+                      isEquipped
+                        ? isSidearm
+                          ? isClassic
+                            ? `Pistola por defecto: ${w.displayName}`
+                            : `Click para desequipar (volver a Classic): ${w.displayName}`
+                          : `Click para desequipar arma larga: ${w.displayName}`
+                        : `Click para equipar: ${w.displayName}`
+                    }
                   >
                     {statusLabel && (
                       <div
@@ -689,6 +770,7 @@ export default function ViewIngame() {
                 )}
 
                 <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.25rem", alignItems: "center" }}>
+                  {/* Escudo */}
                   {equippedArmorName ? (
                     <img
                       src={
@@ -717,15 +799,48 @@ export default function ViewIngame() {
                       title="Sin escudo equipado"
                     ></div>
                   )}
+
+                  {/* Pistola */}
                   <img
                     src={
-                      allWeapons.find((w) => w.displayName.toUpperCase() === equippedWeaponName.toUpperCase())?.displayIcon ||
+                      allWeapons.find((w) => w.displayName.toUpperCase() === equippedSidearmName.toUpperCase())?.displayIcon ||
                       "https://media.valorant-api.com/weapons/29a0cfab-485b-f5d5-779a-b59f85e204a8/displayicon.png"
                     }
-                    alt={equippedWeaponName}
-                    style={{ width: "1.3rem", height: "0.65rem", objectFit: "contain" }}
-                    title={`Arma equipada: ${equippedWeaponName}`}
+                    alt={equippedSidearmName}
+                    style={{ width: "1.2rem", height: "0.65rem", objectFit: "contain", flexShrink: 0 }}
+                    title={`Pistola: ${equippedSidearmName}`}
                   />
+
+                  {/* Arma Larga */}
+                  {equippedPrimaryName ? (
+                    <img
+                      src={
+                        allWeapons.find((w) => w.displayName.toUpperCase() === equippedPrimaryName.toUpperCase())?.displayIcon ||
+                        "https://media.valorant-api.com/weapons/ee8fa195-4c50-3da8-064f-b880714f7041/displayicon.png"
+                      }
+                      alt={equippedPrimaryName}
+                      style={{ width: "1.6rem", height: "0.65rem", objectFit: "contain", flexShrink: 0 }}
+                      title={`Arma larga: ${equippedPrimaryName}`}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        fontSize: "0.45rem",
+                        color: "var(--text-dim)",
+                        border: "1px dashed rgba(255,255,255,0.2)",
+                        borderRadius: "2px",
+                        padding: "0 0.2rem",
+                        height: "0.65rem",
+                        display: "flex",
+                        alignItems: "center",
+                        flexShrink: 0,
+                        fontWeight: 700,
+                      }}
+                      title="Sin arma larga equipada"
+                    >
+                      ARMA LARGA
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
