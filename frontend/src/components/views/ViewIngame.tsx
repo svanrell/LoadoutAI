@@ -13,6 +13,17 @@ import {
   getCategoryWeapons,
   getWeaponAffordability,
 } from "@/data/weaponsData";
+import {
+  resolveAiRecommendation,
+  computeToggleWeapon,
+  computeToggleArmor,
+  computeNextAbilityCharge,
+  calculateManualSidearmSpend,
+  calculateManualPrimarySpend,
+  calculateManualArmorSpend,
+  calculateManualAbilitiesSpend,
+  calculateTotalSpend,
+} from "@/lib/ingameLogic";
 import { useState, useMemo, useCallback, useEffect } from "react";
 
 // Estado de compra de cada habilidad: 'owned' (ya comprada/en posesión) o 'buy' (disponible para comprar)
@@ -51,7 +62,6 @@ export default function ViewIngame() {
   const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : "add6443a-41bd-e414-f6ad-e58d267f4e95";
 
   // useMemo: Busca al agente en la lista solo si 'agents' o 'myAgentId' cambian.
-  // Evita recorrer el array de agentes en cada renderizado.
   const myAgent = useMemo(() => {
     return agents.find((a) => a.uuid.toLowerCase() === myAgentId.toLowerCase());
   }, [agents, myAgentId]);
@@ -81,40 +91,30 @@ export default function ViewIngame() {
 
   // useCallback: Función memorizada para alternar armas de forma independiente (pistola y arma larga)
   const toggleWeapon = useCallback((weapon: Weapon) => {
-    const isSidearm = weapon.category === "EEquippableCategory::Sidearm";
-    const name = weapon.displayName;
-
-    if (isSidearm) {
-      setEquippedSidearmName((current) => {
-        // Si hace click en la misma pistola (y no es Classic), vuelve a Classic
-        if (current.toUpperCase() === name.toUpperCase()) {
-          return "Classic";
-        }
-        return name;
+    setEquippedSidearmName((currentSidearm) => {
+      setEquippedPrimaryName((currentPrimary) => {
+        const { newSidearmName, newPrimaryName } = computeToggleWeapon(
+          weapon,
+          currentSidearm,
+          currentPrimary
+        );
+        return newPrimaryName;
       });
-    } else {
-      setEquippedPrimaryName((current) => {
-        // Si hace click en la misma arma larga, se desequipa (null)
-        if (current && current.toUpperCase() === name.toUpperCase()) {
-          return null;
-        }
-        return name;
-      });
-    }
+      const isSidearm = weapon.category === "EEquippableCategory::Sidearm";
+      return isSidearm
+        ? (currentSidearm.toUpperCase() === weapon.displayName.toUpperCase() ? "Classic" : weapon.displayName)
+        : currentSidearm;
+    });
     setIsFollowingAiRecommendation(false);
   }, [setIsFollowingAiRecommendation]);
 
   // useCallback: Función memorizada para alternar/ciclar cargas de una habilidad
   const handleToggleAbilityCharge = useCallback(
     (abilityId: string, maxCharges: number, defaultCharges: number) => {
-      setAbilityChargesState((prev) => {
-        const current = prev[abilityId] !== undefined ? prev[abilityId] : defaultCharges;
-        const next = current + 1 > maxCharges ? defaultCharges : current + 1;
-        return {
-          ...prev,
-          [abilityId]: next,
-        };
-      });
+      setAbilityChargesState((prev) => ({
+        ...prev,
+        [abilityId]: computeNextAbilityCharge(prev[abilityId], maxCharges, defaultCharges),
+      }));
       setIsFollowingAiRecommendation(false);
     },
     [setIsFollowingAiRecommendation]
@@ -122,7 +122,7 @@ export default function ViewIngame() {
 
   // useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
   const toggleArmor = useCallback((armorName: string) => {
-    setEquippedArmorName((current) => (current === armorName ? null : armorName));
+    setEquippedArmorName((current) => computeToggleArmor(current, armorName));
     setIsFollowingAiRecommendation(false);
   }, [setIsFollowingAiRecommendation]);
 
@@ -132,92 +132,58 @@ export default function ViewIngame() {
   // Sincronizar equipamiento cuando se sigue la recomendación de la IA
   useEffect(() => {
     if (!isFollowingAiRecommendation || !buyRecommendations) return;
-
-    const recWeapon = (buyRecommendations.weapon || "").trim();
-    if (!recWeapon || recWeapon.toLowerCase() === "save" || recWeapon.toLowerCase() === "eco") {
-      setEquippedSidearmName("Classic");
-      setEquippedPrimaryName(null);
-    } else {
-      const found = allWeapons.find((w) => w.displayName.toUpperCase() === recWeapon.toUpperCase());
-      if (found) {
-        if (found.category === "EEquippableCategory::Sidearm") {
-          setEquippedSidearmName(found.displayName);
-          setEquippedPrimaryName(null);
-        } else {
-          setEquippedSidearmName("Classic");
-          setEquippedPrimaryName(found.displayName);
-        }
-      }
-    }
-
-    const recShield = (buyRecommendations.shield || "").trim();
-    if (!recShield || recShield.toLowerCase().includes("sin") || recShield.toLowerCase().includes("none")) {
-      setEquippedArmorName(null);
-    } else {
-      const foundArmor = ARMORS_DATA.find(
-        (a) =>
-          a.name.toLowerCase() === recShield.toLowerCase() ||
-          a.name.toLowerCase().includes(recShield.toLowerCase())
-      );
-      if (foundArmor) {
-        setEquippedArmorName(foundArmor.name);
-      }
-    }
+    const { sidearmName, primaryName, armorName } = resolveAiRecommendation(
+      buyRecommendations,
+      allWeapons
+    );
+    setEquippedSidearmName(sidearmName);
+    setEquippedPrimaryName(primaryName);
+    setEquippedArmorName(armorName);
   }, [isFollowingAiRecommendation, buyRecommendations, allWeapons]);
 
-  // Cálculo dinámico del gasto en arma de mano (pistola)
-  const manualSidearmSpend = useMemo(() => {
-    if (!equippedSidearmName || equippedSidearmName.toUpperCase() === "CLASSIC") return 0;
-    const found = allWeapons.find((w) => w.displayName.toUpperCase() === equippedSidearmName.toUpperCase());
-    return found?.shopData?.cost || 0;
-  }, [equippedSidearmName, allWeapons]);
+  // Cálculo dinámico del gasto en armamento, blindaje y habilidades
+  const manualSidearmSpend = useMemo(
+    () => calculateManualSidearmSpend(equippedSidearmName, allWeapons),
+    [equippedSidearmName, allWeapons]
+  );
 
-  // Cálculo dinámico del gasto en arma principal (arma larga)
-  const manualPrimarySpend = useMemo(() => {
-    if (!equippedPrimaryName) return 0;
-    const found = allWeapons.find((w) => w.displayName.toUpperCase() === equippedPrimaryName.toUpperCase());
-    return found?.shopData?.cost || 0;
-  }, [equippedPrimaryName, allWeapons]);
+  const manualPrimarySpend = useMemo(
+    () => calculateManualPrimarySpend(equippedPrimaryName, allWeapons),
+    [equippedPrimaryName, allWeapons]
+  );
 
-  // Gasto total en armamento (pistola + arma larga)
-  const manualWeaponSpend = useMemo(() => {
-    return manualSidearmSpend + manualPrimarySpend;
-  }, [manualSidearmSpend, manualPrimarySpend]);
+  const manualWeaponSpend = useMemo(
+    () => manualSidearmSpend + manualPrimarySpend,
+    [manualSidearmSpend, manualPrimarySpend]
+  );
 
-  const manualArmorSpend = useMemo(() => {
-    if (!equippedArmorName) return 0;
-    const found = ARMORS_DATA.find((a) => a.name === equippedArmorName);
-    return found?.cost || 0;
-  }, [equippedArmorName]);
+  const manualArmorSpend = useMemo(
+    () => calculateManualArmorSpend(equippedArmorName),
+    [equippedArmorName]
+  );
 
-  // useMemo: Cálculo del gasto en habilidades considerando cargas compradas
-  const manualAbilitiesSpend = useMemo(() => {
-    let sum = 0;
-    const normKey = (myAgentName || "jett").toLowerCase().trim();
-    const list = AGENT_ABILITIES_DATABASE[normKey] || [];
-    for (const ab of list) {
-      const current =
-        abilityChargesState[ab.id] !== undefined
-          ? abilityChargesState[ab.id]
-          : ab.defaultCharges;
-      const boughtCharges = Math.max(0, current - ab.defaultCharges);
-      sum += boughtCharges * ab.cost;
-    }
-    return sum;
-  }, [myAgentName, abilityChargesState]);
+  const manualAbilitiesSpend = useMemo(
+    () => calculateManualAbilitiesSpend(myAgentName, abilityChargesState),
+    [myAgentName, abilityChargesState]
+  );
 
-  const totalCalculatedSpend = useMemo(() => {
-    if (isFollowingAiRecommendation && buyRecommendations) {
-      return buyRecommendations.cost || (manualWeaponSpend + manualArmorSpend + manualAbilitiesSpend);
-    }
-    return manualWeaponSpend + manualArmorSpend + manualAbilitiesSpend;
-  }, [
-    isFollowingAiRecommendation,
-    buyRecommendations,
-    manualWeaponSpend,
-    manualArmorSpend,
-    manualAbilitiesSpend,
-  ]);
+  const totalCalculatedSpend = useMemo(
+    () =>
+      calculateTotalSpend({
+        isFollowingAiRecommendation,
+        buyRecommendations,
+        manualWeaponSpend,
+        manualArmorSpend,
+        manualAbilitiesSpend,
+      }),
+    [
+      isFollowingAiRecommendation,
+      buyRecommendations,
+      manualWeaponSpend,
+      manualArmorSpend,
+      manualAbilitiesSpend,
+    ]
+  );
 
   // Sincronizar el gasto planeado con el contexto de GameState para el cálculo automático de fin de ronda
   useEffect(() => {

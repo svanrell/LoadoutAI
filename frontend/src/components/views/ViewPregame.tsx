@@ -6,6 +6,16 @@ import { useGameState, MLDraftRecommendation } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 import { getScoreMeta } from "@/lib/scoreUtils";
 import { getGameModeName } from "@/data/gameModesData";
+import {
+  buildAgentByUuidMap,
+  buildRecommendationsMap,
+  buildImpactMap,
+  getAgentRecommendation,
+  filterAndSortAgents,
+  getPickedPlayers,
+  getPickedAgentsList,
+  isDraftCompleted,
+} from "@/lib/pregameLogic";
 
 // ============================================================================
 // VISTA PRE-GAME: ASISTENTE DE DRAFT Y COACH DE SINERGIA CON IA
@@ -34,79 +44,35 @@ export default function ViewPregame() {
   const [selectedAgentUuid, setSelectedAgentUuid] = useState<string | null>(null);
 
   // useMemo (Mapa 1): Indexa los agentes por UUID para buscarlos en O(1) instantáneo
-  const agentByUuidMap = useMemo(() => {
-    const map = new Map<string, (typeof agents)[0]>();
-    for (const agent of agents) {
-      map.set(agent.uuid.toLowerCase(), agent);
-    }
-    return map;
-  }, [agents]);
+  const agentByUuidMap = useMemo(() => buildAgentByUuidMap(agents), [agents]);
 
   // useMemo (Mapa 2): Indexa las recomendaciones de la IA por UUID y nombre para evitar búsquedas lentas
-  const recMap = useMemo(() => {
-    const map = new Map<string, any>();
-    if (!mlRecommendations) return map;
-    for (const rec of mlRecommendations) {
-      if (rec.uuid) map.set(rec.uuid.toLowerCase(), rec);
-      const nameKey = (rec.agent || rec.displayName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (nameKey) map.set(nameKey, rec);
-    }
-    return map;
-  }, [mlRecommendations]);
+  const recMap = useMemo(() => buildRecommendationsMap(mlRecommendations), [mlRecommendations]);
 
   // useMemo (Mapa 3): Indexa los impactos individuales (deltas ▲/▼) de cada agente
-  const impactMap = useMemo(() => {
-    const map = new Map<string, any>();
-    if (!mlAgentImpacts) return map;
-    for (const imp of mlAgentImpacts) {
-      if (imp.uuid) map.set(imp.uuid.toLowerCase(), imp);
-      const nameKey = (imp.agent || imp.displayName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (nameKey) map.set(nameKey, imp);
-    }
-    return map;
-  }, [mlAgentImpacts]);
+  const impactMap = useMemo(() => buildImpactMap(mlAgentImpacts), [mlAgentImpacts]);
 
   // Jugadores del equipo que ya han elegido un personaje
-  const pickedPlayers = myTeam.filter((player) => player.agentId && player.agentId.trim() !== "");
+  const pickedPlayers = useMemo(() => getPickedPlayers(myTeam), [myTeam]);
   const pickedAgentsCount = pickedPlayers.length;
   // Cuando hay 5 agentes seleccionados, el draft se da por completado
-  const isDraftComplete = pickedAgentsCount >= 5;
+  const isDraftComplete = isDraftCompleted(pickedAgentsCount);
 
   // useMemo: Lista de agentes ya elegidos por el equipo para el resumen final
-  const pickedAgentsList = useMemo(() => {
-    return pickedPlayers
-      .map((player) => agentByUuidMap.get((player.agentId || "").toLowerCase()))
-      .filter((agent): agent is NonNullable<typeof agent> => Boolean(agent));
-  }, [pickedPlayers, agentByUuidMap]);
+  const pickedAgentsList = useMemo(
+    () => getPickedAgentsList(pickedPlayers, agentByUuidMap),
+    [pickedPlayers, agentByUuidMap]
+  );
 
   // Helper O(1) para buscar la recomendación de la IA para un agente dado
-  const getAgentRecommendation = (agentUuid: string, agentDisplayName: string) => {
-    return (
-      recMap.get(agentUuid.toLowerCase()) ||
-      recMap.get(agentDisplayName.toLowerCase().replace(/[^a-z0-9]/g, "")) ||
-      null
-    );
-  };
+  const getAgentRec = (agentUuid: string, agentDisplayName: string) =>
+    getAgentRecommendation(recMap, agentUuid, agentDisplayName);
 
   // Filtrar y ordenar los agentes de forma memoizada en O(1) por comparación
-  const filteredAgents = useMemo(() => {
-    return agents
-      .filter((agent) => {
-        if (selectedRoleCategory === "all") return true;
-        return agent.role?.displayName.toLowerCase() === selectedRoleCategory;
-      })
-      .sort((agentA, agentB) => {
-        const recommendationA =
-          recMap.get(agentA.uuid.toLowerCase()) ||
-          recMap.get(agentA.displayName.toLowerCase().replace(/[^a-z0-9]/g, ""));
-        const recommendationB =
-          recMap.get(agentB.uuid.toLowerCase()) ||
-          recMap.get(agentB.displayName.toLowerCase().replace(/[^a-z0-9]/g, ""));
-        const winRateA = recommendationA ? recommendationA.winRate : 0;
-        const winRateB = recommendationB ? recommendationB.winRate : 0;
-        return winRateB - winRateA;
-      });
-  }, [agents, selectedRoleCategory, recMap]);
+  const filteredAgents = useMemo(
+    () => filterAndSortAgents(agents, selectedRoleCategory, recMap),
+    [agents, selectedRoleCategory, recMap]
+  );
 
   const selectedAgent = agentByUuidMap.get(selectedAgentUuid?.toLowerCase() || "");
 
@@ -746,7 +712,7 @@ export default function ViewPregame() {
               }}
             >
               {filteredAgents.map((agent) => {
-                const agentRecommendation = getAgentRecommendation(agent.uuid, agent.displayName);
+                const agentRecommendation = getAgentRecommendation(recMap, agent.uuid, agent.displayName);
                 const estimatedWinRate = agentRecommendation ? agentRecommendation.winRate : null;
                 const isCurrentAgentSelected = selectedAgentUuid === agent.uuid;
                 const isAgentPickedByTeam = myTeam.some(
