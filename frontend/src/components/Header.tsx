@@ -78,7 +78,6 @@ export default function Header() {
         >
           <DraftIcon size={15} />
           <span className="nav-tab-label">{t.draftCoach}</span>
-          <span className="nav-tab-badge">AI</span>
         </button>
 
         <button
