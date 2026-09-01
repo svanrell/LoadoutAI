@@ -1047,3 +1047,47 @@ export function getAbilityPrice(
   }
   return { cost: 200, isSignature: false };
 }
+
+export interface ResolvedShopAbility extends AgentAbilityDetail {
+  displayName: string;
+  displayIcon?: string | null;
+}
+
+/**
+ * Resuelve y mapea las habilidades de un agente combinando la base de datos estática
+ * con los iconos oficiales devueltos por la API de Valorant.
+ */
+export function resolveAgentShopAbilities(
+  agentName: string,
+  apiAbilities: Array<{ slot: string; displayName: string; displayIcon?: string | null }> = [],
+  currentLang: "es" | "en" = "es"
+): ResolvedShopAbility[] {
+  const normKey = (agentName || "jett").toLowerCase().trim();
+  const baseList = AGENT_ABILITIES_DATABASE[normKey] || DEFAULT_FALLBACK_ABILITIES;
+
+  return baseList.map((abilityDef) => {
+    const matchedApiAbility = apiAbilities.find((a) => {
+      const s = a.slot?.toLowerCase();
+      const targetSlot = abilityDef.slot.toLowerCase();
+      const isSlotMatch =
+        s === targetSlot ||
+        (targetSlot === "ability3" && (s === "grenade" || s === "ability3")) ||
+        (targetSlot === "grenade" && (s === "ability3" || s === "grenade"));
+      return (
+        isSlotMatch ||
+        a.displayName?.toLowerCase() === abilityDef.name.en.toLowerCase() ||
+        a.displayName?.toLowerCase() === abilityDef.name.es.toLowerCase()
+      );
+    });
+
+    const localizedName = abilityDef.name[currentLang] || abilityDef.name.en;
+    const displayIcon = matchedApiAbility?.displayIcon || abilityDef.iconFallback;
+
+    return {
+      ...abilityDef,
+      displayName: localizedName,
+      displayIcon,
+    };
+  });
+}
+
