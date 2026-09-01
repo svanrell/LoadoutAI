@@ -36,7 +36,7 @@ export interface AbilitiesShopProps {
 // COMPONENTE PRINCIPAL: AbilitiesShop
 // ============================================================================
 
-export default function AbilitiesShop({
+function AbilitiesShopComponent({
   agentName,
   apiAbilities = [],
   isAgentDetected = true,
@@ -263,3 +263,6 @@ export default function AbilitiesShop({
     </div>
   );
 }
+
+const AbilitiesShop = React.memo(AbilitiesShopComponent);
+export default AbilitiesShop;
