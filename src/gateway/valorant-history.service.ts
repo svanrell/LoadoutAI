@@ -92,7 +92,10 @@ export interface MatchDetailsResponse {
       playtimeMillis?: number;
     };
     competitiveTier?: number;
+    playerCard?: string;
     playerCardId?: string;
+    playerTitle?: string;
+    accountLevel?: number;
   }>;
   teams: Array<{
     teamId: string;
@@ -563,6 +566,44 @@ export class ValorantHistoryService {
     }
   }
 
+  public async getLocalPresenceData(
+    puuid: string,
+  ): Promise<{
+    playerCardId?: string;
+    accountLevel?: number;
+    competitiveTier?: number;
+    leaderboardPosition?: number;
+  } | null> {
+    const credentials = this.getCredentials();
+    if (!credentials) return null;
+
+    try {
+      const res = await firstValueFrom(
+        this.httpService.get<{ presences?: Array<{ puuid: string; private: string }> }>(
+          `${credentials.url}/chat/v4/presences`,
+          {
+            headers: { Authorization: credentials.token },
+            httpsAgent: this.httpsAgent,
+          },
+        ),
+      );
+      const myPresence = res.data.presences?.find((p) => p.puuid === puuid);
+      if (myPresence && myPresence.private) {
+        const decoded = Buffer.from(myPresence.private, "base64").toString("utf8");
+        const parsed = JSON.parse(decoded);
+        return {
+          playerCardId: parsed.playerCardId,
+          accountLevel: parsed.accountLevel,
+          competitiveTier: parsed.competitiveTier,
+          leaderboardPosition: parsed.leaderboardPosition,
+        };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   // ==========================================
   // 3. SINCRONIZACIÓN COMPLETA DEL PERFIL
   // ==========================================
@@ -609,15 +650,22 @@ export class ValorantHistoryService {
     puuid: string,
   ): Promise<SyncedPlayerProfile | null> {
     try {
-      // 1. Obtener Nombre, MMR, Lista de Partidas, Actualizaciones Competitivas y Loadout en paralelo
-      const [namesList, mmrData, historyData, compUpdatesRes, loadoutData] =
-        await Promise.all([
-          this.getPlayerNames([puuid]),
-          this.getPlayerMMR(puuid),
-          this.getPlayerMatchHistory(puuid, 0, 20),
-          this.getPlayerCompetitiveUpdates(puuid, 0, 20),
-          this.getPlayerLoadout(puuid),
-        ]);
+      // 1. Obtener Nombre, MMR, Lista de Partidas, Actualizaciones Competitivas, Loadout y Presencia local en paralelo
+      const [
+        namesList,
+        mmrData,
+        historyData,
+        compUpdatesRes,
+        loadoutData,
+        localPresence,
+      ] = await Promise.all([
+        this.getPlayerNames([puuid]),
+        this.getPlayerMMR(puuid),
+        this.getPlayerMatchHistory(puuid, 0, 20),
+        this.getPlayerCompetitiveUpdates(puuid, 0, 20),
+        this.getPlayerLoadout(puuid),
+        this.getLocalPresenceData(puuid),
+      ]);
 
       const playerNameItem = namesList[0];
       const gameName = playerNameItem?.GameName || "Player";
@@ -641,6 +689,19 @@ export class ValorantHistoryService {
           currentTier = lastSeason.CompetitiveTier || 0;
           rankedRating = lastSeason.RankedRating || 0;
           leaderboardRank = lastSeason.LeaderboardRank || 0;
+        }
+      }
+
+      // Si aún no se detecta rango, intentar extraer de la presencia local o de la última partida competitiva
+      if (currentTier === 0) {
+        if (localPresence?.competitiveTier && localPresence.competitiveTier > 0) {
+          currentTier = localPresence.competitiveTier;
+        } else if (compUpdatesRes?.Matches && compUpdatesRes.Matches.length > 0) {
+          const latestComp = compUpdatesRes.Matches[0];
+          if (latestComp?.TierAfterUpdate !== undefined && latestComp.TierAfterUpdate > 0) {
+            currentTier = latestComp.TierAfterUpdate;
+            rankedRating = latestComp.RankedRatingAfterUpdate ?? 0;
+          }
         }
       }
 
@@ -878,15 +939,28 @@ export class ValorantHistoryService {
         });
       }
 
-      let playerCardId = loadoutData?.Identity?.PlayerCardID || "";
-      const accountLevel = loadoutData?.Identity?.AccountLevel || 0;
+      let playerCardId =
+        loadoutData?.Identity?.PlayerCardID ||
+        localPresence?.playerCardId ||
+        "";
+      let accountLevel =
+        loadoutData?.Identity?.AccountLevel ||
+        localPresence?.accountLevel ||
+        0;
 
-      // Si no viene en el loadout, intentar sacarla de las partidas recientes
+      // Si no viene en el loadout ni en la presencia local, buscar en los detalles de las partidas recientes
       if (!playerCardId && detailsList.length > 0) {
         for (const match of detailsList) {
           const p = match?.players?.find((pl) => pl.subject === puuid);
-          if (p?.playerCardId) {
-            playerCardId = p.playerCardId;
+          const foundCard =
+            p?.playerCard ||
+            (p as any)?.playerCardId ||
+            (p as any)?.PlayerCardID;
+          if (foundCard) {
+            playerCardId = foundCard;
+            if (!accountLevel && (p as any)?.accountLevel) {
+              accountLevel = (p as any).accountLevel;
+            }
             break;
           }
         }
