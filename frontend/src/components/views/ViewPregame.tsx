@@ -87,15 +87,28 @@ export default function ViewPregame() {
   return (
     <div id="viewPregame" className="state-view active">
       {/* Column 1: Team Configuration */}
-      <div className="cyber-panel pregame-team-panel">
-        <div className="panel-header">
+      <div className="cyber-panel pregame-team-panel" style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+        <div className="panel-header" style={{ flexShrink: 0 }}>
           <span>{t.myTeamComposition}</span>
           <span id="teamCount" className="accent">
             {pickedAgentsCount} / {myTeam.length} {t.picked}
           </span>
         </div>
 
-        <div className="team-list">
+        <div
+          className="team-list"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            gap: "clamp(0.45rem, 1.1vh, 0.8rem)",
+            padding: "clamp(0.55rem, 1.3vh, 0.95rem)",
+            flex: 1,
+            height: "100%",
+            boxSizing: "border-box",
+            overflow: "hidden",
+          }}
+        >
           {myTeam.map((player, playerIndex) => {
             const matchedAgent = player.agentId
               ? agentByUuidMap.get(player.agentId.toLowerCase()) || null
@@ -130,19 +143,54 @@ export default function ViewPregame() {
               <div
                 key={player.puuid || playerIndex}
                 className={`player-card ${player.state === "locked" ? "locked" : ""} ${player.state === "selected" ? "selecting" : ""}`}
-                style={
-                  player.playerCardId && player.playerCardId !== "locked"
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "clamp(0.65rem, 1.2vw, 1rem)",
+                  padding: "clamp(0.45rem, 0.9vh, 0.75rem) clamp(0.65rem, 1.2vw, 0.95rem)",
+                  borderRadius: "0.35rem",
+                  boxSizing: "border-box",
+                  minHeight: "clamp(3.6rem, 8.5vh, 5.8rem)",
+                  ...(player.playerCardId && player.playerCardId !== "locked"
                     ? {
                         backgroundImage: `linear-gradient(rgba(11, 18, 25, 0.85), rgba(11, 18, 25, 0.95)), url(https://media.valorant-api.com/playercards/${player.playerCardId}/wideart.png)`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                       }
-                    : {}
-                }
+                    : {}),
+                }}
               >
-                <div className="player-index">{playerIndex + 1}</div>
+                <div
+                  className="player-index"
+                  style={{
+                    fontFamily: "'Orbitron', sans-serif",
+                    fontSize: "clamp(0.85rem, 1.2vw, 1.1rem)",
+                    fontWeight: 900,
+                    color: "var(--text-muted)",
+                    minWidth: "1.1rem",
+                  }}
+                >
+                  {playerIndex + 1}
+                </div>
 
-                <div className="player-avatar-wrap">
+                <div
+                  className="player-avatar-wrap"
+                  style={{
+                    width: "clamp(2.8rem, 6vh, 4rem)",
+                    height: "clamp(2.8rem, 6vh, 4rem)",
+                    minWidth: "clamp(2.8rem, 6vh, 4rem)",
+                    minHeight: "clamp(2.8rem, 6vh, 4rem)",
+                    borderRadius: "0.35rem",
+                    border: "1px solid var(--border-cyber)",
+                    background: "rgba(0, 0, 0, 0.4)",
+                    overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
                   {matchedAgent ? (
                     <img
                       src={matchedAgent.displayIcon}
@@ -150,33 +198,86 @@ export default function ViewPregame() {
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      style={{ width: "50%", height: "50%", stroke: "var(--text-muted)" }}
+                    >
                       <circle cx="12" cy="7" r="4"></circle>
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     </svg>
                   )}
                 </div>
 
-                <div className="player-info">
-                  <div className="player-name">{displayPlayerName}</div>
-                  <div className="player-agent">{displayAgentName}</div>
-                  <div className="player-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "4px" }}>
-                    <span className="player-level">
+                <div className="player-info" style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.15rem", minWidth: 0 }}>
+                  <div
+                    className="player-name"
+                    style={{
+                      fontSize: "clamp(0.85rem, 1.1vw, 1.05rem)",
+                      fontWeight: 700,
+                      color: "var(--text-main)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {displayPlayerName}
+                  </div>
+                  <div
+                    className="player-agent"
+                    style={{
+                      fontFamily: "'Orbitron', sans-serif",
+                      fontSize: matchedAgent
+                        ? "clamp(0.68rem, 0.9vw, 0.82rem)"
+                        : "clamp(0.52rem, 0.68vw, 0.62rem)",
+                      fontWeight: 900,
+                      color: "var(--color-cyan)",
+                      letterSpacing: matchedAgent ? "0.03em" : "0.01em",
+                      textTransform: "uppercase",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {displayAgentName}
+                  </div>
+                  <div className="player-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem", marginTop: "0.15rem" }}>
+                    <span
+                      className="player-level"
+                      style={{
+                        fontSize: "clamp(0.55rem, 0.7vw, 0.65rem)",
+                        color: "var(--text-muted)",
+                        fontWeight: 600,
+                      }}
+                    >
                       {t.lvl} {player.level || "--"}
                     </span>
-                    <span className={`status-badge-inner ${playerStatusCssClass}`}>
+                    <span
+                      className={`status-badge-inner ${playerStatusCssClass}`}
+                      style={{
+                        fontSize: "clamp(0.52rem, 0.68vw, 0.62rem)",
+                        fontWeight: 800,
+                        padding: "0.15rem 0.45rem",
+                        borderRadius: "0.2rem",
+                        letterSpacing: "0.04em",
+                      }}
+                    >
                       {playerStatusLabel}
                     </span>
                     {agentImpact && typeof agentImpact.impactDelta === "number" && (
                       <span
                         title={`Aporte a la sinergia del equipo: ${agentImpact.impactDelta > 0 ? "+" : ""}${agentImpact.impactDelta.toFixed(1)}%`}
                         style={{
-                          fontSize: "9px",
+                          fontSize: "clamp(0.52rem, 0.68vw, 0.62rem)",
                           fontFamily: "'Orbitron', sans-serif",
                           fontWeight: 800,
-                          padding: "1px 5px",
-                          borderRadius: "3px",
-                          letterSpacing: "0.5px",
+                          padding: "0.15rem 0.45rem",
+                          borderRadius: "0.2rem",
+                          letterSpacing: "0.04em",
                           color:
                             agentImpact.impactDelta > 0
                               ? "#00ff88"
@@ -210,49 +311,6 @@ export default function ViewPregame() {
               </div>
             );
           })}
-        </div>
-
-        {/* Game Mode Specifications Info Panel */}
-        <div className="sandbox-controls-card">
-          <div className="sandbox-header">
-            <span>{t.modeSpecs}</span>
-            <span className="sandbox-badge">{getGameModeName(selectedMode, language).toUpperCase()}</span>
-          </div>
-
-          <div className="sandbox-fields">
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: "11px",
-                }}
-              >
-                <span style={{ color: "var(--text-muted)" }}>{t.teamCapacity}</span>
-                <span
-                  style={{
-                    fontFamily: "'Orbitron', sans-serif",
-                    fontWeight: "bold",
-                    color: "var(--color-cyan)",
-                  }}
-                >
-                  5 {t.playersCount}
-                </span>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: "11px",
-                }}
-              >
-                <span style={{ color: "var(--text-muted)" }}>{t.economyRules}</span>
-                <span className="rules-badge-buy enabled">{t.buyAllowed}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -987,7 +1045,19 @@ export default function ViewPregame() {
           ))}
         </div>
 
-        <div className="agents-grid-container">
+        <div
+          className="agents-grid-container"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "clamp(0.45rem, 0.9vh, 0.7rem)",
+            padding: "clamp(0.55rem, 1vh, 0.85rem)",
+            overflowY: "auto",
+            flex: 1,
+            minHeight: 0,
+            alignContent: "start",
+          }}
+        >
           {isLoadingAgents ? (
             <div style={{ padding: "20px", textAlign: "center" }}>{t.loadingAgents}</div>
           ) : (
@@ -1019,9 +1089,46 @@ export default function ViewPregame() {
           )}
         </div>
 
-        {/* Active Selection Area */}
-        <div className="selection-panel">
-          <div className="selection-portrait-wrap" style={{ width: "4rem", height: "4rem", minWidth: "4rem", maxWidth: "4rem", minHeight: "4rem", maxHeight: "4rem", overflow: "hidden", flexShrink: 0, position: "relative" }}>
+        {/* Active Selection Compact Footer Bar (15%-20% height max) */}
+        <div
+          className="selection-panel"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.55rem",
+            padding: "0.35rem 0.65rem",
+            height: "clamp(2.8rem, 6vh, 3.4rem)",
+            minHeight: "clamp(2.8rem, 6vh, 3.4rem)",
+            maxHeight: "clamp(2.8rem, 6vh, 3.4rem)",
+            borderTop: "1px solid var(--border-cyber)",
+            background: "rgba(8, 14, 20, 0.95)",
+            flexShrink: 0,
+            boxSizing: "border-box",
+            width: "100%",
+          }}
+        >
+          <div
+            className="selection-portrait-wrap"
+            style={{
+              width: "clamp(2.1rem, 4.5vh, 2.5rem)",
+              height: "clamp(2.1rem, 4.5vh, 2.5rem)",
+              minWidth: "clamp(2.1rem, 4.5vh, 2.5rem)",
+              maxWidth: "clamp(2.1rem, 4.5vh, 2.5rem)",
+              minHeight: "clamp(2.1rem, 4.5vh, 2.5rem)",
+              maxHeight: "clamp(2.1rem, 4.5vh, 2.5rem)",
+              borderRadius: "0.25rem",
+              border: "1px solid var(--border-cyber)",
+              background: "rgba(0, 0, 0, 0.5)",
+              overflow: "hidden",
+              flexShrink: 0,
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             {selectedAgent ? (
               <img
                 src={selectedAgent.displayIcon}
@@ -1029,10 +1136,6 @@ export default function ViewPregame() {
                 style={{
                   width: "100%",
                   height: "100%",
-                  minWidth: "100%",
-                  maxWidth: "100%",
-                  minHeight: "100%",
-                  maxHeight: "100%",
                   objectFit: "cover",
                   objectPosition: "center top",
                   display: "block",
@@ -1040,26 +1143,99 @@ export default function ViewPregame() {
               />
             ) : (
               <div className="selection-portrait-placeholder">
-                <span style={{ whiteSpace: "pre-line" }}>{t.noCharacterSelected}</span>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700 }}>?</span>
               </div>
             )}
           </div>
 
-          <div className="selection-details">
-            <div className="selection-info-header">
-              <div className="selection-name">
+          <div
+            className="selection-details"
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: "100%",
+              minWidth: 0,
+              overflow: "hidden",
+              gap: "0.5rem",
+            }}
+          >
+            <div
+              className="selection-info-header"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.1rem",
+                minWidth: 0,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                className="selection-name"
+                style={{
+                  fontFamily: "'Orbitron', sans-serif",
+                  fontSize: selectedAgent
+                    ? "clamp(0.72rem, 0.95vw, 0.85rem)"
+                    : "clamp(0.55rem, 0.72vw, 0.65rem)",
+                  fontWeight: 900,
+                  color: selectedAgent ? "var(--color-cyan)" : "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: selectedAgent ? "0.03em" : "0.01em",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  lineHeight: 1.15,
+                }}
+              >
                 {selectedAgent ? selectedAgent.displayName : t.selectAgent}
               </div>
-              <div className="selection-role">
+              <div
+                className="selection-role"
+                style={{
+                  fontSize: "clamp(0.52rem, 0.72vw, 0.58rem)",
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  lineHeight: 1,
+                }}
+              >
                 {selectedAgent ? selectedAgent.role?.displayName : t.classRole}
               </div>
             </div>
-            <div className="selection-actions">
+
+            <div
+              className="selection-actions"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexShrink: 0,
+              }}
+            >
               <button
                 className="lock-btn"
                 disabled={!selectedAgent}
                 onClick={() => {
                   if (selectedAgent) lockAgent(selectedAgent.uuid);
+                }}
+                style={{
+                  padding: "0 0.85rem",
+                  height: "clamp(1.9rem, 4vh, 2.2rem)",
+                  fontFamily: "'Orbitron', sans-serif",
+                  fontSize: "clamp(0.6rem, 0.8vw, 0.68rem)",
+                  fontWeight: 900,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "0.25rem",
+                  cursor: selectedAgent ? "pointer" : "not-allowed",
                 }}
               >
                 {t.lockAgentBtn}

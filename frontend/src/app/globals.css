@@ -1692,12 +1692,14 @@ header {
 
 /* Column 1: My Team Panel */
 .team-list {
-    padding: 15px;
+    padding: clamp(0.6rem, 1.4vh, 1rem);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
+    justify-content: space-between;
+    gap: clamp(0.5rem, 1.2vh, 0.85rem);
     flex: 1;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 /* Sandbox Simulation Controls Card */
@@ -1827,17 +1829,20 @@ header {
 }
 
 .player-card {
-    background: rgba(15, 26, 36, 0.5);
+    background: rgba(15, 26, 36, 0.6);
     border: 1px solid var(--border-cyber);
-    border-radius: 4px;
-    padding: 12px 15px;
+    border-radius: 6px;
+    padding: clamp(0.5rem, 1vh, 0.8rem) clamp(0.7rem, 1.2vw, 1rem);
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: clamp(0.65rem, 1.2vw, 1rem);
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background-size: cover;
     background-position: center;
+    flex: 1;
+    min-height: clamp(3.8rem, 8.5vh, 5.8rem);
+    box-sizing: border-box;
 }
 
 .player-card.active-selection {
@@ -1855,23 +1860,26 @@ header {
 
 .player-index {
     font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: clamp(0.85rem, 1.2vw, 1.1rem);
+    font-weight: 900;
     color: var(--text-muted);
-    width: 15px;
+    min-width: 1.1rem;
 }
 
 .player-avatar-wrap {
     position: relative;
-    width: 44px;
-    height: 44px;
-    border-radius: 4px;
+    width: clamp(2.8rem, 6vh, 4rem);
+    height: clamp(2.8rem, 6vh, 4rem);
+    min-width: clamp(2.8rem, 6vh, 4rem);
+    min-height: clamp(2.8rem, 6vh, 4rem);
+    border-radius: 6px;
     border: 1px solid var(--border-cyber);
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .player-avatar-wrap img {
@@ -1895,8 +1903,8 @@ header {
 }
 
 .player-name {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+    font-weight: 700;
     color: var(--text-main);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1905,8 +1913,8 @@ header {
 
 .player-agent {
     font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: clamp(0.72rem, 0.95vw, 0.88rem);
+    font-weight: 900;
     color: var(--color-cyan);
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -2404,129 +2412,103 @@ header {
 
 /* Selection details and Lock panel */
 .selection-panel {
-    height: 280px;
-    margin-top: 20px;
     display: flex;
-    flex-direction: row;
-    padding: 15px;
-    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.35rem 0.65rem;
+    border-top: 1px solid var(--border-cyber);
+    background: rgba(8, 14, 20, 0.95);
+    height: 3rem;
+    min-height: 3rem;
+    max-height: 3rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .selection-portrait-wrap {
-    width: 110px;
-    height: 100%;
+    width: 2.2rem;
+    height: 2.2rem;
+    min-width: 2.2rem;
+    min-height: 2.2rem;
+    border-radius: 0.25rem;
     border: 1px solid var(--border-cyber);
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.5);
     overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
 }
 
 .selection-portrait-wrap img {
+    width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center top;
 }
 
 .selection-portrait-placeholder {
+    width: 100%;
+    height: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
     text-align: center;
-    font-size: 10px;
-    gap: 6px;
-}
-
-.selection-portrait-placeholder svg {
-    width: 32px;
-    height: 32px;
-    stroke: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
 }
 
 .selection-details {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    min-width: 0;
+    align-items: center;
     justify-content: space-between;
+    height: 100%;
+    min-width: 0;
+    overflow: hidden;
+    gap: 0.5rem;
 }
 
 .selection-info-header {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0.1rem;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .selection-name {
     font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
+    font-size: 0.8rem;
     font-weight: 900;
-    color: var(--text-main);
+    color: var(--color-cyan);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.15;
 }
 
 .selection-role {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--color-cyan);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.selection-desc {
-    font-size: 11px;
+    font-size: 0.55rem;
     color: var(--text-muted);
-    line-height: 1.4;
-    max-height: 60px;
-    overflow-y: auto;
-    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
 }
 
-.selection-abilities-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.ability-icon-wrap {
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border-cyber);
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: help;
-    position: relative;
-}
-
-.ability-icon-wrap img {
-    width: 80%;
-    height: 80%;
-    object-fit: contain;
-}
-
-.ability-icon-wrap:hover {
-    border-color: var(--color-cyan);
-    background: rgba(0, 240, 255, 0.05);
-}
-
-/* Action elements (Timer & Lock in btn) */
 .selection-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-top: 15px;
-    border-top: 1px solid var(--border-cyber);
-    padding-top: 15px;
-    gap: 15px;
+    flex-shrink: 0;
 }
 
 .timer-wrap {
@@ -2935,6 +2917,8 @@ header {
     .hud-col-right {
         justify-content: flex-start;
     }
+}
+
 /* Responsive breakpoints for ViewPregame */
 @media (max-width: 1400px) {
     #viewPregame.active {
@@ -3020,19 +3004,6 @@ header {
 
 /* Breakpoint 5: Tiny Mobile (up to 480px) */
 @media (max-width: 480px) {
-    .selection-panel {
-        flex-direction: column;
-        height: auto;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .selection-portrait-wrap {
-        width: 100%;
-        max-width: 150px;
-        height: 180px;
-    }
-
     .agents-grid-container {
         grid-template-columns: repeat(4, 1fr);
     }
@@ -3042,17 +3013,6 @@ header {
         left: 15px;
         right: 15px;
         bottom: 15px;
-    }
-
-    .selection-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-        text-align: center;
-    }
-
-    .timer-wrap {
-        align-items: center;
     }
 }
 
@@ -3335,37 +3295,40 @@ header {
 
 .agents-grid-container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.4rem;
-    padding: 0.65rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(0.45rem, 0.9vh, 0.65rem);
+    padding: clamp(0.55rem, 1vh, 0.85rem);
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+    align-content: start;
 }
 
 .agent-grid-item {
     aspect-ratio: 1;
-    border-radius: 0.3rem;
-    border: 1px solid rgba(0, 243, 255, 0.18);
-    background: rgba(15, 25, 35, 0.6);
+    border-radius: 0.35rem;
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    background: rgba(15, 25, 35, 0.75);
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .agent-grid-item:hover {
     border-color: var(--color-cyan);
-    transform: scale(1.04);
-    background: rgba(0, 243, 255, 0.12);
+    transform: scale(1.05);
+    background: rgba(0, 243, 255, 0.15);
+    box-shadow: 0 0 0.6rem rgba(0, 243, 255, 0.3);
 }
 
 .agent-grid-item.selected {
     border-color: var(--color-cyan);
-    box-shadow: 0 0 0.65rem rgba(0, 243, 255, 0.4);
-    background: rgba(0, 243, 255, 0.2);
+    box-shadow: 0 0 0.75rem rgba(0, 243, 255, 0.5);
+    background: rgba(0, 243, 255, 0.22);
 }
 
 .agent-grid-item img {
@@ -3377,21 +3340,25 @@ header {
 .selection-panel {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 0.85rem;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.35rem 0.65rem;
     border-top: 1px solid var(--border-cyber);
-    background: rgba(8, 14, 20, 0.9);
-    height: 5.5rem;
-    min-height: 5.5rem;
-    max-height: 5.5rem;
+    background: rgba(8, 14, 20, 0.95);
+    height: 3rem;
+    min-height: 3rem;
+    max-height: 3rem;
     flex-shrink: 0;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .selection-portrait-wrap {
-    width: 4rem;
-    height: 4rem;
-    border-radius: 0.35rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    min-width: 2.2rem;
+    min-height: 2.2rem;
+    border-radius: 0.25rem;
     border: 1px solid var(--border-cyber);
     background: rgba(0, 0, 0, 0.5);
     overflow: hidden;
@@ -3416,61 +3383,69 @@ header {
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 700;
     color: var(--text-muted);
-    padding: 0.25rem;
 }
 
 .selection-details {
     flex: 1;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: space-between;
     height: 100%;
     min-width: 0;
     overflow: hidden;
+    gap: 0.5rem;
 }
 
 .selection-info-header {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.1rem;
     min-width: 0;
+    overflow: hidden;
 }
 
 .selection-name {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 900;
     color: var(--color-cyan);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.2;
+    line-height: 1.15;
 }
 
 .selection-role {
-    font-size: 0.625rem;
+    font-size: 0.55rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     line-height: 1;
 }
 
 .selection-actions {
-    margin-top: auto;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .lock-btn {
-    width: 100%;
-    padding: 0.4rem 0.65rem;
+    padding: 0.35rem 0.8rem;
+    height: 2.1rem;
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.6875rem;
+    font-size: 0.65rem;
     font-weight: 900;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
+    white-space: nowrap;
     background: var(--color-red);
     color: #ffffff;
     border: none;
@@ -3478,6 +3453,9 @@ header {
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 0 0.75rem rgba(255, 70, 85, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .lock-btn:hover:not(:disabled) {

@@ -129,6 +129,28 @@ export default function ViewIngame() {
   // useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
   const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
 
+  // useMemo: Arma activa para inspeccionar (si hay hover muestra la del hover; si no, muestra el arma principal o pistola equipada, o Vandal por defecto)
+  const activeWeaponToInspect = useMemo(() => {
+    if (hoveredWeapon) return hoveredWeapon;
+    if (equippedPrimaryName) {
+      const p = allWeapons.find(
+        (w) => w.displayName.toUpperCase() === equippedPrimaryName.toUpperCase()
+      );
+      if (p) return p;
+    }
+    if (equippedSidearmName) {
+      const s = allWeapons.find(
+        (w) => w.displayName.toUpperCase() === equippedSidearmName.toUpperCase()
+      );
+      if (s) return s;
+    }
+    return (
+      allWeapons.find((w) => w.displayName.toUpperCase() === "VANDAL") ||
+      allWeapons[0] ||
+      null
+    );
+  }, [hoveredWeapon, equippedPrimaryName, equippedSidearmName, allWeapons]);
+
   // Sincronizar equipamiento cuando se sigue la recomendación de la IA
   useEffect(() => {
     if (!isFollowingAiRecommendation || !buyRecommendations) return;
@@ -1006,302 +1028,428 @@ export default function ViewIngame() {
             {renderArmorCol()}
           </div>
 
-          {/* Right Panel: Compact Weapon Stats (LOWER PRIORITY - COMPACT DESIGN) */}
+          {/* Right Panel: Responsive Weapon Stats & Damage Card */}
           <div
             style={{
-              width: "clamp(11rem, 14vw, 15.5rem)",
+              width: "clamp(12.5rem, 16vw, 17.5rem)",
               display: "flex",
               flexDirection: "column",
-              background: "rgba(16, 24, 38, 0.85)",
-              padding: "clamp(0.55rem, 1vh, 0.9rem)",
+              background: "rgba(16, 24, 38, 0.88)",
+              padding: "0.75rem 0.85rem",
               border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: "0.3rem",
-              backdropFilter: "blur(10px)",
-              overflowY: "auto",
+              borderRadius: "0.35rem",
+              backdropFilter: "blur(12px)",
+              boxSizing: "border-box",
               flexShrink: 0,
+              height: "100%",
             }}
           >
-            {hoveredWeapon ? (
-              <>
+            {activeWeaponToInspect ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                  justifyContent: "space-between",
+                  gap: "0.5rem",
+                }}
+              >
+                {/* Header Section */}
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "0.2rem",
-                    borderBottom: "1px solid rgba(255,255,255,0.2)",
-                    paddingBottom: "clamp(0.35rem, 0.7vh, 0.65rem)",
+                    gap: "0.25rem",
+                    borderBottom: "1px solid rgba(255,255,255,0.18)",
+                    paddingBottom: "0.45rem",
                   }}
                 >
                   <div
                     style={{
                       fontWeight: 900,
-                      fontSize: "clamp(0.85rem, 1.15vw, 1.05rem)",
+                      fontSize: "1.1rem",
+                      letterSpacing: "0.04em",
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.4rem",
+                      gap: "0.5rem",
                       flexWrap: "wrap",
+                      color: "#FFFFFF",
                     }}
                   >
-                    {hoveredWeapon.displayName.toUpperCase()}{" "}
+                    {activeWeaponToInspect.displayName.toUpperCase()}
                     <span
                       style={{
-                        fontSize: "clamp(0.52rem, 0.8vh, 0.62rem)",
+                        fontSize: "0.62rem",
                         color: "var(--text-muted)",
-                        fontWeight: 400,
+                        fontWeight: 700,
+                        background: "rgba(255,255,255,0.06)",
+                        padding: "0.15rem 0.4rem",
+                        borderRadius: "0.2rem",
+                        letterSpacing: "0.08em",
                       }}
                     >
-                      | {hoveredWeapon.shopData?.categoryText.toUpperCase()}
+                      {activeWeaponToInspect.shopData?.categoryText.toUpperCase() || "ARMA"}
                     </span>
                   </div>
                   <div
                     style={{
-                      fontSize: "clamp(0.52rem, 0.8vh, 0.62rem)",
+                      fontSize: "0.62rem",
                       color: "var(--text-muted)",
                       display: "flex",
                       justifyContent: "space-between",
+                      fontWeight: 700,
+                      letterSpacing: "0.04em",
                     }}
                   >
                     <span>DISPARO PRINCIPAL</span>
-                    <span>Auto / Semiauto</span>
+                    <span style={{ color: "rgba(255,255,255,0.7)" }}>Auto / Semiauto</span>
                   </div>
                 </div>
 
-                {hoveredWeapon.weaponStats ? (
+                {activeWeaponToInspect.weaponStats ? (
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: "clamp(0.35rem, 0.7vh, 0.65rem)",
-                      marginTop: "clamp(0.35rem, 0.7vh, 0.65rem)",
+                      flex: 1,
+                      justifyContent: "space-between",
+                      gap: "0.5rem",
                     }}
                   >
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                    {/* Stat Tiles Grid (2x3) */}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "0.4rem",
+                      }}
+                    >
                       <div
                         style={{
-                          flex: 1,
-                          borderTop: "2px solid var(--color-cyan)",
-                          paddingTop: "0.2rem",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "0.25rem",
+                          padding: "0.35rem 0.5rem",
                         }}
                       >
-                        <div style={{ fontSize: "clamp(0.45rem, 0.7vh, 0.52rem)", color: "var(--text-muted)" }}>
+                        <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
                           VELOCIDAD
                         </div>
-                        <div style={{ fontSize: "clamp(0.75rem, 1.05vh, 0.88rem)", fontWeight: "bold" }}>
-                          5.74 <span style={{ fontSize: "0.5rem", color: "var(--text-muted)" }}>M/S</span>
+                        <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
+                          5.74 <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>M/S</span>
                         </div>
                       </div>
+
                       <div
                         style={{
-                          flex: 1,
-                          borderTop: "2px solid var(--color-cyan)",
-                          paddingTop: "0.2rem",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "0.25rem",
+                          padding: "0.35rem 0.5rem",
                         }}
                       >
-                        <div style={{ fontSize: "clamp(0.45rem, 0.7vh, 0.52rem)", color: "var(--text-muted)" }}>
+                        <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
                           EQUIPAR
                         </div>
-                        <div style={{ fontSize: "clamp(0.75rem, 1.05vh, 0.88rem)", fontWeight: "bold" }}>
-                          {hoveredWeapon.weaponStats.equipTimeSeconds}{" "}
-                          <span style={{ fontSize: "0.5rem", color: "var(--text-muted)" }}>S</span>
+                        <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
+                          {activeWeaponToInspect.weaponStats.equipTimeSeconds}{" "}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>S</span>
                         </div>
                       </div>
-                    </div>
 
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
                       <div
                         style={{
-                          flex: 1,
-                          borderTop: "2px solid var(--color-cyan)",
-                          paddingTop: "0.2rem",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "0.25rem",
+                          padding: "0.35rem 0.5rem",
                         }}
                       >
-                        <div style={{ fontSize: "clamp(0.45rem, 0.7vh, 0.52rem)", color: "var(--text-muted)" }}>
+                        <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
                           RECARGA
                         </div>
-                        <div style={{ fontSize: "clamp(0.75rem, 1.05vh, 0.88rem)", fontWeight: "bold" }}>
-                          {hoveredWeapon.weaponStats.reloadTimeSeconds}{" "}
-                          <span style={{ fontSize: "0.5rem", color: "var(--text-muted)" }}>S</span>
+                        <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
+                          {activeWeaponToInspect.weaponStats.reloadTimeSeconds}{" "}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>S</span>
                         </div>
                       </div>
+
                       <div
                         style={{
-                          flex: 1,
-                          borderTop: "2px solid rgba(255,255,255,0.2)",
-                          paddingTop: "0.2rem",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "0.25rem",
+                          padding: "0.35rem 0.5rem",
                         }}
                       >
-                        <div style={{ fontSize: "clamp(0.45rem, 0.7vh, 0.52rem)", color: "var(--text-muted)" }}>
+                        <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
                           CARGADOR
                         </div>
-                        <div style={{ fontSize: "clamp(0.75rem, 1.05vh, 0.88rem)", fontWeight: "bold" }}>
-                          {hoveredWeapon.weaponStats.magazineSize}{" "}
-                          <span style={{ fontSize: "0.5rem", color: "var(--text-muted)" }}>BALAS</span>
+                        <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
+                          {activeWeaponToInspect.weaponStats.magazineSize}{" "}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>BALAS</span>
                         </div>
                       </div>
-                    </div>
 
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
                       <div
                         style={{
-                          flex: 1,
-                          borderTop: "2px solid var(--color-cyan)",
-                          paddingTop: "0.2rem",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "0.25rem",
+                          padding: "0.35rem 0.5rem",
                         }}
                       >
-                        <div style={{ fontSize: "clamp(0.45rem, 0.7vh, 0.52rem)", color: "var(--text-muted)" }}>
+                        <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
                           CADENCIA
                         </div>
-                        <div style={{ fontSize: "clamp(0.75rem, 1.05vh, 0.88rem)", fontWeight: "bold" }}>
-                          {hoveredWeapon.weaponStats.fireRate}{" "}
-                          <span style={{ fontSize: "0.5rem", color: "var(--text-muted)" }}>B/S</span>
+                        <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
+                          {activeWeaponToInspect.weaponStats.fireRate}{" "}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>B/S</span>
                         </div>
                       </div>
+
                       <div
                         style={{
-                          flex: 1,
-                          borderTop: "2px solid rgba(255,255,255,0.2)",
-                          paddingTop: "0.2rem",
+                          background: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "0.25rem",
+                          padding: "0.35rem 0.5rem",
                         }}
                       >
-                        <div style={{ fontSize: "clamp(0.45rem, 0.7vh, 0.52rem)", color: "var(--text-muted)" }}>
+                        <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
                           DISPERSIÓN
                         </div>
-                        <div style={{ fontSize: "clamp(0.75rem, 1.05vh, 0.88rem)", fontWeight: "bold" }}>
-                          {hoveredWeapon.weaponStats.firstBulletAccuracy}{" "}
-                          <span style={{ fontSize: "0.5rem", color: "var(--text-muted)" }}>MIRA</span>
+                        <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
+                          {activeWeaponToInspect.weaponStats.firstBulletAccuracy}{" "}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>MIRA</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Damage Breakdown */}
-                    <div style={{ marginTop: "0.35rem" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid rgba(255,255,255,0.1)",
-                          paddingBottom: "0.2rem",
-                          marginBottom: "0.35rem",
-                        }}
-                      >
-                        <div style={{ fontSize: "clamp(0.55rem, 0.85vh, 0.65rem)", fontWeight: 900 }}>
-                          DAÑO
-                        </div>
+                    {/* Damage Breakdown Section - Fills the rest of the height cleanly */}
+                    {activeWeaponToInspect.weaponStats.damageRanges &&
+                      activeWeaponToInspect.weaponStats.damageRanges.length > 0 && (
                         <div
                           style={{
-                            display: "flex",
-                            gap: "0.5rem",
-                            fontSize: "clamp(0.45rem, 0.7vh, 0.52rem)",
-                            color: "var(--text-muted)",
-                          }}
-                        >
-                          {hoveredWeapon.weaponStats.damageRanges.map((dr, idx) => (
-                            <span key={idx}>
-                              {dr.rangeStartMeters}-{dr.rangeEndMeters}m
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <div
-                          style={{
-                            width: "clamp(1.5rem, 3vh, 2rem)",
-                            height: "clamp(2.4rem, 4.8vh, 3.2rem)",
-                            border: "1px dashed var(--text-muted)",
-                            position: "relative",
-                            flexShrink: 0,
-                          }}
-                        >
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: "10%",
-                              left: "50%",
-                              transform: "translateX(-50%)",
-                              width: "0.45rem",
-                              height: "0.45rem",
-                              borderRadius: "50%",
-                              background: "white",
-                            }}
-                          ></div>
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: "30%",
-                              left: "50%",
-                              transform: "translateX(-50%)",
-                              width: "0.75rem",
-                              height: "0.95rem",
-                              background: "white",
-                            }}
-                          ></div>
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: "68%",
-                              left: "50%",
-                              transform: "translateX(-50%)",
-                              width: "0.45rem",
-                              height: "0.65rem",
-                              background: "white",
-                            }}
-                          ></div>
-                        </div>
-                        <div
-                          style={{
-                            flex: 1,
                             display: "flex",
                             flexDirection: "column",
-                            gap: "0.15rem",
+                            flex: 1,
+                            justifyContent: "space-between",
+                            background: "rgba(255, 255, 255, 0.02)",
+                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                            borderRadius: "0.3rem",
+                            padding: "0.45rem 0.55rem",
+                            boxSizing: "border-box",
+                            minWidth: 0,
                           }}
                         >
-                          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
-                            {hoveredWeapon.weaponStats.damageRanges.map((dr, idx) => (
-                              <span
-                                key={idx}
-                                style={{ fontSize: "clamp(0.65rem, 0.95vh, 0.78rem)", fontWeight: "bold" }}
-                              >
-                                {dr.headDamage}
-                              </span>
-                            ))}
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              borderBottom: "1px solid rgba(255,255,255,0.12)",
+                              paddingBottom: "0.25rem",
+                            }}
+                          >
+                            <div style={{ fontSize: "clamp(0.62rem, 0.85vw, 0.72rem)", fontWeight: 900, letterSpacing: "0.08em", color: "#FFFFFF" }}>
+                              DAÑO
+                            </div>
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "0.4rem",
+                                fontSize: "clamp(0.5rem, 0.72vw, 0.58rem)",
+                                fontWeight: 700,
+                                color: "var(--text-muted)",
+                              }}
+                            >
+                              {activeWeaponToInspect.weaponStats.damageRanges.map((dr, idx) => (
+                                <span key={idx} style={{ minWidth: "2.2rem", textAlign: "right" }}>
+                                  {dr.rangeStartMeters}-{dr.rangeEndMeters}m
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
-                            {hoveredWeapon.weaponStats.damageRanges.map((dr, idx) => (
-                              <span
-                                key={idx}
-                                style={{ fontSize: "clamp(0.65rem, 0.95vh, 0.78rem)", fontWeight: "bold" }}
+
+                          {/* Dummy and Damage Rows - Expanded & Perfectly Aligned */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "0.55rem",
+                              alignItems: "stretch",
+                              flex: 1,
+                              marginTop: "0.35rem",
+                              minHeight: "5.5rem",
+                              minWidth: 0,
+                            }}
+                          >
+                            {/* Tactical Target Dummy Silhouette Box */}
+                            <div
+                              style={{
+                                width: "clamp(2rem, 3.2vw, 2.6rem)",
+                                background: "rgba(0, 0, 0, 0.25)",
+                                border: "1px solid rgba(255, 255, 255, 0.12)",
+                                borderRadius: "0.3rem",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "0.35rem 0.25rem",
+                                boxSizing: "border-box",
+                                flexShrink: 0,
+                                boxShadow: "inset 0 0 8px rgba(0, 0, 0, 0.4)",
+                              }}
+                            >
+                              <svg
+                                viewBox="0 0 28 56"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  maxHeight: "7rem",
+                                  display: "block",
+                                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.6))",
+                                }}
                               >
-                                {dr.bodyDamage}
-                              </span>
-                            ))}
-                          </div>
-                          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
-                            {hoveredWeapon.weaponStats.damageRanges.map((dr, idx) => (
-                              <span
-                                key={idx}
-                                style={{ fontSize: "clamp(0.65rem, 0.95vh, 0.78rem)", fontWeight: "bold" }}
+                                {/* Head Zone */}
+                                <path
+                                  d="M14 2.5 C17.2 2.5 19.5 4.8 19.5 8 C19.5 10.7 17.6 12.9 15.2 13.5 L15.2 14.8 L12.8 14.8 L12.8 13.5 C10.4 12.9 8.5 10.7 8.5 8 C8.5 4.8 10.8 2.5 14 2.5 Z"
+                                  fill="#FFFFFF"
+                                />
+                                {/* Torso / Body Zone */}
+                                <path
+                                  d="M10.5 17.5 L17.5 17.5 C19.5 17.5 21.2 18.5 22 20.2 L23.5 23.5 C23.9 24.4 23.6 25.5 22.8 26 L20 27.8 L18.5 34 C18.3 34.6 17.7 35 17 35 L11 35 C10.3 35 9.7 34.6 9.5 34 L8 27.8 L5.2 26 C4.4 25.5 4.1 24.4 4.5 23.5 L6 20.2 C6.8 18.5 8.5 17.5 10.5 17.5 Z"
+                                  fill="#ECE8E1"
+                                />
+                                {/* Legs Zone */}
+                                <path
+                                  d="M9.5 37.5 L18.5 37.5 C19.6 37.5 20.5 38.3 20.8 39.4 L22 46.5 L21.5 53 C21.4 54.1 20.5 55 19.4 55 L16.6 55 C15.5 55 14.6 54.2 14.5 53.1 L14.1 46 L13.9 46 L13.5 53.1 C13.4 54.2 12.5 55 11.4 55 L8.6 55 C7.5 55 6.6 54.1 6.5 53 L6 46.5 L7.2 39.4 C7.5 38.3 8.4 37.5 9.5 37.5 Z"
+                                  fill="#94A3B8"
+                                />
+                              </svg>
+                            </div>
+
+                            {/* Damage Numbers Columns (100% aligned with header columns) */}
+                            <div
+                              style={{
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-between",
+                                padding: "0.15rem 0",
+                                boxSizing: "border-box",
+                                minWidth: 0,
+                              }}
+                            >
+                              {/* Head Damage Row */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                  gap: "0.4rem",
+                                  alignItems: "center",
+                                }}
                               >
-                                {dr.legDamage}
-                              </span>
-                            ))}
+                                {activeWeaponToInspect.weaponStats.damageRanges.map((dr, idx) => {
+                                  const val = Number.isInteger(dr.headDamage)
+                                    ? dr.headDamage
+                                    : Math.round(dr.headDamage * 10) / 10;
+                                  return (
+                                    <span
+                                      key={idx}
+                                      style={{
+                                        minWidth: "2.2rem",
+                                        textAlign: "right",
+                                        fontSize: "clamp(0.92rem, 1.25vw, 1.2rem)",
+                                        fontWeight: 900,
+                                        color: "#FFFFFF",
+                                        letterSpacing: "0.02em",
+                                      }}
+                                    >
+                                      {val}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Body Damage Row */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                  gap: "0.4rem",
+                                  alignItems: "center",
+                                }}
+                              >
+                                {activeWeaponToInspect.weaponStats.damageRanges.map((dr, idx) => {
+                                  const val = Number.isInteger(dr.bodyDamage)
+                                    ? dr.bodyDamage
+                                    : Math.round(dr.bodyDamage * 10) / 10;
+                                  return (
+                                    <span
+                                      key={idx}
+                                      style={{
+                                        minWidth: "2.2rem",
+                                        textAlign: "right",
+                                        fontSize: "clamp(0.85rem, 1.15vw, 1.1rem)",
+                                        fontWeight: 800,
+                                        color: "#ECE8E1",
+                                        letterSpacing: "0.02em",
+                                      }}
+                                    >
+                                      {val}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Leg Damage Row */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                  gap: "0.4rem",
+                                  alignItems: "center",
+                                }}
+                              >
+                                {activeWeaponToInspect.weaponStats.damageRanges.map((dr, idx) => {
+                                  const val = Number.isInteger(dr.legDamage)
+                                    ? dr.legDamage
+                                    : Math.round(dr.legDamage * 10) / 10;
+                                  return (
+                                    <span
+                                      key={idx}
+                                      style={{
+                                        minWidth: "2.2rem",
+                                        textAlign: "right",
+                                        fontSize: "clamp(0.8rem, 1.05vw, 1.02rem)",
+                                        fontWeight: 700,
+                                        color: "#94A3B8",
+                                        letterSpacing: "0.02em",
+                                      }}
+                                    >
+                                      {val}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
+                      )}
                   </div>
                 ) : (
                   <div
                     style={{
-                      fontSize: "0.72rem",
+                      fontSize: "0.75rem",
                       color: "var(--text-muted)",
                       marginTop: "0.8rem",
+                      textAlign: "center",
                     }}
                   >
                     Estadísticas no disponibles
                   </div>
                 )}
-              </>
+              </div>
             ) : (
               <div
                 style={{
@@ -1309,7 +1457,7 @@ export default function ViewIngame() {
                   justifyContent: "center",
                   alignItems: "center",
                   height: "100%",
-                  fontSize: "clamp(0.65rem, 0.95vh, 0.78rem)",
+                  fontSize: "0.78rem",
                   color: "var(--text-muted)",
                   textAlign: "center",
                   lineHeight: "1.4",

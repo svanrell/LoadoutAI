@@ -3,6 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
+const packageJson = require("../package.json");
+const version = packageJson.version || "1.0.0";
+
 const tempOut = path.join(os.tmpdir(), "loadout-build");
 console.log("Directorio temporal de compilación:", tempOut);
 
@@ -16,18 +19,23 @@ execSync(`npx electron-builder --win --config.directories.output="${tempOut}"`, 
   env: process.env,
 });
 
-const generatedExe = path.join(tempOut, "LoadoutAI 1.0.0.exe");
 const targetDir = path.join(__dirname, "..", "release");
-const targetExe = path.join(targetDir, "LoadoutAI 1.0.0.exe");
+if (!fs.existsSync(targetDir)) {
+  fs.mkdirSync(targetDir, { recursive: true });
+}
 
-if (fs.existsSync(generatedExe)) {
-  if (!fs.existsSync(targetDir)) {
-    fs.mkdirSync(targetDir, { recursive: true });
+const files = fs.existsSync(tempOut) ? fs.readdirSync(tempOut) : [];
+const exeFiles = files.filter((f) => f.endsWith(".exe") && !f.toLowerCase().includes("elevate"));
+
+if (exeFiles.length > 0) {
+  for (const exe of exeFiles) {
+    const src = path.join(tempOut, exe);
+    const dest = path.join(targetDir, exe);
+    console.log(`Copiando ejecutable final ${exe} a release/${exe}...`);
+    fs.copyFileSync(src, dest);
+    console.log("¡Compilación finalizada con éxito! Archivo:", dest, "Tamaño:", fs.statSync(dest).size, "bytes");
   }
-  console.log("Copiando ejecutable final a release/LoadoutAI 1.0.0.exe...");
-  fs.copyFileSync(generatedExe, targetExe);
-  console.log("¡Compilación finalizada con éxito! Tamaño:", fs.statSync(targetExe).size, "bytes");
 } else {
-  console.error("No se encontró el ejecutable generado en:", generatedExe);
+  console.error("No se encontró ningún ejecutable generado en:", tempOut);
   process.exit(1);
 }
