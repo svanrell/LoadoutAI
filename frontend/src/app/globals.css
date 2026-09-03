@@ -1629,12 +1629,15 @@ header {
 
 #viewPregame.active {
     display: grid !important;
-    grid-template-columns: 290px minmax(460px, 1fr) 380px;
+    grid-template-columns: 16.8rem minmax(28rem, 1fr) 22.8rem;
     grid-template-areas: "team dash select";
-    gap: 16px;
-    max-width: 1650px;
-    margin: 0 auto;
-    width: 100%;
+    gap: 0.75rem;
+    max-width: 100% !important;
+    margin: 0 !important;
+    width: 100% !important;
+    padding: 0.5rem 0.75rem !important;
+    height: calc(100vh - 3.25rem) !important;
+    box-sizing: border-box;
 }
 
 .pregame-team-panel {
@@ -2008,26 +2011,26 @@ header {
 
 .synergy-gauge-container {
     position: relative;
-    width: 140px;
-    height: 80px;
+    width: 10.625rem;
+    height: 5.625rem;
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    margin-bottom: 10px;
+    margin-bottom: 0.375rem;
 }
 
 .synergy-ring-bg {
     fill: none;
     stroke: rgba(21, 34, 50, 0.8);
-    stroke-width: 10;
+    stroke-width: 0.6875rem;
 }
 
 .synergy-ring-fill {
     fill: none;
     stroke: url(#synergyGradient);
-    stroke-width: 10;
-    stroke-dasharray: 188.4;
-    stroke-dashoffset: 188.4;
+    stroke-width: 0.6875rem;
+    stroke-dasharray: 204.2;
+    stroke-dashoffset: 204.2;
     transition: stroke-dashoffset 0.8s ease-out;
     stroke-linecap: round;
 }
@@ -2035,7 +2038,7 @@ header {
 .synergy-value {
     position: absolute;
     font-family: 'Orbitron', sans-serif;
-    font-size: 32px;
+    font-size: 2.25rem;
     font-weight: 900;
     color: var(--text-main);
     bottom: 0;
@@ -2044,30 +2047,30 @@ header {
 }
 
 .synergy-feedback {
-    margin-top: 5px;
+    margin-top: 0.25rem;
     width: 100%;
 }
 
 .synergy-rating {
     font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 0.8125rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.06em;
     color: var(--color-cyan);
-    margin-bottom: 10px;
+    margin-bottom: 0.5rem;
 }
 
 .synergy-analysis-box {
-    font-size: 11px;
+    font-size: 0.6875rem;
     text-align: left;
     background: rgba(0, 0, 0, 0.2);
-    padding: 10px 14px;
-    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
     border: 1px solid var(--border-cyber);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.375rem;
 }
 
 .synergy-analysis-box .synergy-analysis-item {
@@ -2922,30 +2925,30 @@ header {
 /* Responsive breakpoints for ViewPregame */
 @media (max-width: 1400px) {
     #viewPregame.active {
-        grid-template-columns: 260px 1fr 340px;
-        gap: 12px;
-        padding: 12px 16px;
+        grid-template-columns: 16rem 1fr 20.3rem;
+        gap: 0.625rem;
+        padding: 0.375rem 0.625rem !important;
     }
     .panel-header {
-        font-size: 11px;
-        padding: 8px 12px;
+        font-size: 0.6875rem;
+        padding: 0.5rem 0.75rem;
     }
 }
 
 @media (max-width: 1100px) {
     #viewPregame.active {
-        grid-template-columns: 230px 1fr 300px;
-        gap: 10px;
-        padding: 8px 10px;
+        grid-template-columns: 14rem 1fr 17.8rem;
+        gap: 0.5rem;
+        padding: 0.3rem 0.5rem !important;
     }
     .agents-grid-container {
         grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-        padding: 8px;
+        gap: 0.375rem;
+        padding: 0.5rem;
     }
     .tab-btn {
-        font-size: 7.5px;
-        padding: 5px 1px;
+        font-size: 0.47rem;
+        padding: 0.3rem 0.06rem;
     }
 }
 
@@ -3047,7 +3050,7 @@ header {
 
 .synergy-explorer-panel {
     flex: 1;
-    padding: 0.75rem 0.875rem;
+    padding: 0.65rem 0.85rem;
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -3056,38 +3059,41 @@ header {
 
 .synergy-panel-header {
     width: 100%;
-    padding: 0 0 0.5rem 0;
+    padding: 0 0 0.35rem 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(0, 243, 255, 0.15);
     background: transparent;
+    flex-shrink: 0;
 }
 
 .synergy-agents-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(13.75rem, 1fr));
-    grid-auto-rows: max-content;
-    align-content: start;
-    gap: 0.45rem;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    grid-auto-rows: minmax(3.2rem, 1fr);
+    gap: 0.35rem;
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding-right: 0.25rem;
-    margin-top: 0.5rem;
+    margin-top: 0.35rem;
 }
 
 .synergy-agent-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.4rem 0.55rem;
+    padding: 0.3rem 0.5rem;
     background: rgba(15, 25, 35, 0.75);
     border: 1px solid rgba(0, 243, 255, 0.18);
     border-radius: 0.3rem;
     cursor: pointer;
     transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-    gap: 0.45rem;
+    gap: 0.4rem;
     min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .synergy-agent-card:hover {
@@ -3111,9 +3117,10 @@ header {
 .synergy-agent-identity {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.4rem;
     min-width: 0;
     flex: 1;
+    overflow: hidden;
 }
 
 .synergy-agent-avatar {
@@ -3123,7 +3130,7 @@ header {
     max-width: 2rem !important;
     min-height: 2rem !important;
     max-height: 2rem !important;
-    border-radius: 0.25rem;
+    border-radius: 0.22rem;
     object-fit: cover !important;
     flex-shrink: 0 !important;
     display: block !important;
@@ -3143,11 +3150,12 @@ header {
     flex-direction: column;
     min-width: 0;
     flex: 1;
+    overflow: hidden;
 }
 
 .synergy-agent-name {
-    font-size: 0.775rem;
-    font-weight: 700;
+    font-size: 0.78rem;
+    font-weight: 800;
     color: #ffffff;
     line-height: 1.15;
     white-space: nowrap;
@@ -3156,9 +3164,9 @@ header {
 }
 
 .synergy-agent-role {
-    font-size: 0.625rem;
+    font-size: 0.6rem;
     color: var(--text-muted);
-    line-height: 1.05;
+    line-height: 1.1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -3166,57 +3174,57 @@ header {
 
 .synergy-agent-actions {
     display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.2rem;
     flex-shrink: 0;
+    min-width: 3.2rem;
 }
 
 .synergy-winrate-box {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.06rem 0.25rem;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 0.18rem;
+    border: 1px solid rgba(0, 243, 255, 0.2);
 }
 
 .synergy-winrate-val {
     font-family: 'Orbitron', monospace, sans-serif;
-    font-size: 0.725rem;
+    font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.02em;
-    line-height: 1.1;
-}
-
-.synergy-winrate-label {
-    font-size: 0.5rem;
-    color: var(--text-muted);
     line-height: 1;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
 }
 
 .synergy-team-badge {
-    font-size: 0.55rem;
+    font-size: 0.52rem;
     font-weight: 800;
     color: #00ff88;
-    padding: 0.15rem 0.4rem;
+    padding: 0.08rem 0.3rem;
     background: rgba(0, 255, 136, 0.12);
-    border-radius: 0.2rem;
+    border-radius: 0.18rem;
     border: 1px solid rgba(0, 255, 136, 0.3);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     white-space: nowrap;
+    line-height: 1.1;
 }
 
 .synergy-pick-btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.625rem;
+    padding: 0.16rem 0.4rem;
+    font-size: 0.58rem;
     font-family: 'Orbitron', sans-serif;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    border-radius: 0.2rem;
+    letter-spacing: 0.03em;
+    border-radius: 0.18rem;
     border: none;
     cursor: pointer;
     white-space: nowrap;
+    width: 100%;
     flex-shrink: 0;
     transition: all 0.18s ease;
     background: rgba(255, 70, 85, 0.22);
@@ -3224,20 +3232,21 @@ header {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    line-height: 1.15;
 }
 
 .synergy-pick-btn:hover:not(:disabled) {
     background: var(--color-red);
-    box-shadow: 0 0 0.65rem rgba(255, 70, 85, 0.55);
+    box-shadow: 0 0 0.5rem rgba(255, 70, 85, 0.55);
 }
 
 .synergy-pick-btn.selected {
     background: var(--color-red);
-    box-shadow: 0 0 0.5rem rgba(255, 70, 85, 0.4);
+    box-shadow: 0 0 0.4rem rgba(255, 70, 85, 0.4);
 }
 
 .synergy-pick-btn:disabled {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     color: var(--text-muted);
     cursor: default;
 }
@@ -3257,27 +3266,34 @@ header {
 .tabs-header {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.45rem 0.65rem;
+    gap: 0.15rem;
+    padding: 0.35rem 0.35rem;
     border-bottom: 1px solid var(--border-cyber);
     background: rgba(8, 14, 20, 0.4);
-    overflow-x: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .tab-btn {
+    flex: 1;
+    min-width: 0;
     background: transparent;
     border: 1px solid transparent;
     color: var(--text-muted);
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.625rem;
+    font-size: clamp(0.48rem, 0.6vw, 0.55rem);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.3rem 0.5rem;
+    letter-spacing: 0.01em;
+    padding: 0.35rem 0.12rem;
     border-radius: 0.25rem;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tab-btn:hover {

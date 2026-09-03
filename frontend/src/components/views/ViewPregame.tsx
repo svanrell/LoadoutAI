@@ -315,21 +315,21 @@ export default function ViewPregame() {
       </div>
 
       {/* Column 2: Dashboard */}
-      <div className="dashboard-col" style={{ display: "flex", flexDirection: "column", height: "100%", gap: "12px" }}>
-        <div className="ai-rec-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", alignItems: "stretch" }}>
+      <div className="dashboard-col" style={{ display: "flex", flexDirection: "column", height: "100%", gap: "0.75rem" }}>
+        <div className="ai-rec-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "stretch" }}>
           {/* Team Synergy Gauge */}
-          <div className="cyber-panel synergy-card" style={{ padding: "12px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div className="cyber-panel synergy-card" style={{ padding: "0.75rem 0.875rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div
               className="panel-header"
               style={{
                 width: "100%",
                 borderBottom: "none",
                 background: "transparent",
-                padding: "0 0 3px 0",
+                padding: "0 0 0.2rem 0",
               }}
             >
               <span>{t.teamSynergyAnalyzer}</span>
-              <span className="accent" style={{ fontSize: "11px" }}>
+              <span className="accent" style={{ fontSize: "0.6875rem" }}>
                 {selectedMap.toUpperCase()}
               </span>
             </div>
@@ -340,7 +340,7 @@ export default function ViewPregame() {
               const synergyScorePercent = Math.min(100, Math.max(0, Math.round(rawWinRate)));
               const strokeOffsetValue = Math.max(
                 0,
-                172 - (172 * (scoreMeta.score * 10)) / 100
+                204.2 - (204.2 * (scoreMeta.score * 10)) / 100
               );
 
               const compositionRatingText = `${scoreMeta.grade} • ${scoreMeta.label.toUpperCase()}`;
@@ -348,13 +348,14 @@ export default function ViewPregame() {
 
               return (
                 <>
-                  <div className="synergy-gauge-container" style={{ margin: "4px 0" }}>
-                    <svg width="140" height="75" viewBox="0 0 140 75">
-                      <path className="synergy-ring-bg" d="M 15,70 A 55,55 0 0,1 125,70" />
+                  <div className="synergy-gauge-container" style={{ margin: "0.15rem 0 0.35rem 0" }}>
+                    <svg style={{ width: "10.625rem", height: "5.625rem" }} viewBox="0 0 170 90">
+                      <path className="synergy-ring-bg" d="M 20,82 A 65,65 0 0,1 150,82" />
                       <path
                         className="synergy-ring-fill"
-                        d="M 15,70 A 55,55 0 0,1 125,70"
+                        d="M 20,82 A 65,65 0 0,1 150,82"
                         style={{
+                          strokeDasharray: "204.2",
                           strokeDashoffset: strokeOffsetValue,
                           stroke: compositionThemeColor,
                         }}
@@ -362,28 +363,28 @@ export default function ViewPregame() {
                     </svg>
                     <div
                       className="synergy-value"
-                      style={{ color: compositionThemeColor }}
+                      style={{ color: compositionThemeColor, fontSize: "2.25rem" }}
                     >
                       {scoreMeta.score.toFixed(1)}
                     </div>
                   </div>
 
-                  <div className="synergy-feedback" style={{ marginTop: "4px" }}>
+                  <div className="synergy-feedback" style={{ marginTop: "0.15rem" }}>
                     <div
                       className="synergy-rating"
-                      style={{ color: compositionThemeColor, fontSize: "11px", fontWeight: 800 }}
+                      style={{ color: compositionThemeColor, fontSize: "0.8125rem", fontWeight: 800, letterSpacing: "0.06em" }}
                     >
                       {compositionRatingText}
                     </div>
-                    <div className="synergy-analysis-box" style={{ marginTop: "4px" }}>
-                      <div className="synergy-analysis-item">
-                        <strong className="strong-label">{t.picksLocked}</strong>
+                    <div className="synergy-analysis-box" style={{ marginTop: "0.25rem", padding: "0.5rem 0.75rem" }}>
+                      <div className="synergy-analysis-item" style={{ fontSize: "0.72rem" }}>
+                        <strong className="strong-label" style={{ fontSize: "0.6rem", padding: "0.1rem 0.3rem" }}>{t.picksLocked}</strong>
                         <span className="synergy-analysis-text">
                           {pickedAgentsCount} {t.of5Agents}
                         </span>
                       </div>
-                      <div className="synergy-analysis-item">
-                        <strong className="weak-label">{t.winRateEstimated}</strong>
+                      <div className="synergy-analysis-item" style={{ fontSize: "0.72rem" }}>
+                        <strong className="weak-label" style={{ fontSize: "0.6rem", padding: "0.1rem 0.3rem" }}>{t.winRateEstimated}</strong>
                         <span className="synergy-analysis-text" style={{ color: compositionThemeColor, fontWeight: 700 }}>
                           {synergyScorePercent}%
                         </span>
@@ -396,12 +397,12 @@ export default function ViewPregame() {
           </div>
 
           {/* AI Recommended Picks Panel OR Completed Team Summary */}
-          <div className="cyber-panel" style={{ padding: "12px 14px", display: "flex", flexDirection: "column" }}>
+          <div className="cyber-panel" style={{ padding: "0.75rem 0.875rem", display: "flex", flexDirection: "column" }}>
             <div
               className="panel-header"
               style={{
                 width: "100%",
-                padding: "0 0 6px 0",
+                padding: "0 0 0.375rem 0",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -409,16 +410,16 @@ export default function ViewPregame() {
                 background: "transparent",
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
                 <span style={{ color: "#00ff88", fontWeight: "bold" }}>●</span>{" "}
                 {isDraftComplete ? t.draftCompleted : t.aiDraftCoach}
               </span>
               <span
                 style={{
-                  fontSize: "10px",
+                  fontSize: "0.625rem",
                   color: isDraftComplete ? "#00ff88" : "var(--color-cyan)",
                   textTransform: "uppercase",
-                  letterSpacing: "1px",
+                  letterSpacing: "0.06em",
                   fontWeight: "bold",
                 }}
               >
@@ -426,7 +427,7 @@ export default function ViewPregame() {
               </span>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginTop: "4px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", marginTop: "0.25rem" }}>
               {isDraftComplete ? (
                 /* Locked 5 Agents Summary */
                 pickedAgentsList.map((agent, rankIndex) => (
@@ -436,20 +437,20 @@ export default function ViewPregame() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      padding: "5px 10px",
+                      padding: "0.4rem 0.75rem",
                       background: "rgba(15, 25, 35, 0.75)",
                       border: "1px solid rgba(0, 255, 136, 0.25)",
-                      borderRadius: "4px",
+                      borderRadius: "0.25rem",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
                       <span
                         style={{
                           fontFamily: "'Orbitron', sans-serif",
-                          fontSize: "10px",
+                          fontSize: "0.6875rem",
                           fontWeight: "bold",
                           color: "#00ff88",
-                          width: "16px",
+                          width: "1.125rem",
                         }}
                       >
                         #{rankIndex + 1}
@@ -458,17 +459,17 @@ export default function ViewPregame() {
                         src={agent.displayIcon}
                         alt={agent.displayName}
                         style={{
-                          width: "24px",
-                          height: "24px",
-                          borderRadius: "3px",
+                          width: "1.75rem",
+                          height: "1.75rem",
+                          borderRadius: "0.25rem",
                           objectFit: "cover",
                         }}
                       />
                       <div>
-                        <div style={{ fontSize: "11px", fontWeight: "bold", color: "#fff", lineHeight: 1.2 }}>
+                        <div style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#fff", lineHeight: 1.2 }}>
                           {agent.displayName}
                         </div>
-                        <div style={{ fontSize: "9px", color: "var(--text-muted)", lineHeight: 1.1 }}>
+                        <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", lineHeight: 1.1 }}>
                           {agent.role?.displayName || "Agent"}
                         </div>
                       </div>
@@ -476,14 +477,14 @@ export default function ViewPregame() {
 
                     <span
                       style={{
-                        fontSize: "9px",
+                        fontSize: "0.625rem",
                         fontWeight: 800,
                         color: "#00ff88",
-                        padding: "2px 6px",
+                        padding: "0.15rem 0.5rem",
                         background: "rgba(0, 255, 136, 0.12)",
-                        borderRadius: "3px",
+                        borderRadius: "0.2rem",
                         border: "1px solid rgba(0, 255, 136, 0.3)",
-                        letterSpacing: "0.5px",
+                        letterSpacing: "0.05em",
                       }}
                     >
                       {t.fixed}
@@ -530,10 +531,10 @@ export default function ViewPregame() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "6px 10px",
+                        padding: "0.45rem 0.75rem",
                         background: "rgba(15, 25, 35, 0.75)",
                         border: "1px solid rgba(0, 243, 255, 0.18)",
-                        borderRadius: "4px",
+                        borderRadius: "0.25rem",
                         cursor: "pointer",
                         transition: "all 0.2s ease",
                       }}
@@ -546,14 +547,14 @@ export default function ViewPregame() {
                         event.currentTarget.style.background = "rgba(15, 25, 35, 0.75)";
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
                         <span
                           style={{
                             fontFamily: "'Orbitron', sans-serif",
-                            fontSize: "10px",
+                            fontSize: "0.6875rem",
                             fontWeight: "bold",
                             color: rankIndex === 0 ? "#ffd700" : "var(--text-muted)",
-                            width: "16px",
+                            width: "1.125rem",
                           }}
                         >
                           #{rankIndex + 1}
@@ -564,28 +565,28 @@ export default function ViewPregame() {
                             src={targetAgent.displayIcon}
                             alt={targetAgentName}
                             style={{
-                              width: "24px",
-                              height: "24px",
-                              borderRadius: "3px",
+                              width: "1.75rem",
+                              height: "1.75rem",
+                              borderRadius: "0.25rem",
                               objectFit: "cover",
                             }}
                           />
                         ) : (
                           <div
                             style={{
-                              width: "24px",
-                              height: "24px",
+                              width: "1.75rem",
+                              height: "1.75rem",
                               background: "#1b2733",
-                              borderRadius: "3px",
+                              borderRadius: "0.25rem",
                             }}
                           />
                         )}
 
                         <div>
-                          <div style={{ fontSize: "11px", fontWeight: "bold", color: "#fff", lineHeight: 1.2 }}>
+                          <div style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#fff", lineHeight: 1.2 }}>
                             {targetAgentName}
                           </div>
-                          <div style={{ fontSize: "9px", color: "var(--text-muted)", lineHeight: 1.1 }}>
+                          <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", lineHeight: 1.1 }}>
                             {targetRoleName}
                           </div>
                         </div>
@@ -602,14 +603,14 @@ export default function ViewPregame() {
                             }}
                             title={`${t.winRate}: ${estimatedWinRate.toFixed(1)}% • ${scoreMeta.label}`}
                           >
-                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
                               <span
                                 style={{
-                                  fontSize: "9px",
+                                  fontSize: "0.625rem",
                                   fontWeight: 900,
                                   fontFamily: "'Orbitron', monospace",
-                                  padding: "1px 4px",
-                                  borderRadius: "2px",
+                                  padding: "0.1rem 0.3rem",
+                                  borderRadius: "0.2rem",
                                   color: scoreMeta.color,
                                   background: scoreMeta.bg,
                                   border: `1px solid ${scoreMeta.border}`,
@@ -621,7 +622,7 @@ export default function ViewPregame() {
                               <span
                                 style={{
                                   fontFamily: "'Orbitron', sans-serif",
-                                  fontSize: "11px",
+                                  fontSize: "0.75rem",
                                   fontWeight: "bold",
                                   color: scoreMeta.color,
                                 }}
@@ -629,7 +630,7 @@ export default function ViewPregame() {
                                 {scoreMeta.score.toFixed(1)}
                               </span>
                             </div>
-                            <span style={{ fontSize: "7px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                            <span style={{ fontSize: "0.47rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                               {t.scoreLabel}
                             </span>
                           </div>
@@ -641,9 +642,9 @@ export default function ViewPregame() {
               ) : (
                 <div
                   style={{
-                    padding: "16px",
+                    padding: "1rem",
                     textAlign: "center",
-                    fontSize: "11px",
+                    fontSize: "0.6875rem",
                     color: "var(--text-muted)",
                   }}
                 >
@@ -759,14 +760,17 @@ export default function ViewPregame() {
               className="synergy-agents-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(13.75rem, 1fr))",
-                gridAutoRows: "max-content",
-                alignContent: "start",
-                gap: "0.5rem",
+                gridTemplateColumns: "repeat(auto-fill, minmax(13rem, 1fr))",
+                gridAutoRows:
+                  filteredAgents.length >= 24
+                    ? "minmax(3rem, 1fr)"
+                    : "minmax(3.2rem, 4rem)",
+                gap: "0.35rem",
                 flex: 1,
+                minHeight: 0,
                 overflowY: "auto",
                 paddingRight: "0.25rem",
-                marginTop: "0.5rem",
+                marginTop: "0.35rem",
               }}
             >
               {filteredAgents.map((agent) => {
@@ -785,7 +789,7 @@ export default function ViewPregame() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      padding: "0.4rem 0.55rem",
+                      padding: "0.3rem 0.5rem",
                       background: isCurrentAgentSelected
                         ? "rgba(0, 243, 255, 0.15)"
                         : isAgentPickedByTeam
@@ -798,9 +802,11 @@ export default function ViewPregame() {
                         : "1px solid rgba(0, 243, 255, 0.18)",
                       borderRadius: "0.3rem",
                       cursor: isAgentPickedByTeam ? "default" : "pointer",
-                      transition: "all 0.2s ease",
-                      gap: "0.5rem",
+                      transition: "all 0.18s ease",
+                      gap: "0.4rem",
                       minWidth: 0,
+                      height: "100%",
+                      boxSizing: "border-box",
                     }}
                     onClick={() => {
                       if (!isAgentPickedByTeam) {
@@ -815,9 +821,10 @@ export default function ViewPregame() {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "0.45rem",
+                        gap: "0.4rem",
                         minWidth: 0,
                         flex: 1,
+                        overflow: "hidden",
                       }}
                     >
                       <img
@@ -831,7 +838,7 @@ export default function ViewPregame() {
                           maxWidth: "2rem",
                           minHeight: "2rem",
                           maxHeight: "2rem",
-                          borderRadius: "0.25rem",
+                          borderRadius: "0.22rem",
                           objectFit: "cover",
                           flexShrink: 0,
                           display: "block",
@@ -849,13 +856,14 @@ export default function ViewPregame() {
                           flexDirection: "column",
                           minWidth: 0,
                           flex: 1,
+                          overflow: "hidden",
                         }}
                       >
                         <div
                           className="synergy-agent-name"
                           style={{
-                            fontSize: "0.775rem",
-                            fontWeight: 700,
+                            fontSize: "0.78rem",
+                            fontWeight: 800,
                             color: isCurrentAgentSelected
                               ? "var(--color-cyan)"
                               : isAgentPickedByTeam
@@ -866,51 +874,56 @@ export default function ViewPregame() {
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                           }}
+                          title={agent.displayName}
                         >
                           {agent.displayName}
                         </div>
                         <div
                           className="synergy-agent-role"
                           style={{
-                            fontSize: "0.625rem",
+                            fontSize: "0.6rem",
                             color: "var(--text-muted)",
-                            lineHeight: 1.05,
+                            lineHeight: 1.1,
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                           }}
+                          title={agent.role?.displayName || "Agent"}
                         >
                           {agent.role?.displayName || "Agent"}
                         </div>
                       </div>
                     </div>
 
-                    {/* Win Rate o Badge 'EN EQUIPO' + Botón Pick/Lock */}
+                    {/* Win Rate o Badge 'EN EQUIPO' + Botón Pick/Lock en columna compacta */}
                     <div
                       className="synergy-agent-actions"
                       style={{
                         display: "flex",
-                        alignItems: "center",
-                        gap: "0.4rem",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        justifyContent: "center",
+                        gap: "0.2rem",
                         flexShrink: 0,
+                        minWidth: "3.2rem",
                       }}
                     >
                       {isAgentPickedByTeam ? (
                         <span
                           className="synergy-team-badge"
                           style={{
-                            fontSize: "0.55rem",
+                            fontSize: "0.52rem",
                             fontWeight: 800,
                             color: "#00ff88",
-                            padding: "0.15rem 0.4rem",
+                            padding: "0.08rem 0.3rem",
                             background: "rgba(0, 255, 136, 0.12)",
-                            borderRadius: "0.2rem",
                             border: "1px solid rgba(0, 255, 136, 0.3)",
-                            letterSpacing: "0.04em",
+                            letterSpacing: "0.02em",
                             whiteSpace: "nowrap",
+                            lineHeight: 1.1,
                           }}
                         >
-                          EN EQUIPO
+                          EQUIPO
                         </span>
                       ) : estimatedWinRate !== null ? (() => {
                         const scoreMeta = getScoreMeta(estimatedWinRate, true, language);
@@ -918,82 +931,63 @@ export default function ViewPregame() {
                           <div
                             className="synergy-winrate-box"
                             style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "flex-end",
-                              flexShrink: 0,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.2rem",
+                              padding: "0.06rem 0.25rem",
+                              background: "rgba(0, 0, 0, 0.35)",
+                              borderRadius: "0.18rem",
+                              border: `1px solid ${scoreMeta.border}`,
                             }}
                             title={`${t.winRate}: ${estimatedWinRate.toFixed(1)}% • ${scoreMeta.label}`}
                           >
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                              <span
-                                style={{
-                                  fontSize: "0.55rem",
-                                  fontWeight: 900,
-                                  fontFamily: "'Orbitron', monospace",
-                                  padding: "0.05rem 0.25rem",
-                                  borderRadius: "0.15rem",
-                                  color: scoreMeta.color,
-                                  background: scoreMeta.bg,
-                                  border: `1px solid ${scoreMeta.border}`,
-                                  lineHeight: 1,
-                                }}
-                              >
-                                {scoreMeta.grade}
-                              </span>
-                              <div
-                                className="synergy-winrate-val"
-                                style={{
-                                  fontFamily: "'Orbitron', monospace, sans-serif",
-                                  fontSize: "0.725rem",
-                                  fontWeight: 800,
-                                  color: scoreMeta.color,
-                                  letterSpacing: "0.02em",
-                                  lineHeight: 1.1,
-                                }}
-                              >
-                                {scoreMeta.score.toFixed(1)}
-                              </div>
-                            </div>
-                            <div
-                              className="synergy-winrate-label"
+                            <span
                               style={{
-                                fontSize: "0.5rem",
-                                color: "var(--text-muted)",
+                                fontSize: "0.56rem",
+                                fontWeight: 900,
+                                fontFamily: "'Orbitron', monospace",
+                                color: scoreMeta.color,
                                 lineHeight: 1,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.03em",
                               }}
                             >
-                              {t.scoreLabel}
-                            </div>
+                              {scoreMeta.grade}
+                            </span>
+                            <span
+                              className="synergy-winrate-val"
+                              style={{
+                                fontFamily: "'Orbitron', monospace, sans-serif",
+                                fontSize: "0.72rem",
+                                fontWeight: 800,
+                                color: scoreMeta.color,
+                                letterSpacing: "0.02em",
+                                lineHeight: 1,
+                              }}
+                            >
+                              {scoreMeta.score.toFixed(1)}
+                            </span>
                           </div>
                         );
-                      })() : (
-                        <span style={{ fontSize: "0.625rem", color: "var(--text-muted)" }}>
-                          --
-                        </span>
-                      )}
+                      })() : null}
 
                       <button
                         type="button"
                         disabled={isAgentPickedByTeam}
                         className={`synergy-pick-btn ${isCurrentAgentSelected ? "selected" : ""}`}
                         style={{
-                          padding: "0.25rem 0.5rem",
-                          fontSize: "0.625rem",
+                          padding: "0.16rem 0.4rem",
+                          fontSize: "0.58rem",
                           fontFamily: "'Orbitron', sans-serif",
                           fontWeight: 800,
                           textTransform: "uppercase",
-                          letterSpacing: "0.04em",
-                          borderRadius: "0.2rem",
+                          letterSpacing: "0.03em",
+                          borderRadius: "0.18rem",
                           border: "none",
                           cursor: isAgentPickedByTeam ? "default" : "pointer",
                           whiteSpace: "nowrap",
-                          flexShrink: 0,
+                          width: "100%",
                           transition: "all 0.18s ease",
                           background: isAgentPickedByTeam
-                            ? "rgba(255, 255, 255, 0.08)"
+                            ? "rgba(255, 255, 255, 0.06)"
                             : isCurrentAgentSelected
                             ? "var(--color-red)"
                             : "rgba(255, 70, 85, 0.22)",
@@ -1001,6 +995,7 @@ export default function ViewPregame() {
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
+                          lineHeight: 1.15,
                         }}
                         onClick={(event) => {
                           event.stopPropagation();
@@ -1032,11 +1027,36 @@ export default function ViewPregame() {
           <span>{t.selectHeroAgent}</span>
         </div>
 
-        <div className="tabs-header">
+        <div
+          className="tabs-header"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.15rem",
+            padding: "0.35rem 0.35rem",
+            width: "100%",
+            boxSizing: "border-box",
+            overflow: "hidden",
+          }}
+        >
           {["all", "duelist", "initiator", "controller", "sentinel"].map((roleCategory) => (
             <button
               key={roleCategory}
               className={`tab-btn ${selectedRoleCategory === roleCategory ? "active" : ""}`}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                padding: "0.35rem 0.12rem",
+                fontSize: "clamp(0.48rem, 0.6vw, 0.55rem)",
+                letterSpacing: "0.01em",
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "clip",
+              }}
               onClick={() => setSelectedRoleCategory(roleCategory)}
             >
               {roleCategoryLabels[roleCategory] ||
@@ -1177,12 +1197,12 @@ export default function ViewPregame() {
                 style={{
                   fontFamily: "'Orbitron', sans-serif",
                   fontSize: selectedAgent
-                    ? "clamp(0.72rem, 0.95vw, 0.85rem)"
-                    : "clamp(0.55rem, 0.72vw, 0.65rem)",
+                    ? "clamp(0.68rem, 0.9vw, 0.82rem)"
+                    : "clamp(0.48rem, 0.62vw, 0.56rem)",
                   fontWeight: 900,
                   color: selectedAgent ? "var(--color-cyan)" : "var(--text-muted)",
                   textTransform: "uppercase",
-                  letterSpacing: selectedAgent ? "0.03em" : "0.01em",
+                  letterSpacing: selectedAgent ? "0.02em" : "0px",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -1194,10 +1214,10 @@ export default function ViewPregame() {
               <div
                 className="selection-role"
                 style={{
-                  fontSize: "clamp(0.52rem, 0.72vw, 0.58rem)",
+                  fontSize: "clamp(0.5rem, 0.68vw, 0.56rem)",
                   color: "var(--text-muted)",
                   textTransform: "uppercase",
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.03em",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -1223,12 +1243,12 @@ export default function ViewPregame() {
                   if (selectedAgent) lockAgent(selectedAgent.uuid);
                 }}
                 style={{
-                  padding: "0 0.85rem",
+                  padding: "0 0.65rem",
                   height: "clamp(1.9rem, 4vh, 2.2rem)",
                   fontFamily: "'Orbitron', sans-serif",
-                  fontSize: "clamp(0.6rem, 0.8vw, 0.68rem)",
+                  fontSize: "clamp(0.56rem, 0.72vw, 0.64rem)",
                   fontWeight: 900,
-                  letterSpacing: "0.05em",
+                  letterSpacing: "0.04em",
                   textTransform: "uppercase",
                   whiteSpace: "nowrap",
                   display: "flex",

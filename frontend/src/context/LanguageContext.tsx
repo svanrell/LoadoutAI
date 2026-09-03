@@ -169,7 +169,7 @@ const translations: Record<Language, Translations> = {
     patch: "Parche 9.04",
     freePlan: "Plan Gratuito",
     radarOnline: "Radar en Vivo",
-    radarStandby: "Standby",
+    radarStandby: "Esperando",
     radarOffline: "Desconectado",
 
     matchHistory: "Historial de partidas",
