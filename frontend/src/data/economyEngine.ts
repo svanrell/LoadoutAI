@@ -74,7 +74,9 @@ export function getResetCreditsForRound(round: number): number | null {
  * Calcula el dinero sobrante tras realizar una compra.
  */
 export function calculateLeftoverCredits(bankCredits: number, totalSpend: number): number {
-  return Math.max(0, bankCredits - Math.max(0, totalSpend));
+  const bank = Math.max(0, Math.min(VALORANT_ECONOMY_RULES.MAX_CREDITS, Number(bankCredits) || 0));
+  const spend = Math.max(0, Number(totalSpend) || 0);
+  return Math.max(0, bank - spend);
 }
 
 /**
@@ -87,8 +89,9 @@ export function calculateNextRoundProjection(
   spikePlanted: boolean = false,
 ): EconomyProjection {
   const leftoverCredits = calculateLeftoverCredits(bankCredits, totalSpend);
+  // Regla oficial: El bono de spike (+300) se otorga al equipo atacante si pierden habiendo plantado
   const lossReward = getLossReward(lossStreak) + (spikePlanted ? VALORANT_ECONOMY_RULES.SPIKE_PLANT_BONUS : 0);
-  const winReward = VALORANT_ECONOMY_RULES.WIN_REWARD + (spikePlanted ? VALORANT_ECONOMY_RULES.SPIKE_PLANT_BONUS : 0);
+  const winReward = VALORANT_ECONOMY_RULES.WIN_REWARD;
 
   const rawMinLoss = leftoverCredits + lossReward;
   const rawMinWin = leftoverCredits + winReward;
@@ -97,13 +100,13 @@ export function calculateNextRoundProjection(
   const minNextRoundWin = Math.min(VALORANT_ECONOMY_RULES.MAX_CREDITS, rawMinWin);
 
   return {
-    currentBank: bankCredits,
-    totalSpend,
+    currentBank: Math.max(0, Math.min(VALORANT_ECONOMY_RULES.MAX_CREDITS, Number(bankCredits) || 0)),
+    totalSpend: Math.max(0, Number(totalSpend) || 0),
     leftoverCredits,
     minNextRoundLoss,
     minNextRoundWin,
     lossReward,
-    lossStreak,
+    lossStreak: Math.max(0, Number(lossStreak) || 0),
     isCapped: rawMinLoss >= VALORANT_ECONOMY_RULES.MAX_CREDITS,
   };
 }
@@ -142,7 +145,7 @@ export function advanceRoundEconomy(params: {
     };
   }
 
-  // 2. Dinero sobrante que quedó tras las compras de la ronda anterior
+  // 2. Dinero sobrante que quedó tras las compras de la ronda anterior (con prevención de gasto negativo)
   const leftover = calculateLeftoverCredits(previousBank, totalSpend);
 
   // 3. Recompensa por resultado de la ronda
@@ -154,14 +157,14 @@ export function advanceRoundEconomy(params: {
     newLossStreak = 0;
   } else {
     reward = getLossReward(previousLossStreak);
-    newLossStreak = previousLossStreak + 1;
+    newLossStreak = Math.max(0, previousLossStreak) + 1;
+    if (spikePlanted) {
+      reward += VALORANT_ECONOMY_RULES.SPIKE_PLANT_BONUS;
+    }
   }
 
-  // 4. Bonos adicionales (Spike + Kills)
-  if (spikePlanted) {
-    reward += VALORANT_ECONOMY_RULES.SPIKE_PLANT_BONUS;
-  }
-  reward += Math.max(0, kills) * VALORANT_ECONOMY_RULES.KILL_REWARD;
+  // 4. Bonos adicionales por bajas (kills a 200 c/u, nunca negativo)
+  reward += Math.max(0, Math.floor(kills || 0)) * VALORANT_ECONOMY_RULES.KILL_REWARD;
 
   // 5. Aplicar tope máximo de 9.000 créditos
   const newCredits = Math.min(VALORANT_ECONOMY_RULES.MAX_CREDITS, leftover + reward);

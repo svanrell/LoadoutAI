@@ -13,10 +13,12 @@ def build_matchup_feature_matrix(
     clean_dataframe: pd.DataFrame,
     all_available_maps: list[str],
     all_available_agents: list[str],
-) -> tuple[pd.DataFrame, pd.Series, list[str]]:
+    return_groups: bool = False,
+) -> tuple[pd.DataFrame, pd.Series, list[str], pd.Series] | tuple[pd.DataFrame, pd.Series, list[str], pd.Series, pd.Series]:
     """
     Construye la matriz de enfrentamientos directos (Matchups) donde cada agente se codifica
     de forma diferencial: +1 si está en tu equipo, -1 si está en el equipo rival, 0 si en ambos/ninguno.
+    Si return_groups=True, devuelve también la serie match_ids para GroupKFold.
     """
     matchups = []
 
@@ -29,6 +31,7 @@ def build_matchup_feature_matrix(
 
             # Perspectiva 1: Equipo A (aliado) vs Equipo B (rival)
             matchups.append({
+                "match_id": str(match_id),
                 "map": map_name,
                 "ally_agents": team_a["agents"],
                 "enemy_agents": team_b["agents"],
@@ -38,6 +41,7 @@ def build_matchup_feature_matrix(
 
             # Perspectiva 2: Equipo B (aliado) vs Equipo A (rival) [Simetría]
             matchups.append({
+                "match_id": str(match_id),
                 "map": map_name,
                 "ally_agents": team_b["agents"],
                 "enemy_agents": team_a["agents"],
@@ -49,6 +53,7 @@ def build_matchup_feature_matrix(
     X_rows = []
     y_list = []
     weights_list = []
+    match_ids_list = []
 
     for m in matchups:
         map_name = m["map"]
@@ -67,11 +72,16 @@ def build_matchup_feature_matrix(
         X_rows.append({**map_dict, **agent_diff_dict})
         y_list.append(int(m["won"]))
         weights_list.append(m["weight"])
+        match_ids_list.append(m["match_id"])
 
     features_matrix_X = pd.DataFrame(X_rows)
     target_y = pd.Series(y_list, dtype=int)
     sample_weights = pd.Series(weights_list, dtype=float)
     feature_column_names = features_matrix_X.columns.tolist()
+
+    if return_groups:
+        match_ids = pd.Series(match_ids_list, dtype=str)
+        return features_matrix_X, target_y, feature_column_names, sample_weights, match_ids
 
     return features_matrix_X, target_y, feature_column_names, sample_weights
 
@@ -82,7 +92,7 @@ def encode_single_composition(
     all_available_maps: list[str],
     all_available_agents: list[str],
     feature_column_names: list[str],
-    enemy_team_agents: list[str] = None,
+    enemy_team_agents: list[str] | None = None,
 ) -> pd.DataFrame:
     """
     Codifica una composición en tiempo real.
@@ -101,3 +111,4 @@ def encode_single_composition(
     all_features = {**map_dict, **agent_dict}
     single_row = {col: all_features.get(col, 0) for col in feature_column_names}
     return pd.DataFrame([single_row], columns=feature_column_names)
+

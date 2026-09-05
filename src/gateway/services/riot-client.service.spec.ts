@@ -60,6 +60,15 @@ describe("RiotClientService", () => {
         "URL inválida",
       );
     });
+
+    it("should THROW a security error if targetUrl is missing or not HTTPS", () => {
+      expect(() => service.getLocalHttpsAgent()).toThrow(
+        "Violación de seguridad TLS",
+      );
+      expect(() =>
+        service.getLocalHttpsAgent("http://127.0.0.1:54321"),
+      ).toThrow("Violación de seguridad TLS");
+    });
   });
 
   describe("getCandidateLockfilePaths", () => {
@@ -109,6 +118,25 @@ describe("RiotClientService", () => {
       jest
         .spyOn(httpService, "get")
         .mockReturnValue(throwError(() => new Error("Connection refused")));
+
+      const puuid = await service.getCurrentPlayerPuuid();
+      expect(puuid).toBeNull();
+    });
+
+    it("should handle timeout gracefully when Riot client does not respond in time", async () => {
+      jest.spyOn(service, "getCredentials").mockReturnValue({
+        url: "https://127.0.0.1:54321",
+        token: "Basic dGVzdDp0ZXN0",
+        port: "54321",
+        password: "test",
+        protocol: "https",
+      });
+
+      const timeoutError = new Error("timeout of 5000ms exceeded");
+      (timeoutError as any).code = "ECONNABORTED";
+      jest
+        .spyOn(httpService, "get")
+        .mockReturnValue(throwError(() => timeoutError));
 
       const puuid = await service.getCurrentPlayerPuuid();
       expect(puuid).toBeNull();

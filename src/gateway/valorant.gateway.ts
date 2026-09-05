@@ -3,6 +3,7 @@ import {
   WebSocketServer,
   SubscribeMessage,
   OnGatewayConnection,
+  OnGatewayDisconnect,
 } from "@nestjs/websockets";
 import { Logger } from "@nestjs/common";
 import { Server, Socket } from "socket.io";
@@ -17,6 +18,7 @@ import {
   AgentMarginalImpact,
 } from "./valorant-ml-engine";
 import { SocketEventValidator } from "./dto/socket-events.dto";
+import { SocketRateLimiter } from "./security/socket-rate-limiter";
 
 const ALLOWED_ORIGIN_PATTERNS = [
   /^http:\/\/localhost(:\d+)?$/,
@@ -42,11 +44,14 @@ const ALLOWED_ORIGIN_PATTERNS = [
     },
   },
 })
-export class ValorantGateway implements OnGatewayConnection {
+export class ValorantGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(ValorantGateway.name);
+  private readonly rateLimiter = new SocketRateLimiter();
 
   constructor(private readonly historyService: ValorantHistoryService) {}
 
@@ -84,6 +89,10 @@ export class ValorantGateway implements OnGatewayConnection {
     client.emit("buy_phase", this.buyPhaseStatus);
   }
 
+  handleDisconnect(client: Socket) {
+    this.rateLimiter.cleanupSocket(client.id);
+  }
+
   updateStatus(status: string, data: Record<string, unknown> = {}) {
     this.currentStatus = status;
     this.extraData = data;
@@ -110,6 +119,16 @@ export class ValorantGateway implements OnGatewayConnection {
 
   @SubscribeMessage("pregame_select")
   handlePregameSelect(client: Socket, data: unknown) {
+    const rateCheck = this.rateLimiter.consume(client.id, "pregame_select");
+    if (!rateCheck.allowed) {
+      client.emit("error_response", {
+        event: "pregame_select",
+        error: `Rate limit excedido. Reintenta en ${Math.ceil((rateCheck.retryAfterMs || 1000) / 1000)}s`,
+        code: "RATE_LIMIT_EXCEEDED",
+      });
+      return;
+    }
+
     try {
       const validated = SocketEventValidator.validatePregameAction(
         data,
@@ -128,6 +147,16 @@ export class ValorantGateway implements OnGatewayConnection {
 
   @SubscribeMessage("pregame_lock")
   handlePregameLock(client: Socket, data: unknown) {
+    const rateCheck = this.rateLimiter.consume(client.id, "pregame_lock");
+    if (!rateCheck.allowed) {
+      client.emit("error_response", {
+        event: "pregame_lock",
+        error: `Rate limit excedido. Reintenta en ${Math.ceil((rateCheck.retryAfterMs || 1000) / 1000)}s`,
+        code: "RATE_LIMIT_EXCEEDED",
+      });
+      return;
+    }
+
     try {
       const validated = SocketEventValidator.validatePregameAction(
         data,
@@ -144,6 +173,19 @@ export class ValorantGateway implements OnGatewayConnection {
 
   @SubscribeMessage("update_ingame_credits")
   handleUpdateIngameCredits(client: Socket, data: unknown) {
+    const rateCheck = this.rateLimiter.consume(
+      client.id,
+      "update_ingame_credits",
+    );
+    if (!rateCheck.allowed) {
+      client.emit("error_response", {
+        event: "update_ingame_credits",
+        error: `Rate limit excedido. Reintenta en ${Math.ceil((rateCheck.retryAfterMs || 1000) / 1000)}s`,
+        code: "RATE_LIMIT_EXCEEDED",
+      });
+      return;
+    }
+
     try {
       const validated = SocketEventValidator.validateCredits(data);
       this.ingameCredits$.next(validated);
@@ -159,6 +201,16 @@ export class ValorantGateway implements OnGatewayConnection {
 
   @SubscribeMessage("request_ml_draft")
   handleRequestMlDraft(client: Socket, data: unknown) {
+    const rateCheck = this.rateLimiter.consume(client.id, "request_ml_draft");
+    if (!rateCheck.allowed) {
+      client.emit("error_response", {
+        event: "request_ml_draft",
+        error: `Rate limit excedido. Reintenta en ${Math.ceil((rateCheck.retryAfterMs || 1000) / 1000)}s`,
+        code: "RATE_LIMIT_EXCEEDED",
+      });
+      return;
+    }
+
     try {
       const validated = SocketEventValidator.validateMlDraft(data);
       this.requestMlDraft$.next({ ...validated, client });
@@ -174,6 +226,19 @@ export class ValorantGateway implements OnGatewayConnection {
 
   @SubscribeMessage("request_player_profile")
   async handleRequestPlayerProfile(client: Socket, data: unknown) {
+    const rateCheck = this.rateLimiter.consume(
+      client.id,
+      "request_player_profile",
+    );
+    if (!rateCheck.allowed) {
+      client.emit("player_profile_result", {
+        success: false,
+        error: `Rate limit excedido. Reintenta en ${Math.ceil((rateCheck.retryAfterMs || 1000) / 1000)}s`,
+        code: "RATE_LIMIT_EXCEEDED",
+      });
+      return;
+    }
+
     try {
       const validated = SocketEventValidator.validatePlayerProfile(data);
       const profile = await this.historyService.getFullSyncedProfile(

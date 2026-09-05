@@ -6,11 +6,8 @@ import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
 import { RefreshIcon } from "@/components/Icons";
 import {
-  formatTimeAgo,
-  formatGameMode,
   getAgentIconUrl,
   getAgentIconByIdUrl,
-  getPlayerCardUrl,
   calculateCompetitiveChartData,
   buildMatchGroups,
 } from "@/lib/menuLogic";
@@ -19,14 +16,10 @@ import {
   getRankLargeIconUrl,
   getBaseTierIconUrl,
   getTierColor,
-  getTierBgColor,
-  getTierShortLabel,
-  resolveTierName,
-  getExactTierName,
 } from "@/lib/rankUtils";
 
 export default function ViewMenu() {
-  const { setView, connectionStatus, playerProfile, isProfileLoading, requestPlayerProfile } = useGameState();
+  const { connectionStatus, playerProfile, isProfileLoading, requestPlayerProfile } = useGameState();
   const { agents } = useValorantData();
   const { t, language } = useLanguage();
 
@@ -72,9 +65,6 @@ export default function ViewMenu() {
     getAgentIconByIdUrl(agents, uuid);
 
   const defaultAvatar = getAgentIcon("Jett", "add6443c-41c1-48b0-a04a-a71c8b3269a9");
-
-  // Foto de perfil oficial del juego (Player Card)
-  const userAvatar = getPlayerCardUrl(playerProfile?.playerCardId);
 
   // Historial de puntos de RR
   const competitiveUpdates = useMemo(() => {

@@ -57,31 +57,39 @@ export class RiotClientService {
   }
 
   /**
-   * Proporciona el agente HTTPS local validando que el destino sea loopback (127.0.0.1 o localhost).
+   * Proporciona el agente HTTPS local validando que el destino sea loopback (127.0.0.1 o localhost)
+   * y que use estrictamente el protocolo HTTPS.
    */
   public getLocalHttpsAgent(targetUrl?: string): https.Agent {
-    if (targetUrl) {
-      try {
-        const parsed = new URL(targetUrl);
-        const isLoopback =
-          parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
-        if (!isLoopback) {
-          throw new Error(
-            `Violación de seguridad TLS: Intento de usar el agente local no seguro con URL externa: ${targetUrl}`,
-          );
-        }
-      } catch (err) {
-        if (
-          err instanceof Error &&
-          err.message.includes("Violación de seguridad TLS")
-        ) {
-          throw err;
-        }
+    if (!targetUrl) {
+      throw new Error(
+        "Violación de seguridad TLS: Se requiere la URL de destino para validar el agente TLS local.",
+      );
+    }
+
+    try {
+      const parsed = new URL(targetUrl);
+      const isLoopback =
+        parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+      const isHttps = parsed.protocol === "https:";
+
+      if (!isLoopback || !isHttps) {
         throw new Error(
-          `URL inválida proporcionada para el agente TLS local: ${targetUrl}`,
+          `Violación de seguridad TLS: Intento de usar el agente local no seguro con URL externa o no HTTPS: ${targetUrl}`,
         );
       }
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        err.message.includes("Violación de seguridad TLS")
+      ) {
+        throw err;
+      }
+      throw new Error(
+        `URL inválida proporcionada para el agente TLS local: ${targetUrl}`,
+      );
     }
+
     return this.localHttpsAgent;
   }
 

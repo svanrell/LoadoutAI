@@ -5,7 +5,6 @@ import { useValorantData } from "@/hooks/useValorantData";
 import { useGameState, MLDraftRecommendation } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 import { getScoreMeta } from "@/lib/scoreUtils";
-import { getGameModeName } from "@/data/gameModesData";
 import {
   buildAgentByUuidMap,
   buildRecommendationsMap,
@@ -28,7 +27,6 @@ export default function ViewPregame() {
   // 2. Estado de la partida detectado por el radar local de Valorant
   const {
     selectedMap,
-    selectedMode,
     myTeam,
     selectAgent,
     lockAgent,
@@ -63,10 +61,6 @@ export default function ViewPregame() {
     () => getPickedAgentsList(pickedPlayers, agentByUuidMap),
     [pickedPlayers, agentByUuidMap]
   );
-
-  // Helper O(1) para buscar la recomendación de la IA para un agente dado
-  const getAgentRec = (agentUuid: string, agentDisplayName: string) =>
-    getAgentRecommendation(recMap, agentUuid, agentDisplayName);
 
   // Filtrar y ordenar los agentes de forma memoizada en O(1) por comparación
   const filteredAgents = useMemo(

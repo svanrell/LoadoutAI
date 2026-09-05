@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export interface AgentAbility {
   slot: string;
@@ -38,7 +38,7 @@ export interface WeaponStats {
 export interface Weapon {
   uuid: string;
   displayName: string;
-  category: string; // EEquippableCategory::Sidearm, EEquippableCategory::SMG, etc.
+  category: string;
   displayIcon: string;
   shopData: {
     cost: number;
@@ -63,6 +63,14 @@ export interface MapInfo {
   coordinates: string | null;
 }
 
+interface ValorantDataState {
+  agents: Agent[];
+  weapons: Weapon[];
+  gameModes: GameModeInfo[];
+  maps: MapInfo[];
+  loading: boolean;
+}
+
 // ============================================================================
 // CACHÉ EN MEMORIA (Singleton a nivel de módulo)
 // ============================================================================
@@ -76,7 +84,7 @@ function loadFromLocalStorage<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : null;
+    return raw ? (JSON.parse(raw) as T) : null;
   } catch {
     return null;
   }
@@ -91,60 +99,104 @@ function saveToLocalStorage(key: string, value: unknown): void {
   }
 }
 
+function getInitialData(): ValorantDataState {
+  const cachedAgents = globalAgents || loadFromLocalStorage<Agent[]>("vdata_agents") || [];
+  const cachedWeapons = globalWeapons || loadFromLocalStorage<Weapon[]>("vdata_weapons") || [];
+  const cachedModes = globalGameModes || loadFromLocalStorage<GameModeInfo[]>("vdata_gamemodes") || [];
+  const cachedMaps = globalMaps || loadFromLocalStorage<MapInfo[]>("vdata_maps") || [];
+
+  if (cachedAgents.length > 0) {
+    globalAgents = cachedAgents;
+    globalWeapons = cachedWeapons;
+    globalGameModes = cachedModes;
+    globalMaps = cachedMaps;
+    return {
+      agents: cachedAgents,
+      weapons: cachedWeapons,
+      gameModes: cachedModes,
+      maps: cachedMaps,
+      loading: false,
+    };
+  }
+
+  return {
+    agents: [],
+    weapons: [],
+    gameModes: [],
+    maps: [],
+    loading: true,
+  };
+}
+
 export function useValorantData() {
-  const [agents, setAgents] = useState<Agent[]>(() => globalAgents || loadFromLocalStorage<Agent[]>("vdata_agents") || []);
-  const [weapons, setWeapons] = useState<Weapon[]>(() => globalWeapons || loadFromLocalStorage<Weapon[]>("vdata_weapons") || []);
-  const [gameModes, setGameModes] = useState<GameModeInfo[]>(() => globalGameModes || loadFromLocalStorage<GameModeInfo[]>("vdata_gamemodes") || []);
-  const [maps, setMaps] = useState<MapInfo[]>(() => globalMaps || loadFromLocalStorage<MapInfo[]>("vdata_maps") || []);
-  const [loading, setLoading] = useState<boolean>(() => !globalAgents || globalAgents.length === 0);
+  const [state, setState] = useState<ValorantDataState>(getInitialData);
 
   useEffect(() => {
-    // Si ya tenemos los datos en memoria global, no hacemos peticiones de red
-    if (globalAgents && globalWeapons && globalGameModes && globalMaps) {
-      setAgents(globalAgents);
-      setWeapons(globalWeapons);
-      setGameModes(globalGameModes);
-      setMaps(globalMaps);
-      setLoading(false);
+    // Si ya tenemos los datos completos cargados en el estado inicial, no realizar peticiones
+    if (!state.loading && state.agents.length > 0) {
       return;
     }
+
+    let isMounted = true;
+    const controller = new AbortController();
 
     if (!globalFetchPromise) {
       globalFetchPromise = (async () => {
         try {
           const [agentRes, weaponRes, modeRes, mapRes] = await Promise.all([
-            fetch("https://valorant-api.com/v1/agents?isPlayableCharacter=true&language=en-US"),
-            fetch("https://valorant-api.com/v1/weapons?language=en-US"),
-            fetch("https://valorant-api.com/v1/gamemodes?language=en-US"),
-            fetch("https://valorant-api.com/v1/maps?language=en-US"),
+            fetch("https://valorant-api.com/v1/agents?isPlayableCharacter=true&language=en-US", {
+              signal: controller.signal,
+            }),
+            fetch("https://valorant-api.com/v1/weapons?language=en-US", {
+              signal: controller.signal,
+            }),
+            fetch("https://valorant-api.com/v1/gamemodes?language=en-US", {
+              signal: controller.signal,
+            }),
+            fetch("https://valorant-api.com/v1/maps?language=en-US", {
+              signal: controller.signal,
+            }),
           ]);
 
-          const agentJson = await agentRes.json();
-          const weaponJson = await weaponRes.json();
-          const modeJson = await modeRes.json();
-          const mapJson = await mapRes.json();
+          if (agentRes.ok) {
+            const agentJson = await agentRes.json();
+            if (agentJson && Array.isArray(agentJson.data)) {
+              globalAgents = agentJson.data;
+              saveToLocalStorage("vdata_agents", globalAgents);
+            }
+          }
 
-          if (agentJson.status === 200) {
-            globalAgents = agentJson.data;
-            saveToLocalStorage("vdata_agents", globalAgents);
+          if (weaponRes.ok) {
+            const weaponJson = await weaponRes.json();
+            if (weaponJson && Array.isArray(weaponJson.data)) {
+              globalWeapons = weaponJson.data;
+              saveToLocalStorage("vdata_weapons", globalWeapons);
+            }
           }
-          if (weaponJson.status === 200) {
-            globalWeapons = weaponJson.data;
-            saveToLocalStorage("vdata_weapons", globalWeapons);
+
+          if (modeRes.ok) {
+            const modeJson = await modeRes.json();
+            if (modeJson && Array.isArray(modeJson.data)) {
+              globalGameModes = modeJson.data;
+              saveToLocalStorage("vdata_gamemodes", globalGameModes);
+            }
           }
-          if (modeJson.status === 200) {
-            globalGameModes = modeJson.data;
-            saveToLocalStorage("vdata_gamemodes", globalGameModes);
+
+          if (mapRes.ok) {
+            const mapJson = await mapRes.json();
+            if (mapJson && Array.isArray(mapJson.data)) {
+              const playableMaps = (mapJson.data as MapInfo[]).filter(
+                (m: MapInfo) => Boolean(m.coordinates),
+              );
+              globalMaps = playableMaps.length > 0 ? playableMaps : mapJson.data;
+              saveToLocalStorage("vdata_maps", globalMaps);
+            }
           }
-          if (mapJson.status === 200) {
-            const playableMaps = (mapJson.data as MapInfo[]).filter(
-              (m: MapInfo) => Boolean(m.coordinates)
-            );
-            globalMaps = playableMaps.length > 0 ? playableMaps : mapJson.data;
-            saveToLocalStorage("vdata_maps", globalMaps);
+        } catch (err: unknown) {
+          if (err instanceof Error && err.name === "AbortError") {
+            return;
           }
-        } catch (err) {
-          console.error("Error fetching Valorant API static data:", err);
+          console.warn("Advertencia: No se pudo actualizar datos desde valorant-api.com:", err);
         } finally {
           globalFetchPromise = null;
         }
@@ -152,13 +204,27 @@ export function useValorantData() {
     }
 
     globalFetchPromise.then(() => {
-      if (globalAgents) setAgents(globalAgents);
-      if (globalWeapons) setWeapons(globalWeapons);
-      if (globalGameModes) setGameModes(globalGameModes);
-      if (globalMaps) setMaps(globalMaps);
-      setLoading(false);
+      if (!isMounted) return;
+      setState({
+        agents: globalAgents || [],
+        weapons: globalWeapons || [],
+        gameModes: globalGameModes || [],
+        maps: globalMaps || [],
+        loading: false,
+      });
     });
-  }, []);
 
-  return { agents, weapons, gameModes, maps, loading };
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [state.loading, state.agents.length]);
+
+  return {
+    agents: state.agents,
+    weapons: state.weapons,
+    gameModes: state.gameModes,
+    maps: state.maps,
+    loading: state.loading,
+  };
 }

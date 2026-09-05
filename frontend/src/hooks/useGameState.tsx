@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
 import { advanceRoundEconomy, getResetCreditsForRound, RoundOutcome } from "@/data/economyEngine";
 
@@ -205,7 +205,19 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const socketRef = useRef<Socket | null>(null);
   const lastProfileFetchRef = useRef<number>(0);
 
-  const requestPlayerProfile = (puuid?: string, forceRefresh = false) => {
+  const selectedMapRef = useRef(selectedMap);
+  const myTeamRef = useRef(myTeam);
+  const isLiveModeRef = useRef(isLiveMode);
+  const pregameMatchIdRef = useRef(pregameMatchId);
+
+  useEffect(() => {
+    selectedMapRef.current = selectedMap;
+    myTeamRef.current = myTeam;
+    isLiveModeRef.current = isLiveMode;
+    pregameMatchIdRef.current = pregameMatchId;
+  }, [selectedMap, myTeam, isLiveMode, pregameMatchId]);
+
+  const requestPlayerProfile = useCallback((puuid?: string, forceRefresh = false) => {
     if (socketRef.current) {
       const now = Date.now();
       if (!forceRefresh && now - lastProfileFetchRef.current < 3000) {
@@ -215,57 +227,81 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       setIsProfileLoading(true);
       socketRef.current.emit("request_player_profile", { puuid, forceRefresh });
     }
-  };
+  }, []);
 
-  const requestMlDraft = (mapName?: string, allies?: string[]) => {
+  const requestMlDraft = useCallback((mapName?: string, allies?: string[]) => {
     if (socketRef.current) {
-      const map = mapName || selectedMap || "Ascent";
-      const picked = allies || myTeam.map((p) => p.agentId).filter((id): id is string => Boolean(id));
+      const map = mapName || selectedMapRef.current || "Ascent";
+      const picked = allies || myTeamRef.current.map((p) => p.agentId).filter((id): id is string => Boolean(id));
       socketRef.current.emit("request_ml_draft", { mapName: map, allies: picked });
     }
-  };
+  }, []);
 
-  const selectAgent = (agentUuid: string) => {
-    if (socketRef.current) {
-      socketRef.current.emit("pregame_select", { pregameMatchId, agentUuid });
+  const selectAgent = useCallback((agentUuid: string) => {
+    // 1. Acciones reales SOLO si estamos en modo en vivo conectado al cliente Riot
+    if (isLiveModeRef.current && socketRef.current) {
+      socketRef.current.emit("pregame_select", {
+        pregameMatchId: pregameMatchIdRef.current,
+        agentUuid,
+      });
     }
-    if (!isLiveMode) {
-      // En modo simulador / offline: actualizar el equipo localmente y recalcular ML sin efectos secundarios en el setter
-      const teamCopy = [...myTeam];
-      const existingIndex = teamCopy.findIndex((p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase());
-      if (existingIndex !== -1) {
-        // Si ya estaba seleccionado, deseleccionar
-        teamCopy[existingIndex] = { ...teamCopy[existingIndex], agentId: null, state: "" };
-      } else {
-        // Asignar al primer slot libre
-        const freeSlot = teamCopy.findIndex((p) => !p.agentId);
-        if (freeSlot !== -1) {
-          teamCopy[freeSlot] = { ...teamCopy[freeSlot], agentId: agentUuid.toLowerCase(), state: "selected" };
-        } else {
-          teamCopy[0] = { ...teamCopy[0], agentId: agentUuid.toLowerCase(), state: "selected" };
-        }
-      }
-      setMyTeam(teamCopy);
-      const updatedAllies = teamCopy.map((p) => p.agentId).filter((id): id is string => Boolean(id));
-      requestMlDraft(selectedMap, updatedAllies);
-    }
-  };
 
-  const lockAgent = (agentUuid: string) => {
-    if (socketRef.current) {
-      socketRef.current.emit("pregame_lock", { pregameMatchId, agentUuid });
-    }
-    if (!isLiveMode) {
+    // 2. Modo simulador / offline: actualizar estado local sin llamar nunca a la API de Riot
+    if (!isLiveModeRef.current) {
       setMyTeam((prevTeam) => {
         const teamCopy = [...prevTeam];
-        const slot = teamCopy.findIndex((p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase());
+        const existingIndex = teamCopy.findIndex(
+          (p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase(),
+        );
+        if (existingIndex !== -1) {
+          teamCopy[existingIndex] = { ...teamCopy[existingIndex], agentId: null, state: "" };
+        } else {
+          const freeSlot = teamCopy.findIndex((p) => !p.agentId);
+          if (freeSlot !== -1) {
+            teamCopy[freeSlot] = {
+              ...teamCopy[freeSlot],
+              agentId: agentUuid.toLowerCase(),
+              state: "selected",
+            };
+          } else {
+            teamCopy[0] = {
+              ...teamCopy[0],
+              agentId: agentUuid.toLowerCase(),
+              state: "selected",
+            };
+          }
+        }
+        const updatedAllies = teamCopy
+          .map((p) => p.agentId)
+          .filter((id): id is string => Boolean(id));
+        requestMlDraft(selectedMapRef.current, updatedAllies);
+        return teamCopy;
+      });
+    }
+  }, [requestMlDraft]);
+
+  const lockAgent = useCallback((agentUuid: string) => {
+    // Acciones reales SOLO en modo en vivo
+    if (isLiveModeRef.current && socketRef.current) {
+      socketRef.current.emit("pregame_lock", {
+        pregameMatchId: pregameMatchIdRef.current,
+        agentUuid,
+      });
+    }
+
+    if (!isLiveModeRef.current) {
+      setMyTeam((prevTeam) => {
+        const teamCopy = [...prevTeam];
+        const slot = teamCopy.findIndex(
+          (p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase(),
+        );
         if (slot !== -1) {
           teamCopy[slot] = { ...teamCopy[slot], state: "locked" };
         }
         return teamCopy;
       });
     }
-  };
+  }, []);
 
   useEffect(() => {
     const serverUrl =
@@ -283,10 +319,10 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     socket.on("connect", () => {
       setConnectionStatus("menu-mode");
       setConnectionText("Radar Online");
-      // Solicitar predicciones iniciales
+      // Solicitar predicciones iniciales usando refs frescas
       socket.emit("request_ml_draft", {
-        mapName: selectedMap,
-        allies: myTeam.map((p) => p.agentId).filter(Boolean),
+        mapName: selectedMapRef.current,
+        allies: myTeamRef.current.map((p) => p.agentId).filter(Boolean),
       });
       requestPlayerProfile();
     });
@@ -488,16 +524,17 @@ interface MLBuyRecommendationsPayload {
     });
 
     return () => {
+      socket.removeAllListeners();
       socket.disconnect();
     };
-  }, []);
+  }, [requestPlayerProfile]);
 
   // Solicitar cálculo de ML si se entra a la vista de draft o cambia el mapa
   useEffect(() => {
     if (view === "pregame" && !isLiveMode) {
       requestMlDraft(selectedMap);
     }
-  }, [view, selectedMap]);
+  }, [view, selectedMap, isLiveMode, requestMlDraft]);
 
   useEffect(() => {
     if (isLiveMode && socketRef.current) {

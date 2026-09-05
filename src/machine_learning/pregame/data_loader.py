@@ -54,31 +54,62 @@ def load_clean_vct_compositions(
     recent_players = players_df[players_df["year"] >= min_year]
     merged_df = recent_players.merge(maps_df, on=["match_id", "map"])
 
-    # Paso 3: Agrupar los 5 jugadores de cada equipo por partida y mapa
+    # Paso 3: Agrupar los 5 jugadores de cada equipo por partida y mapa con validaciones estrictas
     clean_rows = []
+    total_raw_teams = 0
+
     for (match_id, map_name, team_name), group in merged_df.groupby(["match_id", "map", "team"]):
-        agent_list = [a.strip().lower() for a in group["agent"].astype(str)]
-        player_list = [p.strip() for p in group["player"].astype(str)]
+        total_raw_teams += 1
+        agent_list = [a.strip().lower() for a in group["agent"].astype(str) if a and str(a).strip().lower() not in ["nan", "none", ""]]
+        player_list = [p.strip() for p in group["player"].astype(str) if p and str(p).strip().lower() not in ["nan", "none", ""]]
 
-        # Solo aceptar equipos completos de exactamente 5 jugadores
-        if len(agent_list) == 5:
-            winner = group["winner"].iloc[0] if "winner" in group.columns else None
-            won = int(team_name == winner) if pd.notna(winner) else 0
-            year = int(group["year"].iloc[0]) if "year" in group.columns else min_year
+        # 1. Validar exactamente 5 jugadores y que sean únicos
+        if len(player_list) != 5 or len(set(player_list)) != 5:
+            continue
 
-            clean_rows.append({
-                "match_id": match_id,
-                "map_name": str(map_name).strip(),
-                "team_name": team_name,
-                "players": player_list,
-                "agents": agent_list,
-                "player_agent_map": dict(zip(player_list, agent_list)),
-                "won": won,
-                "year": year,
-                "weight": get_year_weight(year),
-            })
+        # 2. Validar exactamente 5 agentes y que sean únicos
+        if len(agent_list) != 5 or len(set(agent_list)) != 5:
+            continue
 
-    return pd.DataFrame(clean_rows)
+        # 3. Descartar partidas sin ganador conocido
+        winner = group["winner"].iloc[0] if "winner" in group.columns else None
+        if not winner or pd.isna(winner) or str(winner).strip().lower() in ["nan", "none", "", "unknown"]:
+            continue
+
+        team_str = str(team_name).strip()
+        winner_str = str(winner).strip()
+        won = int(team_str.lower() == winner_str.lower())
+        year = int(group["year"].iloc[0]) if "year" in group.columns else min_year
+        norm_map = str(map_name).strip().capitalize()
+
+        clean_rows.append({
+            "match_id": str(match_id),
+            "map_name": norm_map,
+            "team_name": team_str,
+            "players": player_list,
+            "agents": agent_list,
+            "player_agent_map": dict(zip(player_list, agent_list)),
+            "won": won,
+            "year": year,
+            "weight": get_year_weight(year),
+        })
+
+    candidate_df = pd.DataFrame(clean_rows)
+    if candidate_df.empty:
+        return candidate_df
+
+    # 4. Comprobar que cada partida/mapa tenga exactamente dos equipos y un solo ganador
+    valid_match_maps = []
+    for (match_id, map_name), match_group in candidate_df.groupby(["match_id", "map_name"]):
+        if len(match_group) == 2 and match_group["won"].sum() == 1:
+            valid_match_maps.append((match_id, map_name))
+
+    valid_keys = set(valid_match_maps)
+    final_df = candidate_df[candidate_df.apply(lambda r: (r["match_id"], r["map_name"]) in valid_keys, axis=1)].copy()
+
+    print(f"Limpieza de composiciones VCT: {len(final_df)} equipos válidos ({len(final_df) // 2} partidas) de {total_raw_teams} candidatos evaluados.")
+    return final_df
+
 
 
 def get_clean_draft_dataset(
@@ -180,23 +211,28 @@ def extract_pairwise_win_rates(clean_dataframe: pd.DataFrame) -> dict[str, dict[
 
 def parse_and_flatten_compositions(raw_dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Parser auxiliar para datasets antiguos estilo detailed_matches.
+    Parser auxiliar para datasets antiguos estilo detailed_matches con validaciones estrictas.
     """
     map_df = raw_dataframe[raw_dataframe["stat_type"] == "map"].copy()
     clean_records = []
 
     for (match_id, map_name, team_name), group in map_df.groupby(["match_id", "map_name", "player_team"]):
-        players = group["player_name"].astype(str).str.strip().tolist()
-        agents = group["agent"].astype(str).str.strip().str.lower().tolist()
+        players = [p.strip() for p in group["player_name"].astype(str) if p and p.strip().lower() not in ["nan", "none", ""]]
+        agents = [a.strip().lower() for a in group["agent"].astype(str) if a and a.strip().lower() not in ["nan", "none", ""]]
 
-        if len(players) == 5:
+        if len(players) == 5 and len(set(players)) == 5 and len(agents) == 5 and len(set(agents)) == 5:
             winner = group["map_winner"].iloc[0] if "map_winner" in group.columns else None
-            won = int(team_name == winner) if pd.notna(winner) else 0
+            if not winner or pd.isna(winner) or str(winner).strip().lower() in ["nan", "none", "", "unknown"]:
+                continue
+
+            team_str = str(team_name).strip()
+            winner_str = str(winner).strip()
+            won = int(team_str.lower() == winner_str.lower())
 
             clean_records.append({
-                "match_id": match_id,
-                "map_name": str(map_name).strip(),
-                "team_name": team_name,
+                "match_id": str(match_id),
+                "map_name": str(map_name).strip().capitalize(),
+                "team_name": team_str,
                 "players": players,
                 "agents": agents,
                 "player_agent_map": dict(zip(players, agents)),
@@ -205,6 +241,17 @@ def parse_and_flatten_compositions(raw_dataframe: pd.DataFrame) -> pd.DataFrame:
                 "weight": 1.0,
             })
 
-    return pd.DataFrame(clean_records)
+    candidate_df = pd.DataFrame(clean_records)
+    if candidate_df.empty:
+        return candidate_df
+
+    valid_match_maps = []
+    for (match_id, map_name), match_group in candidate_df.groupby(["match_id", "map_name"]):
+        if len(match_group) == 2 and match_group["won"].sum() == 1:
+            valid_match_maps.append((match_id, map_name))
+
+    valid_keys = set(valid_match_maps)
+    return candidate_df[candidate_df.apply(lambda r: (r["match_id"], r["map_name"]) in valid_keys, axis=1)].copy()
+
 
 

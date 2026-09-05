@@ -5,6 +5,8 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { join } from "path";
 import * as fs from "fs";
 
+import { Request, Response } from "express";
+
 let appInstance: NestExpressApplication | null = null;
 
 export async function bootstrap(): Promise<NestExpressApplication> {
@@ -47,6 +49,18 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   const publicPath =
     possiblePublicPaths.find((p) => fs.existsSync(p)) ||
     join(__dirname, "..", "public");
+
+  // Endpoint de salud y verificación para Electron / procesos locales
+  app.use("/api/health", (_req: Request, res: Response) => {
+    res.setHeader("Content-Type", "application/json");
+    res.end(
+      JSON.stringify({
+        status: "ok",
+        app: "valorant-ai",
+        timestamp: Date.now(),
+      }),
+    );
+  });
 
   console.log("Serving static assets from:", publicPath);
   app.useStaticAssets(publicPath);

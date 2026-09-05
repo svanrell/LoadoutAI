@@ -2,10 +2,9 @@
 
 import { useValorantData, Weapon } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
-import { getAbilityPrice } from "@/data/agentAbilitiesData";
 import { getMapSplash } from "@/data/mapsData";
 import { calculateNextRoundProjection } from "@/data/economyEngine";
-import AbilitiesShop, { AGENT_ABILITIES_DATABASE } from "@/components/shop/AbilitiesShop";
+import AbilitiesShop from "@/components/shop/AbilitiesShop";
 import {
   ARMORS_DATA,
   WeaponCategoryConfig,
@@ -15,7 +14,6 @@ import {
 } from "@/data/weaponsData";
 import {
   resolveAiRecommendation,
-  computeToggleWeapon,
   computeToggleArmor,
   computeNextAbilityCharge,
   calculateManualSidearmSpend,
@@ -41,11 +39,7 @@ export default function ViewIngame() {
     selectedMap,
     playerProfile,
     lossStreak,
-    scoreAlly,
-    scoreEnemy,
     buyRecommendations,
-    enemyEconomy,
-    currentIngameRound,
     isFollowingAiRecommendation,
     setIsFollowingAiRecommendation,
     setPlannedSpend,
@@ -70,7 +64,7 @@ export default function ViewIngame() {
   const myAgentIcon =
     myAgent?.displayIcon ||
     "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
-  const myAbilities = myAgent?.abilities || [];
+  const myAbilities = useMemo(() => myAgent?.abilities || [], [myAgent]);
 
   // useMemo: Filtra las 3 habilidades básicas (excluyendo la Ultimate que no se compra en tienda)
   const basicAbilities = useMemo(() => {
@@ -80,33 +74,53 @@ export default function ViewIngame() {
   // useState: Diccionario para registrar las cargas de cada habilidad (soporte multicargas)
   const [abilityChargesState, setAbilityChargesState] = useState<Record<string, number>>({});
 
-  // useState: Blindaje/escudo equipado actualmente (null = sin escudo / no comprado; o Ligera, Regen, Pesada)
-  const [equippedArmorName, setEquippedArmorName] = useState<string | null>(null);
+  // useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
+  const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
 
-  // useState: Pistola / Arma de mano equipada (por defecto "Classic")
-  const [equippedSidearmName, setEquippedSidearmName] = useState<string>("Classic");
+  // useMemo: Equipamiento derivado directamente de la recomendación de la IA (puro, sin efectos secundarios)
+  const aiEquipped = useMemo(() => {
+    if (!buyRecommendations) {
+      return { sidearmName: "Classic", primaryName: null as string | null, armorName: null as string | null };
+    }
+    return resolveAiRecommendation(buyRecommendations, allWeapons);
+  }, [buyRecommendations, allWeapons]);
 
-  // useState: Arma principal / larga equipada (null = sin arma larga; o Vandal, Phantom, etc.)
-  const [equippedPrimaryName, setEquippedPrimaryName] = useState<string | null>(null);
+  // Estados locales para cuando el usuario realiza una compra manual o sobrescribe la IA
+  const [manualSidearmName, setManualSidearmName] = useState<string | null>(null);
+  const [manualPrimaryName, setManualPrimaryName] = useState<string | null>(null);
+  const [manualArmorName, setManualArmorName] = useState<string | null>(null);
+
+  // Equipamiento efectivo según si el usuario sigue la IA o ha elegido manualmente
+  const equippedSidearmName = isFollowingAiRecommendation
+    ? aiEquipped.sidearmName
+    : (manualSidearmName ?? aiEquipped.sidearmName ?? "Classic");
+
+  const equippedPrimaryName = isFollowingAiRecommendation
+    ? aiEquipped.primaryName
+    : (manualPrimaryName !== undefined && manualPrimaryName !== null ? manualPrimaryName : aiEquipped.primaryName);
+
+  const equippedArmorName = isFollowingAiRecommendation
+    ? aiEquipped.armorName
+    : (manualArmorName !== undefined && manualArmorName !== null ? manualArmorName : aiEquipped.armorName);
 
   // useCallback: Función memorizada para alternar armas de forma independiente (pistola y arma larga)
   const toggleWeapon = useCallback((weapon: Weapon) => {
-    setEquippedSidearmName((currentSidearm) => {
-      setEquippedPrimaryName((currentPrimary) => {
-        const { newSidearmName, newPrimaryName } = computeToggleWeapon(
-          weapon,
-          currentSidearm,
-          currentPrimary
-        );
-        return newPrimaryName;
-      });
-      const isSidearm = weapon.category === "EEquippableCategory::Sidearm";
-      return isSidearm
-        ? (currentSidearm.toUpperCase() === weapon.displayName.toUpperCase() ? "Classic" : weapon.displayName)
-        : currentSidearm;
-    });
     setIsFollowingAiRecommendation(false);
-  }, [setIsFollowingAiRecommendation]);
+    const isSidearm = weapon.category === "EEquippableCategory::Sidearm";
+    if (isSidearm) {
+      setManualSidearmName((current) => {
+        const effective = current ?? equippedSidearmName;
+        return effective.toUpperCase() === weapon.displayName.toUpperCase() ? "Classic" : weapon.displayName;
+      });
+    } else {
+      setManualPrimaryName((current) => {
+        const effective = current ?? equippedPrimaryName;
+        return effective && effective.toUpperCase() === weapon.displayName.toUpperCase()
+          ? null
+          : weapon.displayName;
+      });
+    }
+  }, [setIsFollowingAiRecommendation, equippedSidearmName, equippedPrimaryName]);
 
   // useCallback: Función memorizada para alternar/ciclar cargas de una habilidad
   const handleToggleAbilityCharge = useCallback(
@@ -122,12 +136,12 @@ export default function ViewIngame() {
 
   // useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
   const toggleArmor = useCallback((armorName: string) => {
-    setEquippedArmorName((current) => computeToggleArmor(current, armorName));
     setIsFollowingAiRecommendation(false);
-  }, [setIsFollowingAiRecommendation]);
-
-  // useMemo: Procesa, ordena y desduplica el catálogo de armas de la tienda
-  const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
+    setManualArmorName((current) => {
+      const effective = current ?? equippedArmorName;
+      return computeToggleArmor(effective, armorName);
+    });
+  }, [setIsFollowingAiRecommendation, equippedArmorName]);
 
   // useMemo: Arma activa para inspeccionar (si hay hover muestra la del hover; si no, muestra el arma principal o pistola equipada, o Vandal por defecto)
   const activeWeaponToInspect = useMemo(() => {
@@ -150,18 +164,6 @@ export default function ViewIngame() {
       null
     );
   }, [hoveredWeapon, equippedPrimaryName, equippedSidearmName, allWeapons]);
-
-  // Sincronizar equipamiento cuando se sigue la recomendación de la IA
-  useEffect(() => {
-    if (!isFollowingAiRecommendation || !buyRecommendations) return;
-    const { sidearmName, primaryName, armorName } = resolveAiRecommendation(
-      buyRecommendations,
-      allWeapons
-    );
-    setEquippedSidearmName(sidearmName);
-    setEquippedPrimaryName(primaryName);
-    setEquippedArmorName(armorName);
-  }, [isFollowingAiRecommendation, buyRecommendations, allWeapons]);
 
   // Cálculo dinámico del gasto en armamento, blindaje y habilidades
   const manualSidearmSpend = useMemo(

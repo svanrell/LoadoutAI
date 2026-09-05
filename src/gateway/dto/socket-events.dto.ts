@@ -135,25 +135,61 @@ export class SocketEventValidator {
     const result: ValidatedMlDraftAction = {};
 
     if (
-      typeof payload.mapName === "string" &&
-      payload.mapName.trim().length > 0
+      payload.mapName !== undefined &&
+      payload.mapName !== null &&
+      payload.mapName !== ""
     ) {
-      result.mapName = payload.mapName.trim().slice(0, 50);
+      if (
+        typeof payload.mapName !== "string" ||
+        !/^[a-zA-Z0-9_\-\s/]{1,50}$/.test(payload.mapName.trim())
+      ) {
+        throw new Error(
+          "mapName inválido: debe contener caracteres alfanuméricos válidos.",
+        );
+      }
+      result.mapName = payload.mapName.trim();
     }
 
     if (
-      typeof payload.modeName === "string" &&
-      payload.modeName.trim().length > 0
+      payload.modeName !== undefined &&
+      payload.modeName !== null &&
+      payload.modeName !== ""
     ) {
-      result.modeName = payload.modeName.trim().slice(0, 50);
+      if (
+        typeof payload.modeName !== "string" ||
+        !/^[a-zA-Z0-9_\-\s]{1,50}$/.test(payload.modeName.trim())
+      ) {
+        throw new Error(
+          "modeName inválido: debe contener caracteres alfanuméricos válidos.",
+        );
+      }
+      result.modeName = payload.modeName.trim();
     }
 
-    if (Array.isArray(payload.allies)) {
-      result.allies = payload.allies
-        .slice(0, 5)
-        .filter((item): item is string => typeof item === "string")
-        .map((item) => item.trim())
-        .filter((item) => this.isValidAgentIdentifier(item));
+    if (payload.allies !== undefined && payload.allies !== null) {
+      if (!Array.isArray(payload.allies)) {
+        throw new Error(
+          "allies debe ser un array de identificadores de agentes.",
+        );
+      }
+      if (payload.allies.length > 5) {
+        throw new Error(
+          "Un equipo de Valorant no puede tener más de 5 aliados.",
+        );
+      }
+
+      const validatedAllies: string[] = [];
+      for (const item of payload.allies) {
+        if (typeof item !== "string" || !item.trim()) {
+          throw new Error("Cada aliado debe ser una cadena no vacía.");
+        }
+        const trimmed = item.trim();
+        if (!this.isValidAgentIdentifier(trimmed)) {
+          throw new Error(`Agente aliado inválido o desconocido: ${trimmed}`);
+        }
+        validatedAllies.push(trimmed);
+      }
+      result.allies = validatedAllies;
     }
 
     return result;

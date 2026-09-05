@@ -151,18 +151,20 @@ describe("SocketEventValidator", () => {
       ]);
     });
 
-    it("should filter out invalid agent names or arbitrary strings from allies", () => {
-      const result = SocketEventValidator.validateMlDraft({
-        allies: ["jett", "hacked_agent", "<script>alert(1)</script>", "sova"],
-      });
-      expect(result.allies).toEqual(["jett", "sova"]);
+    it("should throw error for invalid agent names or arbitrary strings from allies", () => {
+      expect(() =>
+        SocketEventValidator.validateMlDraft({
+          allies: ["jett", "hacked_agent", "<script>alert(1)</script>", "sova"],
+        }),
+      ).toThrow("Agente aliado inválido o desconocido");
     });
 
-    it("should truncate allies to at most 5 elements", () => {
-      const result = SocketEventValidator.validateMlDraft({
-        allies: ["jett", "reyna", "sova", "omen", "killjoy", "sage"],
-      });
-      expect(result.allies).toHaveLength(5);
+    it("should throw error if allies exceed 5 elements", () => {
+      expect(() =>
+        SocketEventValidator.validateMlDraft({
+          allies: ["jett", "reyna", "sova", "omen", "killjoy", "sage"],
+        }),
+      ).toThrow("Un equipo de Valorant no puede tener más de 5 aliados.");
     });
 
     it("should return empty object on non-object input", () => {

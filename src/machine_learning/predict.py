@@ -12,11 +12,20 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from src.machine_learning.pregame.predict import run_json_prediction
+from src.machine_learning.pregame.predict import run_json_prediction, get_model_artifact_path
 
 if __name__ == "__main__":
     import argparse
     import json
+
+    # Comprobar si el archivo del modelo existe antes de procesar la solicitud
+    model_artifact_path = get_model_artifact_path()
+    if not os.path.exists(model_artifact_path):
+        sys.stderr.write(
+            f"Error: No se encontró el artefacto del modelo en '{model_artifact_path}'. "
+            f"Ejecuta el entrenamiento para generarlo: python src/machine_learning/pregame/model.py\n"
+        )
+        sys.exit(1)
 
     # 1. Configuración de los argumentos aceptados por línea de comandos
     cli_parser = argparse.ArgumentParser(description="Predictor de IA para Valorant")

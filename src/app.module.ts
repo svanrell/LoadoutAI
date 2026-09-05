@@ -11,7 +11,12 @@ import { RiotMmrService } from "./gateway/services/riot-mmr.service";
 import { RiotPresenceService } from "./gateway/services/riot-presence.service";
 
 @Module({
-  imports: [HttpModule],
+  imports: [
+    HttpModule.register({
+      timeout: 5000,
+      maxRedirects: 3,
+    }),
+  ],
   controllers: [],
   providers: [
     RiotClientService,
