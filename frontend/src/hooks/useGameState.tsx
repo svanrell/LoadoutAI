@@ -149,6 +149,8 @@ interface GameStateContextProps {
   playerProfile: SyncedPlayerProfile | null;
   isProfileLoading: boolean;
   requestPlayerProfile: (puuid?: string, forceRefresh?: boolean) => void;
+  lastError: { event?: string; error: string; code?: string } | null;
+  clearError: () => void;
 }
 
 const GameStateContext = createContext<GameStateContextProps | undefined>(undefined);
@@ -201,6 +203,15 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
 
   const [playerProfile, setPlayerProfile] = useState<SyncedPlayerProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [lastError, setLastError] = useState<{
+    event?: string;
+    error: string;
+    code?: string;
+  } | null>(null);
+
+  const clearError = useCallback(() => {
+    setLastError(null);
+  }, []);
 
   const socketRef = useRef<Socket | null>(null);
   const lastProfileFetchRef = useRef<number>(0);
@@ -523,6 +534,29 @@ interface MLBuyRecommendationsPayload {
       }
     });
 
+    socket.on(
+      "error_response",
+      (data: { event?: string; error: string; code?: string }) => {
+        console.warn("Error recibido desde servidor WebSocket:", data);
+        if (data && data.error) {
+          setLastError(data);
+        }
+      },
+    );
+
+    socket.on(
+      "pregame_action_result",
+      (data: {
+        success: boolean;
+        event: string;
+        agentUuid: string;
+        pregameMatchId: string;
+      }) => {
+        console.log("Acción de pregame confirmada por el servidor:", data);
+        setLastError(null);
+      },
+    );
+
     return () => {
       socket.removeAllListeners();
       socket.disconnect();
@@ -580,6 +614,8 @@ interface MLBuyRecommendationsPayload {
         playerProfile,
         isProfileLoading,
         requestPlayerProfile,
+        lastError,
+        clearError,
       }}
     >
       {children}

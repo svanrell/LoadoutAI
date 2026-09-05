@@ -216,6 +216,207 @@ class TestModelArtifacts(unittest.TestCase):
         self.assertIn("No se encontró el artefacto del modelo", result.stderr)
 
 
+
+class TestDataLoader(unittest.TestCase):
+    def test_get_clean_draft_dataset_honors_csv_file_path(self):
+        import tempfile
+        from src.machine_learning.pregame.data_loader import get_clean_draft_dataset
+
+        custom_rows = []
+        # Team 1
+        for i, (p, a) in enumerate([("p1", "jett"), ("p2", "sova"), ("p3", "omen"), ("p4", "killjoy"), ("p5", "kayo")]):
+            custom_rows.append({
+                "stat_type": "map",
+                "match_id": "custom_match_999",
+                "map_name": "Ascent",
+                "player_team": "CustomTeamA",
+                "player_name": p,
+                "agent": a,
+                "map_winner": "CustomTeamA",
+            })
+        # Team 2
+        for i, (p, a) in enumerate([("p6", "raze"), ("p7", "fade"), ("p8", "viper"), ("p9", "cypher"), ("p10", "breach")]):
+            custom_rows.append({
+                "stat_type": "map",
+                "match_id": "custom_match_999",
+                "map_name": "Ascent",
+                "player_team": "CustomTeamB",
+                "player_name": p,
+                "agent": a,
+                "map_winner": "CustomTeamA",
+            })
+
+        temp_df = pd.DataFrame(custom_rows)
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
+            temp_path = f.name
+            temp_df.to_csv(temp_path, index=False)
+
+        try:
+            df = get_clean_draft_dataset(csv_file_path=temp_path)
+            self.assertEqual(len(df), 2)
+            self.assertEqual(df["match_id"].iloc[0], "custom_match_999")
+            self.assertEqual(df["map_name"].iloc[0], "Ascent")
+            self.assertEqual(set(df["agents"].iloc[0]), {"jett", "sova", "omen", "killjoy", "kayo"})
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    def test_get_clean_draft_dataset_missing_file_raises(self):
+        from src.machine_learning.pregame.data_loader import get_clean_draft_dataset
+        with self.assertRaises(FileNotFoundError):
+            get_clean_draft_dataset(csv_file_path="non_existent_file_path_12345.csv")
+
+
+class TestGroupKFoldValidation(unittest.TestCase):
+    def test_group_kfold_guarantees_zero_leakage_between_splits(self):
+        from sklearn.model_selection import GroupKFold
+        import numpy as np
+
+        records = []
+        maps = ["Ascent", "Bind", "Haven"]
+        agents = ["jett", "sova", "omen", "killjoy", "kayo", "raze", "fade", "viper", "cypher", "breach"]
+
+        for m_idx in range(25):
+            match_id = f"m_{m_idx}"
+            team_a_agents = ["jett", "sova", "omen", "killjoy", "kayo"]
+            team_b_agents = ["raze", "fade", "viper", "cypher", "breach"]
+            records.append({
+                "match_id": match_id,
+                "map_name": "Ascent",
+                "team_name": "A",
+                "players": [f"pa_{i}" for i in range(5)],
+                "agents": team_a_agents,
+                "won": 1 if m_idx % 2 == 0 else 0,
+                "weight": 1.0,
+            })
+            records.append({
+                "match_id": match_id,
+                "map_name": "Ascent",
+                "team_name": "B",
+                "players": [f"pb_{i}" for i in range(5)],
+                "agents": team_b_agents,
+                "won": 0 if m_idx % 2 == 0 else 1,
+                "weight": 1.0,
+            })
+
+        df = pd.DataFrame(records)
+        X, y, cols, weights, groups = build_matchup_feature_matrix(df, maps, agents, return_groups=True)
+
+        gkf = GroupKFold(n_splits=5)
+        for fold, (train_idx, val_idx) in enumerate(gkf.split(X, y, groups)):
+            train_groups = set(groups.iloc[train_idx])
+            val_groups = set(groups.iloc[val_idx])
+
+            # Verificación matemática estricta: ninguna partida del train debe estar en val
+            self.assertTrue(train_groups.isdisjoint(val_groups), f"Fuga de datos detectada en el fold {fold}")
+            self.assertEqual(len(train_groups.intersection(val_groups)), 0)
+
+
+class TestTemporalHoldoutAndBaseline(unittest.TestCase):
+    def test_temporal_holdout_and_baseline_evaluation(self):
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.metrics import brier_score_loss, accuracy_score
+
+        records_2025 = []
+        records_2026 = []
+        maps = ["Ascent", "Bind"]
+        agents = ["jett", "sova", "omen", "killjoy", "kayo", "raze", "fade", "viper", "cypher", "breach"]
+
+        # 30 partidas en 2025
+        for i in range(30):
+            mid = f"match_2025_{i}"
+            records_2025.append({
+                "match_id": mid,
+                "map_name": "Ascent",
+                "team_name": "TeamA",
+                "players": [f"p_{j}" for j in range(5)],
+                "agents": ["jett", "sova", "omen", "killjoy", "kayo"],
+                "won": 1 if i % 3 != 0 else 0,
+                "weight": 1.0,
+            })
+            records_2025.append({
+                "match_id": mid,
+                "map_name": "Ascent",
+                "team_name": "TeamB",
+                "players": [f"p_{j+5}" for j in range(5)],
+                "agents": ["raze", "fade", "viper", "cypher", "breach"],
+                "won": 0 if i % 3 != 0 else 1,
+                "weight": 1.0,
+            })
+
+        # 10 partidas en 2026 (Holdout Temporal)
+        for i in range(10):
+            mid = f"match_2026_{i}"
+            records_2026.append({
+                "match_id": mid,
+                "map_name": "Ascent",
+                "team_name": "TeamC",
+                "players": [f"p_{j+10}" for j in range(5)],
+                "agents": ["jett", "sova", "omen", "killjoy", "kayo"],
+                "won": 1 if i % 2 == 0 else 0,
+                "weight": 3.5,
+            })
+            records_2026.append({
+                "match_id": mid,
+                "map_name": "Ascent",
+                "team_name": "TeamD",
+                "players": [f"p_{j+15}" for j in range(5)],
+                "agents": ["raze", "fade", "viper", "cypher", "breach"],
+                "won": 0 if i % 2 == 0 else 1,
+                "weight": 3.5,
+            })
+
+        df_train = pd.DataFrame(records_2025)
+        df_test = pd.DataFrame(records_2026)
+
+        X_train, y_train, cols_train, w_train = build_matchup_feature_matrix(df_train, maps, agents)
+        X_test, y_test, cols_test, w_test = build_matchup_feature_matrix(df_test, maps, agents)
+
+        # Entrenar modelo en 2025
+        model = LogisticRegression(C=0.5, max_iter=200, random_state=42)
+        model.fit(X_train, y_train, sample_weight=w_train)
+
+        probs_test = model.predict_proba(X_test)[:, 1]
+        preds_test = model.predict(X_test)
+
+        # Baseline: predicción ingenua constante p = 0.5
+        baseline_probs = [0.5] * len(y_test)
+        baseline_brier = brier_score_loss(y_test, baseline_probs)
+        model_brier = brier_score_loss(y_test, probs_test)
+
+        # El Brier score del modelo no debe ser patológico (debe ser menor o cercano a la incertidumbre máxima de 0.25)
+        self.assertLessEqual(model_brier, 0.30)
+        self.assertEqual(len(preds_test), len(y_test))
+
+        # Comprobar separación temporal estricta: ningún ID de 2026 en el set de entrenamiento
+        train_ids = set(df_train["match_id"])
+        test_ids = set(df_test["match_id"])
+        self.assertTrue(train_ids.isdisjoint(test_ids))
+
+
+class TestConstantsSync(unittest.TestCase):
+    def test_python_and_typescript_constants_are_synchronized(self):
+        import re
+        from src.machine_learning.shared.constants import AGENT_UUID_TO_NAME_MAP, AGENT_ROLES_MAP
+
+        ts_file = os.path.join(PROJECT_ROOT, "src", "shared", "agent-constants.ts")
+        self.assertTrue(os.path.exists(ts_file), f"No se encontró el archivo TypeScript de constantes en {ts_file}")
+
+        with open(ts_file, "r", encoding="utf-8") as f:
+            ts_content = f.read()
+
+        # Extraer pares UUID -> agente de TypeScript
+        ts_uuid_map = {}
+        for match in re.finditer(r'"([0-9a-fA-F-]{36})":\s*"([a-z0-9_]+)"', ts_content):
+            ts_uuid_map[match.group(1).lower()] = match.group(2).lower()
+
+        # Comprobar que todos los agentes y UUIDs de Python existen con el mismo nombre en TypeScript
+        for uuid, name in AGENT_UUID_TO_NAME_MAP.items():
+            self.assertIn(uuid.lower(), ts_uuid_map, f"UUID {uuid} ({name}) falta en TypeScript agent-constants.ts")
+            self.assertEqual(ts_uuid_map[uuid.lower()], name.lower())
+
+
 if __name__ == "__main__":
     unittest.main()
+
 

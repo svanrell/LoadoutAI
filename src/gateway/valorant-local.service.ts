@@ -19,6 +19,7 @@ import {
   LocalPlayerInfo,
 } from "./services/riot-coregame.service";
 import { RiotPresenceService } from "./services/riot-presence.service";
+import { EconomyAdvisorService } from "./services/economy-advisor.service";
 
 @Injectable()
 export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
@@ -54,6 +55,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     private readonly riotPregameService: RiotPregameService,
     private readonly riotCoregameService: RiotCoregameService,
     private readonly presenceService: RiotPresenceService,
+    private readonly economyAdvisor: EconomyAdvisorService,
   ) {}
 
   onModuleInit() {
@@ -62,14 +64,35 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     );
     this.scheduleNextCheck(500);
 
-    // Escucha eventos del Frontend con manejo de errores y limpieza
+    // Escucha eventos del Frontend con manejo de errores, callbacks al cliente y limpieza
     this.subscriptions.add(
       this.gateway.pregameSelect$.subscribe({
-        next: async (data) => {
+        next: async ({ pregameMatchId, agentUuid, client }) => {
           try {
-            await this.selectAgent(data.pregameMatchId, data.agentUuid);
+            const success = await this.selectAgent(pregameMatchId, agentUuid);
+            if (success) {
+              client.emit("pregame_action_result", {
+                success: true,
+                event: "pregame_select",
+                agentUuid,
+                pregameMatchId,
+              });
+            } else {
+              client.emit("error_response", {
+                event: "pregame_select",
+                error:
+                  "El cliente Riot rechazó la selección del agente o no está disponible.",
+                code: "RIOT_REJECTED",
+              });
+            }
           } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
             this.logger.error("Error al procesar pregameSelect$:", err);
+            client.emit("error_response", {
+              event: "pregame_select",
+              error: msg,
+              code: "ACTION_FAILED",
+            });
           }
         },
         error: (err) =>
@@ -79,11 +102,32 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
     this.subscriptions.add(
       this.gateway.pregameLock$.subscribe({
-        next: async (data) => {
+        next: async ({ pregameMatchId, agentUuid, client }) => {
           try {
-            await this.lockAgent(data.pregameMatchId, data.agentUuid);
+            const success = await this.lockAgent(pregameMatchId, agentUuid);
+            if (success) {
+              client.emit("pregame_action_result", {
+                success: true,
+                event: "pregame_lock",
+                agentUuid,
+                pregameMatchId,
+              });
+            } else {
+              client.emit("error_response", {
+                event: "pregame_lock",
+                error:
+                  "El cliente Riot rechazó el bloqueo del agente o no está disponible.",
+                code: "RIOT_REJECTED",
+              });
+            }
           } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
             this.logger.error("Error al procesar pregameLock$:", err);
+            client.emit("error_response", {
+              event: "pregame_lock",
+              error: msg,
+              code: "ACTION_FAILED",
+            });
           }
         },
         error: (err) => this.logger.error("Error en flujo pregameLock$:", err),
@@ -262,7 +306,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       const presence = await this.presenceService.getLocalPlayerPresence(puuid);
       if (!presence || !presence.sessionLoopState) {
         this.clearBuyPhase();
-        this.updateStatus("MENUS");
+        this.updateStatus("MENU");
         return;
       }
 
@@ -275,7 +319,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         await this.handleIngameSession(puuid, presence);
       } else {
         this.clearBuyPhase();
-        this.updateStatus("MENUS");
+        this.updateStatus("MENU");
       }
     } catch {
       this.clearBuyPhase();
@@ -420,7 +464,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private updateStatus(
+  public updateStatus(
     newStatus: string,
     extraData: Record<string, unknown> = {},
   ) {
@@ -459,7 +503,13 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       scoreEnemy,
     );
 
-    this.updateIngameCredits(this.currentCredits);
+    const recPayload = this.economyAdvisor.computeRecommendations(
+      this.currentCredits,
+      round,
+      0,
+      scoreEnemy,
+    );
+    this.gateway.emitMlBuyRecommendations(recPayload);
 
     this.buyPhaseInterval = setInterval(() => {
       this.buyPhaseSecondsRemaining--;
@@ -500,12 +550,32 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
   updateIngameCredits(credits: number) {
     this.currentCredits = credits;
+    const currentRound =
+      this.allyScore >= 0 && this.enemyScore >= 0
+        ? this.allyScore + this.enemyScore + 1
+        : 1;
+    const recPayload = this.economyAdvisor.computeRecommendations(
+      this.currentCredits,
+      currentRound,
+      0,
+      this.enemyScore >= 0 ? this.enemyScore : 0,
+    );
+    this.gateway.emitMlBuyRecommendations(recPayload);
+  }
+
+  getCurrentStatus(): string {
+    return this.currentStatus;
+  }
+
+  getCurrentExtraData(): Record<string, unknown> {
+    return this.currentExtraData;
   }
 
   getMLDraftRecommendations(
     mapName: string,
     alliesAgentUuids: string[],
     modeName: string = "competitive",
+    enemyAgentUuids: string[] = [],
   ): {
     recommendations: AgentRecommendation[];
     currentSynergy: number;
@@ -518,7 +588,12 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       .map((u) => u.toLowerCase().trim())
       .sort()
       .join(",");
-    const cacheKey = `${normalizedMap}__${normalizedMode}__${sortedAllies}`;
+    const sortedEnemies = (enemyAgentUuids || [])
+      .filter(Boolean)
+      .map((u) => u.toLowerCase().trim())
+      .sort()
+      .join(",");
+    const cacheKey = `${normalizedMap}__${normalizedMode}__${sortedAllies}__vs__${sortedEnemies}`;
 
     if (
       this.lastMlDraftKey === cacheKey &&
@@ -533,6 +608,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         mapName || "Ascent",
         alliesAgentUuids || [],
         modeName || "competitive",
+        enemyAgentUuids || [],
       );
 
       if (prediction && prediction.success) {

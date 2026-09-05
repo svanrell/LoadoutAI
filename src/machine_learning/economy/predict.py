@@ -118,3 +118,33 @@ def recommend_buy_strategy(
         "explanation": "Compra forzada de subfusil y blindaje ligero para competir la ronda.",
     }
 
+
+if __name__ == "__main__":
+    import argparse
+    import json
+    import sys
+
+    parser = argparse.ArgumentParser(description="Valorant Economy Buy Recommendation CLI")
+    parser.add_argument("--credits", type=int, default=800, help="Current credits balance")
+    parser.add_argument("--round", type=int, default=1, help="Round number (1-indexed)")
+    parser.add_argument("--streak", type=int, default=0, help="Consecutive loss streak")
+    parser.add_argument("--json", type=str, default=None, help="Input JSON payload")
+    args = parser.parse_args()
+
+    if args.json:
+        try:
+            payload = json.loads(args.json)
+            c = int(payload.get("credits", 800))
+            r = int(payload.get("round", 1))
+            s = int(payload.get("streak", 0))
+            result = recommend_buy_strategy(c, r, s)
+            print(json.dumps({"success": True, "recommendation": result}))
+        except Exception as err:
+            sys.stderr.write(f"Error parseando JSON: {err}\n")
+            print(json.dumps({"success": False, "error": str(err)}))
+            sys.exit(1)
+    else:
+        result = recommend_buy_strategy(args.credits, args.round, args.streak)
+        print(json.dumps({"success": True, "recommendation": result}))
+
+

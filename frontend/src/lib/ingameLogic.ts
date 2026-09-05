@@ -58,11 +58,21 @@ export function resolveAiRecommendation(
   if (!recShield || recShield.toLowerCase().includes("sin") || recShield.toLowerCase().includes("none")) {
     armorName = null;
   } else {
-    const foundArmor = ARMORS_DATA.find(
-      (a) =>
-        a.name.toLowerCase() === recShield.toLowerCase() ||
-        a.name.toLowerCase().includes(recShield.toLowerCase())
-    );
+    const lowerRec = recShield.toLowerCase();
+    const foundArmor = ARMORS_DATA.find((a) => {
+      const aLower = a.name.toLowerCase();
+      if (aLower === lowerRec || aLower.includes(lowerRec) || lowerRec.includes(aLower)) return true;
+      if (lowerRec.includes("heavy") || lowerRec.includes("pesad")) {
+        return aLower.includes("pesad") || a.cost === 1000;
+      }
+      if (lowerRec.includes("light") || lowerRec.includes("liger")) {
+        return aLower.includes("liger") || a.cost === 400;
+      }
+      if (lowerRec.includes("regen")) {
+        return aLower.includes("regen") || a.cost === 650;
+      }
+      return false;
+    });
     if (foundArmor) {
       armorName = foundArmor.name;
     }
@@ -203,7 +213,14 @@ export function calculateTotalSpend(params: {
 
   const manualTotal = manualWeaponSpend + manualArmorSpend + manualAbilitiesSpend;
   if (isFollowingAiRecommendation && buyRecommendations) {
-    return buyRecommendations.cost || manualTotal;
+    if (
+      typeof buyRecommendations.cost === "number" &&
+      Number.isFinite(buyRecommendations.cost) &&
+      buyRecommendations.cost >= 0
+    ) {
+      return buyRecommendations.cost;
+    }
+    return manualTotal;
   }
   return manualTotal;
 }

@@ -46,24 +46,30 @@ def export_draft_data(
     """
     target_path = output_path or JSON_PATH
 
-    if isinstance(source, dict):
-        data = {
-            "maps": source.get("maps", []),
-            "agents": source.get("agents", []),
-            "pick_rates": source.get("pick_rates", {}),
-            "pair_stats": source.get("pair_stats", {}),
-        }
-    else:
-        src_path = source or JOBLIB_PATH
-        if not os.path.exists(src_path):
-            raise FileNotFoundError(f"Error: No se encontró el archivo fuente '{src_path}'")
-        bundle = joblib.load(src_path)
-        data = {
-            "maps": bundle.get("maps", []),
-            "agents": bundle.get("agents", []),
-            "pick_rates": bundle.get("pick_rates", {}),
-            "pair_stats": bundle.get("pair_stats", {}),
-        }
+    bundle = source if isinstance(source, dict) else (joblib.load(source or JOBLIB_PATH) if os.path.exists(source or JOBLIB_PATH) else None)
+    if bundle is None:
+        raise FileNotFoundError(f"Error: No se encontró el archivo fuente '{source or JOBLIB_PATH}'")
+
+    model = bundle.get("model")
+    feature_cols = bundle.get("feature_cols", [])
+    weights = bundle.get("weights", {})
+    intercept = float(bundle.get("intercept", 0.0))
+
+    if not weights and model is not None and hasattr(model, "coef_") and len(model.coef_) > 0:
+        weights = {col: float(c) for col, c in zip(feature_cols, model.coef_[0])}
+        if hasattr(model, "intercept_") and len(model.intercept_) > 0:
+            intercept = float(model.intercept_[0])
+
+    data = {
+        "model_type": "logistic_regression",
+        "weights": weights,
+        "intercept": intercept,
+        "feature_cols": feature_cols,
+        "maps": bundle.get("maps", []),
+        "agents": bundle.get("agents", []),
+        "pick_rates": bundle.get("pick_rates", {}),
+        "pair_stats": bundle.get("pair_stats", {}),
+    }
 
     validate_draft_data(data)
 

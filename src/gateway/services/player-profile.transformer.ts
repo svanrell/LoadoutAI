@@ -175,19 +175,25 @@ export class PlayerProfileTransformer {
       let totalHeadshots = 0;
       let totalShots = 0;
       let totalDamageDealt = 0;
-      const totalDamageReceived = 0;
+      let totalDamageReceived = 0;
 
       if (Array.isArray(match.roundResults)) {
         for (const round of match.roundResults) {
-          const rPlayer = round.playerStats?.find((ps) => ps.subject === puuid);
-          if (rPlayer && Array.isArray(rPlayer.damage)) {
-            for (const dmg of rPlayer.damage) {
-              totalHeadshots += dmg.headshots || 0;
-              totalShots +=
-                (dmg.headshots || 0) +
-                (dmg.bodyshots || 0) +
-                (dmg.legshots || 0);
-              totalDamageDealt += dmg.damage || 0;
+          if (!Array.isArray(round.playerStats)) continue;
+          for (const ps of round.playerStats) {
+            if (!Array.isArray(ps.damage)) continue;
+            for (const dmg of ps.damage) {
+              if (ps.subject === puuid) {
+                totalHeadshots += dmg.headshots || 0;
+                totalShots +=
+                  (dmg.headshots || 0) +
+                  (dmg.bodyshots || 0) +
+                  (dmg.legshots || 0);
+                totalDamageDealt += dmg.damage || 0;
+              }
+              if (dmg.receiver === puuid) {
+                totalDamageReceived += dmg.damage || 0;
+              }
             }
           }
         }

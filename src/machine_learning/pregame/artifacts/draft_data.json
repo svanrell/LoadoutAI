@@ -1,4 +1,92 @@
 {
+  "model_type": "logistic_regression",
+  "weights": {
+    "map_Abyss": 2.6909541538621806e-05,
+    "map_Ascent": 2.252079443541993e-05,
+    "map_Bind": 1.5784517696811503e-05,
+    "map_Breeze": 3.277050116356665e-05,
+    "map_Corrode": 1.799863525705621e-05,
+    "map_Fracture": 2.015971323548219e-05,
+    "map_Haven": 5.316881666216751e-05,
+    "map_Icebox": 4.863597754229545e-06,
+    "map_Lotus": 5.175044291186145e-05,
+    "map_Pearl": 3.30297053132224e-05,
+    "map_Split": 4.9726993642812085e-05,
+    "map_Sunset": 1.210336105062978e-05,
+    "diff_astra": -0.6673065828091136,
+    "diff_breach": 0.48000716096462853,
+    "diff_brimstone": -0.027017379521027757,
+    "diff_chamber": 0.09978805495043731,
+    "diff_clove": -0.4171422306802213,
+    "diff_cypher": -0.22589828641350254,
+    "diff_deadlock": 0.07331143077748029,
+    "diff_fade": 0.48923361283975453,
+    "diff_gekko": -1.2033066619714363,
+    "diff_harbor": 0.032775331572029,
+    "diff_iso": -0.6750600020890887,
+    "diff_jett": -0.025088344535175923,
+    "diff_kayo": 0.20921928433882925,
+    "diff_killjoy": 0.459143780375064,
+    "diff_miks": 0.0,
+    "diff_neon": 0.40491807250092415,
+    "diff_omen": -0.2996272514796611,
+    "diff_phoenix": 0.3071830912598649,
+    "diff_raze": 0.6064399765401035,
+    "diff_reyna": -0.3416781146397793,
+    "diff_sage": -0.37591675488573273,
+    "diff_skye": -0.06132377310130968,
+    "diff_sova": 0.7037598196893753,
+    "diff_tejo": 0.30732773547001835,
+    "diff_veto": -1.4579384980182886,
+    "diff_viper": 0.6088939581759331,
+    "diff_vyse": -0.3223253078344218,
+    "diff_waylay": 0.42485798831238525,
+    "diff_yoru": 0.892769890211935
+  },
+  "intercept": 0.0003396700770044921,
+  "feature_cols": [
+    "map_Abyss",
+    "map_Ascent",
+    "map_Bind",
+    "map_Breeze",
+    "map_Corrode",
+    "map_Fracture",
+    "map_Haven",
+    "map_Icebox",
+    "map_Lotus",
+    "map_Pearl",
+    "map_Split",
+    "map_Sunset",
+    "diff_astra",
+    "diff_breach",
+    "diff_brimstone",
+    "diff_chamber",
+    "diff_clove",
+    "diff_cypher",
+    "diff_deadlock",
+    "diff_fade",
+    "diff_gekko",
+    "diff_harbor",
+    "diff_iso",
+    "diff_jett",
+    "diff_kayo",
+    "diff_killjoy",
+    "diff_miks",
+    "diff_neon",
+    "diff_omen",
+    "diff_phoenix",
+    "diff_raze",
+    "diff_reyna",
+    "diff_sage",
+    "diff_skye",
+    "diff_sova",
+    "diff_tejo",
+    "diff_veto",
+    "diff_viper",
+    "diff_vyse",
+    "diff_waylay",
+    "diff_yoru"
+  ],
   "maps": [
     "Abyss",
     "Ascent",
@@ -245,28 +333,25 @@
       "astra": 4.1
     },
     "corrode": {
-      "jett": 1.3,
-      "omen": 75.3,
-      "fade": 68.8,
-      "cypher": 2.6,
-      "gekko": 1.3,
-      "reyna": 1.3,
-      "vyse": 42.9,
-      "sova": 22.1,
-      "astra": 24.7,
-      "sage": 2.6,
-      "yoru": 33.8,
-      "viper": 80.5,
-      "neon": 35.1,
+      "yoru": 34.7,
+      "fade": 69.3,
+      "vyse": 42.7,
+      "viper": 82.7,
+      "omen": 76.0,
+      "neon": 36.0,
+      "sova": 21.3,
       "deadlock": 1.3,
-      "waylay": 54.5,
-      "kayo": 14.9,
-      "raze": 2.6,
-      "tejo": 2.6,
-      "skye": 13.6,
-      "iso": 9.1,
-      "phoenix": 4.5,
-      "chamber": 4.5
+      "waylay": 56.0,
+      "kayo": 15.3,
+      "cypher": 1.3,
+      "sage": 1.3,
+      "raze": 2.7,
+      "astra": 24.0,
+      "tejo": 2.7,
+      "skye": 14.0,
+      "iso": 9.3,
+      "phoenix": 4.7,
+      "chamber": 4.7
     },
     "breeze": {
       "sova": 100.0,
@@ -306,7 +391,7 @@
       "wins": 10.0
     },
     "astra__sova": {
-      "matches": 147.5,
+      "matches": 146.5,
       "wins": 70.5
     },
     "sova__yoru": {
@@ -346,7 +431,7 @@
       "wins": 20.5
     },
     "jett__omen": {
-      "matches": 198.5,
+      "matches": 197.5,
       "wins": 98.0
     },
     "kayo__sova": {
@@ -402,7 +487,7 @@
       "wins": 164.5
     },
     "fade__omen": {
-      "matches": 286.5,
+      "matches": 285.5,
       "wins": 157.5
     },
     "fade__raze": {
@@ -434,7 +519,7 @@
       "wins": 72.0
     },
     "astra__vyse": {
-      "matches": 67.0,
+      "matches": 66.0,
       "wins": 19.5
     },
     "tejo__vyse": {
@@ -466,7 +551,7 @@
       "wins": 5.0
     },
     "sova__vyse": {
-      "matches": 70.0,
+      "matches": 69.0,
       "wins": 29.0
     },
     "jett__viper": {
@@ -574,7 +659,7 @@
       "wins": 49.5
     },
     "cypher__omen": {
-      "matches": 205.0,
+      "matches": 204.0,
       "wins": 90.0
     },
     "jett__vyse": {
@@ -638,7 +723,7 @@
       "wins": 5.0
     },
     "cypher__jett": {
-      "matches": 91.5,
+      "matches": 90.5,
       "wins": 35.0
     },
     "cypher__raze": {
@@ -730,7 +815,7 @@
       "wins": 0.0
     },
     "fade__jett": {
-      "matches": 45.0,
+      "matches": 44.0,
       "wins": 15.0
     },
     "fade__reyna": {
@@ -846,7 +931,7 @@
       "wins": 0.0
     },
     "gekko__omen": {
-      "matches": 6.0,
+      "matches": 5.0,
       "wins": 0.0
     },
     "kayo__neon": {
@@ -878,7 +963,7 @@
       "wins": 1.0
     },
     "cypher__fade": {
-      "matches": 86.5,
+      "matches": 85.5,
       "wins": 35.0
     },
     "cypher__viper": {
@@ -906,7 +991,7 @@
       "wins": 1.0
     },
     "fade__gekko": {
-      "matches": 2.0,
+      "matches": 1.0,
       "wins": 0.0
     },
     "kayo__viper": {
@@ -934,7 +1019,7 @@
       "wins": 1.0
     },
     "cypher__gekko": {
-      "matches": 2.0,
+      "matches": 1.0,
       "wins": 0.0
     },
     "fade__waylay": {
@@ -966,7 +1051,7 @@
       "wins": 26.0
     },
     "sage__sova": {
-      "matches": 48.0,
+      "matches": 47.0,
       "wins": 24.5
     },
     "cypher__deadlock": {
@@ -982,7 +1067,7 @@
       "wins": 7.0
     },
     "gekko__jett": {
-      "matches": 4.0,
+      "matches": 3.0,
       "wins": 1.0
     },
     "deadlock__tejo": {
@@ -1013,36 +1098,16 @@
       "matches": 9.0,
       "wins": 7.0
     },
-    "reyna__vyse": {
-      "matches": 1.0,
-      "wins": 0.0
-    },
-    "reyna__sova": {
-      "matches": 1.0,
-      "wins": 0.0
-    },
-    "astra__reyna": {
-      "matches": 1.0,
-      "wins": 0.0
-    },
-    "reyna__sage": {
-      "matches": 1.0,
-      "wins": 0.0
-    },
-    "sage__vyse": {
-      "matches": 16.0,
-      "wins": 7.5
-    },
-    "astra__sage": {
-      "matches": 1.0,
-      "wins": 0.0
-    },
     "neon__vyse": {
       "matches": 52.5,
       "wins": 16.0
     },
     "sage__yoru": {
       "matches": 16.0,
+      "wins": 7.5
+    },
+    "sage__vyse": {
+      "matches": 15.0,
       "wins": 7.5
     },
     "cypher__sage": {

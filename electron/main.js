@@ -1,4 +1,7 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const electron = require("electron");
+const app = electron && typeof electron === "object" ? electron.app : null;
+const BrowserWindow = electron && typeof electron === "object" ? electron.BrowserWindow : null;
+const Menu = electron && typeof electron === "object" ? electron.Menu : null;
 const path = require("path");
 const http = require("http");
 const fs = require("fs");
@@ -24,12 +27,12 @@ async function checkBackendHealth(port = BACKEND_PORT, host = BACKEND_HOST) {
       res.on("end", () => {
         try {
           const parsed = JSON.parse(rawData);
-          if (parsed && parsed.app === "valorant-ai") {
-            resolve(true);
+          if (parsed && typeof parsed === "object") {
+            resolve(parsed.app === "valorant-ai");
             return;
           }
         } catch {
-          // Fallback si devuelve 200 aunque no sea JSON
+          // Fallback si no es JSON pero devuelve 200
         }
         resolve(res.statusCode === 200);
       });
@@ -154,17 +157,32 @@ async function createWindow() {
   });
 }
 
-app.whenReady().then(async () => {
-  Menu.setApplicationMenu(null);
-  await startBackendServer();
-  await createWindow();
+if (app && typeof app.whenReady === "function") {
+  app.whenReady().then(async () => {
+    if (Menu && typeof Menu.setApplicationMenu === "function") {
+      Menu.setApplicationMenu(null);
+    }
+    await startBackendServer();
+    await createWindow();
 
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+    app.on("activate", () => {
+      if (BrowserWindow && BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
+  });
+
+  app.on("before-quit", async () => {
+    await cleanup();
+  });
+
+  app.on("window-all-closed", async () => {
+    await cleanup();
+    if (process.platform !== "darwin") {
+      app.quit();
     }
   });
-});
+}
 
 /**
  * Cierra NestJS de forma segura e idempotente para evitar llamadas dobles.
@@ -184,13 +202,8 @@ async function cleanup() {
   }
 }
 
-app.on("before-quit", async () => {
-  await cleanup();
-});
-
-app.on("window-all-closed", async () => {
-  await cleanup();
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
+module.exports = {
+  checkBackendHealth,
+  startBackendServer,
+  cleanup,
+};

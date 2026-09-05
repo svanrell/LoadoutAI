@@ -9,6 +9,7 @@ import { RiotCoregameService } from "./gateway/services/riot-coregame.service";
 import { RiotMatchHistoryService } from "./gateway/services/riot-match-history.service";
 import { RiotMmrService } from "./gateway/services/riot-mmr.service";
 import { RiotPresenceService } from "./gateway/services/riot-presence.service";
+import { EconomyAdvisorService } from "./gateway/services/economy-advisor.service";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RiotPresenceService } from "./gateway/services/riot-presence.service";
     RiotMatchHistoryService,
     RiotMmrService,
     RiotPresenceService,
+    EconomyAdvisorService,
     ValorantGateway,
     ValorantLocalService,
     ValorantHistoryService,

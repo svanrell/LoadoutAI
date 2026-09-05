@@ -34,6 +34,8 @@ export default function ViewPregame() {
     mlSynergyWinRate,  // Sinergia global actual del equipo (0% a 100%)
     mlAgentImpacts,    // Aporte neto individual (Δ delta) de cada pick
     setView,
+    lastError,
+    clearError,
   } = useGameState();
   const { t, language } = useLanguage();
 
@@ -79,7 +81,50 @@ export default function ViewPregame() {
   };
 
   return (
-    <div id="viewPregame" className="state-view active">
+    <div id="viewPregame" className="state-view active" style={{ position: "relative" }}>
+      {lastError && (
+        <div
+          role="alert"
+          id="pregame-error-banner"
+          style={{
+            position: "absolute",
+            top: "0.75rem",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9999,
+            backgroundColor: "rgba(220, 38, 38, 0.95)",
+            color: "#ffffff",
+            padding: "0.6rem 1.2rem",
+            borderRadius: "0.4rem",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.6)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            fontSize: "0.85rem",
+            fontWeight: 600,
+            border: "1px solid rgba(255, 255, 255, 0.25)",
+            maxWidth: "85%",
+          }}
+        >
+          <span style={{ fontSize: "1rem" }}>⚠️</span>
+          <span>{lastError.error}</span>
+          <button
+            onClick={clearError}
+            aria-label="Dismiss error"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#ffffff",
+              fontSize: "1.2rem",
+              cursor: "pointer",
+              marginLeft: "0.5rem",
+              lineHeight: 1,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
       {/* Column 1: Team Configuration */}
       <div className="cyber-panel pregame-team-panel" style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
         <div className="panel-header" style={{ flexShrink: 0 }}>

@@ -148,6 +148,117 @@ describe("PlayerProfileTransformer", () => {
       expect(profile.topAgents[0].winRate).toBe(100);
     });
 
+    it("should calculate damageDelta as damage dealt minus damage received per round", () => {
+      const mockMatch = {
+        matchInfo: {
+          matchId: "match-uuid-2",
+          mapId: "/Game/Maps/Ascent/Ascent",
+          gameMode: "/Game/GameModes/Bomb/BombGameMode",
+          gameStartMillis: Date.now() - 30 * 60 * 1000,
+          isRanked: true,
+        },
+        players: [
+          {
+            subject: "user-test-puuid",
+            teamId: "Blue",
+            characterId: "add6443a-41bd-e414-f6ad-e58d267f4e95",
+            stats: {
+              score: 2000,
+              roundsPlayed: 2,
+              kills: 2,
+              deaths: 1,
+              assists: 0,
+            },
+          },
+          {
+            subject: "enemy-puuid",
+            teamId: "Red",
+            characterId: "a3bfb854-43ae-cb54-ec50-d4b99dae1a32",
+            stats: {
+              score: 1500,
+              roundsPlayed: 2,
+              kills: 1,
+              deaths: 2,
+              assists: 0,
+            },
+          },
+        ],
+        teams: [
+          { teamId: "Blue", won: true, roundsWon: 2, roundsPlayed: 2 },
+          { teamId: "Red", won: false, roundsWon: 0, roundsPlayed: 2 },
+        ],
+        roundResults: [
+          {
+            playerStats: [
+              {
+                subject: "user-test-puuid",
+                damage: [
+                  {
+                    receiver: "enemy-puuid",
+                    damage: 150,
+                    headshots: 1,
+                    bodyshots: 0,
+                    legshots: 0,
+                  },
+                ],
+              },
+              {
+                subject: "enemy-puuid",
+                damage: [
+                  {
+                    receiver: "user-test-puuid",
+                    damage: 50,
+                    headshots: 0,
+                    bodyshots: 1,
+                    legshots: 0,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            playerStats: [
+              {
+                subject: "user-test-puuid",
+                damage: [
+                  {
+                    receiver: "enemy-puuid",
+                    damage: 160,
+                    headshots: 1,
+                    bodyshots: 0,
+                    legshots: 0,
+                  },
+                ],
+              },
+              {
+                subject: "enemy-puuid",
+                damage: [
+                  {
+                    receiver: "user-test-puuid",
+                    damage: 100,
+                    headshots: 0,
+                    bodyshots: 2,
+                    legshots: 0,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      } as unknown as MatchDetailsResponse;
+
+      const input: ProfileTransformInput = {
+        ...defaultInput,
+        detailsList: [mockMatch],
+      };
+
+      const profile = PlayerProfileTransformer.transform(input);
+      // Total dealt: 150 + 160 = 310
+      // Total received: 50 + 100 = 150
+      // Delta: (310 - 150) / 2 = 80
+      expect(profile.matches[0].damageDelta).toBe(80);
+    });
+
     it("should handle null player presence and missing MMR gracefully", () => {
       const emptyInput: ProfileTransformInput = {
         puuid: "unknown-puuid",

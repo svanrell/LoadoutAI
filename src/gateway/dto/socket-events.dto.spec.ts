@@ -82,9 +82,16 @@ describe("SocketEventValidator", () => {
       expect(result.credits).toBe(3900);
     });
 
-    it("should truncate fractional credits to integer", () => {
-      const result = SocketEventValidator.validateCredits({ credits: 2450.75 });
-      expect(result.credits).toBe(2450);
+    it("should reject fractional or non-finite credits", () => {
+      expect(() =>
+        SocketEventValidator.validateCredits({ credits: 2450.75 }),
+      ).toThrow("Cantidad de créditos inválida");
+      expect(() =>
+        SocketEventValidator.validateCredits({ credits: Infinity }),
+      ).toThrow("Cantidad de créditos inválida");
+      expect(() =>
+        SocketEventValidator.validateCredits({ credits: -Infinity }),
+      ).toThrow("Cantidad de créditos inválida");
     });
 
     it("should throw error for negative credits", () => {
@@ -167,6 +174,14 @@ describe("SocketEventValidator", () => {
       ).toThrow("Un equipo de Valorant no puede tener más de 5 aliados.");
     });
 
+    it("should throw error if allies contain duplicate agents", () => {
+      expect(() =>
+        SocketEventValidator.validateMlDraft({
+          allies: ["jett", "reyna", "jett"],
+        }),
+      ).toThrow("No se permiten agentes aliados duplicados");
+    });
+
     it("should return empty object on non-object input", () => {
       expect(SocketEventValidator.validateMlDraft(null)).toEqual({});
       expect(SocketEventValidator.validateMlDraft(123)).toEqual({});
@@ -189,6 +204,19 @@ describe("SocketEventValidator", () => {
           puuid: "invalid-puuid-format",
         }),
       ).toThrow("PUUID inválido");
+    });
+
+    it("should throw an error if forceRefresh is not a boolean", () => {
+      expect(() =>
+        SocketEventValidator.validatePlayerProfile({
+          forceRefresh: "true" as unknown as boolean,
+        }),
+      ).toThrow("forceRefresh debe ser un valor booleano");
+      expect(() =>
+        SocketEventValidator.validatePlayerProfile({
+          forceRefresh: 1 as unknown as boolean,
+        }),
+      ).toThrow("forceRefresh debe ser un valor booleano");
     });
 
     it("should default forceRefresh to false when omitted", () => {

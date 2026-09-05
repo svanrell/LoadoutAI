@@ -119,19 +119,26 @@ def get_clean_draft_dataset(
 ) -> pd.DataFrame:
     """
     Obtiene el dataset final de composiciones para entrenar la IA.
+    Si se especifica csv_file_path, se carga y procesa dicho archivo directamente.
+    De lo contrario, se cargan las composiciones del directorio VCT.
     """
+    if csv_file_path is not None:
+        if not os.path.exists(csv_file_path):
+            raise FileNotFoundError(f"No se encontró el archivo CSV especificado: {csv_file_path}")
+        raw_df = pd.read_csv(csv_file_path)
+        return parse_and_flatten_compositions(raw_df)
+
     vct_df = load_clean_vct_compositions(vct_dir=vct_dir, min_year=min_year)
     if not vct_df.empty:
         return vct_df
 
     # Fallback si no existiera la carpeta VCT
-    if csv_file_path is None:
-        csv_file_path = os.path.join(
-            os.path.dirname(__file__), "..", "data", "champions_paris_2025", "detailed_matches_player_stats.csv"
-        )
+    default_fallback_csv = os.path.join(
+        os.path.dirname(__file__), "..", "data", "champions_paris_2025", "detailed_matches_player_stats.csv"
+    )
 
-    if os.path.exists(csv_file_path):
-        raw_df = pd.read_csv(csv_file_path)
+    if os.path.exists(default_fallback_csv):
+        raw_df = pd.read_csv(default_fallback_csv)
         return parse_and_flatten_compositions(raw_df)
 
     return pd.DataFrame()

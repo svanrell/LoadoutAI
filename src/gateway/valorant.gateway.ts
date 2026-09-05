@@ -58,10 +58,12 @@ export class ValorantGateway
   readonly pregameSelect$ = new Subject<{
     pregameMatchId: string;
     agentUuid: string;
+    client: Socket;
   }>();
   readonly pregameLock$ = new Subject<{
     pregameMatchId: string;
     agentUuid: string;
+    client: Socket;
   }>();
   readonly ingameCredits$ = new Subject<{ credits: number }>();
   readonly requestMlDraft$ = new Subject<{
@@ -98,20 +100,34 @@ export class ValorantGateway
     this.extraData = data;
     if (this.server) {
       this.server.emit("valorant_status", {
-        status,
-        ...data,
+        status: this.currentStatus,
+        ...this.extraData,
       });
     }
+  }
+
+  public getCurrentStatus(): string {
+    return this.currentStatus;
+  }
+
+  public getExtraData(): Record<string, unknown> {
+    return { ...this.extraData };
   }
 
   emitBuyPhaseStatus(
     available: boolean,
     time: number,
-    round: number,
+    round: number = 0,
     scoreAlly: number = 0,
     scoreEnemy: number = 0,
   ) {
-    this.buyPhaseStatus = { available, time, round, scoreAlly, scoreEnemy };
+    this.buyPhaseStatus = {
+      available,
+      time,
+      round,
+      scoreAlly,
+      scoreEnemy,
+    };
     if (this.server) {
       this.server.emit("buy_phase", this.buyPhaseStatus);
     }
@@ -129,15 +145,36 @@ export class ValorantGateway
       return;
     }
 
+    if (this.currentStatus !== "PREGAME") {
+      client.emit("error_response", {
+        event: "pregame_select",
+        error: "Acción no permitida: el cliente no está en fase PREGAME.",
+        code: "INVALID_PHASE",
+      });
+      return;
+    }
+
     try {
       const validated = SocketEventValidator.validatePregameAction(
         data,
         this.extraData.pregameMatchId as string | undefined,
       );
+
+      const activeMatchId = this.extraData.pregameMatchId as string | undefined;
+      if (
+        activeMatchId &&
+        validated.pregameMatchId &&
+        activeMatchId !== validated.pregameMatchId
+      ) {
+        throw new Error(
+          `pregameMatchId '${validated.pregameMatchId}' no coincide con la partida activa '${activeMatchId}'.`,
+        );
+      }
+
       this.logger.log(
         `RECEIVED PREGAME_SELECT validado: ${validated.agentUuid}`,
       );
-      this.pregameSelect$.next(validated);
+      this.pregameSelect$.next({ ...validated, client });
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       this.logger.warn(`pregame_select rechazado: ${msg}`);
@@ -157,13 +194,34 @@ export class ValorantGateway
       return;
     }
 
+    if (this.currentStatus !== "PREGAME") {
+      client.emit("error_response", {
+        event: "pregame_lock",
+        error: "Acción no permitida: el cliente no está en fase PREGAME.",
+        code: "INVALID_PHASE",
+      });
+      return;
+    }
+
     try {
       const validated = SocketEventValidator.validatePregameAction(
         data,
         this.extraData.pregameMatchId as string | undefined,
       );
+
+      const activeMatchId = this.extraData.pregameMatchId as string | undefined;
+      if (
+        activeMatchId &&
+        validated.pregameMatchId &&
+        activeMatchId !== validated.pregameMatchId
+      ) {
+        throw new Error(
+          `pregameMatchId '${validated.pregameMatchId}' no coincide con la partida activa '${activeMatchId}'.`,
+        );
+      }
+
       this.logger.log(`RECEIVED PREGAME_LOCK validado: ${validated.agentUuid}`);
-      this.pregameLock$.next(validated);
+      this.pregameLock$.next({ ...validated, client });
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       this.logger.warn(`pregame_lock rechazado: ${msg}`);
@@ -241,8 +299,19 @@ export class ValorantGateway
 
     try {
       const validated = SocketEventValidator.validatePlayerProfile(data);
+      const activePuuid = this.extraData.myPuuid as string | undefined;
+      if (activePuuid && validated.puuid && validated.puuid !== activePuuid) {
+        client.emit("error_response", {
+          event: "request_player_profile",
+          error:
+            "No autorizado: el PUUID solicitado no coincide con el jugador local de la sesión.",
+          code: "UNAUTHORIZED_PUUID",
+        });
+        return;
+      }
+
       const profile = await this.historyService.getFullSyncedProfile(
-        validated.puuid,
+        validated.puuid || activePuuid,
         Boolean(validated.forceRefresh),
       );
       client.emit("player_profile_result", {

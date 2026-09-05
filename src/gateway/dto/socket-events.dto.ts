@@ -108,9 +108,14 @@ export class SocketEventValidator {
     }
 
     const payload = data as Record<string, unknown>;
-    const credits = Number(payload.credits);
 
-    if (!Number.isFinite(credits) || credits < 0 || credits > 99999) {
+    if (
+      typeof payload.credits !== "number" ||
+      !Number.isInteger(payload.credits) ||
+      !Number.isFinite(payload.credits) ||
+      payload.credits < 0 ||
+      payload.credits > 99999
+    ) {
       const displayVal =
         typeof payload.credits === "number" ||
         typeof payload.credits === "string"
@@ -122,7 +127,7 @@ export class SocketEventValidator {
     }
 
     return {
-      credits: Math.floor(credits),
+      credits: payload.credits,
     };
   }
 
@@ -189,6 +194,15 @@ export class SocketEventValidator {
         }
         validatedAllies.push(trimmed);
       }
+
+      // Validar que no haya agentes aliados duplicados
+      const lowerAllies = validatedAllies.map((a) => a.toLowerCase());
+      if (new Set(lowerAllies).size !== lowerAllies.length) {
+        throw new Error(
+          "No se permiten agentes aliados duplicados en la composición.",
+        );
+      }
+
       result.allies = validatedAllies;
     }
 
@@ -201,6 +215,14 @@ export class SocketEventValidator {
     }
 
     const payload = data as Record<string, unknown>;
+
+    if (
+      payload.forceRefresh !== undefined &&
+      typeof payload.forceRefresh !== "boolean"
+    ) {
+      throw new Error("forceRefresh debe ser un valor booleano.");
+    }
+
     const result: ValidatedPlayerProfileAction = {
       forceRefresh: Boolean(payload.forceRefresh),
     };

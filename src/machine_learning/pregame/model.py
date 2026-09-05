@@ -115,8 +115,18 @@ def run_training_pipeline(csv_path: str | None = None, output_path: str | None =
 
     model = train_draft_model(X, y, sample_weights=sample_weights, groups=match_groups)
 
+    weights = {}
+    intercept = 0.0
+    if hasattr(model, "coef_") and len(model.coef_) > 0:
+        weights = {col: float(c) for col, c in zip(feature_cols, model.coef_[0])}
+    if hasattr(model, "intercept_") and len(model.intercept_) > 0:
+        intercept = float(model.intercept_[0])
+
     bundle = {
         "model": model,
+        "model_type": "logistic_regression",
+        "weights": weights,
+        "intercept": intercept,
         "maps": maps,
         "agents": all_agents,
         "feature_cols": feature_cols,

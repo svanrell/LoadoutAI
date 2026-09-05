@@ -63,7 +63,23 @@ describe("Valorant App E2E & Gateway Suite", () => {
     });
   });
 
-  it("should reject invalid pregame_select payload with validation error", (done) => {
+  it("should reject pregame_select if radar is not in PREGAME state", (done) => {
+    socket.emit("pregame_select", {
+      agentUuid: "add6443a-41bd-e414-f6ad-e58d267f4e95",
+      pregameMatchId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    });
+
+    socket.once("error_response", (data) => {
+      expect(data).toBeDefined();
+      expect(data.event).toBe("pregame_select");
+      expect(data.code).toBe("INVALID_PHASE");
+      done();
+    });
+  });
+
+  it("should reject invalid pregame_select payload with validation error when in PREGAME", (done) => {
+    app.get(ValorantGateway).updateStatus("PREGAME");
+
     socket.emit("pregame_select", {
       agentUuid: "not-a-valid-uuid",
       pregameMatchId: "invalid",

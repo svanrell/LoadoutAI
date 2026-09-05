@@ -5,90 +5,23 @@ import * as path from "path";
 // CONSTANTES Y MAPEOS CANÓNICOS
 // ============================================================================
 
-export const AGENT_UUID_TO_NAME: Record<string, string> = {
-  "add6443a-41bd-e414-f6ad-e58d267f4e95": "jett",
-  "f94c3b30-42be-e959-889c-5aa313dba261": "raze",
-  "eb93336a-449b-9c1b-0a54-a891f7921d69": "phoenix",
-  "a3bfb853-43b2-7238-a4f1-ad90e9e46bcc": "reyna",
-  "7f94d92c-4234-0a36-9646-3a87eb8b5c89": "yoru",
-  "bb2a4828-46eb-8cd1-e765-15848195d751": "neon",
-  "0e38b510-41a8-5780-5e8f-568b2a4f2d6c": "iso",
-  "df1cb487-4902-002e-5c17-d28e83e78588": "waylay",
-  "320b2a48-4d9b-a075-30f1-1f93a9b638fa": "sova",
-  "5f8d3a7f-467b-97f3-062c-13acf203c006": "breach",
-  "6f2a04ca-43e0-be17-7f36-b3908627744d": "skye",
-  "601dbbe7-43ce-be57-2a40-4abd24953621": "kayo",
-  "dade69b4-4f5a-8528-247b-219e5a1facd6": "fade",
-  "e370fa57-4757-3604-3648-499e1f642d3f": "gekko",
-  "b444168c-4e35-8076-db47-ef9bf368f384": "tejo",
-  "9f0d8ba9-4140-b941-57d3-a7ad57c6b417": "brimstone",
-  "8e253930-4c05-31dd-1b6c-968525494517": "omen",
-  "707eab51-4836-f488-046a-cda6bf494859": "viper",
-  "41fb69c1-4189-7b37-f117-bcaf1e96f1bf": "astra",
-  "95b78ed7-4637-86d9-7e41-71ba8c293152": "harbor",
-  "1dbf2edd-4729-0984-3115-daa5eed44993": "clove",
-  "7c8a4701-4de6-9355-b254-e09bc2a34b72": "miks",
-  "1e58de9c-4950-5125-93e9-a0aee9f98746": "killjoy",
-  "117ed9e3-49f3-6512-3ccf-0cada7e3823b": "cypher",
-  "569fdd95-4d10-43ab-ca70-79becc718b46": "sage",
-  "22697a3d-45bf-8dd7-4fec-84a9e28c69d7": "chamber",
-  "cc8b64c8-4b25-4ff9-6e7f-37b4da43d235": "deadlock",
-  "efba5359-4016-a1e5-7626-b1ae76895940": "vyse",
-  "92eeef5d-43b5-1d4a-8d03-b3927a09034b": "veto",
-};
-
-export const AGENT_NAME_TO_UUID: Record<string, string> = Object.entries(
+import {
   AGENT_UUID_TO_NAME,
-).reduce(
-  (acc, [uuid, name]) => {
-    acc[name] = uuid;
-    return acc;
-  },
-  {} as Record<string, string>,
-);
+  AGENT_NAME_TO_UUID,
+  AGENT_ROLES,
+  normalizeAgentIdentifier,
+  getAgentRole,
+} from "../shared/agent-constants";
 
-export const AGENT_ROLES: Record<string, string> = {
-  jett: "duelist",
-  raze: "duelist",
-  phoenix: "duelist",
-  reyna: "duelist",
-  yoru: "duelist",
-  neon: "duelist",
-  iso: "duelist",
-  waylay: "duelist",
-  sova: "initiator",
-  breach: "initiator",
-  skye: "initiator",
-  kayo: "initiator",
-  fade: "initiator",
-  gekko: "initiator",
-  tejo: "initiator",
-  brimstone: "controller",
-  omen: "controller",
-  viper: "controller",
-  astra: "controller",
-  harbor: "controller",
-  clove: "controller",
-  miks: "controller",
-  killjoy: "sentinel",
-  cypher: "sentinel",
-  sage: "sentinel",
-  chamber: "sentinel",
-  deadlock: "sentinel",
-  vyse: "sentinel",
-  veto: "sentinel",
+export {
+  AGENT_UUID_TO_NAME,
+  AGENT_NAME_TO_UUID,
+  AGENT_ROLES,
+  normalizeAgentIdentifier,
+  getAgentRole,
 };
 
-export function normalizeAgentName(raw: string): string {
-  if (!raw) return "";
-  const cleaned = raw.trim().toLowerCase();
-  return AGENT_UUID_TO_NAME[cleaned] || cleaned;
-}
-
-export function getAgentRole(agentNameOrUuid: string): string {
-  const canonical = normalizeAgentName(agentNameOrUuid);
-  return AGENT_ROLES[canonical] || "duelist";
-}
+export const normalizeAgentName = normalizeAgentIdentifier;
 
 function factorial(n: number): number {
   if (n <= 1) return 1;
@@ -98,6 +31,10 @@ function factorial(n: number): number {
 }
 
 export interface DraftModelData {
+  model_type?: string;
+  weights?: Record<string, number>;
+  intercept?: number;
+  feature_cols?: string[];
   maps: string[];
   agents: string[];
   pick_rates: Record<string, Record<string, number>>;
@@ -345,51 +282,110 @@ export class ValorantMlEngine {
   }
 
   /**
-   * 4. SINERGIA GLOBAL PONDERADA
+   * 4. INFERENCIA DEL MODELO DE REGRESIÓN LOGÍSTICA
+   * ------------------------------------------------
+   * Evalúa los pesos entrenados por Scikit-Learn directamente en TypeScript.
+   * Utiliza la matriz de diferencias:
+   * z = intercept + w_map + sum(w_diff_allies) - sum(w_diff_enemies)
+   * Probabilidad: P(win) = 1 / (1 + e^-z)
+   */
+  public predictLogisticRegression(
+    targetMapName: string,
+    allyAgents: string[],
+    enemyAgents: string[] = [],
+  ): number {
+    if (
+      !this.modelData?.weights ||
+      Object.keys(this.modelData.weights).length === 0
+    ) {
+      return 50.0;
+    }
+
+    const weights = this.modelData.weights;
+    const intercept = this.modelData.intercept || 0.0;
+    let z = intercept;
+
+    // Aportación del mapa
+    const mapKey = `map_${(targetMapName || "Ascent").trim()}`;
+    if (weights[mapKey] !== undefined) {
+      z += weights[mapKey];
+    }
+
+    // Aportación de aliados (+1 en vector de diferencia)
+    const cleanedAllies = allyAgents.map(normalizeAgentName).filter(Boolean);
+    for (const a of cleanedAllies) {
+      const diffKey = `diff_${a}`;
+      if (weights[diffKey] !== undefined) {
+        z += weights[diffKey];
+      }
+    }
+
+    // Aportación de rivales (-1 en vector de diferencia)
+    const cleanedEnemies = enemyAgents.map(normalizeAgentName).filter(Boolean);
+    for (const e of cleanedEnemies) {
+      const diffKey = `diff_${e}`;
+      if (weights[diffKey] !== undefined) {
+        z -= weights[diffKey];
+      }
+    }
+
+    // Función sigmoide logit
+    const prob = 1.0 / (1.0 + Math.exp(-z));
+    return Math.round(Math.max(15.0, Math.min(95.0, prob * 100.0)) * 10) / 10;
+  }
+
+  /**
+   * 5. SINERGIA GLOBAL PONDERADA
    * ----------------------------
-   * Combina las 3 métricas con los pesos optimizados del modelo:
-   * - 35% Meta del Mapa
-   * - 35% Sinergia de Parejas
-   * - 30% Armonía y Balance de Roles
+   * Combina el modelo estadístico ML con sinergia empírica de parejas y armonía:
+   * - 40% Modelo Logistic Regression (incluye enemigos y mapa)
+   * - 20% Meta del Mapa
+   * - 20% Sinergia de Parejas (Bayesiano)
+   * - 20% Armonía y Balance de Roles
    */
   public predictCompositionWinRate(
     targetMapName: string,
     currentTeamAgents: string[],
+    enemyTeamAgents: string[] = [],
   ): number {
-    const cleaned = currentTeamAgents.map(normalizeAgentName).filter(Boolean);
-    if (cleaned.length === 0) return 50.0;
+    const cleanedAllies = currentTeamAgents
+      .map(normalizeAgentName)
+      .filter(Boolean);
+    if (cleanedAllies.length === 0) return 50.0;
 
-    if (cleaned.length === 1 && this.modelData) {
-      const mapKey = (targetMapName || "Ascent").trim().toLowerCase();
-      const mapDict = (this.modelData.pick_rates || {})[mapKey] || {};
-      const pr = mapDict[cleaned[0]] || 0.0;
-      return Math.round((43.0 + pr * 0.18) * 10) / 10;
-    }
+    const lrScore = this.predictLogisticRegression(
+      targetMapName,
+      cleanedAllies,
+      enemyTeamAgents,
+    );
+    const roleHarmony = this.computeMultinomialRoleHarmony(cleanedAllies);
+    const pairwiseScore = this.computePairwiseSynergy(cleanedAllies);
+    const metaScore = this.computeMapMetaScore(cleanedAllies, targetMapName);
 
-    const roleHarmony = this.computeMultinomialRoleHarmony(cleaned);
-    const pairwiseScore = this.computePairwiseSynergy(cleaned);
-    const metaScore = this.computeMapMetaScore(cleaned, targetMapName);
-
-    const overall = 0.35 * metaScore + 0.35 * pairwiseScore + 0.3 * roleHarmony;
+    const overall =
+      0.4 * lrScore + 0.2 * metaScore + 0.2 * pairwiseScore + 0.2 * roleHarmony;
     return Math.round(Math.max(15.0, Math.min(95.0, overall)) * 10) / 10;
   }
 
   /**
-   * 5. IMPACTO MARGINAL INDIVIDUAL (Delta / Δ_i)
+   * 6. IMPACTO MARGINAL INDIVIDUAL (Delta / Δ_i)
    * --------------------------------------------
    * Calcula cuánto aporta cada agente en particular al equipo:
    * Δ_i = Sinergia(Equipo_Completo) - Sinergia(Equipo_Sin_Ese_Agente)
-   * - Positivo (+5.2%): el pick potencia la composición.
-   * - Negativo (-4.1%): el pick desequilibra o empeora el balance del equipo.
    */
   public computeAgentMarginalImpacts(
     targetMapName: string,
     teamAgents: string[],
+    enemyTeamAgents: string[] = [],
   ): AgentMarginalImpact[] {
     const cleaned = teamAgents.map(normalizeAgentName).filter(Boolean);
     if (cleaned.length === 0) return [];
 
-    const fullSynergy = this.predictCompositionWinRate(targetMapName, cleaned);
+    const fullSynergy = this.predictCompositionWinRate(
+      targetMapName,
+      cleaned,
+      enemyTeamAgents,
+    );
 
     if (cleaned.length === 1) {
       const agentName = cleaned[0];
@@ -412,6 +408,7 @@ export class ValorantMlEngine {
       const synergyWithout = this.predictCompositionWinRate(
         targetMapName,
         teamWithout,
+        enemyTeamAgents,
       );
       const delta = Math.round((fullSynergy - synergyWithout) * 10) / 10;
 
@@ -430,11 +427,12 @@ export class ValorantMlEngine {
 
   /**
    * Recomendación de candidatos ordenada por sinergia
-   * Calibrada con escala natural centrada en 50.0%
+   * Calibrada con el modelo real y considerando composición enemiga
    */
   public recommendAgentPicks(
     targetMapName: string,
     alreadyPickedAgents: string[],
+    enemyPickedAgents: string[] = [],
     topLimit?: number,
   ): AgentRecommendation[] {
     if (!this.modelData) return [];
@@ -444,7 +442,10 @@ export class ValorantMlEngine {
     const cleanedAllies = alreadyPickedAgents
       .map(normalizeAgentName)
       .filter(Boolean);
-    const lockedSet = new Set(cleanedAllies);
+    const cleanedEnemies = enemyPickedAgents
+      .map(normalizeAgentName)
+      .filter(Boolean);
+    const lockedSet = new Set([...cleanedAllies, ...cleanedEnemies]);
     const availableCandidates = allAgents.filter((a) => !lockedSet.has(a));
 
     const mapKey = (targetMapName || "Ascent").trim().toLowerCase();
@@ -461,15 +462,19 @@ export class ValorantMlEngine {
       const hypotheticalTeam = [...cleanedAllies, candidate];
       const candidatePickRate = mapPickRates[candidate] || 0.0;
       const cRole = getAgentRole(candidate);
-      let composite = 50.0;
+
+      const lrScore = this.predictLogisticRegression(
+        targetMapName,
+        hypotheticalTeam,
+        cleanedEnemies,
+      );
+
       let roleHarmony = 50.0;
       let pairwiseScore = 50.0;
+      let composite = 50.0;
 
-      if (isInitialDraft) {
-        roleHarmony = 50.0;
-        pairwiseScore = 50.0;
-        // Escala natural 50%: 43.0% (0% meta) -> 60.3% (96% meta)
-        composite = 43.0 + candidatePickRate * 0.18;
+      if (isInitialDraft && cleanedEnemies.length === 0) {
+        composite = lrScore * 0.5 + (43.0 + candidatePickRate * 0.18) * 0.5;
       } else {
         roleHarmony = this.computeMultinomialRoleHarmony(hypotheticalTeam);
         pairwiseScore = this.computePairwiseSynergy(hypotheticalTeam);
@@ -483,7 +488,10 @@ export class ValorantMlEngine {
         }
 
         composite =
-          0.35 * candidateMeta + 0.35 * pairwiseScore + 0.3 * roleScore;
+          0.35 * lrScore +
+          0.25 * candidateMeta +
+          0.2 * pairwiseScore +
+          0.2 * roleScore;
       }
 
       const finalScore =
@@ -512,19 +520,27 @@ export class ValorantMlEngine {
     mapName: string,
     allies: string[],
     modeName: string = "competitive",
+    enemies: string[] = [],
   ): DraftPredictionResult {
     const targetMap = mapName || "Ascent";
     const targetMode = (modeName || "competitive").trim().toLowerCase();
     const cleanedAllies = allies.map(normalizeAgentName).filter(Boolean);
+    const cleanedEnemies = enemies.map(normalizeAgentName).filter(Boolean);
 
-    const recommendations = this.recommendAgentPicks(targetMap, cleanedAllies);
+    const recommendations = this.recommendAgentPicks(
+      targetMap,
+      cleanedAllies,
+      cleanedEnemies,
+    );
     const currentSynergy = this.predictCompositionWinRate(
       targetMap,
       cleanedAllies,
+      cleanedEnemies,
     );
     const agentImpacts = this.computeAgentMarginalImpacts(
       targetMap,
       cleanedAllies,
+      cleanedEnemies,
     );
 
     return {
@@ -532,7 +548,7 @@ export class ValorantMlEngine {
       mapName: targetMap,
       mode: targetMode,
       currentPicks: cleanedAllies,
-      enemyPicks: [],
+      enemyPicks: cleanedEnemies,
       currentSynergy,
       recommendations,
       agentImpacts,
