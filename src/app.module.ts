@@ -10,6 +10,9 @@ import { RiotClientService } from "./gateway/services/riot-client.service";
 import { PlayerProfileTransformer } from "./gateway/services/player-profile.transformer";
 import { RiotPregameService } from "./gateway/services/riot-pregame.service";
 import { RiotCoregameService } from "./gateway/services/riot-coregame.service";
+import { RiotMatchHistoryService } from "./gateway/services/riot-match-history.service";
+import { RiotMmrService } from "./gateway/services/riot-mmr.service";
+import { RiotPresenceService } from "./gateway/services/riot-presence.service";
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { RiotCoregameService } from "./gateway/services/riot-coregame.service";
     PlayerProfileTransformer,
     RiotPregameService,
     RiotCoregameService,
+    RiotMatchHistoryService,
+    RiotMmrService,
+    RiotPresenceService,
     ValorantGateway,
     ValorantLocalService,
     ValorantHistoryService,

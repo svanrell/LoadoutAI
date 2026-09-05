@@ -44,6 +44,21 @@ describe("RiotClientService", () => {
       expect(() =>
         service.getLocalHttpsAgent("https://pd.eu.a.pvp.net"),
       ).toThrow("Violación de seguridad TLS");
+
+      // Verify that malicious subdomains attempting to bypass include("localhost") are blocked
+      expect(() =>
+        service.getLocalHttpsAgent("https://localhost.evil.com:54321"),
+      ).toThrow("Violación de seguridad TLS");
+
+      expect(() =>
+        service.getLocalHttpsAgent("https://127.0.0.1.attacker.io:54321"),
+      ).toThrow("Violación de seguridad TLS");
+    });
+
+    it("should throw error for malformed URLs", () => {
+      expect(() => service.getLocalHttpsAgent("not-a-valid-url")).toThrow(
+        "URL inválida",
+      );
     });
   });
 

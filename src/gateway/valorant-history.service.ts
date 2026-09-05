@@ -1,7 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom } from "rxjs";
-
 import {
   MAPS_MAP,
   QUEUES_MAP,
@@ -15,7 +12,25 @@ import {
   RiotAuthCredentials,
   RiotRemoteConfig,
 } from "./services/riot-client.service";
-import { PlayerProfileTransformer } from "./services/player-profile.transformer";
+import {
+  PlayerProfileTransformer,
+  ProfileTransformInput,
+} from "./services/player-profile.transformer";
+import {
+  RiotMatchHistoryService,
+  PlayerHistoryItem,
+  PlayerHistoryResponse,
+  MatchDetailsResponse,
+} from "./services/riot-match-history.service";
+import {
+  RiotMmrService,
+  PlayerNameItem,
+  PlayerMmrResponse,
+  CompetitiveUpdateItem,
+  CompetitiveUpdatesResponse,
+  PlayerLoadoutResponse,
+} from "./services/riot-mmr.service";
+import { RiotPresenceService } from "./services/riot-presence.service";
 
 export {
   MAPS_MAP,
@@ -25,178 +40,27 @@ export {
   resolveQueueName,
   resolveTierName,
 };
-export type { RiotAuthCredentials, RiotRemoteConfig };
+export type {
+  RiotAuthCredentials,
+  RiotRemoteConfig,
+  PlayerHistoryItem,
+  PlayerHistoryResponse,
+  MatchDetailsResponse,
+  PlayerNameItem,
+  PlayerMmrResponse,
+  CompetitiveUpdateItem,
+  CompetitiveUpdatesResponse,
+  PlayerLoadoutResponse,
+};
 
-// ==========================================
-// INTERFACES DE RESPUESTA DE RIOT (PD SERVICE)
-// ==========================================
-
-export interface PlayerHistoryItem {
-  MatchID: string;
-  GameStartTimeMillis: number;
-  QueueID: string;
-}
-
-export interface PlayerHistoryResponse {
-  Subject: string;
-  BeginIndex: number;
-  EndIndex: number;
-  Total: number;
-  History: PlayerHistoryItem[];
-}
-
-export interface MatchDetailsResponse {
-  matchInfo: {
-    matchId: string;
-    mapId: string;
-    gameLengthMillis: number;
-    gameStartMillis: number;
-    provisioningFlowId?: string;
-    provisioningFlowID?: string;
-    provisioningFlow?: string;
-    isCompleted: boolean;
-    customGameName?: string;
-    CustomGameName?: string;
-    queueId?: string;
-    queueID?: string;
-    QueueID?: string;
-    gameMode: string;
-    isRanked?: boolean;
-    isCustomGame?: boolean;
-    seasonId: string;
-  };
-  players: Array<{
-    subject: string;
-    gameName: string;
-    tagLine: string;
-    teamId: string;
-    characterId: string;
-    stats?: {
-      score: number;
-      roundsPlayed: number;
-      kills: number;
-      deaths: number;
-      assists: number;
-      playtimeMillis?: number;
-    };
-    competitiveTier?: number;
-    playerCard?: string;
-    playerCardId?: string;
-    playerTitle?: string;
-    accountLevel?: number;
-  }>;
-  teams: Array<{
-    teamId: string;
-    won: boolean;
-    roundsPlayed: number;
-    roundsWon: number;
-  }>;
-  roundResults?: Array<{
-    roundNum: number;
-    roundResult: string;
-    winningTeam: string;
-    playerStats?: Array<{
-      subject: string;
-      damage?: Array<{
-        receiver: string;
-        damage: number;
-        legshots: number;
-        bodyshots: number;
-        headshots: number;
-      }>;
-      score: number;
-    }>;
-  }>;
-}
-
-export interface PlayerMmrResponse {
-  Version: number;
-  Subject: string;
-  QueueSkills?: {
-    competitive?: {
-      TotalGamesNeededForRating: number;
-      TotalGamesNeededForLeaderboard: number;
-      CurrentSeasonGamesNeededForRating: number;
-      SeasonalInfoBySeasonID?: Record<
-        string,
-        {
-          SeasonID: string;
-          NumberOfWins: number;
-          NumberOfWinsWithPlacements: number;
-          NumberOfGames: number;
-          Rank: number;
-          CapstoneWins: number;
-          LeaderboardRank: number;
-          CompetitiveTier: number;
-          RankedRating: number;
-          WinsByTier?: Record<string, number>;
-          GamesNeededForRating: number;
-          TotalWinsNeededForRank: number;
-        }
-      >;
-    };
-  };
-  LatestCompetitiveUpdate?: {
-    MatchID: string;
-    MapID: string;
-    SeasonID: string;
-    MatchStartTime: number;
-    TierAfterUpdate: number;
-    TierBeforeUpdate: number;
-    RankedRatingAfterUpdate: number;
-    RankedRatingBeforeUpdate: number;
-    RankedRatingEarned: number;
-    RankedRatingPerformanceBonus: number;
-    CompetitiveMovement: string;
-  };
-}
-
-export interface CompetitiveUpdateItem {
-  MatchID: string;
-  MapID: string;
-  SeasonID: string;
-  MatchStartTime: number;
-  TierAfterUpdate: number;
-  TierBeforeUpdate: number;
-  RankedRatingAfterUpdate: number;
-  RankedRatingBeforeUpdate: number;
-  RankedRatingEarned: number;
-  RankedRatingPerformanceBonus: number;
-  CompetitiveMovement: string;
-  AFKPenalty?: number;
-}
-
-export interface CompetitiveUpdatesResponse {
-  Version: number;
-  Subject: string;
-  Matches: CompetitiveUpdateItem[];
-}
-
-export interface SyncedCompetitiveUpdate {
-  matchId: string;
-  mapName: string;
-  matchStartTime: number;
-  tier: number;
-  tierName: string;
-  rankedRating: number;
-  rankedRatingEarned: number;
-  performanceBonus: number;
-  movement: string;
-  dateStr: string;
-  timeAgo: string;
-}
-
-export interface PlayerNameItem {
-  DisplayName: string;
-  Subject: string;
-  GameName: string;
-  TagLine: string;
-}
+export const MAX_HISTORY_MATCHES_FETCH = 8;
+export const MAX_HISTORY_TIME_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+export const PROFILE_CACHE_TTL = 30 * 1000;
 
 export interface SyncedMatchItem {
   id: string;
   isWin: boolean;
-  agentId: string;
+  agentId?: string;
   mapName: string;
   modeName: string;
   placement: string;
@@ -224,20 +88,18 @@ export interface SyncedAgentStat {
   winRate: number;
 }
 
-export const MAX_HISTORY_MONTHS = 6;
-export const MAX_HISTORY_DAYS = 180;
-export const MAX_HISTORY_TIME_WINDOW_MS = 180 * 24 * 60 * 60 * 1000;
-
-export interface PlayerLoadoutResponse {
-  Subject: string;
-  Version: number;
-  Identity: {
-    PlayerCardID: string;
-    PlayerTitleID: string;
-    AccountLevel: number;
-    PreferredLevelBorderID: string;
-    HideAccountLevel: boolean;
-  };
+export interface SyncedCompetitiveUpdate {
+  matchId: string;
+  mapName: string;
+  matchStartTime: number;
+  tier: number;
+  tierName: string;
+  rankedRating: number;
+  rankedRatingEarned: number;
+  performanceBonus: number;
+  movement: string;
+  dateStr: string;
+  timeAgo: string;
 }
 
 export interface SyncedPlayerProfile {
@@ -271,8 +133,10 @@ export class ValorantHistoryService {
     new Map();
 
   constructor(
-    private readonly httpService: HttpService,
     private readonly riotClientService: RiotClientService,
+    private readonly matchHistoryService: RiotMatchHistoryService,
+    private readonly mmrService: RiotMmrService,
+    private readonly presenceService: RiotPresenceService,
   ) {}
 
   public getCredentials(): RiotAuthCredentials | null {
@@ -288,25 +152,7 @@ export class ValorantHistoryService {
   }
 
   public async getPlayerNames(puuids: string[]): Promise<PlayerNameItem[]> {
-    if (!puuids || puuids.length === 0) return [];
-    const remote = await this.getRemoteConfig();
-    if (!remote) return [];
-
-    try {
-      const res = await firstValueFrom(
-        this.httpService.put<PlayerNameItem[]>(
-          `${remote.pdUrl}/name-service/v2/players`,
-          puuids,
-          { headers: remote.headers },
-        ),
-      );
-      return res.data || [];
-    } catch (error) {
-      this.logger.warn(
-        `Error al consultar name-service: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return [];
-    }
+    return this.mmrService.getPlayerNames(puuids);
   }
 
   public async getPlayerMatchHistory(
@@ -314,65 +160,21 @@ export class ValorantHistoryService {
     startIndex = 0,
     endIndex = 20,
   ): Promise<PlayerHistoryResponse | null> {
-    const remote = await this.getRemoteConfig();
-    if (!remote) return null;
-
-    try {
-      const res = await firstValueFrom(
-        this.httpService.get<PlayerHistoryResponse>(
-          `${remote.pdUrl}/match-history/v1/history/${puuid}?startIndex=${startIndex}&endIndex=${endIndex}`,
-          { headers: remote.headers },
-        ),
-      );
-      return res.data || null;
-    } catch (error) {
-      this.logger.warn(
-        `Error al obtener match-history: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return null;
-    }
+    return this.matchHistoryService.getPlayerMatchHistory(
+      puuid,
+      startIndex,
+      endIndex,
+    );
   }
 
   public async getMatchDetails(
     matchId: string,
   ): Promise<MatchDetailsResponse | null> {
-    const remote = await this.getRemoteConfig();
-    if (!remote) return null;
-
-    try {
-      const res = await firstValueFrom(
-        this.httpService.get<MatchDetailsResponse>(
-          `${remote.pdUrl}/match-details/v1/matches/${matchId}`,
-          { headers: remote.headers },
-        ),
-      );
-      return res.data || null;
-    } catch (error) {
-      this.logger.warn(
-        `Error al obtener match-details (${matchId}): ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return null;
-    }
+    return this.matchHistoryService.getMatchDetails(matchId);
   }
 
   public async getPlayerMMR(puuid: string): Promise<PlayerMmrResponse | null> {
-    const remote = await this.getRemoteConfig();
-    if (!remote) return null;
-
-    try {
-      const res = await firstValueFrom(
-        this.httpService.get<PlayerMmrResponse>(
-          `${remote.pdUrl}/mmr/v1/players/${puuid}`,
-          { headers: remote.headers },
-        ),
-      );
-      return res.data || null;
-    } catch (error) {
-      this.logger.warn(
-        `Error al obtener MMR: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return null;
-    }
+    return this.mmrService.getPlayerMMR(puuid);
   }
 
   public async getPlayerCompetitiveUpdates(
@@ -380,55 +182,17 @@ export class ValorantHistoryService {
     startIndex = 0,
     endIndex = 15,
   ): Promise<CompetitiveUpdatesResponse | null> {
-    const remote = await this.getRemoteConfig();
-    if (!remote) return null;
-
-    try {
-      const res = await firstValueFrom(
-        this.httpService.get<CompetitiveUpdatesResponse>(
-          `${remote.pdUrl}/mmr/v1/players/${puuid}/competitiveupdates?startIndex=${startIndex}&endIndex=${endIndex}&queue=competitive`,
-          { headers: remote.headers },
-        ),
-      );
-      return res.data || null;
-    } catch (_error) {
-      try {
-        const fallbackRes = await firstValueFrom(
-          this.httpService.get<CompetitiveUpdatesResponse>(
-            `${remote.pdUrl}/mmr/v1/players/${puuid}/competitiveupdates?startIndex=${startIndex}&endIndex=${endIndex}`,
-            { headers: remote.headers },
-          ),
-        );
-        return fallbackRes.data || null;
-      } catch (fallbackError) {
-        this.logger.warn(
-          `Error al obtener competitiveupdates: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
-        );
-        return null;
-      }
-    }
+    return this.mmrService.getPlayerCompetitiveUpdates(
+      puuid,
+      startIndex,
+      endIndex,
+    );
   }
 
   public async getPlayerLoadout(
     puuid: string,
   ): Promise<PlayerLoadoutResponse | null> {
-    const remote = await this.getRemoteConfig();
-    if (!remote) return null;
-
-    try {
-      const res = await firstValueFrom(
-        this.httpService.get<PlayerLoadoutResponse>(
-          `${remote.pdUrl}/personalization/v2/players/${puuid}/playerloadout`,
-          { headers: remote.headers },
-        ),
-      );
-      return res.data || null;
-    } catch (error) {
-      this.logger.warn(
-        `Error al obtener playerloadout: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return null;
-    }
+    return this.mmrService.getPlayerLoadout(puuid);
   }
 
   public async getLocalPresenceData(puuid: string): Promise<{
@@ -437,102 +201,85 @@ export class ValorantHistoryService {
     competitiveTier?: number;
     leaderboardPosition?: number;
   } | null> {
-    const credentials = this.getCredentials();
-    if (!credentials) return null;
-
-    try {
-      const res = await firstValueFrom(
-        this.httpService.get<{
-          presences?: Array<{ puuid: string; private: string }>;
-        }>(`${credentials.url}/chat/v4/presences`, {
-          headers: { Authorization: credentials.token },
-          httpsAgent: this.riotClientService.getLocalHttpsAgent(
-            credentials.url,
-          ),
-        }),
-      );
-      const myPresence = res.data.presences?.find((p) => p.puuid === puuid);
-      if (myPresence && myPresence.private) {
-        const decoded = Buffer.from(myPresence.private, "base64").toString(
-          "utf8",
-        );
-        const parsed = JSON.parse(decoded);
-        return {
-          playerCardId: parsed.playerCardId,
-          accountLevel: parsed.accountLevel,
-          competitiveTier: parsed.competitiveTier,
-          leaderboardPosition: parsed.leaderboardPosition,
-        };
-      }
-      return null;
-    } catch {
-      return null;
-    }
+    const presence = await this.presenceService.getLocalPlayerPresence(puuid);
+    if (!presence) return null;
+    return {
+      playerCardId: presence.playerCardId,
+      accountLevel: presence.accountLevel,
+      competitiveTier: presence.competitiveTier,
+      leaderboardPosition: presence.leaderboardPosition,
+    };
   }
 
   public async getFullSyncedProfile(
-    targetPuuid?: string,
+    requestedPuuid?: string,
     forceRefresh = false,
   ): Promise<SyncedPlayerProfile | null> {
-    const puuid = targetPuuid || (await this.getCurrentPlayerPuuid());
-    if (!puuid) {
-      this.logger.warn("No se pudo obtener el PUUID para sincronizar perfil.");
+    let targetPuuid = requestedPuuid;
+    if (!targetPuuid) {
+      targetPuuid = (await this.getCurrentPlayerPuuid()) || undefined;
+    }
+
+    if (!targetPuuid) {
+      this.logger.debug(
+        "No se pudo determinar el PUUID del jugador (cliente de Riot no detectado).",
+      );
       return null;
     }
 
-    const cached = this.profileCache.get(puuid);
-    if (!forceRefresh && cached && Date.now() - cached.timestamp < 25_000) {
+    const now = Date.now();
+    const cached = this.profileCache.get(targetPuuid);
+    if (!forceRefresh && cached && now - cached.timestamp < PROFILE_CACHE_TTL) {
       return cached.data;
     }
 
-    const inFlight = this.inFlightRequests.get(puuid);
-    if (inFlight) {
-      return inFlight;
+    if (this.inFlightRequests.has(targetPuuid)) {
+      return this.inFlightRequests.get(targetPuuid)!;
     }
 
-    const fetchPromise = this.fetchProfileFromRiot(puuid);
-    this.inFlightRequests.set(puuid, fetchPromise);
+    const fetchPromise = this.fetchAndBuildProfile(targetPuuid)
+      .then((profile) => {
+        if (profile) {
+          this.profileCache.set(targetPuuid, {
+            data: profile,
+            timestamp: Date.now(),
+          });
+        }
+        return profile;
+      })
+      .finally(() => {
+        this.inFlightRequests.delete(targetPuuid);
+      });
 
-    try {
-      const result = await fetchPromise;
-      if (result) {
-        this.profileCache.set(puuid, { data: result, timestamp: Date.now() });
-      }
-      return result || (cached ? cached.data : null);
-    } catch {
-      return cached ? cached.data : null;
-    } finally {
-      this.inFlightRequests.delete(puuid);
-    }
+    this.inFlightRequests.set(targetPuuid, fetchPromise);
+    return fetchPromise;
   }
 
-  private async fetchProfileFromRiot(
+  private async fetchAndBuildProfile(
     puuid: string,
   ): Promise<SyncedPlayerProfile | null> {
+    const remote = await this.getRemoteConfig();
+    if (!remote) return null;
+
     try {
-      const [
-        namesList,
-        mmrData,
-        historyData,
-        compUpdatesRes,
-        loadoutData,
-        localPresence,
-      ] = await Promise.all([
-        this.getPlayerNames([puuid]),
-        this.getPlayerMMR(puuid),
-        this.getPlayerMatchHistory(puuid, 0, 20),
-        this.getPlayerCompetitiveUpdates(puuid, 0, 20),
-        this.getPlayerLoadout(puuid),
-        this.getLocalPresenceData(puuid),
-      ]);
+      const [namesList, mmrData, historyData, compUpdatesRes, loadoutData] =
+        await Promise.all([
+          this.getPlayerNames([puuid]),
+          this.getPlayerMMR(puuid),
+          this.getPlayerMatchHistory(puuid, 0, MAX_HISTORY_MATCHES_FETCH),
+          this.getPlayerCompetitiveUpdates(puuid, 0, 15),
+          this.getPlayerLoadout(puuid),
+        ]);
 
-      const historyList = historyData?.History || [];
-      const detailPromises = historyList
-        .slice(0, 20)
-        .map((h) => this.getMatchDetails(h.MatchID));
-      const detailsList = await Promise.all(detailPromises);
+      const localPresence = await this.getLocalPresenceData(puuid);
+      const matchIds = (historyData?.History || [])
+        .slice(0, MAX_HISTORY_MATCHES_FETCH)
+        .map((h) => h.MatchID);
 
-      const profile = PlayerProfileTransformer.transform({
+      const detailsList =
+        await this.matchHistoryService.fetchBatchedMatchDetails(matchIds, 4);
+
+      const transformInput: ProfileTransformInput = {
         puuid,
         namesList,
         mmrData,
@@ -541,13 +288,13 @@ export class ValorantHistoryService {
         loadoutData,
         localPresence,
         detailsList,
-        region: process.env.VALORANT_REGION || "eu",
-      });
+        region: remote.region || process.env.VALORANT_REGION || "eu",
+      };
 
-      return profile;
+      return PlayerProfileTransformer.transform(transformInput);
     } catch (error) {
       this.logger.error(
-        `Error al construir perfil sincronizado: ${error instanceof Error ? error.message : String(error)}`,
+        `Error al construir perfil para PUUID ${puuid}: ${error instanceof Error ? error.message : String(error)}`,
       );
       return null;
     }

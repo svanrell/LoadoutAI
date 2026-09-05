@@ -7,6 +7,7 @@
 
 import { Agent } from "@/hooks/useValorantData";
 import { SyncedCompetitiveUpdate, SyncedMatchItem } from "@/hooks/useGameState";
+import { Translations } from "@/context/LanguageContext";
 import {
   resolveTierName,
   getTierColor,
@@ -364,7 +365,7 @@ export function buildMatchGroups(params: {
   matches: Array<SyncedMatchItem & { dateTitle?: string; timeAgo?: string }> | undefined;
   agents: Agent[];
   language: string;
-  t: any;
+  t: Translations;
   defaultAvatar: string;
 }): ProcessedMatchGroup[] {
   const { matches, agents, language, t, defaultAvatar } = params;

@@ -61,11 +61,24 @@ export class RiotClientService {
    */
   public getLocalHttpsAgent(targetUrl?: string): https.Agent {
     if (targetUrl) {
-      const isLoopback =
-        targetUrl.includes("127.0.0.1") || targetUrl.includes("localhost");
-      if (!isLoopback) {
+      try {
+        const parsed = new URL(targetUrl);
+        const isLoopback =
+          parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+        if (!isLoopback) {
+          throw new Error(
+            `Violación de seguridad TLS: Intento de usar el agente local no seguro con URL externa: ${targetUrl}`,
+          );
+        }
+      } catch (err) {
+        if (
+          err instanceof Error &&
+          err.message.includes("Violación de seguridad TLS")
+        ) {
+          throw err;
+        }
         throw new Error(
-          `Violación de seguridad TLS: Intento de usar el agente local no seguro con URL externa: ${targetUrl}`,
+          `URL inválida proporcionada para el agente TLS local: ${targetUrl}`,
         );
       }
     }

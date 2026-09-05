@@ -4,8 +4,7 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom, Subscription } from "rxjs";
+import { Subscription } from "rxjs";
 import { ValorantGateway } from "./valorant.gateway";
 import { resolveMapName, resolveQueueName } from "./valorant.constants";
 import {
@@ -19,32 +18,7 @@ import {
   RiotCoregameService,
   LocalPlayerInfo,
 } from "./services/riot-coregame.service";
-
-interface ChatSessionResponse {
-  puuid: string;
-}
-
-interface ValorantPrivatePresenceData {
-  sessionLoopState: string;
-  partyId?: string;
-  partyOwnerMatchScoreAllyTeam?: number;
-  partyOwnerMatchScoreEnemyTeam?: number;
-  matchPresenceData?: {
-    sessionLoopState?: string;
-    matchMap?: string;
-    queueId?: string;
-  };
-  partyPresenceData?: {
-    partyOwnerSessionLoopState?: string;
-  };
-}
-
-interface PresencesResponse {
-  presences?: Array<{
-    puuid: string;
-    private: string;
-  }>;
-}
+import { RiotPresenceService } from "./services/riot-presence.service";
 
 @Injectable()
 export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
@@ -75,11 +49,11 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private readonly subscriptions = new Subscription();
 
   constructor(
-    private readonly httpService: HttpService,
     private readonly gateway: ValorantGateway,
     private readonly riotClientService: RiotClientService,
     private readonly riotPregameService: RiotPregameService,
     private readonly riotCoregameService: RiotCoregameService,
+    private readonly presenceService: RiotPresenceService,
   ) {}
 
   onModuleInit() {
@@ -279,184 +253,26 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         return;
       }
 
-      const localAgent = this.riotClientService.getLocalHttpsAgent(
-        credentials.url,
-      );
-      const config = {
-        headers: { Authorization: credentials.token },
-        httpsAgent: localAgent,
-      };
+      const puuid = await this.riotClientService.getCurrentPlayerPuuid();
+      if (!puuid) {
+        this.updateStatus("CLOSED");
+        return;
+      }
 
-      const session = await firstValueFrom(
-        this.httpService.get<ChatSessionResponse>(
-          `${credentials.url}/chat/v1/session`,
-          config,
-        ),
-      );
-      const puuid = session.data.puuid;
+      const presence = await this.presenceService.getLocalPlayerPresence(puuid);
+      if (!presence || !presence.sessionLoopState) {
+        this.clearBuyPhase();
+        this.updateStatus("MENUS");
+        return;
+      }
 
-      const presences = await firstValueFrom(
-        this.httpService.get<PresencesResponse>(
-          `${credentials.url}/chat/v4/presences`,
-          config,
-        ),
-      );
-
-      const myPresence = presences.data.presences?.find(
-        (p) => p.puuid === puuid,
-      );
-
-      if (myPresence && myPresence.private) {
-        const decodedJson = Buffer.from(myPresence.private, "base64").toString(
-          "utf8",
-        );
-        const privateData = JSON.parse(
-          decodedJson,
-        ) as ValorantPrivatePresenceData;
-
-        const loopState =
-          privateData.matchPresenceData?.sessionLoopState ||
-          privateData.partyPresenceData?.partyOwnerSessionLoopState ||
-          privateData.sessionLoopState;
-
-        if (loopState === "PREGAME") {
-          this.clearBuyPhase();
-          const matchId = privateData.partyId || "PRESENCE_LOBBY";
-
-          try {
-            const remoteConfig = await this.riotClientService.getRemoteConfig();
-            if (!remoteConfig) {
-              throw new Error(
-                "Configuración remota GLZ no disponible para pregame",
-              );
-            }
-
-            const pregameData = await this.riotPregameService.getPregameMatch(
-              remoteConfig.glzUrl,
-              remoteConfig.headers,
-              puuid,
-            );
-
-            if (pregameData) {
-              const pregameMatch = pregameData.data;
-              const pregameMatchId = pregameData.matchId;
-              const mapPath = pregameMatch.MapID || "";
-              const mapName = resolveMapName(mapPath);
-
-              const players = pregameMatch.AllyTeam.Players.map((p) => ({
-                puuid: p.Subject,
-                agentId: p.CharacterID,
-                state: p.CharacterSelectionState,
-                level: p.PlayerIdentity?.HideAccountLevel
-                  ? null
-                  : p.PlayerIdentity?.AccountLevel,
-                rank: p.CompetitiveTier,
-                playerCardId: p.PlayerIdentity?.PlayerCardID,
-              }));
-
-              const queueId = privateData.matchPresenceData?.queueId || "";
-              const mode = resolveQueueName(queueId);
-
-              const alliesAgentUuids = players
-                .filter((p) => p.agentId && p.agentId !== "")
-                .map((p) => p.agentId);
-
-              const mlResult = this.getMLDraftRecommendations(
-                mapName,
-                alliesAgentUuids,
-              );
-
-              this.updateStatus("PREGAME", {
-                matchId,
-                pregameMatchId,
-                players,
-                mapName,
-                myPuuid: puuid,
-                mlDraftPicks: mlResult.recommendations,
-                mlSynergyWinRate: mlResult.currentSynergy,
-                mlAgentImpacts: mlResult.agentImpacts || [],
-                mode,
-              });
-            } else {
-              const queueId = privateData.matchPresenceData?.queueId || "";
-              const mode = resolveQueueName(queueId);
-              this.updateStatus("PREGAME", {
-                matchId,
-                myPuuid: puuid,
-                mode,
-                mlDraftPicks: [],
-                mlSynergyWinRate: 50.0,
-              });
-            }
-          } catch (error) {
-            this.logger.error(
-              `Error en consulta pregame: ${error instanceof Error ? error.message : String(error)}`,
-            );
-            const queueId = privateData.matchPresenceData?.queueId || "";
-            const mode = resolveQueueName(queueId);
-            this.updateStatus("PREGAME", {
-              matchId,
-              myPuuid: puuid,
-              mode,
-              mlDraftPicks: [],
-              mlSynergyWinRate: 50.0,
-            });
-          }
-        } else if (loopState === "INGAME") {
-          const mapPath = privateData.matchPresenceData?.matchMap || "";
-          const queueId = privateData.matchPresenceData?.queueId || "";
-          const mapName = resolveMapName(mapPath);
-          const mode = resolveQueueName(queueId);
-
-          let players: LocalPlayerInfo[] = [];
-          try {
-            const remoteConfig = await this.riotClientService.getRemoteConfig();
-            if (remoteConfig) {
-              const coreGameInfo =
-                await this.riotCoregameService.getCoreGameTeammates(
-                  remoteConfig.glzUrl,
-                  remoteConfig.headers,
-                  puuid,
-                  presences.data.presences,
-                );
-              if (coreGameInfo) {
-                players = coreGameInfo.players;
-              }
-            }
-          } catch (error) {
-            this.logger.error(
-              `Error en consulta core-game: ${error instanceof Error ? error.message : String(error)}`,
-            );
-          }
-
-          this.updateStatus("INGAME", {
-            mapName,
-            mode,
-            players,
-            myPuuid: puuid,
-          });
-
-          const scoreAlly =
-            privateData.partyOwnerMatchScoreAllyTeam ??
-            this.currentExtraData?.scoreAlly ??
-            0;
-          const scoreEnemy =
-            privateData.partyOwnerMatchScoreEnemyTeam ??
-            this.currentExtraData?.scoreEnemy ??
-            0;
-
-          if (
-            this.allyScore !== Number(scoreAlly) ||
-            this.enemyScore !== Number(scoreEnemy)
-          ) {
-            this.allyScore = Number(scoreAlly);
-            this.enemyScore = Number(scoreEnemy);
-            this.startBuyPhase(this.allyScore, this.enemyScore);
-          }
-        } else {
-          this.clearBuyPhase();
-          this.updateStatus("MENUS");
-        }
+      const loopState = presence.sessionLoopState;
+      if (loopState === "PREGAME") {
+        this.clearBuyPhase();
+        const matchId = presence.partyId || "PRESENCE_LOBBY";
+        await this.handlePregameSession(puuid, matchId, presence.queueId);
+      } else if (loopState === "INGAME") {
+        await this.handleIngameSession(puuid, presence);
       } else {
         this.clearBuyPhase();
         this.updateStatus("MENUS");
@@ -466,6 +282,141 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       this.updateStatus("CLOSED");
     } finally {
       this.isCheckingStatus = false;
+    }
+  }
+
+  private async handlePregameSession(
+    puuid: string,
+    matchId: string,
+    rawQueueId?: string,
+  ) {
+    const mode = resolveQueueName(rawQueueId || "");
+
+    try {
+      const remoteConfig = await this.riotClientService.getRemoteConfig();
+      if (!remoteConfig) {
+        throw new Error("Configuración remota GLZ no disponible para pregame");
+      }
+
+      const pregameData = await this.riotPregameService.getPregameMatch(
+        remoteConfig.glzUrl,
+        remoteConfig.headers,
+        puuid,
+      );
+
+      if (pregameData) {
+        const pregameMatch = pregameData.data;
+        const pregameMatchId = pregameData.matchId;
+        const mapPath = pregameMatch.MapID || "";
+        const mapName = resolveMapName(mapPath);
+
+        const players = pregameMatch.AllyTeam.Players.map((p) => ({
+          puuid: p.Subject,
+          agentId: p.CharacterID,
+          state: p.CharacterSelectionState,
+          level: p.PlayerIdentity?.HideAccountLevel
+            ? null
+            : p.PlayerIdentity?.AccountLevel,
+          rank: p.CompetitiveTier,
+          playerCardId: p.PlayerIdentity?.PlayerCardID,
+        }));
+
+        const alliesAgentUuids = players
+          .filter((p) => p.agentId && p.agentId !== "")
+          .map((p) => p.agentId);
+
+        const mlResult = this.getMLDraftRecommendations(
+          mapName,
+          alliesAgentUuids,
+        );
+
+        this.updateStatus("PREGAME", {
+          matchId,
+          pregameMatchId,
+          players,
+          mapName,
+          myPuuid: puuid,
+          mlDraftPicks: mlResult.recommendations,
+          mlSynergyWinRate: mlResult.currentSynergy,
+          mlAgentImpacts: mlResult.agentImpacts || [],
+          mode,
+        });
+      } else {
+        this.updateStatus("PREGAME", {
+          matchId,
+          myPuuid: puuid,
+          mode,
+          mlDraftPicks: [],
+          mlSynergyWinRate: 50.0,
+        });
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error en consulta pregame: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      this.updateStatus("PREGAME", {
+        matchId,
+        myPuuid: puuid,
+        mode,
+        mlDraftPicks: [],
+        mlSynergyWinRate: 50.0,
+      });
+    }
+  }
+
+  private async handleIngameSession(
+    puuid: string,
+    presence: {
+      matchMap?: string;
+      queueId?: string;
+      allyScore?: number;
+      enemyScore?: number;
+    },
+  ) {
+    const mapName = resolveMapName(presence.matchMap || "");
+    const mode = resolveQueueName(presence.queueId || "");
+
+    let players: LocalPlayerInfo[] = [];
+    try {
+      const remoteConfig = await this.riotClientService.getRemoteConfig();
+      if (remoteConfig) {
+        const rawPresences = await this.presenceService.getRawPresences();
+        const coreGameInfo =
+          await this.riotCoregameService.getCoreGameTeammates(
+            remoteConfig.glzUrl,
+            remoteConfig.headers,
+            puuid,
+            rawPresences,
+          );
+        if (coreGameInfo) {
+          players = coreGameInfo.players;
+        }
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error en consulta core-game: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    this.updateStatus("INGAME", {
+      mapName,
+      mode,
+      players,
+      myPuuid: puuid,
+    });
+
+    const scoreAlly =
+      presence.allyScore ?? (this.currentExtraData?.scoreAlly as number) ?? 0;
+    const scoreEnemy =
+      presence.enemyScore ?? (this.currentExtraData?.scoreEnemy as number) ?? 0;
+
+    if (
+      this.allyScore !== Number(scoreAlly) ||
+      this.enemyScore !== Number(scoreEnemy)
+    ) {
+      this.allyScore = Number(scoreAlly);
+      this.enemyScore = Number(scoreEnemy);
+      this.startBuyPhase(this.allyScore, this.enemyScore);
     }
   }
 

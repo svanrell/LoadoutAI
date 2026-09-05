@@ -31,7 +31,6 @@ export async function bootstrap(): Promise<NestExpressApplication> {
         callback(new Error(`CORS blocked for origin: ${origin}`));
       }
     },
-    credentials: true,
   });
 
   const resourcesPath = process.env.ELECTRON_RESOURCES_PATH || "";

@@ -21,9 +21,48 @@ export interface ValidatedPlayerProfileAction {
   forceRefresh?: boolean;
 }
 
+export const KNOWN_AGENT_NAMES = new Set<string>([
+  "jett",
+  "raze",
+  "phoenix",
+  "reyna",
+  "yoru",
+  "neon",
+  "iso",
+  "waylay",
+  "sova",
+  "breach",
+  "skye",
+  "kayo",
+  "fade",
+  "gekko",
+  "tejo",
+  "brimstone",
+  "omen",
+  "viper",
+  "astra",
+  "harbor",
+  "clove",
+  "miks",
+  "killjoy",
+  "cypher",
+  "sage",
+  "chamber",
+  "deadlock",
+  "vyse",
+  "veto",
+]);
+
 export class SocketEventValidator {
   static isUuid(value: unknown): value is string {
     return typeof value === "string" && UUID_REGEX.test(value.trim());
+  }
+
+  static isValidAgentIdentifier(value: unknown): boolean {
+    if (typeof value !== "string") return false;
+    const trimmed = value.trim().toLowerCase();
+    if (this.isUuid(trimmed)) return true;
+    return KNOWN_AGENT_NAMES.has(trimmed);
   }
 
   static validatePregameAction(
@@ -112,11 +151,9 @@ export class SocketEventValidator {
     if (Array.isArray(payload.allies)) {
       result.allies = payload.allies
         .slice(0, 5)
-        .filter(
-          (item): item is string =>
-            typeof item === "string" && item.trim().length > 0,
-        )
-        .map((item) => item.trim().slice(0, 50));
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter((item) => this.isValidAgentIdentifier(item));
     }
 
     return result;

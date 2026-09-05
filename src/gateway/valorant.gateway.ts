@@ -40,7 +40,6 @@ const ALLOWED_ORIGIN_PATTERNS = [
         callback(new Error(`WebSocket CORS bloqueado para origen: ${origin}`));
       }
     },
-    credentials: true,
   },
 })
 export class ValorantGateway implements OnGatewayConnection {
@@ -160,8 +159,17 @@ export class ValorantGateway implements OnGatewayConnection {
 
   @SubscribeMessage("request_ml_draft")
   handleRequestMlDraft(client: Socket, data: unknown) {
-    const validated = SocketEventValidator.validateMlDraft(data);
-    this.requestMlDraft$.next({ ...validated, client });
+    try {
+      const validated = SocketEventValidator.validateMlDraft(data);
+      this.requestMlDraft$.next({ ...validated, client });
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Error en request_ml_draft: ${msg}`);
+      client.emit("error_response", {
+        event: "request_ml_draft",
+        error: msg,
+      });
+    }
   }
 
   @SubscribeMessage("request_player_profile")

@@ -107,21 +107,60 @@ describe("SocketEventValidator", () => {
     });
   });
 
+  describe("isValidAgentIdentifier", () => {
+    it("should accept valid agent UUIDs", () => {
+      expect(
+        SocketEventValidator.isValidAgentIdentifier(
+          "add6443a-41bd-e414-f6ad-e58d267f4e95",
+        ),
+      ).toBe(true);
+    });
+
+    it("should accept recognized canonical agent names regardless of casing", () => {
+      expect(SocketEventValidator.isValidAgentIdentifier("jett")).toBe(true);
+      expect(SocketEventValidator.isValidAgentIdentifier("Reyna")).toBe(true);
+      expect(SocketEventValidator.isValidAgentIdentifier("SOVA")).toBe(true);
+      expect(SocketEventValidator.isValidAgentIdentifier("clove")).toBe(true);
+    });
+
+    it("should reject invalid strings, numbers, or injection attempts", () => {
+      expect(SocketEventValidator.isValidAgentIdentifier("fake_agent")).toBe(
+        false,
+      );
+      expect(SocketEventValidator.isValidAgentIdentifier("<script>")).toBe(
+        false,
+      );
+      expect(SocketEventValidator.isValidAgentIdentifier("12345")).toBe(false);
+      expect(SocketEventValidator.isValidAgentIdentifier(null)).toBe(false);
+    });
+  });
+
   describe("validateMlDraft", () => {
-    it("should accept valid map name and allies", () => {
+    it("should accept valid map name and allies with valid names and UUIDs", () => {
       const result = SocketEventValidator.validateMlDraft({
         mapName: "Ascent",
         modeName: "Bomb",
-        allies: ["jett", "reyna"],
+        allies: ["jett", "add6443a-41bd-e414-f6ad-e58d267f4e95", "reyna"],
       });
       expect(result.mapName).toBe("Ascent");
       expect(result.modeName).toBe("Bomb");
-      expect(result.allies).toEqual(["jett", "reyna"]);
+      expect(result.allies).toEqual([
+        "jett",
+        "add6443a-41bd-e414-f6ad-e58d267f4e95",
+        "reyna",
+      ]);
+    });
+
+    it("should filter out invalid agent names or arbitrary strings from allies", () => {
+      const result = SocketEventValidator.validateMlDraft({
+        allies: ["jett", "hacked_agent", "<script>alert(1)</script>", "sova"],
+      });
+      expect(result.allies).toEqual(["jett", "sova"]);
     });
 
     it("should truncate allies to at most 5 elements", () => {
       const result = SocketEventValidator.validateMlDraft({
-        allies: ["a1", "a2", "a3", "a4", "a5", "a6", "a7"],
+        allies: ["jett", "reyna", "sova", "omen", "killjoy", "sage"],
       });
       expect(result.allies).toHaveLength(5);
     });
