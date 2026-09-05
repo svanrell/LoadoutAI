@@ -566,9 +566,7 @@ export class ValorantHistoryService {
     }
   }
 
-  public async getLocalPresenceData(
-    puuid: string,
-  ): Promise<{
+  public async getLocalPresenceData(puuid: string): Promise<{
     playerCardId?: string;
     accountLevel?: number;
     competitiveTier?: number;
@@ -579,17 +577,18 @@ export class ValorantHistoryService {
 
     try {
       const res = await firstValueFrom(
-        this.httpService.get<{ presences?: Array<{ puuid: string; private: string }> }>(
-          `${credentials.url}/chat/v4/presences`,
-          {
-            headers: { Authorization: credentials.token },
-            httpsAgent: this.httpsAgent,
-          },
-        ),
+        this.httpService.get<{
+          presences?: Array<{ puuid: string; private: string }>;
+        }>(`${credentials.url}/chat/v4/presences`, {
+          headers: { Authorization: credentials.token },
+          httpsAgent: this.httpsAgent,
+        }),
       );
       const myPresence = res.data.presences?.find((p) => p.puuid === puuid);
       if (myPresence && myPresence.private) {
-        const decoded = Buffer.from(myPresence.private, "base64").toString("utf8");
+        const decoded = Buffer.from(myPresence.private, "base64").toString(
+          "utf8",
+        );
         const parsed = JSON.parse(decoded);
         return {
           playerCardId: parsed.playerCardId,
@@ -694,11 +693,20 @@ export class ValorantHistoryService {
 
       // Si aún no se detecta rango, intentar extraer de la presencia local o de la última partida competitiva
       if (currentTier === 0) {
-        if (localPresence?.competitiveTier && localPresence.competitiveTier > 0) {
+        if (
+          localPresence?.competitiveTier &&
+          localPresence.competitiveTier > 0
+        ) {
           currentTier = localPresence.competitiveTier;
-        } else if (compUpdatesRes?.Matches && compUpdatesRes.Matches.length > 0) {
+        } else if (
+          compUpdatesRes?.Matches &&
+          compUpdatesRes.Matches.length > 0
+        ) {
           const latestComp = compUpdatesRes.Matches[0];
-          if (latestComp?.TierAfterUpdate !== undefined && latestComp.TierAfterUpdate > 0) {
+          if (
+            latestComp?.TierAfterUpdate !== undefined &&
+            latestComp.TierAfterUpdate > 0
+          ) {
             currentTier = latestComp.TierAfterUpdate;
             rankedRating = latestComp.RankedRatingAfterUpdate ?? 0;
           }
@@ -944,9 +952,7 @@ export class ValorantHistoryService {
         localPresence?.playerCardId ||
         "";
       let accountLevel =
-        loadoutData?.Identity?.AccountLevel ||
-        localPresence?.accountLevel ||
-        0;
+        loadoutData?.Identity?.AccountLevel || localPresence?.accountLevel || 0;
 
       // Si no viene en el loadout ni en la presencia local, buscar en los detalles de las partidas recientes
       if (!playerCardId && detailsList.length > 0) {

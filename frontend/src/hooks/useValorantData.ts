@@ -162,4 +162,3 @@ export function useValorantData() {
 
   return { agents, weapons, gameModes, maps, loading };
 }
-
