@@ -1,7 +1,14 @@
 import * as http from "http";
 import { AddressInfo } from "net";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { checkBackendHealth, cleanup } = require("../electron/main");
+
+interface ElectronMainExports {
+  checkBackendHealth: (port?: number, host?: string) => Promise<boolean>;
+  cleanup: () => Promise<void>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const electronMain = require("../electron/main") as ElectronMainExports;
+const { checkBackendHealth, cleanup } = electronMain;
 
 describe("Electron Lifecycle & Healthcheck Flow Suite", () => {
   let server: http.Server;

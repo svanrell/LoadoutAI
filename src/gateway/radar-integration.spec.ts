@@ -230,7 +230,9 @@ describe("Radar Integration & Lifecycle Suite", () => {
     });
 
     it("should return error_response when Riot client rejects selectAgent", async () => {
-      (mockPregameService.selectAgent as jest.Mock).mockResolvedValueOnce(false);
+      (mockPregameService.selectAgent as jest.Mock).mockResolvedValueOnce(
+        false,
+      );
       localService.updateStatus("PREGAME", { pregameMatchId: testMatchId });
 
       gateway.handlePregameSelect(mockSocket as Socket, {
@@ -294,10 +296,10 @@ describe("Radar Integration & Lifecycle Suite", () => {
   });
 
   describe("3. Ingame Economy ML Recommendations Producer & Cost 0 Support", () => {
-    it("should produce ml_buy_recommendations when credits are updated", async () => {
+    it("should produce ml_buy_recommendations when credits are updated", () => {
       localService.updateStatus("INGAME");
 
-      await localService.updateIngameCredits(800);
+      localService.updateIngameCredits(800);
 
       expect(mockEconomyService.computeRecommendations).toHaveBeenCalledWith(
         800,
@@ -327,8 +329,10 @@ describe("Radar Integration & Lifecycle Suite", () => {
       });
     });
 
-    it("should handle cost 0 recommendation correctly without throwing or falling back", async () => {
-      (mockEconomyService.computeRecommendations as jest.Mock).mockReturnValueOnce({
+    it("should handle cost 0 recommendation correctly without throwing or falling back", () => {
+      (
+        mockEconomyService.computeRecommendations as jest.Mock
+      ).mockReturnValueOnce({
         buy_recommendations: [
           {
             weapon: "Classic",
@@ -349,7 +353,7 @@ describe("Radar Integration & Lifecycle Suite", () => {
       });
 
       localService.updateStatus("INGAME");
-      await localService.updateIngameCredits(1200);
+      localService.updateIngameCredits(1200);
 
       expect(mockServer.emit).toHaveBeenCalledWith("ml_buy_recommendations", {
         buy_recommendations: [

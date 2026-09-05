@@ -96,23 +96,36 @@ export class EconomyAdvisorService {
 
     // Estimación de la economía del equipo rival
     const isEnemyPistol = round === 1 || round === 13;
-    const enemyAvgCredits = isEnemyPistol
-      ? 800
-      : enemyScore > 2
-        ? 4200
-        : 2300;
-    const enemyType = isEnemyPistol
-      ? "Pistol"
-      : enemyAvgCredits >= 3900
-        ? "Full Buy"
-        : enemyAvgCredits >= 2000
-          ? "Half Buy"
-          : "Eco";
+    let enemyAvgCredits = 2300;
+    if (isEnemyPistol) {
+      enemyAvgCredits = 800;
+    } else if (enemyScore > 2) {
+      enemyAvgCredits = 4200;
+    }
+
+    let enemyType = "Eco";
+    if (isEnemyPistol) {
+      enemyType = "Pistol";
+    } else if (enemyAvgCredits >= 3900) {
+      enemyType = "Full Buy";
+    } else if (enemyAvgCredits >= 2000) {
+      enemyType = "Half Buy";
+    }
+
+    let enemyWeapon = "Classic";
+    let enemyShield = "Sin escudo";
+    if (enemyType === "Full Buy") {
+      enemyWeapon = "Vandal";
+      enemyShield = "Heavy Shields";
+    } else if (enemyType === "Half Buy") {
+      enemyWeapon = "Spectre";
+      enemyShield = "Light Shields";
+    }
 
     const enemyEconomy: EnemyEconomyEstimate = {
       avg_credits: enemyAvgCredits,
-      weapon: enemyType === "Full Buy" ? "Vandal" : enemyType === "Half Buy" ? "Spectre" : "Classic",
-      shield: enemyType === "Full Buy" ? "Heavy Shields" : enemyType === "Half Buy" ? "Light Shields" : "Sin escudo",
+      weapon: enemyWeapon,
+      shield: enemyShield,
       type: enemyType,
     };
 

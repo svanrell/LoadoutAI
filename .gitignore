@@ -2,7 +2,11 @@
 /dist*
 /dist_app
 /node_modules
-/public
+/public/*
+!/public/app_icon.ico
+!/public/favicon.ico
+!/public/favicon.png
+!/public/logo.png
 /release
 /frontend/.next
 /frontend/out*

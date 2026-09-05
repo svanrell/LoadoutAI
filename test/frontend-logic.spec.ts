@@ -2,10 +2,7 @@ import {
   calculateTotalSpend,
   resolveAiRecommendation,
 } from "../frontend/src/lib/ingameLogic";
-import {
-  isDraftCompleted,
-  filterAndSortAgents,
-} from "../frontend/src/lib/pregameLogic";
+import { isDraftCompleted } from "../frontend/src/lib/pregameLogic";
 
 describe("Frontend Pure Logic & Ingame Economy Suite", () => {
   describe("calculateTotalSpend (Cost 0 Eco/Save Round Fix)", () => {
@@ -109,7 +106,7 @@ describe("Frontend Pure Logic & Ingame Economy Suite", () => {
 
       const saveRes = resolveAiRecommendation(
         { weapon: "Save", shield: "Sin escudo", cost: 0, abilities: false },
-        mockWeapons
+        mockWeapons,
       );
       expect(saveRes.sidearmName).toBe("Classic");
       expect(saveRes.primaryName).toBeNull();
@@ -124,7 +121,7 @@ describe("Frontend Pure Logic & Ingame Economy Suite", () => {
           cost: 3900,
           abilities: true,
         },
-        mockWeapons
+        mockWeapons,
       );
       expect(res.sidearmName).toBe("Classic");
       expect(res.primaryName).toBe("Vandal");
