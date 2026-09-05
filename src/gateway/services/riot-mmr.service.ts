@@ -200,8 +200,8 @@ export class RiotMmrService {
       );
       return res.data || null;
     } catch (error) {
-      this.logger.warn(
-        `Error al obtener playerloadout: ${error instanceof Error ? error.message : String(error)}`,
+      this.logger.debug(
+        `Loadout no disponible para ${puuid}: ${error instanceof Error ? error.message : String(error)}`,
       );
       return null;
     }
