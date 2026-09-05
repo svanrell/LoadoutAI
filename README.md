@@ -76,26 +76,25 @@ By combining **Riot Client local APIs**, **WebSockets**, a **NestJS backend**, a
 
 ## Machine Learning Draft Engine
 
-The AI engine lives in [`src/machine_learning/`](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning) and is built with Python and Scikit-Learn:
+The AI engine lives in [`src/machine_learning/`](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning) and combines Python for offline training/export and an ultra-fast TypeScript engine for live gameplay inference:
 
 ```mermaid
 graph TD
-    CSV["Historical Match Dataset (CSV)"] --> DL["1. data_loader.py (Data Cleaning)"]
-    DL --> FE["2. features.py (One-Hot Encoding)"]
-    FE --> MD["3. model.py (Weighted Random Forest)"]
-    MD --> ART["draft_model.joblib (Trained Artifact)"]
+    VCT["VCT Match Datasets (JSON & CSV)"] --> DL["1. pregame/data_loader.py (Data Cleaning)"]
+    DL --> MD["2. pregame/model.py (Logistic Regression Synergy)"]
+    MD --> EXP["3. pregame/export_draft_data.py (Weights & Odds Exporter)"]
+    EXP --> ART["draft_data.json (Optimized JSON Artifact)"]
     
-    LOBBY["Live Lobby (Map + Ally Picks)"] --> PR["4. predict.py (Real-Time Ingestion)"]
-    ART --> PR
-    PR -->|"JSON Response (< 50ms)"| BACKEND["NestJS Gateway & Frontend HUD"]
+    LOBBY["Live Lobby (Map + Ally Picks)"] --> TS["4. valorant-ml.engine.ts (In-Memory TS Engine)"]
+    ART --> TS
+    TS -->|"Sub-millisecond Ingestion (< 1ms)"| BACKEND["NestJS Gateway & Frontend HUD"]
 ```
 
 ### Module Breakdown:
-1. **[data_loader.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/data_loader.py)**: Loads CSV data, unpacks 5-agent composition arrays, validates complete teams, and normalizes agent and map entities.
-2. **[features.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/features.py)**: Converts categorical map and agent names into numeric feature matrices using **One-Hot Encoding** (`map_*` and `agent_*` columns). Also provides `encode_single_composition()` for single-row live inference.
-3. **[model.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/model.py)**: Configures and trains a `RandomForestRegressor` with sample frequency weights (`sample_weight=times_played`), evaluates performance ($R^2$ Score and RMSE), and manages `.joblib` serialization.
-4. **[train_draft_model.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/train_draft_model.py)**: Executable pipeline script that loads raw statistics, processes features, trains the model, and exports the bundle.
-5. **[predict.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/predict.py)**: High-speed inference CLI. Maps Riot Agent UUIDs to canonical names, evaluates all candidate combinations, and outputs structured JSON containing recommendations and synergy scores.
+1. **[pregame/data_loader.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/pregame/data_loader.py)**: Parses professional VCT match datasets, cleaning match details, player agents, maps, and rounds.
+2. **[pregame/model.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/pregame/model.py)**: Logistic Regression model that learns agent composition synergies and map-specific win rates.
+3. **[pregame/export_draft_data.py](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/machine_learning/pregame/export_draft_data.py)**: Precomputes map base rates, individual agent pick frequencies, and duo synergy win rates, exporting them to `src/machine_learning/pregame/artifacts/draft_data.json`.
+4. **[valorant-ml.engine.ts](file:///c:/Users/chumi/OneDrive/Escritorio/valorant-ai/src/gateway/valorant-ml.engine.ts)**: Fast in-memory TypeScript inference engine. Eliminates Python process spawn overhead during live competitive games.
 
 ---
 
@@ -104,11 +103,11 @@ graph TD
 | Layer | Technologies |
 |---|---|
 | **Backend Core** | NestJS (v11), TypeScript, RxJS, Axios |
-| **Real-Time Communication** | Socket.IO (`@nestjs/websockets`, `@nestjs/platform-socket.io`) |
+| **Real-Time Communication** | Socket.IO (`@nestjs/websockets`, `@nestjs/platform-socket.io`) with strict CORS & DTO validation |
 | **Frontend Framework** | Next.js (v16), React 19, Vanilla CSS Modules & Tokens |
-| **Desktop Wrapper** | Electron (v43) |
-| **Machine Learning** | Python 3.10+, Scikit-Learn, Pandas, NumPy, Joblib |
-| **Data Sources** | Riot Local Client API (Lockfile / WSS), Valorant-API.com |
+| **Desktop Wrapper** | Electron (v43) with secure IPC & context isolation |
+| **Machine Learning** | Python 3.10+, Scikit-Learn, Pandas, NumPy, In-Memory TypeScript Engine |
+| **Data Sources** | Riot Local Client API (Lockfile / Loopback HTTPS), Valorant-API.com |
 
 ---
 
@@ -127,12 +126,17 @@ valorant-ai/
 │   │   ├── hooks/              # useGameState (Socket.IO), useValorantData
 │   │   └── csv/                # Raw historical match datasets
 ├── src/                        # NestJS Backend Application
-│   ├── gateway/                # WebSocket Gateway & Riot Local API Service
+│   ├── gateway/                # WebSocket Gateway & Sub-services
+│   │   ├── dto/                # Validated Socket.IO DTOs & security sanitizers
+│   │   ├── services/           # Riot Client, Pregame, Coregame, Profile Transformers
+│   │   ├── valorant.gateway.ts # WebSocket Gateway with origin-restricted CORS
+│   │   ├── valorant-local.service.ts
+│   │   └── valorant-history.service.ts
 │   ├── machine_learning/       # Python Machine Learning Pipeline
 │   │   ├── economy/            # Economy & buy recommendation ML models
-│   │   ├── pregame/            # Agent pick & draft win rate models
+│   │   ├── pregame/            # Agent pick & draft win rate models and exporters
 │   │   └── shared/             # Shared constants, feature mappings & schemas
-│   └── main.ts                 # NestJS Application Bootstrap
+│   └── main.ts                 # NestJS Application Bootstrap (127.0.0.1 loopback)
 ├── pyrightconfig.json          # Python type-checking & import resolution config
 ├── requirements.txt            # Python ML dependencies
 └── package.json                # Project dependencies & build scripts
@@ -170,26 +174,45 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 4. Model Training
-To train or re-train the Random Forest model on the latest dataset:
+### 4. Model Training & Data Export
+To train the draft model and update the inference artifact:
 ```bash
-.venv\Scripts\python.exe -m src.machine_learning.train_draft_model
+# Train Logistic Regression model
+python -m src.machine_learning.pregame.model
+
+# Export precalculated draft weights for the in-memory engine
+python -m src.machine_learning.pregame.export_draft_data
 ```
-This generates the optimized `src/machine_learning/models/draft_model.joblib` artifact.
+This updates `src/machine_learning/pregame/artifacts/draft_data.json` utilized during build.
 
 ### 5. Running the Application
 
-> **Note:** No `.env` file or Riot API Key is required! Loadout AI automatically and securely connects directly to your active local Riot Client / VALORANT session via the local `lockfile` protocol.
+> **Zero Configuration:** No `.env` file or Riot API Key is required! Loadout AI automatically and securely connects directly to your active local Riot Client / VALORANT session via the local `lockfile` loopback interface (`127.0.0.1`).
 
 #### Development Mode (Backend + Next.js Live Reload):
 ```bash
 # 1. Build and export the frontend
 npm run build:frontend
 
-# 2. Start the NestJS backend with auto-reload
+# 2. Start the NestJS backend with auto-reload (bound to 127.0.0.1:3000)
 npm run start:dev
 ```
-Open **`http://localhost:3000`** in your browser.
+Open **`http://127.0.0.1:3000`** in your browser.
+
+#### Testing & Quality Checks:
+```bash
+# Run unit tests (Jest)
+npm test
+
+# Run e2e tests
+npm run test:e2e
+
+# Run linter (check only)
+npm run lint
+
+# Run linter (auto-fix)
+npm run lint:fix
+```
 
 ---
 

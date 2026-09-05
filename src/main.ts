@@ -16,7 +16,23 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     logger: ["error", "warn", "log"],
   });
 
-  app.enableCors();
+  const allowedOrigins = [
+    /^http:\/\/localhost(:\d+)?$/,
+    /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+    /^app:\/\//,
+    /^file:\/\//,
+  ];
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.some((pattern) => pattern.test(origin))) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
+    credentials: true,
+  });
 
   const resourcesPath = process.env.ELECTRON_RESOURCES_PATH || "";
 
@@ -36,9 +52,10 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   console.log("Serving static assets from:", publicPath);
   app.useStaticAssets(publicPath);
 
+  const host = process.env.HOST || "127.0.0.1";
   const port = process.env.PORT || 3000;
-  await app.listen(port, "0.0.0.0");
-  console.log(`Loadout AI Server running on http://127.0.0.1:${port}`);
+  await app.listen(port, host);
+  console.log(`Loadout AI Server running on http://${host}:${port}`);
 
   appInstance = app;
   return app;

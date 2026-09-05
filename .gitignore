@@ -11,10 +11,14 @@
 # Python & Machine Learning
 .venv/
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
+*.joblib
+*.parquet
 src/machine_learning/__pycache__/
 src/machine_learning/models/
+src/machine_learning/**/artifacts/*.joblib
 resources/bin/
 build/
 predict.spec

@@ -6,6 +6,10 @@ import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { ValorantGateway } from "./gateway/valorant.gateway";
 import { ValorantLocalService } from "./gateway/valorant-local.service";
 import { ValorantHistoryService } from "./gateway/valorant-history.service";
+import { RiotClientService } from "./gateway/services/riot-client.service";
+import { PlayerProfileTransformer } from "./gateway/services/player-profile.transformer";
+import { RiotPregameService } from "./gateway/services/riot-pregame.service";
+import { RiotCoregameService } from "./gateway/services/riot-coregame.service";
 
 @Module({
   imports: [
@@ -20,6 +24,10 @@ import { ValorantHistoryService } from "./gateway/valorant-history.service";
   ],
   controllers: [],
   providers: [
+    RiotClientService,
+    PlayerProfileTransformer,
+    RiotPregameService,
+    RiotCoregameService,
     ValorantGateway,
     ValorantLocalService,
     ValorantHistoryService,

@@ -230,26 +230,24 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       socketRef.current.emit("pregame_select", { pregameMatchId, agentUuid });
     }
     if (!isLiveMode) {
-      // En modo simulador / offline: actualizar el equipo localmente y recalcular ML
-      setMyTeam((prevTeam) => {
-        const teamCopy = [...prevTeam];
-        const existingIndex = teamCopy.findIndex((p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase());
-        if (existingIndex !== -1) {
-          // Si ya estaba seleccionado, deseleccionar
-          teamCopy[existingIndex] = { ...teamCopy[existingIndex], agentId: null, state: "" };
+      // En modo simulador / offline: actualizar el equipo localmente y recalcular ML sin efectos secundarios en el setter
+      const teamCopy = [...myTeam];
+      const existingIndex = teamCopy.findIndex((p) => p.agentId?.toLowerCase() === agentUuid.toLowerCase());
+      if (existingIndex !== -1) {
+        // Si ya estaba seleccionado, deseleccionar
+        teamCopy[existingIndex] = { ...teamCopy[existingIndex], agentId: null, state: "" };
+      } else {
+        // Asignar al primer slot libre
+        const freeSlot = teamCopy.findIndex((p) => !p.agentId);
+        if (freeSlot !== -1) {
+          teamCopy[freeSlot] = { ...teamCopy[freeSlot], agentId: agentUuid.toLowerCase(), state: "selected" };
         } else {
-          // Asignar al primer slot libre
-          const freeSlot = teamCopy.findIndex((p) => !p.agentId);
-          if (freeSlot !== -1) {
-            teamCopy[freeSlot] = { ...teamCopy[freeSlot], agentId: agentUuid.toLowerCase(), state: "selected" };
-          } else {
-            teamCopy[0] = { ...teamCopy[0], agentId: agentUuid.toLowerCase(), state: "selected" };
-          }
+          teamCopy[0] = { ...teamCopy[0], agentId: agentUuid.toLowerCase(), state: "selected" };
         }
-        const updatedAllies = teamCopy.map((p) => p.agentId).filter((id): id is string => Boolean(id));
-        requestMlDraft(selectedMap, updatedAllies);
-        return teamCopy;
-      });
+      }
+      setMyTeam(teamCopy);
+      const updatedAllies = teamCopy.map((p) => p.agentId).filter((id): id is string => Boolean(id));
+      requestMlDraft(selectedMap, updatedAllies);
     }
   };
 

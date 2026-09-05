@@ -4,6 +4,7 @@ import {
   SubscribeMessage,
   OnGatewayConnection,
 } from "@nestjs/websockets";
+import { Logger } from "@nestjs/common";
 import { Server, Socket } from "socket.io";
 import { Subject } from "rxjs";
 import {
@@ -15,15 +16,38 @@ import {
   AgentRecommendation,
   AgentMarginalImpact,
 } from "./valorant-ml-engine";
+import { SocketEventValidator } from "./dto/socket-events.dto";
+
+const ALLOWED_ORIGIN_PATTERNS = [
+  /^http:\/\/localhost(:\d+)?$/,
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^app:\/\//,
+  /^file:\/\//,
+];
 
 @WebSocketGateway({
   cors: {
-    origin: "*",
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (
+        !origin ||
+        ALLOWED_ORIGIN_PATTERNS.some((pattern) => pattern.test(origin))
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error(`WebSocket CORS bloqueado para origen: ${origin}`));
+      }
+    },
+    credentials: true,
   },
 })
 export class ValorantGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
+
+  private readonly logger = new Logger(ValorantGateway.name);
 
   constructor(private readonly historyService: ValorantHistoryService) {}
 
@@ -86,55 +110,67 @@ export class ValorantGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("pregame_select")
-  handlePregameSelect(
-    client: Socket,
-    data: { pregameMatchId?: string; agentUuid: string },
-  ) {
-    const pregameMatchId =
-      data.pregameMatchId || (this.extraData.pregameMatchId as string);
-    console.log("RECEIVED PREGAME_SELECT:", {
-      pregameMatchId,
-      agentUuid: data.agentUuid,
-    });
-    this.pregameSelect$.next({ pregameMatchId, agentUuid: data.agentUuid });
+  handlePregameSelect(client: Socket, data: unknown) {
+    try {
+      const validated = SocketEventValidator.validatePregameAction(
+        data,
+        this.extraData.pregameMatchId as string | undefined,
+      );
+      this.logger.log(
+        `RECEIVED PREGAME_SELECT validado: ${validated.agentUuid}`,
+      );
+      this.pregameSelect$.next(validated);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`pregame_select rechazado: ${msg}`);
+      client.emit("error_response", { event: "pregame_select", error: msg });
+    }
   }
 
   @SubscribeMessage("pregame_lock")
-  handlePregameLock(
-    client: Socket,
-    data: { pregameMatchId?: string; agentUuid: string },
-  ) {
-    const pregameMatchId =
-      data.pregameMatchId || (this.extraData.pregameMatchId as string);
-    console.log("RECEIVED PREGAME_LOCK:", {
-      pregameMatchId,
-      agentUuid: data.agentUuid,
-    });
-    this.pregameLock$.next({ pregameMatchId, agentUuid: data.agentUuid });
+  handlePregameLock(client: Socket, data: unknown) {
+    try {
+      const validated = SocketEventValidator.validatePregameAction(
+        data,
+        this.extraData.pregameMatchId as string | undefined,
+      );
+      this.logger.log(`RECEIVED PREGAME_LOCK validado: ${validated.agentUuid}`);
+      this.pregameLock$.next(validated);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`pregame_lock rechazado: ${msg}`);
+      client.emit("error_response", { event: "pregame_lock", error: msg });
+    }
   }
 
   @SubscribeMessage("update_ingame_credits")
-  handleUpdateIngameCredits(client: Socket, data: { credits: number }) {
-    this.ingameCredits$.next(data);
+  handleUpdateIngameCredits(client: Socket, data: unknown) {
+    try {
+      const validated = SocketEventValidator.validateCredits(data);
+      this.ingameCredits$.next(validated);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`update_ingame_credits rechazado: ${msg}`);
+      client.emit("error_response", {
+        event: "update_ingame_credits",
+        error: msg,
+      });
+    }
   }
 
   @SubscribeMessage("request_ml_draft")
-  handleRequestMlDraft(
-    client: Socket,
-    data: { mapName?: string; allies?: string[] },
-  ) {
-    this.requestMlDraft$.next({ ...data, client });
+  handleRequestMlDraft(client: Socket, data: unknown) {
+    const validated = SocketEventValidator.validateMlDraft(data);
+    this.requestMlDraft$.next({ ...validated, client });
   }
 
   @SubscribeMessage("request_player_profile")
-  async handleRequestPlayerProfile(
-    client: Socket,
-    data?: { puuid?: string; forceRefresh?: boolean },
-  ) {
+  async handleRequestPlayerProfile(client: Socket, data: unknown) {
     try {
+      const validated = SocketEventValidator.validatePlayerProfile(data);
       const profile = await this.historyService.getFullSyncedProfile(
-        data?.puuid,
-        Boolean(data?.forceRefresh),
+        validated.puuid,
+        Boolean(validated.forceRefresh),
       );
       client.emit("player_profile_result", {
         success: Boolean(profile),

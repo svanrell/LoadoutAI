@@ -1,54 +1,34 @@
 import {
   Injectable,
+  Logger,
   OnModuleInit,
   OnModuleDestroy,
-  Logger,
 } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
+import { firstValueFrom, Subscription } from "rxjs";
 import { ValorantGateway } from "./valorant.gateway";
-import * as fs from "fs";
-import * as path from "path";
-import * as https from "https";
-import { firstValueFrom } from "rxjs";
+import { resolveMapName, resolveQueueName } from "./valorant.constants";
 import {
   ValorantMlEngine,
   AgentRecommendation,
   AgentMarginalImpact,
 } from "./valorant-ml-engine";
+import { RiotClientService } from "./services/riot-client.service";
+import { RiotPregameService } from "./services/riot-pregame.service";
 import {
-  MAPS_MAP,
-  QUEUES_MAP,
-  resolveMapName,
-  resolveQueueName,
-} from "./valorant.constants";
-
-export { MAPS_MAP, QUEUES_MAP, resolveMapName, resolveQueueName };
-
-export interface LocalPlayerInfo {
-  puuid: string;
-  agentId: string;
-  state?: string;
-  level?: number | null;
-  rank?: number;
-  playerCardId?: string;
-}
+  RiotCoregameService,
+  LocalPlayerInfo,
+} from "./services/riot-coregame.service";
 
 interface ChatSessionResponse {
   puuid: string;
 }
 
-interface Presence {
-  puuid: string;
-  private: string;
-}
-
-interface PresencesResponse {
-  presences?: Presence[];
-}
-
 interface ValorantPrivatePresenceData {
-  sessionLoopState?: string;
+  sessionLoopState: string;
   partyId?: string;
+  partyOwnerMatchScoreAllyTeam?: number;
+  partyOwnerMatchScoreEnemyTeam?: number;
   matchPresenceData?: {
     sessionLoopState?: string;
     matchMap?: string;
@@ -56,94 +36,31 @@ interface ValorantPrivatePresenceData {
   };
   partyPresenceData?: {
     partyOwnerSessionLoopState?: string;
-    partyOwnerMatchScoreAllyTeam?: number;
-    partyOwnerMatchScoreEnemyTeam?: number;
-  };
-  partyOwnerMatchScoreAllyTeam?: number;
-  partyOwnerMatchScoreEnemyTeam?: number;
-}
-
-interface PregamePlayerResponse {
-  Subject: string;
-  MatchID: string;
-  Version: number;
-}
-
-interface PregamePlayer {
-  Subject: string;
-  CharacterID: string;
-  CharacterSelectionState: string; // "" | "selected" | "locked"
-  PregamePlayerState: string;
-  CompetitiveTier: number;
-  PlayerIdentity?: {
-    Subject: string;
-    PlayerCardID: string;
-    PlayerTitleID: string;
-    AccountLevel: number;
-    PreferredLevelBorderID: string;
-    Incognito: boolean;
-    HideAccountLevel: boolean;
   };
 }
 
-interface PregameMatchResponse {
-  ID: string;
-  Version: number;
-  MapID: string;
-  AllyTeam: {
-    TeamID: string;
-    Players: PregamePlayer[];
-  };
-}
-
-interface EntitlementsTokenResponse {
-  accessToken: string;
-  entitlements: unknown[];
-  token: string;
-}
-
-interface ValorantVersionResponse {
-  status: number;
-  data: {
-    riotClientVersion: string;
-  };
-}
-
-interface CoreGamePlayerResponse {
-  Subject: string;
-  MatchID: string;
-}
-
-interface CoreGamePlayer {
-  Subject: string;
-  TeamID: string;
-  CharacterID: string;
-  PlayerIdentity?: {
-    AccountLevel: number;
-    PlayerCardID: string;
-  };
-}
-
-interface CoreGameMatchResponse {
-  MatchID: string;
-  Players: CoreGamePlayer[];
+interface PresencesResponse {
+  presences?: Array<{
+    puuid: string;
+    private: string;
+  }>;
 }
 
 @Injectable()
 export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ValorantLocalService.name);
-  private readonly lockfilePath: string;
-  private readonly httpsAgent: https.Agent;
   private currentStatus: string = "CLOSED";
   private currentExtraData: Record<string, unknown> = {};
   private pollTimeout: NodeJS.Timeout | null = null;
   private isDestroyed: boolean = false;
+  private isCheckingStatus: boolean = false;
+
   private allyScore: number = -1;
   private enemyScore: number = -1;
   private buyPhaseSecondsRemaining: number = 0;
   private buyPhaseInterval: NodeJS.Timeout | null = null;
   private currentCredits: number = 800;
-  private isCheckingStatus: boolean = false;
+
   private lastMlDraftKey: string = "";
   private lastMlDraftResult: {
     recommendations: AgentRecommendation[];
@@ -155,69 +72,85 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     agentImpacts: [],
   };
 
-  private cachedRemoteConfig: {
-    config: {
-      glzUrl: string;
-      headers: {
-        Authorization: string;
-        "X-Riot-Entitlements-JWT": string;
-        "X-Riot-ClientVersion": string;
-        "X-Riot-ClientPlatform": string;
-        "Content-Type": string;
-      };
-    };
-    expiresAt: number;
-  } | null = null;
+  private readonly subscriptions = new Subscription();
 
   constructor(
     private readonly httpService: HttpService,
     private readonly gateway: ValorantGateway,
-  ) {
-    this.lockfilePath = path.join(
-      process.env.LOCALAPPDATA || "",
-      "Riot Games",
-      "Riot Client",
-      "Config",
-      "lockfile",
-    );
-    this.httpsAgent = new https.Agent({ rejectUnauthorized: false });
-  }
+    private readonly riotClientService: RiotClientService,
+    private readonly riotPregameService: RiotPregameService,
+    private readonly riotCoregameService: RiotCoregameService,
+  ) {}
 
   onModuleInit() {
     this.logger.log(
-      "Iniciando radar local de Valorant con sondeo adaptativo...",
+      "Iniciando radar local de Valorant con sondeo adaptativo y TLS seguro...",
     );
     this.scheduleNextCheck(500);
 
-    // Escucha eventos del Frontend para pre-seleccionar agente
-    this.gateway.pregameSelect$.subscribe(async (data) => {
-      await this.selectAgent(data.pregameMatchId, data.agentUuid);
-    });
+    // Escucha eventos del Frontend con manejo de errores y limpieza
+    this.subscriptions.add(
+      this.gateway.pregameSelect$.subscribe({
+        next: async (data) => {
+          try {
+            await this.selectAgent(data.pregameMatchId, data.agentUuid);
+          } catch (err) {
+            this.logger.error("Error al procesar pregameSelect$:", err);
+          }
+        },
+        error: (err) =>
+          this.logger.error("Error en flujo pregameSelect$:", err),
+      }),
+    );
 
-    // Escucha eventos del Frontend para bloquear/fijar agente (Lock-In)
-    this.gateway.pregameLock$.subscribe(async (data) => {
-      await this.lockAgent(data.pregameMatchId, data.agentUuid);
-    });
+    this.subscriptions.add(
+      this.gateway.pregameLock$.subscribe({
+        next: async (data) => {
+          try {
+            await this.lockAgent(data.pregameMatchId, data.agentUuid);
+          } catch (err) {
+            this.logger.error("Error al procesar pregameLock$:", err);
+          }
+        },
+        error: (err) => this.logger.error("Error en flujo pregameLock$:", err),
+      }),
+    );
 
-    // Actualiza créditos en fase de compra
-    this.gateway.ingameCredits$.subscribe((data) => {
-      this.updateIngameCredits(data.credits);
-    });
+    this.subscriptions.add(
+      this.gateway.ingameCredits$.subscribe({
+        next: (data) => {
+          this.updateIngameCredits(data.credits);
+        },
+        error: (err) =>
+          this.logger.error("Error en flujo ingameCredits$:", err),
+      }),
+    );
 
-    // Solicitud manual de predicción de draft desde el cliente
-    this.gateway.requestMlDraft$.subscribe(
-      ({ mapName, modeName, allies, client }) => {
-        const map = mapName || "Ascent";
-        const mode =
-          modeName || (this.currentExtraData?.mode as string) || "competitive";
-        const result = this.getMLDraftRecommendations(map, allies || [], mode);
-        this.gateway.emitMlDraftResult(client, result);
-      },
+    this.subscriptions.add(
+      this.gateway.requestMlDraft$.subscribe({
+        next: ({ mapName, modeName, allies, client }) => {
+          const map = mapName || "Ascent";
+          const mode =
+            modeName ||
+            (this.currentExtraData?.mode as string) ||
+            "competitive";
+          const result = this.getMLDraftRecommendations(
+            map,
+            allies || [],
+            mode,
+          );
+          this.gateway.emitMlDraftResult(client, result);
+        },
+        error: (err) =>
+          this.logger.error("Error en flujo requestMlDraft$:", err),
+      }),
     );
   }
 
   onModuleDestroy() {
     this.isDestroyed = true;
+    this.subscriptions.unsubscribe();
+
     if (this.pollTimeout) {
       clearTimeout(this.pollTimeout);
       this.pollTimeout = null;
@@ -226,7 +159,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       clearInterval(this.buyPhaseInterval);
       this.buyPhaseInterval = null;
     }
-    this.logger.log("Radar local de Valorant detenido.");
+    this.logger.log("Radar local de Valorant detenido y recursos liberados.");
   }
 
   private scheduleNextCheck(delayMs?: number) {
@@ -236,355 +169,103 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     let nextDelay = delayMs;
     if (nextDelay === undefined) {
       if (this.currentStatus === "CLOSED") {
-        nextDelay = 3500; // Si el juego está cerrado, ahorrar CPU
+        nextDelay = 3500;
       } else if (
         this.currentStatus === "PREGAME" ||
         this.currentStatus === "INGAME"
       ) {
-        nextDelay = 1500; // Máxima reactividad durante selección o partida
+        nextDelay = 1500;
       } else {
-        nextDelay = 2500; // En menú
+        nextDelay = 2500;
       }
     }
 
     this.pollTimeout = setTimeout(async () => {
-      await this.checkStatus();
-      this.scheduleNextCheck();
+      try {
+        await this.checkStatus();
+      } catch (error) {
+        this.logger.error(
+          `Error en sondeo de estado de Valorant: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      } finally {
+        this.scheduleNextCheck();
+      }
     }, nextDelay);
-  }
-
-  /**
-   * Obtiene las credenciales de conexión leyendo el archivo 'lockfile'
-   * que crea automáticamente el cliente oficial de Riot Games al abrirse.
-   * Estructura del lockfile: [proceso]:[pid]:[puerto]:[password]:[protocolo]
-   */
-  private getCredentials() {
-    const candidatePaths = [
-      this.lockfilePath,
-      path.join(
-        process.env.LOCALAPPDATA || "",
-        "Riot Games",
-        "Riot Client",
-        "Config",
-        "lockfile",
-      ),
-      path.join(
-        process.env.PROGRAMDATA || "C:\\ProgramData",
-        "Riot Games",
-        "Riot Client",
-        "Config",
-        "lockfile",
-      ),
-      "C:\\Riot Games\\VALORANT\\live\\lockfile",
-    ];
-
-    const foundPath = candidatePaths.find((p) => fs.existsSync(p));
-    if (!foundPath) return null;
-
-    try {
-      const content = fs.readFileSync(foundPath, "utf8");
-      const [, , port, password, protocol] = content.split(":");
-      const authBase64 = Buffer.from(`riot:${password}`).toString("base64");
-
-      return {
-        url: `${protocol}://127.0.0.1:${port}`,
-        token: `Basic ${authBase64}`,
-      };
-    } catch {
-      return null;
-    }
-  }
-
-  private getClientVersionFromLogs(): string | null {
-    try {
-      const logPath = path.join(
-        process.env.LOCALAPPDATA || "",
-        "VALORANT",
-        "Saved",
-        "Logs",
-        "ShooterGame.log",
-      );
-      if (fs.existsSync(logPath)) {
-        const content = fs.readFileSync(logPath, "utf8");
-        const match = content.match(/CI server version:\s*([a-zA-Z0-9._-]+)/);
-        if (match && match[1]) {
-          return match[1].trim();
-        }
-      }
-    } catch {
-      // Ignorar errores de lectura
-    }
-    return null;
-  }
-
-  private async getRegionAndGlzUrl(credentials: {
-    url: string;
-    token: string;
-  }) {
-    let region = (process.env.VALORANT_REGION || "").toLowerCase();
-
-    // 1. Intentar leer región de ShooterGame.log
-    try {
-      const logPath = path.join(
-        process.env.LOCALAPPDATA || "",
-        "VALORANT",
-        "Saved",
-        "Logs",
-        "ShooterGame.log",
-      );
-      if (fs.existsSync(logPath)) {
-        const content = fs.readFileSync(logPath, "utf8");
-        const glzMatch = content.match(
-          /https:\/\/(glz-[a-z0-9-]+)\.([a-z0-9-]+)\.a\.pvp\.net/i,
-        );
-        if (glzMatch && glzMatch[0]) {
-          return {
-            glzUrl: `https://${glzMatch[1]}.${glzMatch[2]}.a.pvp.net`,
-            region: glzMatch[1].replace("glz-", "").replace(/-[0-9]+$/, ""),
-            shard: glzMatch[2],
-          };
-        }
-      }
-    } catch {
-      // Fallback
-    }
-
-    // 2. Intentar consultar endpoint de Riot Client
-    if (!region) {
-      try {
-        const regionRes = await firstValueFrom(
-          this.httpService.get<{ region?: string; webRegion?: string }>(
-            `${credentials.url}/riotclient/region-locale`,
-            {
-              headers: { Authorization: credentials.token },
-              httpsAgent: this.httpsAgent,
-            },
-          ),
-        );
-        const rawReg = (
-          regionRes.data?.region ||
-          regionRes.data?.webRegion ||
-          ""
-        ).toLowerCase();
-        if (rawReg.includes("eu")) region = "eu";
-        else if (rawReg.includes("na")) region = "na";
-        else if (rawReg.includes("latam")) region = "latam";
-        else if (rawReg.includes("br")) region = "br";
-        else if (rawReg.includes("ap")) region = "ap";
-        else if (rawReg.includes("kr")) region = "kr";
-      } catch {
-        // Fallback
-      }
-    }
-
-    if (!region) region = "eu";
-    const shard = region === "latam" || region === "br" ? "na" : region;
-    return {
-      glzUrl: `https://glz-${region}-1.${shard}.a.pvp.net`,
-      region,
-      shard,
-    };
-  }
-
-  private async getRemoteConfig() {
-    const now = Date.now();
-    if (this.cachedRemoteConfig && this.cachedRemoteConfig.expiresAt > now) {
-      return this.cachedRemoteConfig.config;
-    }
-
-    const credentials = this.getCredentials();
-    if (!credentials) {
-      this.cachedRemoteConfig = null;
-      return null;
-    }
-
-    const config = {
-      headers: { Authorization: credentials.token },
-      httpsAgent: this.httpsAgent,
-    };
-
-    try {
-      const tokenRes = await firstValueFrom(
-        this.httpService.get<EntitlementsTokenResponse>(
-          `${credentials.url}/entitlements/v1/token`,
-          config,
-        ),
-      );
-      const accessToken = tokenRes.data.accessToken;
-      const entitlementsToken = tokenRes.data.token;
-
-      let clientVersion = "release-13.04-shipping-20-5340415";
-      try {
-        const versionRes = await firstValueFrom(
-          this.httpService.get<ValorantVersionResponse>(
-            "https://valorant-api.com/v1/version",
-            { timeout: 3000 },
-          ),
-        );
-        if (versionRes?.data?.data?.riotClientVersion) {
-          clientVersion = versionRes.data.data.riotClientVersion;
-        }
-      } catch {
-        const logVersion = this.getClientVersionFromLogs();
-        if (logVersion) clientVersion = logVersion;
-      }
-
-      const { glzUrl } = await this.getRegionAndGlzUrl(credentials);
-
-      const resolvedConfig = {
-        glzUrl,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "X-Riot-Entitlements-JWT": entitlementsToken,
-          "X-Riot-ClientVersion": clientVersion,
-          "X-Riot-ClientPlatform":
-            "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
-          "Content-Type": "application/json",
-        },
-      };
-
-      this.cachedRemoteConfig = {
-        config: resolvedConfig,
-        expiresAt: now + 45000, // 45 segundos de caché
-      };
-
-      return resolvedConfig;
-    } catch (error) {
-      this.cachedRemoteConfig = null;
-      this.logger.error(
-        `Error getting remote config: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return null;
-    }
   }
 
   async selectAgent(
     pregameMatchId: string,
     agentUuid: string,
   ): Promise<boolean> {
-    const remote = await this.getRemoteConfig();
+    const remote = await this.riotClientService.getRemoteConfig();
     if (!remote) {
       this.logger.warn(
-        "selectAgent failed: remote config unavailable (Valorant closed?)",
+        "selectAgent falló: configuración remota no disponible.",
       );
       return false;
     }
 
     let matchId = pregameMatchId;
     if (!matchId || matchId === "PRESENCE_LOBBY") {
-      const credentials = this.getCredentials();
-      if (credentials) {
-        try {
-          const session = await firstValueFrom(
-            this.httpService.get<ChatSessionResponse>(
-              `${credentials.url}/chat/v1/session`,
-              {
-                headers: { Authorization: credentials.token },
-                httpsAgent: this.httpsAgent,
-              },
-            ),
-          );
-          const puuid = session.data.puuid;
-          const pregamePlayer = await firstValueFrom(
-            this.httpService.get<PregamePlayerResponse>(
-              `${remote.glzUrl}/pregame/v1/players/${puuid}`,
-              { headers: remote.headers },
-            ),
-          );
-          matchId = pregamePlayer.data.MatchID;
-        } catch (e) {
-          this.logger.warn(
-            `Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`,
-          );
+      const puuid = await this.riotClientService.getCurrentPlayerPuuid();
+      if (puuid) {
+        const pregameData = await this.riotPregameService.getPregameMatch(
+          remote.glzUrl,
+          remote.headers,
+          puuid,
+        );
+        if (pregameData) {
+          matchId = pregameData.matchId;
         }
       }
     }
 
     if (!matchId) {
-      this.logger.error("Cannot select agent: missing pregameMatchId");
+      this.logger.error("No se puede seleccionar agente: falta pregameMatchId");
       return false;
     }
 
-    try {
-      await firstValueFrom(
-        this.httpService.post(
-          `${remote.glzUrl}/pregame/v1/matches/${matchId}/select/${agentUuid}`,
-          {},
-          { headers: remote.headers },
-        ),
-      );
-      this.logger.log(
-        `Selected agent ${agentUuid} in pregame match ${matchId}`,
-      );
-      return true;
-    } catch (error: any) {
-      this.logger.error(
-        `Error selecting agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : error instanceof Error ? error.message : String(error)}`,
-      );
-      return false;
-    }
+    return this.riotPregameService.selectAgent(
+      remote.glzUrl,
+      remote.headers,
+      matchId,
+      agentUuid,
+    );
   }
 
   async lockAgent(pregameMatchId: string, agentUuid: string): Promise<boolean> {
-    const remote = await this.getRemoteConfig();
+    const remote = await this.riotClientService.getRemoteConfig();
     if (!remote) {
-      this.logger.warn(
-        "lockAgent failed: remote config unavailable (Valorant closed?)",
-      );
+      this.logger.warn("lockAgent falló: configuración remota no disponible.");
       return false;
     }
 
     let matchId = pregameMatchId;
     if (!matchId || matchId === "PRESENCE_LOBBY") {
-      const credentials = this.getCredentials();
-      if (credentials) {
-        try {
-          const session = await firstValueFrom(
-            this.httpService.get<ChatSessionResponse>(
-              `${credentials.url}/chat/v1/session`,
-              {
-                headers: { Authorization: credentials.token },
-                httpsAgent: this.httpsAgent,
-              },
-            ),
-          );
-          const puuid = session.data.puuid;
-          const pregamePlayer = await firstValueFrom(
-            this.httpService.get<PregamePlayerResponse>(
-              `${remote.glzUrl}/pregame/v1/players/${puuid}`,
-              { headers: remote.headers },
-            ),
-          );
-          matchId = pregamePlayer.data.MatchID;
-        } catch (e) {
-          this.logger.warn(
-            `Could not resolve matchId automatically: ${e instanceof Error ? e.message : String(e)}`,
-          );
+      const puuid = await this.riotClientService.getCurrentPlayerPuuid();
+      if (puuid) {
+        const pregameData = await this.riotPregameService.getPregameMatch(
+          remote.glzUrl,
+          remote.headers,
+          puuid,
+        );
+        if (pregameData) {
+          matchId = pregameData.matchId;
         }
       }
     }
 
     if (!matchId) {
-      this.logger.error("Cannot lock agent: missing pregameMatchId");
+      this.logger.error("No se puede bloquear agente: falta pregameMatchId");
       return false;
     }
 
-    try {
-      await firstValueFrom(
-        this.httpService.post(
-          `${remote.glzUrl}/pregame/v1/matches/${matchId}/lock/${agentUuid}`,
-          {},
-          { headers: remote.headers },
-        ),
-      );
-      this.logger.log(`Locked agent ${agentUuid} in pregame match ${matchId}`);
-      return true;
-    } catch (error: any) {
-      this.logger.error(
-        `Error locking agent ${agentUuid}: ${error?.response?.data ? JSON.stringify(error.response.data) : error instanceof Error ? error.message : String(error)}`,
-      );
-      return false;
-    }
+    return this.riotPregameService.lockAgent(
+      remote.glzUrl,
+      remote.headers,
+      matchId,
+      agentUuid,
+    );
   }
 
   private async checkStatus() {
@@ -592,16 +273,18 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     this.isCheckingStatus = true;
 
     try {
-      const credentials = this.getCredentials();
-
+      const credentials = this.riotClientService.getCredentials();
       if (!credentials) {
         this.updateStatus("CLOSED");
         return;
       }
 
+      const localAgent = this.riotClientService.getLocalHttpsAgent(
+        credentials.url,
+      );
       const config = {
         headers: { Authorization: credentials.token },
-        httpsAgent: this.httpsAgent,
+        httpsAgent: localAgent,
       };
 
       const session = await firstValueFrom(
@@ -639,73 +322,75 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         if (loopState === "PREGAME") {
           this.clearBuyPhase();
           const matchId = privateData.partyId || "PRESENCE_LOBBY";
+
           try {
-            const remoteConfig = await this.getRemoteConfig();
+            const remoteConfig = await this.riotClientService.getRemoteConfig();
             if (!remoteConfig) {
               throw new Error(
-                "Unable to obtain remote GLZ configuration for pregame",
+                "Configuración remota GLZ no disponible para pregame",
               );
             }
 
-            // 4. Buscar el MatchID del pregame del jugador
-            const pregamePlayer = await firstValueFrom(
-              this.httpService.get<PregamePlayerResponse>(
-                `${remoteConfig.glzUrl}/pregame/v1/players/${puuid}`,
-                { headers: remoteConfig.headers },
-              ),
-            );
-            const pregameMatchId = pregamePlayer.data.MatchID;
-
-            // 5. Obtener los detalles de la fase de selección
-            const pregameMatch = await firstValueFrom(
-              this.httpService.get<PregameMatchResponse>(
-                `${remoteConfig.glzUrl}/pregame/v1/matches/${pregameMatchId}`,
-                { headers: remoteConfig.headers },
-              ),
+            const pregameData = await this.riotPregameService.getPregameMatch(
+              remoteConfig.glzUrl,
+              remoteConfig.headers,
+              puuid,
             );
 
-            const mapPath = pregameMatch.data.MapID || "";
-            const mapName = resolveMapName(mapPath);
+            if (pregameData) {
+              const pregameMatch = pregameData.data;
+              const pregameMatchId = pregameData.matchId;
+              const mapPath = pregameMatch.MapID || "";
+              const mapName = resolveMapName(mapPath);
 
-            const players = pregameMatch.data.AllyTeam.Players.map((p) => ({
-              puuid: p.Subject,
-              agentId: p.CharacterID,
-              state: p.CharacterSelectionState,
-              level: p.PlayerIdentity?.HideAccountLevel
-                ? null
-                : p.PlayerIdentity?.AccountLevel,
-              rank: p.CompetitiveTier,
-              playerCardId: p.PlayerIdentity?.PlayerCardID,
-            }));
+              const players = pregameMatch.AllyTeam.Players.map((p) => ({
+                puuid: p.Subject,
+                agentId: p.CharacterID,
+                state: p.CharacterSelectionState,
+                level: p.PlayerIdentity?.HideAccountLevel
+                  ? null
+                  : p.PlayerIdentity?.AccountLevel,
+                rank: p.CompetitiveTier,
+                playerCardId: p.PlayerIdentity?.PlayerCardID,
+              }));
 
-            const queueId = privateData.matchPresenceData?.queueId || "";
-            const mode = resolveQueueName(queueId);
+              const queueId = privateData.matchPresenceData?.queueId || "";
+              const mode = resolveQueueName(queueId);
 
-            // Obtener agentes bloqueados o seleccionados por el equipo
-            const alliesAgentUuids = players
-              .filter((p) => p.agentId && p.agentId !== "")
-              .map((p) => p.agentId);
+              const alliesAgentUuids = players
+                .filter((p) => p.agentId && p.agentId !== "")
+                .map((p) => p.agentId);
 
-            // Inferencia de Machine Learning en tiempo real
-            const mlResult = this.getMLDraftRecommendations(
-              mapName,
-              alliesAgentUuids,
-            );
+              const mlResult = this.getMLDraftRecommendations(
+                mapName,
+                alliesAgentUuids,
+              );
 
-            this.updateStatus("PREGAME", {
-              matchId,
-              pregameMatchId,
-              players,
-              mapName,
-              myPuuid: puuid,
-              mlDraftPicks: mlResult.recommendations,
-              mlSynergyWinRate: mlResult.currentSynergy,
-              mlAgentImpacts: mlResult.agentImpacts || [],
-              mode,
-            });
+              this.updateStatus("PREGAME", {
+                matchId,
+                pregameMatchId,
+                players,
+                mapName,
+                myPuuid: puuid,
+                mlDraftPicks: mlResult.recommendations,
+                mlSynergyWinRate: mlResult.currentSynergy,
+                mlAgentImpacts: mlResult.agentImpacts || [],
+                mode,
+              });
+            } else {
+              const queueId = privateData.matchPresenceData?.queueId || "";
+              const mode = resolveQueueName(queueId);
+              this.updateStatus("PREGAME", {
+                matchId,
+                myPuuid: puuid,
+                mode,
+                mlDraftPicks: [],
+                mlSynergyWinRate: 50.0,
+              });
+            }
           } catch (error) {
             this.logger.error(
-              `Error querying pregame selection details: ${error instanceof Error ? error.message : String(error)}`,
+              `Error en consulta pregame: ${error instanceof Error ? error.message : String(error)}`,
             );
             const queueId = privateData.matchPresenceData?.queueId || "";
             const mode = resolveQueueName(queueId);
@@ -725,67 +410,22 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
           let players: LocalPlayerInfo[] = [];
           try {
-            const remoteConfig = await this.getRemoteConfig();
-            if (!remoteConfig) {
-              throw new Error(
-                "Unable to obtain remote GLZ configuration for in-game",
-              );
-            }
-
-            const coregamePlayer = await firstValueFrom(
-              this.httpService.get<CoreGamePlayerResponse>(
-                `${remoteConfig.glzUrl}/core-game/v1/players/${puuid}`,
-                { headers: remoteConfig.headers },
-              ),
-            );
-            const coregameMatchId = coregamePlayer.data.MatchID;
-
-            const coregameMatch = await firstValueFrom(
-              this.httpService.get<CoreGameMatchResponse>(
-                `${remoteConfig.glzUrl}/core-game/v1/matches/${coregameMatchId}`,
-                { headers: remoteConfig.headers },
-              ),
-            );
-
-            const myPlayerInGame = coregameMatch.data.Players.find(
-              (p) => p.Subject === puuid,
-            );
-            const myTeamId = myPlayerInGame ? myPlayerInGame.TeamID : null;
-
-            const teammatePlayers = coregameMatch.data.Players.filter(
-              (p) => p.TeamID === myTeamId,
-            );
-
-            players = teammatePlayers.map((p) => {
-              const playerPresence = presences.data.presences?.find(
-                (presence) => presence.puuid === p.Subject,
-              );
-              let rank = 0;
-              if (playerPresence && playerPresence.private) {
-                try {
-                  const decoded = Buffer.from(
-                    playerPresence.private,
-                    "base64",
-                  ).toString("utf8");
-                  const presenceData = JSON.parse(decoded);
-                  rank = presenceData.competitiveTier || 0;
-                } catch {
-                  rank = 0;
-                }
+            const remoteConfig = await this.riotClientService.getRemoteConfig();
+            if (remoteConfig) {
+              const coreGameInfo =
+                await this.riotCoregameService.getCoreGameTeammates(
+                  remoteConfig.glzUrl,
+                  remoteConfig.headers,
+                  puuid,
+                  presences.data.presences,
+                );
+              if (coreGameInfo) {
+                players = coreGameInfo.players;
               }
-
-              return {
-                puuid: p.Subject,
-                agentId: p.CharacterID,
-                state: "locked",
-                level: p.PlayerIdentity?.AccountLevel || null,
-                rank: rank,
-                playerCardId: p.PlayerIdentity?.PlayerCardID,
-              };
-            });
+            }
           } catch (error) {
             this.logger.error(
-              `Error querying core-game match details: ${error instanceof Error ? error.message : String(error)}`,
+              `Error en consulta core-game: ${error instanceof Error ? error.message : String(error)}`,
             );
           }
 
@@ -798,34 +438,28 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
           const scoreAlly =
             privateData.partyOwnerMatchScoreAllyTeam ??
-            privateData.partyPresenceData?.partyOwnerMatchScoreAllyTeam ??
+            this.currentExtraData?.scoreAlly ??
             0;
           const scoreEnemy =
             privateData.partyOwnerMatchScoreEnemyTeam ??
-            privateData.partyPresenceData?.partyOwnerMatchScoreEnemyTeam ??
+            this.currentExtraData?.scoreEnemy ??
             0;
 
-          if (this.allyScore === -1 && this.enemyScore === -1) {
-            this.allyScore = scoreAlly;
-            this.enemyScore = scoreEnemy;
-            this.startBuyPhase(scoreAlly, scoreEnemy);
-          } else if (
-            this.allyScore !== scoreAlly ||
-            this.enemyScore !== scoreEnemy
+          if (
+            this.allyScore !== Number(scoreAlly) ||
+            this.enemyScore !== Number(scoreEnemy)
           ) {
-            this.allyScore = scoreAlly;
-            this.enemyScore = scoreEnemy;
-            this.startBuyPhase(scoreAlly, scoreEnemy);
+            this.allyScore = Number(scoreAlly);
+            this.enemyScore = Number(scoreEnemy);
+            this.startBuyPhase(this.allyScore, this.enemyScore);
           }
         } else {
           this.clearBuyPhase();
-          const queueId = privateData.matchPresenceData?.queueId || "";
-          const mode = resolveQueueName(queueId);
-          this.updateStatus("MENU", { mode });
+          this.updateStatus("MENUS");
         }
       } else {
         this.clearBuyPhase();
-        this.updateStatus("MENU");
+        this.updateStatus("MENUS");
       }
     } catch {
       this.clearBuyPhase();
@@ -847,9 +481,8 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       this.currentStatus = newStatus;
       this.currentExtraData = extraData;
       this.logger.log(
-        `Status or details changed: ${newStatus} ${JSON.stringify(extraData)}`,
+        `Cambio de estado en radar: ${newStatus} ${JSON.stringify(extraData)}`,
       );
-
       this.gateway.updateStatus(newStatus, extraData);
     }
   }
@@ -865,7 +498,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     this.buyPhaseSecondsRemaining = isSpecialRound ? 45 : 30;
 
     this.logger.log(
-      `New round detected! Round: ${round}. Starting buy phase of ${this.buyPhaseSecondsRemaining} seconds.`,
+      `Nueva ronda detectada! Ronda: ${round}. Fase de compra: ${this.buyPhaseSecondsRemaining}s.`,
     );
     this.gateway.emitBuyPhaseStatus(
       true,
@@ -875,13 +508,12 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       scoreEnemy,
     );
 
-    // Automatically trigger ML prediction for the new round
-    void this.updateIngameCredits(this.currentCredits);
+    this.updateIngameCredits(this.currentCredits);
 
     this.buyPhaseInterval = setInterval(() => {
       this.buyPhaseSecondsRemaining--;
       if (this.buyPhaseSecondsRemaining <= 0) {
-        this.logger.log(`Buy phase ended for round ${round}.`);
+        this.logger.log(`Fase de compra terminada para ronda ${round}.`);
         this.gateway.emitBuyPhaseStatus(
           false,
           0,
@@ -937,7 +569,6 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       .join(",");
     const cacheKey = `${normalizedMap}__${normalizedMode}__${sortedAllies}`;
 
-    // 1. Si la composición y el mapa no han cambiado, reutilizar el resultado instantáneamente
     if (
       this.lastMlDraftKey === cacheKey &&
       this.lastMlDraftResult.recommendations.length > 0
@@ -945,7 +576,6 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       return this.lastMlDraftResult;
     }
 
-    // 2. Ejecutar inferencia ultra-rápida In-Memory en TypeScript (<0.5ms)
     try {
       const mlEngine = ValorantMlEngine.getInstance();
       const prediction = mlEngine.predict(
@@ -965,7 +595,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       }
     } catch (engineError) {
       this.logger.warn(
-        `ML Draft prediction calculation error: ${engineError instanceof Error ? engineError.message : String(engineError)}`,
+        `Error al calcular predicción de draft ML: ${engineError instanceof Error ? engineError.message : String(engineError)}`,
       );
     }
 
