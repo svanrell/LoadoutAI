@@ -76,3 +76,8 @@ lerna-debug.log*
 
 # Agent workflows
 .agent/
+
+# Discord RPC docs & guides
+DISCORD_RPC_GUIA.md
+DISCORD_RPC*.md
+
