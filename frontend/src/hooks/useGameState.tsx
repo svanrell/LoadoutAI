@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
 import { advanceRoundEconomy, getResetCreditsForRound, RoundOutcome } from "@/data/economyEngine";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type ViewState = "closed" | "menu" | "pregame" | "ingame" | "tierlist" | "tools";
 
@@ -156,6 +157,7 @@ interface GameStateContextProps {
 const GameStateContext = createContext<GameStateContextProps | undefined>(undefined);
 
 export function GameStateProvider({ children }: { children: ReactNode }) {
+  const { language } = useLanguage();
   const [view, setView] = useState<ViewState>("closed");
   const [selectedMap, setSelectedMap] = useState("Ascent");
   const [selectedMode, setSelectedMode] = useState("competitive");
@@ -330,6 +332,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     socket.on("connect", () => {
       setConnectionStatus("menu-mode");
       setConnectionText("Radar Online");
+      socket.emit("set_language", { language });
       // Solicitar predicciones iniciales usando refs frescas
       socket.emit("request_ml_draft", {
         mapName: selectedMapRef.current,
@@ -575,6 +578,12 @@ interface MLBuyRecommendationsPayload {
       socketRef.current.emit('update_ingame_credits', { credits: myCredits });
     }
   }, [myCredits, isLiveMode]);
+
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.emit("set_language", { language });
+    }
+  }, [language]);
 
   return (
     <GameStateContext.Provider

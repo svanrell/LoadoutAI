@@ -3,6 +3,13 @@ import { Client } from "@xhayper/discord-rpc";
 import * as fs from "fs";
 import { join } from "path";
 
+import {
+  RpcLanguage,
+  RPC_I18N,
+  LastRpcActivity,
+} from "./discord-rpc.i18n";
+export type { RpcLanguage } from "./discord-rpc.i18n";
+
 @Injectable() 
 export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(DiscordRpcService.name);
@@ -10,6 +17,55 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     private isConnected = false;
     private matchStartTimestamp: Date | null = null;
     private reconnectInterval: NodeJS.Timeout | null = null;
+
+    private lastActivity: LastRpcActivity = { type: "idle" };
+    private currentLanguage: RpcLanguage = this.detectSystemLanguage();
+
+    private detectSystemLanguage(): RpcLanguage {
+        try {
+            const locale = Intl.DateTimeFormat().resolvedOptions().locale.toLowerCase();
+            return locale.startsWith("es") ? "es" : "en";
+        } catch {
+            return "es";
+        }
+    }
+
+    public setLanguage(lang: RpcLanguage) {
+        if (this.currentLanguage === lang) return;
+        this.currentLanguage = lang;
+        this.logger.log(`Idioma de Discord RPC actualizado a: ${lang.toUpperCase()}`);
+        this.refreshLastActivity();
+    }
+
+    public getLanguage(): RpcLanguage {
+        return this.currentLanguage;
+    }
+
+    private refreshLastActivity() {
+        if (!this.isConnected || !this.client) return;
+        switch (this.lastActivity.type) {
+            case "idle":
+                this.applyIdleActivity();
+                break;
+            case "menu":
+                this.applyMenuActivity();
+                break;
+            case "pregame":
+                this.applyPregameActivity(
+                    this.lastActivity.mapName,
+                    this.lastActivity.mode,
+                );
+                break;
+            case "ingame":
+                this.applyInGameActivity(
+                    this.lastActivity.mapName,
+                    this.lastActivity.mode,
+                    this.lastActivity.allyScore,
+                    this.lastActivity.enemyScore,
+                );
+                break;
+        }
+    }
 
     private getClientId(): string | undefined {
         if (process.env.DISCORD_CLIENT_ID) return process.env.DISCORD_CLIENT_ID;
@@ -48,7 +104,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
             this.client.on("ready", () => {
                 this.isConnected = true;
                 this.logger.log(`Conectado a DISCORD como ${this.client?.user?.username}`);
-                this.setIdleActivity();
+                this.refreshLastActivity();
                 if (this.reconnectInterval) {
                     clearInterval(this.reconnectInterval);
                     this.reconnectInterval = null;
@@ -88,40 +144,60 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         }, 15000);
     }
 
-    public setIdleActivity(){
+    public setIdleActivity() {
+        this.lastActivity = { type: "idle" };
+        this.applyIdleActivity();
+    }
+
+    private applyIdleActivity() {
         this.matchStartTimestamp = null;
+        const t = RPC_I18N[this.currentLanguage];
         this.updateActivity({
-            details: "Loadout AI Assistant",
-            state: "Esperando inicio de Valorant",
+            details: t.idleDetails,
+            state: t.idleState,
             largeImageKey: "logo",
             largeImageText: "Loadout AI",
         });
     }
 
-    public setMenuActivity(){
+    public setMenuActivity() {
+        this.lastActivity = { type: "menu" };
+        this.applyMenuActivity();
+    }
+
+    private applyMenuActivity() {
         this.matchStartTimestamp = null;
+        const t = RPC_I18N[this.currentLanguage];
         this.updateActivity({
-            details: "Esperando a entrar en partida...",
-            state: "Menú Principal",
+            details: t.menuDetails,
+            state: t.menuState,
             largeImageKey: "logo",
             largeImageText: "Loadout AI",
         });
     }
 
-    public setPregameActivity(mapName: string, mode: string){
+    public setPregameActivity(mapName: string, mode: string) {
+        this.lastActivity = { type: "pregame", mapName, mode };
+        this.applyPregameActivity(mapName, mode);
+    }
+
+    private applyPregameActivity(mapName: string, mode: string) {
         if (!this.matchStartTimestamp) {
             this.matchStartTimestamp = new Date();
         }
-        const mapAsset = mapName.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const t = RPC_I18N[this.currentLanguage];
+        const effectiveMode = mode || t.unknownMode;
+        const effectiveMap = mapName || t.unknownMap;
+        const mapAsset = mapName ? mapName.toLowerCase().replace(/[^a-z0-9]/g, "") : "";
 
         this.updateActivity({
-            details: `Selección de agente (${mode || "No se ha detectado modo de juego"})`,
-            state: `Mapa : (${mapName || "Desconocido"})`,
+            details: t.pregameDetails(effectiveMode),
+            state: t.pregameState(effectiveMap),
             startTimestamp: this.matchStartTimestamp,
             largeImageKey: mapAsset || "logo",
-            largeImageText: mapName,
+            largeImageText: effectiveMap,
             smallImageKey: "logo",
-            smallImageText: "LoadoutAI",
+            smallImageText: "Loadout AI",
         });
     }
 
@@ -130,24 +206,43 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         mode: string,
         allyScore: number,
         enemyScore: number,
-    ){
+    ) {
+        this.lastActivity = {
+            type: "ingame",
+            mapName,
+            mode,
+            allyScore,
+            enemyScore,
+        };
+        this.applyInGameActivity(mapName, mode, allyScore, enemyScore);
+    }
+
+    private applyInGameActivity(
+        mapName: string,
+        mode: string,
+        allyScore: number,
+        enemyScore: number,
+    ) {
         if (!this.matchStartTimestamp) {
             this.matchStartTimestamp = new Date();
         }
+        const t = RPC_I18N[this.currentLanguage];
+        const effectiveMode = mode || t.unknownMode;
+        const effectiveMap = mapName || t.unknownMap;
         const round = allyScore >= 0 && enemyScore >= 0 ? allyScore + enemyScore + 1 : 1;
         const scoreText = allyScore >= 0 && enemyScore >= 0 ? `(${allyScore} - ${enemyScore})` : "";
-        const mapAsset = mapName.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const mapAsset = mapName ? mapName.toLowerCase().replace(/[^a-z0-9]/g, "") : "";
 
         this.updateActivity({
-            details: `${mode || "Partida"} - ${mapName}`,
-            state: `Ronda ${round} ${scoreText}`.trim(),
+            details: t.ingameDetails(effectiveMode, effectiveMap),
+            state: t.ingameState(round, scoreText),
             startTimestamp: this.matchStartTimestamp,
             largeImageKey: mapAsset || "logo",
-            largeImageText: `Mapa: ${mapName}`,
+            largeImageText: t.largeImageMap(effectiveMap),
             smallImageKey: "logo",
             smallImageText: "Loadout AI Radar",
             buttons: [
-                { label: "Ver Loadout AI", url: "https://github.com/svanrell/LoadoutAI" },
+                { label: t.buttonLabel, url: "https://github.com/svanrell/LoadoutAI" },
             ],
         });
     }

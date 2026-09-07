@@ -19,6 +19,7 @@ import {
 } from "./valorant-ml-engine";
 import { SocketEventValidator } from "./dto/socket-events.dto";
 import { SocketRateLimiter } from "./security/socket-rate-limiter";
+import { DiscordRpcService, RpcLanguage } from "./services/discord-rpc.service";
 
 const ALLOWED_ORIGIN_PATTERNS = [
   /^http:\/\/localhost(:\d+)?$/,
@@ -53,7 +54,10 @@ export class ValorantGateway
   private readonly logger = new Logger(ValorantGateway.name);
   private readonly rateLimiter = new SocketRateLimiter();
 
-  constructor(private readonly historyService: ValorantHistoryService) {}
+  constructor(
+    private readonly historyService: ValorantHistoryService,
+    private readonly discordRpc: DiscordRpcService,
+  ) {}
 
   readonly pregameSelect$ = new Subject<{
     pregameMatchId: string;
@@ -130,6 +134,13 @@ export class ValorantGateway
     };
     if (this.server) {
       this.server.emit("buy_phase", this.buyPhaseStatus);
+    }
+  }
+
+  @SubscribeMessage("set_language")
+  handleSetLanguage(client: Socket, data: { language?: string }) {
+    if (data?.language === "es" || data?.language === "en") {
+      this.discordRpc.setLanguage(data.language as RpcLanguage);
     }
   }
 
