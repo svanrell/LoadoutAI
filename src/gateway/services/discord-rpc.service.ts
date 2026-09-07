@@ -9,7 +9,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     private matchStartTimestamp: Date | null = null;
     private reconnectInterval: NodeJS.Timeout | null = null;
 
-    private readonly clientid = process.env.DiscordRpcService;
+    private readonly clientid = process.env.DISCORD_CLIENT_ID || process.env.DiscordRpcService;
 
     onModuleInit() {
         this.connect();
@@ -66,10 +66,20 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     public setIdleActivity(){
         this.matchStartTimestamp = null;
         this.updateActivity({
+            details: "Loadout AI Assistant",
+            state: "Esperando inicio de Valorant",
+            largeImageKey: "app_logo",
+            largeImageText: "Loadout AI",
+        });
+    }
+
+    public setMenuActivity(){
+        this.matchStartTimestamp = null;
+        this.updateActivity({
             details: "En el Menú Principal",
             state: "En el Lobby",
             largeImageKey: "app_logo",
-            largeImageText: "LoadoutAi",
+            largeImageText: "Loadout AI",
         });
     }
 
@@ -83,8 +93,8 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
             details: `Selección de agente (${mode || "No se ha detectado modo de juego"})`,
             state: `Mapa : (${mapName || "Desconocido"})`,
             startTimestamp: this.matchStartTimestamp,
-            startImageKey: mapAsset || "app_logo",
-            startImageText: mapName,
+            largeImageKey: mapAsset || "app_logo",
+            largeImageText: mapName,
             smallImageKey: "app_logo",
             smallImageText: "LoadoutAI",
         });
@@ -117,6 +127,15 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         });
     }
 
+    public setIngameActivity(
+        mapName: string,
+        mode: string,
+        allyScore: number,
+        enemyScore: number,
+    ) {
+        this.setInGameActivity(mapName, mode, allyScore, enemyScore);
+    }
+
     public clearActivity(){
         if (this.isConnected && this.client) {
             this.client.user?.clearActivity().catch(() => {});
@@ -132,7 +151,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
 
     public destroy(){
         if (this.reconnectInterval) {
-            this.clearInterval(this.reconnectInterval);
+            clearInterval(this.reconnectInterval);
             this.reconnectInterval = null;
         }
         if (this.client){

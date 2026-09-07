@@ -10,6 +10,7 @@ import { RiotMatchHistoryService } from "./gateway/services/riot-match-history.s
 import { RiotMmrService } from "./gateway/services/riot-mmr.service";
 import { RiotPresenceService } from "./gateway/services/riot-presence.service";
 import { EconomyAdvisorService } from "./gateway/services/economy-advisor.service";
+import { DiscordRpcService } from "./gateway/services/discord-rpc.service";
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { EconomyAdvisorService } from "./gateway/services/economy-advisor.servic
     ValorantGateway,
     ValorantLocalService,
     ValorantHistoryService,
+    DiscordRpcService,
   ],
 })
 export class AppModule {}

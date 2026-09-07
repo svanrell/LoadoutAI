@@ -20,6 +20,7 @@ import {
 } from "./services/riot-coregame.service";
 import { RiotPresenceService } from "./services/riot-presence.service";
 import { EconomyAdvisorService } from "./services/economy-advisor.service";
+import { DiscordRpcService } from "./services/discord-rpc.service";
 
 @Injectable()
 export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
@@ -56,6 +57,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     private readonly riotCoregameService: RiotCoregameService,
     private readonly presenceService: RiotPresenceService,
     private readonly economyAdvisor: EconomyAdvisorService,
+    private readonly discordRpc: DiscordRpcService,
   ) {}
 
   onModuleInit() {
@@ -479,6 +481,31 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         `Cambio de estado en radar: ${newStatus} ${JSON.stringify(extraData)}`,
       );
       this.gateway.updateStatus(newStatus, extraData);
+
+      const mapName = (extraData?.mapName as string) || "Valorant";
+      const mode = (extraData?.mode as string) || "Partida";
+
+      switch (newStatus) {
+        case "CLOSED":
+          this.discordRpc.setIdleActivity();
+          break;
+        case "MENU":
+          this.discordRpc.setMenuActivity();
+          break;
+        case "PREGAME":
+          this.discordRpc.setPregameActivity(mapName, mode);
+          break;
+        case "INGAME":
+          this.discordRpc.setIngameActivity(
+            mapName,
+            mode,
+            this.allyScore,
+            this.enemyScore,
+          );
+          break;
+        default:
+          break;
+      }
     }
   }
 
