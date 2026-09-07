@@ -9,6 +9,7 @@ import {
   LastRpcActivity,
 } from "./discord-rpc.i18n";
 export type { RpcLanguage } from "./discord-rpc.i18n";
+import { DISCORD_CONFIG } from "../../shared/discord.constants";
 
 @Injectable() 
 export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
@@ -67,21 +68,8 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
-    private getClientId(): string | undefined {
-        if (process.env.DISCORD_CLIENT_ID) return process.env.DISCORD_CLIENT_ID;
-        try {
-            const envPath = join(process.cwd(), ".env");
-            if (fs.existsSync(envPath)) {
-                const content = fs.readFileSync(envPath, "utf-8");
-                const match = content.match(/^(?:DISCORD_CLIENT_ID)\s*=\s*([^\r\n]+)/m);
-                if (match) {
-                    const id = match[1].trim().replace(/^["']|["']$/g, "");
-                    process.env.DISCORD_CLIENT_ID = id;
-                    return id;
-                }
-            }
-        } catch {}
-        return undefined;
+    private getClientId(): string {
+        return process.env.DISCORD_CLIENT_ID || DISCORD_CONFIG.CLIENT_ID;
     }
 
     onModuleInit() {
@@ -130,18 +118,15 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         if (this.reconnectInterval) return;
         this.reconnectInterval = setInterval(() => {
             if (!this.isConnected) {
-                if (!this.client) {
-                    this.connect();
-                } else {
-                    this.client.login().then(() => {
-                        if (this.reconnectInterval) {
-                            clearInterval(this.reconnectInterval);
-                            this.reconnectInterval = null;
-                        }
-                    }).catch(() => {});
+                if (this.client) {
+                    try {
+                        this.client.destroy().catch(() => {});
+                    } catch {}
+                    this.client = null;
                 }
+                this.connect();
             }
-        }, 15000);
+        }, 10000);
     }
 
     public setIdleActivity() {
@@ -242,7 +227,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
             smallImageKey: "logo",
             smallImageText: "Loadout AI Radar",
             buttons: [
-                { label: t.buttonLabel, url: "https://github.com/svanrell/LoadoutAI" },
+                { label: t.buttonLabel, url: DISCORD_CONFIG.GITHUB_URL },
             ],
         });
     }
