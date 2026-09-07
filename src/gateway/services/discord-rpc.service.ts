@@ -93,7 +93,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         this.updateActivity({
             details: "Loadout AI Assistant",
             state: "Esperando inicio de Valorant",
-            largeImageKey: "app_logo",
+            largeImageKey: "logo",
             largeImageText: "Loadout AI",
         });
     }
@@ -103,7 +103,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         this.updateActivity({
             details: "Esperando a entrar en partida...",
             state: "Menú Principal",
-            largeImageKey: "app_logo",
+            largeImageKey: "logo",
             largeImageText: "Loadout AI",
         });
     }
@@ -118,9 +118,9 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
             details: `Selección de agente (${mode || "No se ha detectado modo de juego"})`,
             state: `Mapa : (${mapName || "Desconocido"})`,
             startTimestamp: this.matchStartTimestamp,
-            largeImageKey: mapAsset || "app_logo",
+            largeImageKey: mapAsset || "logo",
             largeImageText: mapName,
-            smallImageKey: "app_logo",
+            smallImageKey: "logo",
             smallImageText: "LoadoutAI",
         });
     }
@@ -142,9 +142,9 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
             details: `${mode || "Partida"} - ${mapName}`,
             state: `Ronda ${round} ${scoreText}`.trim(),
             startTimestamp: this.matchStartTimestamp,
-            largeImageKey: mapAsset || "app_logo",
+            largeImageKey: mapAsset || "logo",
             largeImageText: `Mapa: ${mapName}`,
-            smallImageKey: "app_logo",
+            smallImageKey: "logo",
             smallImageText: "Loadout AI Radar",
             buttons: [
                 { label: "Ver Loadout AI", url: "https://github.com/svanrell/LoadoutAI" },
