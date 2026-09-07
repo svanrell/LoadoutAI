@@ -190,13 +190,9 @@ This updates `src/machine_learning/pregame/artifacts/draft_data.json` utilized d
 
 ### 5. Running the Application
 
-> **Zero Configuration Core:** No Riot API Key or `.env` file is required for the radar and ML draft assistant! Loadout AI automatically and securely connects directly to your active local Riot Client / VALORANT session via the local `lockfile` loopback interface (`127.0.0.1`).
+> **Zero Configuration Core:** No Riot API Key or `.env` file is required! Loadout AI automatically connects directly to your active local Riot Client / VALORANT session via the local `lockfile` loopback interface (`127.0.0.1`).
 >
-> **Optional — Discord Rich Presence:** If you want your live match status displayed on Discord, specify your `DISCORD_CLIENT_ID` in a `.env` file:
-> ```env
-> DISCORD_CLIENT_ID=your_client_id_here
-> ```
-> *(If omitted, the application will simply run without Discord RPC).*
+> **Discord Rich Presence:** Built-in out-of-the-box! Loadout AI automatically broadcasts your real-time match state, agent picks, and round scores directly to your Discord profile without any `.env` setup needed.
 
 #### Development Mode (Backend + Next.js Live Reload):
 ```bash
