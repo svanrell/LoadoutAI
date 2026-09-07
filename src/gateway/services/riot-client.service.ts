@@ -218,8 +218,11 @@ export class RiotClientService {
         ),
       );
 
-      // 2. Versión del cliente desde valorant-api.com (remoto estándar con TLS estricto)
-      let riotClientVersion = "release-09.11-shipping-9-2115324";
+      // 2. Versión del cliente desde el log local de Valorant o valorant-api.com
+      let riotClientVersion =
+        this.getLocalClientVersionFromLog() ||
+        "release-13.05-shipping-11-5350494";
+
       try {
         const versionRes = await firstValueFrom(
           this.httpService.get<{ data: { riotClientVersion: string } }>(
@@ -230,7 +233,9 @@ export class RiotClientService {
           riotClientVersion = versionRes.data.data.riotClientVersion;
         }
       } catch {
-        this.logger.debug("Usando versión de respaldo para riotClientVersion");
+        this.logger.debug(
+          `Usando versión local/respaldo para riotClientVersion: ${riotClientVersion}`,
+        );
       }
 
       // 3. Región detectada automáticamente
@@ -294,5 +299,30 @@ export class RiotClientService {
       );
       return null;
     }
+  }
+
+  /**
+   * Lee la versión exacta de Valorant directamente desde el archivo de log local ShooterGame.log
+   */
+  private getLocalClientVersionFromLog(): string | null {
+    try {
+      const logPath = path.join(
+        process.env.LOCALAPPDATA || "",
+        "VALORANT",
+        "Saved",
+        "Logs",
+        "ShooterGame.log",
+      );
+      if (fs.existsSync(logPath)) {
+        const content = fs.readFileSync(logPath, "utf8");
+        const match = content.match(/CI server version:\s*([^\r\n]+)/i);
+        if (match && match[1]) {
+          return match[1].trim();
+        }
+      }
+    } catch {
+      // Ignorar fallo de lectura local
+    }
+    return null;
   }
 }
