@@ -13,14 +13,11 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
 
     private getClientId(): string | undefined {
         if (process.env.DISCORD_CLIENT_ID) return process.env.DISCORD_CLIENT_ID;
-        if (process.env.DISCORD_PRESENCE_API_KEY) return process.env.DISCORD_PRESENCE_API_KEY;
-        if (process.env.DiscordRpcService) return process.env.DiscordRpcService;
-
         try {
             const envPath = join(process.cwd(), ".env");
             if (fs.existsSync(envPath)) {
                 const content = fs.readFileSync(envPath, "utf-8");
-                const match = content.match(/^(?:DISCORD_CLIENT_ID|DISCORD_PRESENCE_API_KEY)\s*=\s*([^\r\n]+)/m);
+                const match = content.match(/^(?:DISCORD_CLIENT_ID)\s*=\s*([^\r\n]+)/m);
                 if (match) {
                     const id = match[1].trim().replace(/^["']|["']$/g, "");
                     process.env.DISCORD_CLIENT_ID = id;
@@ -104,8 +101,8 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     public setMenuActivity(){
         this.matchStartTimestamp = null;
         this.updateActivity({
-            details: "En el Menú Principal",
-            state: "En el Lobby",
+            details: "Esperando a entrar en partida...",
+            state: "Menú Principal",
             largeImageKey: "app_logo",
             largeImageText: "Loadout AI",
         });
