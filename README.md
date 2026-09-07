@@ -72,6 +72,9 @@ By combining **Riot Client local APIs**, **WebSockets**, a **NestJS backend**, a
 ### Desktop Overlay & Web Modes
 - Launch directly as an **Electron Desktop App** or as a browser-based dashboard on `http://localhost:3000`.
 
+### Discord Rich Presence (RPC)
+- Synchronizes your real-time status with Discord: displays Lobby state, Agent Select / Draft with the detected map, or live In-Game status with active round scores.
+
 ---
 
 ## Machine Learning Draft Engine
@@ -187,7 +190,13 @@ This updates `src/machine_learning/pregame/artifacts/draft_data.json` utilized d
 
 ### 5. Running the Application
 
-> **Zero Configuration:** No `.env` file or Riot API Key is required! Loadout AI automatically and securely connects directly to your active local Riot Client / VALORANT session via the local `lockfile` loopback interface (`127.0.0.1`).
+> **Zero Configuration Core:** No Riot API Key or `.env` file is required for the radar and ML draft assistant! Loadout AI automatically and securely connects directly to your active local Riot Client / VALORANT session via the local `lockfile` loopback interface (`127.0.0.1`).
+>
+> **Optional — Discord Rich Presence:** If you want your live match status displayed on Discord, specify your `DISCORD_CLIENT_ID` in a `.env` file:
+> ```env
+> DISCORD_CLIENT_ID=your_client_id_here
+> ```
+> *(If omitted, the application will simply run without Discord RPC).*
 
 #### Development Mode (Backend + Next.js Live Reload):
 ```bash

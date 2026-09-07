@@ -7,6 +7,28 @@ import * as fs from "fs";
 
 import { Request, Response } from "express";
 
+function loadEnvFile() {
+  const envPath = join(process.cwd(), ".env");
+  if (fs.existsSync(envPath)) {
+    try {
+      const content = fs.readFileSync(envPath, "utf-8");
+      for (const line of content.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const [key, ...values] = trimmed.split("=");
+        if (key) {
+          const k = key.trim();
+          const v = values.join("=").trim().replace(/^["']|["']$/g, "");
+          if (!process.env[k]) {
+            process.env[k] = v;
+          }
+        }
+      }
+    } catch {}
+  }
+}
+loadEnvFile();
+
 let appInstance: NestExpressApplication | null = null;
 
 export async function bootstrap(): Promise<NestExpressApplication> {

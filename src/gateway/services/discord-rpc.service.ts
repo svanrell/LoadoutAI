@@ -1,5 +1,7 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { Client } from "@xhayper/discord-rpc";
+import * as fs from "fs";
+import { join } from "path";
 
 @Injectable() 
 export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
@@ -9,7 +11,25 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     private matchStartTimestamp: Date | null = null;
     private reconnectInterval: NodeJS.Timeout | null = null;
 
-    private readonly clientid = process.env.DISCORD_CLIENT_ID || process.env.DiscordRpcService;
+    private getClientId(): string | undefined {
+        if (process.env.DISCORD_CLIENT_ID) return process.env.DISCORD_CLIENT_ID;
+        if (process.env.DISCORD_PRESENCE_API_KEY) return process.env.DISCORD_PRESENCE_API_KEY;
+        if (process.env.DiscordRpcService) return process.env.DiscordRpcService;
+
+        try {
+            const envPath = join(process.cwd(), ".env");
+            if (fs.existsSync(envPath)) {
+                const content = fs.readFileSync(envPath, "utf-8");
+                const match = content.match(/^(?:DISCORD_CLIENT_ID|DISCORD_PRESENCE_API_KEY)\s*=\s*([^\r\n]+)/m);
+                if (match) {
+                    const id = match[1].trim().replace(/^["']|["']$/g, "");
+                    process.env.DISCORD_CLIENT_ID = id;
+                    return id;
+                }
+            }
+        } catch {}
+        return undefined;
+    }
 
     onModuleInit() {
         this.connect();
@@ -20,22 +40,27 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     }
 
     private connect() {
-        if (!this.clientid) {
+        const clientId = this.getClientId();
+        if (!clientId) {
             this.logger.warn("No se puede conectar a Discord: Falta configurar el DISCORD_CLIENT_ID (.env)");
             return;
         }
         try {
-            this.client = new Client({ clientId: this.clientid })
+            this.client = new Client({ clientId });
 
             this.client.on("ready", () => {
                 this.isConnected = true;
                 this.logger.log(`Conectado a DISCORD como ${this.client?.user?.username}`);
                 this.setIdleActivity();
+                if (this.reconnectInterval) {
+                    clearInterval(this.reconnectInterval);
+                    this.reconnectInterval = null;
+                }
             });
 
-            this.client.off("disconnect", () => {
+            this.client.on("disconnected", () => {
                 this.isConnected = false;
-                this.logger.warn(`Desconectando de Discord. Reintentando...`);
+                this.logger.warn(`Desconectado de Discord. Reintentando...`);
                 this.scheduleReconnect();
             });
 
@@ -48,17 +73,20 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
-
     private scheduleReconnect(){
         if (this.reconnectInterval) return;
         this.reconnectInterval = setInterval(() => {
-            if (!this.isConnected && this.client) {
-                this.client.login().then(() => {
-                    if(this.reconnectInterval) {
-                        clearInterval(this.reconnectInterval);
-                        this.reconnectInterval = null;
-                    }
-                }).catch(() => {});
+            if (!this.isConnected) {
+                if (!this.client) {
+                    this.connect();
+                } else {
+                    this.client.login().then(() => {
+                        if (this.reconnectInterval) {
+                            clearInterval(this.reconnectInterval);
+                            this.reconnectInterval = null;
+                        }
+                    }).catch(() => {});
+                }
             }
         }, 15000);
     }
