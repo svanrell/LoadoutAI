@@ -144,7 +144,7 @@ export class ValorantGateway
   }
 
   @SubscribeMessage("set_language")
-  handleSetLanguage(client: Socket, data: { language?: string }) {
+  handleSetLanguage(_client: Socket, data: { language?: string }) {
     if (data?.language === "es" || data?.language === "en") {
       this.discordRpc.setLanguage(data.language as RpcLanguage);
     }

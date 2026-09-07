@@ -32,7 +32,31 @@ if (exeFiles.length > 0) {
     const src = path.join(tempOut, exe);
     const dest = path.join(targetDir, exe);
     console.log(`Copiando ejecutable final ${exe} a release/${exe}...`);
-    fs.copyFileSync(src, dest);
+    
+    let copied = false;
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        fs.copyFileSync(src, dest);
+        copied = true;
+        break;
+      } catch (err) {
+        if (err.code === "EBUSY" || err.code === "EPERM") {
+          console.warn(`[Intento ${attempt}/5] Archivo ${exe} bloqueado (¿está LoadoutAI abierto?). Esperando 2s...`);
+          const sleep = (ms) => {
+            const end = Date.now() + ms;
+            while (Date.now() < end) {}
+          };
+          sleep(2000);
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    if (!copied) {
+      console.error(`No se pudo copiar el archivo ${dest} porque sigue en ejecución. Ciérralo y vuelve a compilar.`);
+      process.exit(1);
+    }
     console.log("¡Compilación finalizada con éxito! Archivo:", dest, "Tamaño:", fs.statSync(dest).size, "bytes");
   }
 } else {

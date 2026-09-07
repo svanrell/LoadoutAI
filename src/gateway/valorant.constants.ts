@@ -107,7 +107,7 @@ export function resolveQueueName(
   queueId?: string,
   gameMode?: string,
   isRanked?: boolean,
-  roundsWonMax?: number,
+  _roundsWonMax?: number,
   provisioningFlowId?: string,
   customGameName?: string,
   isCustomGame?: boolean,

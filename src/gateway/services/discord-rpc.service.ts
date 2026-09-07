@@ -1,7 +1,5 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { Client } from "@xhayper/discord-rpc";
-import * as fs from "fs";
-import { join } from "path";
 
 import {
   RpcLanguage,

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 
 export interface EconomyBuyRecommendation {
   weapon: string;
@@ -24,7 +24,6 @@ export interface MlBuyRecommendationsPayload {
 
 @Injectable()
 export class EconomyAdvisorService {
-  private readonly logger = new Logger(EconomyAdvisorService.name);
 
   /**
    * Genera recomendaciones de compra tácticas basadas en el estado económico de la ronda.
