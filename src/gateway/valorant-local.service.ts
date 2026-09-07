@@ -308,7 +308,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       const presence = await this.presenceService.getLocalPlayerPresence(puuid);
       if (!presence || !presence.sessionLoopState) {
         this.clearBuyPhase();
-        this.updateStatus("MENU");
+        this.updateStatus("MENU", { myPuuid: puuid });
         return;
       }
 
@@ -321,7 +321,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         await this.handleIngameSession(puuid, presence);
       } else {
         this.clearBuyPhase();
-        this.updateStatus("MENU");
+        this.updateStatus("MENU", { myPuuid: puuid });
       }
     } catch {
       this.clearBuyPhase();

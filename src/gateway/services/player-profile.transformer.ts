@@ -32,6 +32,10 @@ export interface ProfileTransformInput {
   } | null;
   detailsList: Array<MatchDetailsResponse | null>;
   region: string;
+  sessionData?: {
+    gameName?: string;
+    tagLine?: string;
+  } | null;
 }
 
 export class PlayerProfileTransformer {
@@ -57,11 +61,26 @@ export class PlayerProfileTransformer {
       localPresence,
       detailsList,
       region,
+      sessionData,
     } = input;
 
     const playerNameItem = namesList[0];
-    const gameName = playerNameItem?.GameName || "Player";
-    const tagLine = playerNameItem?.TagLine || "LIVE";
+    let gameName = playerNameItem?.GameName || sessionData?.gameName || "";
+    let tagLine = playerNameItem?.TagLine || sessionData?.tagLine || "";
+
+    if (!gameName || !tagLine) {
+      for (const m of detailsList) {
+        const p = m?.players?.find((pl) => pl.subject === puuid);
+        if (p?.gameName && p?.tagLine) {
+          gameName = gameName || p.gameName;
+          tagLine = tagLine || p.tagLine;
+          break;
+        }
+      }
+    }
+
+    if (!gameName) gameName = "Player";
+    if (!tagLine) tagLine = "LIVE";
 
     // Extraer rango y rating competitivo
     let currentTier = 0;

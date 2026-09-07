@@ -151,20 +151,38 @@ export class RiotClientService {
    * Obtiene el PUUID del jugador actual conectado en la sesión local.
    */
   public async getCurrentPlayerPuuid(): Promise<string | null> {
+    const session = await this.getCurrentPlayerSession();
+    return session?.puuid || null;
+  }
+
+  /**
+   * Obtiene la información de sesión del jugador actual desde el cliente local de Riot.
+   */
+  public async getCurrentPlayerSession(): Promise<{
+    puuid: string;
+    gameName?: string;
+    tagLine?: string;
+  } | null> {
     const credentials = this.getCredentials();
     if (!credentials) return null;
 
     try {
       const res = await firstValueFrom(
-        this.httpService.get<{ puuid: string }>(
-          `${credentials.url}/chat/v1/session`,
-          {
-            headers: { Authorization: credentials.token },
-            httpsAgent: this.getLocalHttpsAgent(credentials.url),
-          },
-        ),
+        this.httpService.get<{
+          puuid: string;
+          game_name?: string;
+          game_tag?: string;
+        }>(`${credentials.url}/chat/v1/session`, {
+          headers: { Authorization: credentials.token },
+          httpsAgent: this.getLocalHttpsAgent(credentials.url),
+        }),
       );
-      return res.data?.puuid || null;
+      if (!res.data?.puuid) return null;
+      return {
+        puuid: res.data.puuid,
+        gameName: res.data.game_name,
+        tagLine: res.data.game_tag,
+      };
     } catch {
       return null;
     }

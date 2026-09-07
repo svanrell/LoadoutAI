@@ -54,7 +54,7 @@ export type {
 };
 
 export const MAX_HISTORY_MATCHES_FETCH = 8;
-export const MAX_HISTORY_TIME_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+export const MAX_HISTORY_TIME_WINDOW_MS = 180 * 24 * 60 * 60 * 1000;
 export const PROFILE_CACHE_TTL = 30 * 1000;
 
 export interface SyncedMatchItem {
@@ -262,14 +262,21 @@ export class ValorantHistoryService {
     if (!remote) return null;
 
     try {
-      const [namesList, mmrData, historyData, compUpdatesRes, loadoutData] =
-        await Promise.all([
-          this.getPlayerNames([puuid]),
-          this.getPlayerMMR(puuid),
-          this.getPlayerMatchHistory(puuid, 0, MAX_HISTORY_MATCHES_FETCH),
-          this.getPlayerCompetitiveUpdates(puuid, 0, 15),
-          this.getPlayerLoadout(puuid),
-        ]);
+      const [
+        namesList,
+        mmrData,
+        historyData,
+        compUpdatesRes,
+        loadoutData,
+        sessionData,
+      ] = await Promise.all([
+        this.getPlayerNames([puuid]),
+        this.getPlayerMMR(puuid),
+        this.getPlayerMatchHistory(puuid, 0, MAX_HISTORY_MATCHES_FETCH),
+        this.getPlayerCompetitiveUpdates(puuid, 0, 15),
+        this.getPlayerLoadout(puuid),
+        this.riotClientService.getCurrentPlayerSession(),
+      ]);
 
       const localPresence = await this.getLocalPresenceData(puuid);
       const matchIds = (historyData?.History || [])
@@ -289,6 +296,7 @@ export class ValorantHistoryService {
         localPresence,
         detailsList,
         region: remote.region || process.env.VALORANT_REGION || "eu",
+        sessionData,
       };
 
       return PlayerProfileTransformer.transform(transformInput);

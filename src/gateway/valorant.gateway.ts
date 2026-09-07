@@ -101,7 +101,13 @@ export class ValorantGateway
 
   updateStatus(status: string, data: Record<string, unknown> = {}) {
     this.currentStatus = status;
-    this.extraData = data;
+    const previousPuuid = this.extraData?.myPuuid;
+    this.extraData = {
+      ...(previousPuuid && status !== "CLOSED"
+        ? { myPuuid: previousPuuid }
+        : {}),
+      ...data,
+    };
     if (this.server) {
       this.server.emit("valorant_status", {
         status: this.currentStatus,
@@ -321,10 +327,21 @@ export class ValorantGateway
         return;
       }
 
+      const targetPuuid =
+        validated.puuid ||
+        activePuuid ||
+        (await this.historyService.getCurrentPlayerPuuid()) ||
+        undefined;
+
       const profile = await this.historyService.getFullSyncedProfile(
-        validated.puuid || activePuuid,
+        targetPuuid,
         Boolean(validated.forceRefresh),
       );
+
+      if (profile?.puuid && !this.extraData.myPuuid) {
+        this.extraData.myPuuid = profile.puuid;
+      }
+
       client.emit("player_profile_result", {
         success: Boolean(profile),
         profile,

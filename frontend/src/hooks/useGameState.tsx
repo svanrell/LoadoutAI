@@ -428,10 +428,7 @@ interface MLBuyRecommendationsPayload {
         setConnectionText("In Game Lobby");
         setView("menu");
         setIsLiveMode(false);
-        const now = Date.now();
-        if (now - lastProfileFetchRef.current > 20000) {
-          requestPlayerProfile();
-        }
+        requestPlayerProfile(data.myPuuid, true);
       } else if (data.status === "PREGAME") {
         setConnectionStatus("live");
         setConnectionText("Agent Selection");
