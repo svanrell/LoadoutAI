@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 import { CrosshairIcon, RefreshIcon } from "@/components/Icons";

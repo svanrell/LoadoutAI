@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { CrosshairConfig, BACKGROUNDS } from "@/data/crosshairData";
 
 interface CrosshairPreviewProps {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { COLOR_PRESETS } from "@/data/crosshairData";
 
 export function SettingRow({
@@ -9,7 +9,7 @@ export function SettingRow({
   isOdd = false,
 }: {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
   isOdd?: boolean;
 }) {
   return (
