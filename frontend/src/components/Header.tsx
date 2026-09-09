@@ -8,8 +8,8 @@ import {
   ProfileIcon,
   DraftIcon,
   RadarIcon,
-  TierListIcon,
-  ToolsIcon,
+  CrosshairIcon,
+  LineupIcon,
   GlobeIcon,
 } from "@/components/Icons";
 import { getRankIconUrl, getTierColor } from "@/lib/rankUtils";
@@ -29,8 +29,8 @@ export default function Header() {
   const isProfileActive = view === "menu" || view === "closed";
   const isDraftActive = view === "pregame";
   const isRadarActive = view === "ingame";
-  const isTierListActive = view === "tierlist";
-  const isToolsActive = view === "tools";
+  const isCrosshairsActive = view === "crosshairs" || view === "tierlist";
+  const isLineupsActive = view === "lineups" || view === "tools";
 
   // Foto de perfil oficial del juego (Player Card)
   const userAvatar = playerProfile?.playerCardId
@@ -90,21 +90,21 @@ export default function Header() {
         </button>
 
         <button
-          className={`nav-tab ${isTierListActive ? "active" : ""}`}
-          onClick={() => setView("tierlist")}
-          title={t.tierList}
+          className={`nav-tab ${isCrosshairsActive ? "active" : ""}`}
+          onClick={() => setView("crosshairs")}
+          title={t.crosshairs}
         >
-          <TierListIcon size={15} />
-          <span className="nav-tab-label">{t.tierList}</span>
+          <CrosshairIcon size={15} />
+          <span className="nav-tab-label">{t.crosshairs}</span>
         </button>
 
         <button
-          className={`nav-tab ${isToolsActive ? "active" : ""}`}
-          onClick={() => setView("tools")}
-          title={t.tools}
+          className={`nav-tab ${isLineupsActive ? "active" : ""}`}
+          onClick={() => setView("lineups")}
+          title={t.lineups}
         >
-          <ToolsIcon size={15} />
-          <span className="nav-tab-label">{t.tools}</span>
+          <LineupIcon size={15} />
+          <span className="nav-tab-label">{t.lineups}</span>
         </button>
       </nav>
 

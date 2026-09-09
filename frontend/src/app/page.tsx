@@ -7,6 +7,8 @@ import ViewMenu from "@/components/views/ViewMenu";
 import ViewPregame from "@/components/views/ViewPregame";
 import ViewIngame from "@/components/views/ViewIngame";
 import ViewInDevelopment from "@/components/views/ViewInDevelopment";
+import ViewCrosshairs from "@/components/views/ViewCrosshairs";
+import ViewLineups from "@/components/views/ViewLineups";
 
 function AppContent() {
   const { view } = useGameState();
@@ -17,8 +19,8 @@ function AppContent() {
       {(view === "closed" || view === "menu") && <ViewMenu />}
       {view === "pregame" && <ViewPregame />}
       {view === "ingame" && <ViewIngame />}
-      {view === "tierlist" && <ViewInDevelopment type="tierlist" />}
-      {view === "tools" && <ViewInDevelopment type="tools" />}
+      {(view === "crosshairs" || view === "tierlist") && <ViewCrosshairs />}
+      {(view === "lineups" || view === "tools") && <ViewLineups />}
     </>
   );
 }

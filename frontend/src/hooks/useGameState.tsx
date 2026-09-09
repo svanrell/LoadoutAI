@@ -5,7 +5,7 @@ import { io, Socket } from "socket.io-client";
 import { advanceRoundEconomy, getResetCreditsForRound, RoundOutcome } from "@/data/economyEngine";
 import { useLanguage } from "@/context/LanguageContext";
 
-export type ViewState = "closed" | "menu" | "pregame" | "ingame" | "tierlist" | "tools";
+export type ViewState = "closed" | "menu" | "pregame" | "ingame" | "crosshairs" | "lineups" | "tierlist" | "tools";
 
 export interface Player {
   puuid: string;

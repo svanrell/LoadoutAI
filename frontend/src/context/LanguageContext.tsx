@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type Language = "es" | "en";
 
@@ -11,6 +11,8 @@ export interface Translations {
   tacticalRadar: string;
   tierList: string;
   tools: string;
+  crosshairs: string;
+  lineups: string;
   map: string;
   mode: string;
   patch: string;
@@ -87,6 +89,8 @@ export interface Translations {
   inDevelopmentDesc: string;
   tierListDesc: string;
   toolsDesc: string;
+  crosshairsDesc: string;
+  lineupsDesc: string;
   backToProfile: string;
 
   // Pregame & Draft Coach
@@ -164,6 +168,8 @@ const translations: Record<Language, Translations> = {
     tacticalRadar: "Selección de Armas",
     tierList: "Tier List",
     tools: "Herramientas",
+    crosshairs: "Creador de Miras",
+    lineups: "Lineups",
     map: "MAPA",
     mode: "MODO",
     patch: "Parche 9.04",
@@ -234,6 +240,8 @@ const translations: Record<Language, Translations> = {
     inDevelopmentDesc: "Esta funcionalidad está siendo desarrollada e integrada con los modelos de IA y la API de Valorant. Estará disponible próximamente.",
     tierListDesc: "Tier list automática de agentes, winrates por mapa y combinaciones óptimas en el parche actual.",
     toolsDesc: "Calculadora de economía táctica, visualizador de lineups y simulador de rondas de pistolas.",
+    crosshairsDesc: "Diseña, personaliza y genera códigos oficiales de miras de Valorant en tiempo real.",
+    lineupsDesc: "Aprende y domina los mejores lineups tácticos de dardos, molotovs y humos por mapa.",
     backToProfile: "VOLVER AL PERFIL",
 
     // Pregame
@@ -309,6 +317,8 @@ const translations: Record<Language, Translations> = {
     tacticalRadar: "Weapon Selection",
     tierList: "Tier List",
     tools: "Tools",
+    crosshairs: "Crosshair Creator",
+    lineups: "Lineups",
     map: "MAP",
     mode: "MODE",
     patch: "Patch 9.04",
@@ -379,6 +389,8 @@ const translations: Record<Language, Translations> = {
     inDevelopmentDesc: "This feature is currently under development and being integrated with our AI models and the Valorant API. It will be available soon.",
     tierListDesc: "Automated agent tier lists, win rates per map, and optimal team compositions for the current patch.",
     toolsDesc: "Tactical economy calculator, lineup visualizer, and pistol round simulators.",
+    crosshairsDesc: "Design, customize, and generate official Valorant crosshair codes in real time.",
+    lineupsDesc: "Learn and master the best tactical recon, molly, and smoke lineups for each map.",
     backToProfile: "BACK TO PROFILE",
 
     // Pregame
@@ -459,20 +471,25 @@ interface LanguageContextProps {
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>(() => {
-    if (typeof window !== "undefined") {
+  const [language, setLanguage] = useState<Language>("es");
+
+  useEffect(() => {
+    try {
       const saved = localStorage.getItem("loadout_lang") as Language;
       if (saved === "es" || saved === "en") {
-        return saved;
+        setLanguage(saved);
       }
+    } catch {
+      // Ignore if localStorage is unavailable
     }
-    return "es";
-  });
+  }, []);
 
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
-    if (typeof window !== "undefined") {
+    try {
       localStorage.setItem("loadout_lang", lang);
+    } catch {
+      // Ignore
     }
   };
 
