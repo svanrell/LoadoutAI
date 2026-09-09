@@ -4,3 +4,4 @@ export * from "./mapsData";
 export * from "./gameModesData";
 export * from "./economyEngine";
 export * from "./lineupsData";
+export * from "./crosshairData";
