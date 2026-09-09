@@ -18,11 +18,8 @@ interface CrosshairSettingsTableProps {
   onOpenImport: () => void;
   onCopyCode: () => void;
   copied: boolean;
-  onShareLink: () => void;
-  linkCopied: boolean;
   onRandom: () => void;
   onReset: () => void;
-  onVideoPreview?: () => void;
   onSave?: (config: CrosshairConfig, code: string) => void;
 }
 
@@ -33,11 +30,8 @@ export function CrosshairSettingsTable({
   onOpenImport,
   onCopyCode,
   copied,
-  onShareLink,
-  linkCopied,
   onRandom,
   onReset,
-  onVideoPreview,
   onSave,
 }: CrosshairSettingsTableProps) {
   const [activeSubTab, setActiveSubTab] = useState<"General" | "Primary" | "Aim Down Sights" | "Sniper">("Primary");
@@ -592,24 +586,6 @@ export function CrosshairSettingsTable({
       >
         <button
           type="button"
-          onClick={onVideoPreview}
-          style={{
-            padding: "7px 15px",
-            borderRadius: "3px",
-            background: "#161224",
-            border: "1.5px solid #a855f7",
-            color: "#ffffff",
-            fontSize: "11px",
-            fontWeight: 700,
-            cursor: "pointer",
-            letterSpacing: "0.3px",
-          }}
-        >
-          Video Preview
-        </button>
-
-        <button
-          type="button"
           onClick={onRandom}
           style={{
             padding: "7px 15px",
@@ -624,24 +600,6 @@ export function CrosshairSettingsTable({
           }}
         >
           Random
-        </button>
-
-        <button
-          type="button"
-          onClick={onShareLink}
-          style={{
-            padding: "7px 16px",
-            borderRadius: "3px",
-            background: "#2563eb",
-            border: "none",
-            color: "#ffffff",
-            fontSize: "11px",
-            fontWeight: 700,
-            cursor: "pointer",
-            letterSpacing: "0.3px",
-          }}
-        >
-          {linkCopied ? "Link Copied!" : "Share Link"}
         </button>
 
         <button

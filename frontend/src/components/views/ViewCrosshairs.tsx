@@ -32,7 +32,6 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
   const [config, setConfig] = useState<CrosshairConfig>(DEFAULT_CONFIG);
   const [selectedBg, setSelectedBg] = useState<string>("range");
   const [copied, setCopied] = useState<boolean>(false);
-  const [linkCopied, setLinkCopied] = useState<boolean>(false);
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
   // Generate real Valorant profile code
@@ -43,15 +42,6 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
       navigator.clipboard.writeText(currentCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    }
-  }, [currentCode]);
-
-  const handleShareLink = useCallback(() => {
-    if (typeof window !== "undefined" && navigator.clipboard) {
-      const url = `${window.location.origin}/?crosshair=${encodeURIComponent(currentCode)}`;
-      navigator.clipboard.writeText(url);
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2000);
     }
   }, [currentCode]);
 
@@ -213,11 +203,8 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
           onOpenImport={() => setShowImportModal(true)}
           onCopyCode={handleCopyCode}
           copied={copied}
-          onShareLink={handleShareLink}
-          linkCopied={linkCopied}
           onRandom={handleRandomCrosshair}
           onReset={() => setConfig(DEFAULT_CONFIG)}
-          onVideoPreview={() => setSelectedBg((prev) => (prev === "range" ? "ascent" : "range"))}
           onSave={onSave}
         />
       </div>
