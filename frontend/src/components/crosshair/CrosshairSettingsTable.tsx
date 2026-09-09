@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { CrosshairConfig } from "@/data/crosshairData";
 import {
   SettingRow,
