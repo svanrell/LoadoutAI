@@ -7,40 +7,6 @@ import * as fs from "fs";
 
 import { Request, Response } from "express";
 
-function loadEnvFile() {
-  const possiblePaths = [
-    join(process.cwd(), ".env"),
-    join(__dirname, "..", ".env"),
-    join(process.env.ELECTRON_RESOURCES_PATH || "", ".env"),
-  ];
-  for (const envPath of possiblePaths) {
-    if (fs.existsSync(envPath)) {
-      try {
-        const content = fs.readFileSync(envPath, "utf-8");
-        for (const line of content.split(/\r?\n/)) {
-          const trimmed = line.trim();
-          if (!trimmed || trimmed.startsWith("#")) continue;
-          const [key, ...values] = trimmed.split("=");
-          if (key) {
-            const k = key.trim();
-            const v = values
-              .join("=")
-              .trim()
-              .replace(/^["']|["']$/g, "");
-            if (!process.env[k]) {
-              process.env[k] = v;
-            }
-          }
-        }
-        break;
-      } catch {
-        // Ignorar errores al leer archivos de entorno opcionales
-      }
-    }
-  }
-}
-loadEnvFile();
-
 let appInstance: NestExpressApplication | null = null;
 
 export async function bootstrap(): Promise<NestExpressApplication> {

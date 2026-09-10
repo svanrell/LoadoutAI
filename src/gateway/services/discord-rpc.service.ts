@@ -72,7 +72,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
   }
 
   private getClientId(): string {
-    return process.env.DISCORD_CLIENT_ID || DISCORD_CONFIG.CLIENT_ID;
+    return DISCORD_CONFIG.CLIENT_ID;
   }
 
   onModuleInit() {
@@ -87,7 +87,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
     const clientId = this.getClientId();
     if (!clientId) {
       this.logger.warn(
-        "No se puede conectar a Discord: Falta configurar el DISCORD_CLIENT_ID (.env)",
+        "No se puede conectar a Discord: Falta configurar el DISCORD_CLIENT_ID",
       );
       return;
     }
