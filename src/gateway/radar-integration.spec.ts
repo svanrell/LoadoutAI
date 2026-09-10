@@ -7,6 +7,7 @@ import { RiotPresenceService } from "./services/riot-presence.service";
 import { RiotPregameService } from "./services/riot-pregame.service";
 import { RiotCoregameService } from "./services/riot-coregame.service";
 import { EconomyAdvisorService } from "./services/economy-advisor.service";
+import { DiscordRpcService } from "./services/discord-rpc.service";
 import { Server, Socket } from "socket.io";
 
 describe("Radar Integration & Lifecycle Suite", () => {
@@ -102,6 +103,18 @@ describe("Radar Integration & Lifecycle Suite", () => {
         {
           provide: EconomyAdvisorService,
           useValue: mockEconomyService,
+        },
+        {
+          provide: DiscordRpcService,
+          useValue: {
+            setLanguage: jest.fn(),
+            setIdleActivity: jest.fn(),
+            setMenuActivity: jest.fn(),
+            setPregameActivity: jest.fn(),
+            setIngameActivity: jest.fn(),
+            clearActivity: jest.fn(),
+            getLanguage: jest.fn().mockReturnValue("es"),
+          },
         },
       ],
     }).compile();

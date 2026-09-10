@@ -193,6 +193,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const scoreEnemyRef = useRef(scoreEnemy);
   const lossStreakRef = useRef(lossStreak);
   const plannedSpendRef = useRef(plannedSpend);
+  const languageRef = useRef(language);
 
   useEffect(() => {
     creditsRef.current = myCredits;
@@ -201,7 +202,8 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     scoreEnemyRef.current = scoreEnemy;
     lossStreakRef.current = lossStreak;
     plannedSpendRef.current = plannedSpend;
-  }, [myCredits, currentIngameRound, scoreAlly, scoreEnemy, lossStreak, plannedSpend]);
+    languageRef.current = language;
+  }, [myCredits, currentIngameRound, scoreAlly, scoreEnemy, lossStreak, plannedSpend, language]);
 
   const [playerProfile, setPlayerProfile] = useState<SyncedPlayerProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -332,7 +334,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     socket.on("connect", () => {
       setConnectionStatus("menu-mode");
       setConnectionText("Radar Online");
-      socket.emit("set_language", { language });
+      socket.emit("set_language", { language: languageRef.current });
       // Solicitar predicciones iniciales usando refs frescas
       socket.emit("request_ml_draft", {
         mapName: selectedMapRef.current,

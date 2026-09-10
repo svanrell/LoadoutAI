@@ -23,14 +23,19 @@ function loadEnvFile() {
           const [key, ...values] = trimmed.split("=");
           if (key) {
             const k = key.trim();
-            const v = values.join("=").trim().replace(/^["']|["']$/g, "");
+            const v = values
+              .join("=")
+              .trim()
+              .replace(/^["']|["']$/g, "");
             if (!process.env[k]) {
               process.env[k] = v;
             }
           }
         }
         break;
-      } catch {}
+      } catch {
+        // Ignorar errores al leer archivos de entorno opcionales
+      }
     }
   }
 }

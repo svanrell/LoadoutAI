@@ -24,7 +24,6 @@ export interface MlBuyRecommendationsPayload {
 
 @Injectable()
 export class EconomyAdvisorService {
-
   /**
    * Genera recomendaciones de compra tácticas basadas en el estado económico de la ronda.
    * Maneja explícitamente el caso de rondas eco/ahorro con coste cero (Classic + Sin escudo).

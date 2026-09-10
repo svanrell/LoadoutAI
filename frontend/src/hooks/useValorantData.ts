@@ -110,6 +110,26 @@ function getInitialData(): ValorantDataState {
     };
   }
 
+  if (typeof window !== "undefined") {
+    const cachedAgents = loadFromLocalStorage<Agent[]>("vdata_agents") || [];
+    const cachedWeapons = loadFromLocalStorage<Weapon[]>("vdata_weapons") || [];
+    const cachedModes = loadFromLocalStorage<GameModeInfo[]>("vdata_gamemodes") || [];
+    const cachedMaps = loadFromLocalStorage<MapInfo[]>("vdata_maps") || [];
+    if (cachedAgents.length > 0) {
+      globalAgents = cachedAgents;
+      globalWeapons = cachedWeapons;
+      globalGameModes = cachedModes;
+      globalMaps = cachedMaps;
+      return {
+        agents: cachedAgents,
+        weapons: cachedWeapons,
+        gameModes: cachedModes,
+        maps: cachedMaps,
+        loading: false,
+      };
+    }
+  }
+
   return {
     agents: [],
     weapons: [],
@@ -123,28 +143,6 @@ export function useValorantData() {
   const [state, setState] = useState<ValorantDataState>(getInitialData);
 
   useEffect(() => {
-    // Si aún no están en memoria, intentar cargar desde caché local en cliente
-    if (state.loading && !globalAgents) {
-      const cachedAgents = loadFromLocalStorage<Agent[]>("vdata_agents") || [];
-      const cachedWeapons = loadFromLocalStorage<Weapon[]>("vdata_weapons") || [];
-      const cachedModes = loadFromLocalStorage<GameModeInfo[]>("vdata_gamemodes") || [];
-      const cachedMaps = loadFromLocalStorage<MapInfo[]>("vdata_maps") || [];
-      if (cachedAgents.length > 0) {
-        globalAgents = cachedAgents;
-        globalWeapons = cachedWeapons;
-        globalGameModes = cachedModes;
-        globalMaps = cachedMaps;
-        setState({
-          agents: cachedAgents,
-          weapons: cachedWeapons,
-          gameModes: cachedModes,
-          maps: cachedMaps,
-          loading: false,
-        });
-        return;
-      }
-    }
-
     // Si ya tenemos los datos completos cargados en el estado inicial, no realizar peticiones
     if (!state.loading && state.agents.length > 0) {
       return;

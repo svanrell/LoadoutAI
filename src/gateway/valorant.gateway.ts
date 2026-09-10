@@ -19,7 +19,7 @@ import {
 } from "./valorant-ml-engine";
 import { SocketEventValidator } from "./dto/socket-events.dto";
 import { SocketRateLimiter } from "./security/socket-rate-limiter";
-import { DiscordRpcService, RpcLanguage } from "./services/discord-rpc.service";
+import { DiscordRpcService } from "./services/discord-rpc.service";
 
 const ALLOWED_ORIGIN_PATTERNS = [
   /^http:\/\/localhost(:\d+)?$/,
@@ -146,7 +146,7 @@ export class ValorantGateway
   @SubscribeMessage("set_language")
   handleSetLanguage(_client: Socket, data: { language?: string }) {
     if (data?.language === "es" || data?.language === "en") {
-      this.discordRpc.setLanguage(data.language as RpcLanguage);
+      this.discordRpc.setLanguage(data.language);
     }
   }
 
