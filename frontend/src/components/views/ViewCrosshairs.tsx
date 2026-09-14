@@ -1,16 +1,12 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
+import { useCrosshair } from "@/hooks/useCrosshair";
 import { CrosshairIcon, RefreshIcon } from "@/components/Icons";
 import {
   CrosshairConfig,
   CrosshairPreset,
-  DEFAULT_CONFIG,
-  COLOR_PRESETS,
-  serializeValorantCode,
-  parseValorantCode,
 } from "@/data";
 import {
   CrosshairPreview,
@@ -29,49 +25,22 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
   const { setView } = useGameState();
   const { t, language } = useLanguage();
 
-  const [config, setConfig] = useState<CrosshairConfig>(DEFAULT_CONFIG);
-  const [selectedBg, setSelectedBg] = useState<string>("range");
-  const [copied, setCopied] = useState<boolean>(false);
-  const [showImportModal, setShowImportModal] = useState<boolean>(false);
-
-  // Generate real Valorant profile code
-  const currentCode = useMemo(() => serializeValorantCode(config), [config]);
-
-  const handleCopyCode = useCallback(() => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(currentCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [currentCode]);
-
-  const handleRandomCrosshair = useCallback(() => {
-    const randomHex = COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)].hex;
-    const randomLength = Math.floor(Math.random() * 6) + 2;
-    const randomThickness = Math.floor(Math.random() * 2) + 1;
-    const randomOffset = Math.floor(Math.random() * 4) + 1;
-    setConfig((prev) => ({
-      ...prev,
-      color: randomHex,
-      innerLines: true,
-      innerLineLength: randomLength,
-      innerLineLengthVertical: randomLength,
-      innerLineThickness: randomThickness,
-      innerLineOffset: randomOffset,
-      outlines: Math.random() > 0.4,
-      centerDot: Math.random() > 0.7,
-    }));
-  }, []);
-
-  const handleApplyImport = useCallback((rawCode: string) => {
-    const parsed = parseValorantCode(rawCode);
-    if (parsed) {
-      setConfig((prev) => ({
-        ...prev,
-        ...parsed,
-      }));
-    }
-  }, []);
+  // Toda la lógica y estado de la mira centralizados en su propio hook
+  const {
+    config,
+    currentCode,
+    selectedBg,
+    setSelectedBg,
+    copied,
+    showImportModal,
+    setShowImportModal,
+    updateSetting,
+    resetCrosshair,
+    randomizeCrosshair,
+    applyImportCode,
+    copyCode,
+    saveCrosshair,
+  } = useCrosshair();
 
   return (
     <div
@@ -155,7 +124,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <button
             className="cyber-btn-secondary"
-            onClick={() => setConfig(DEFAULT_CONFIG)}
+            onClick={resetCrosshair}
             style={{
               padding: "7px 14px",
               fontSize: "11px",
@@ -198,14 +167,14 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
         {/* RIGHT COLUMN: Authentic Valorant In-Game Settings Panel */}
         <CrosshairSettingsTable
           config={config}
-          onChangeConfig={setConfig}
+          onUpdateSetting={updateSetting}
           currentCode={currentCode}
           onOpenImport={() => setShowImportModal(true)}
-          onCopyCode={handleCopyCode}
+          onCopyCode={copyCode}
           copied={copied}
-          onRandom={handleRandomCrosshair}
-          onReset={() => setConfig(DEFAULT_CONFIG)}
-          onSave={onSave}
+          onRandom={randomizeCrosshair}
+          onReset={resetCrosshair}
+          onSave={onSave ? () => saveCrosshair(onSave) : undefined}
         />
       </div>
 
@@ -213,7 +182,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
       <CrosshairImportModal
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
-        onImport={handleApplyImport}
+        onImport={applyImportCode}
       />
     </div>
   );

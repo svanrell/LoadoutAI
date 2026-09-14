@@ -9,6 +9,10 @@ export interface CrosshairConfig {
   fadeWithFiringError?: boolean;
   hideCrosshair?: boolean;
 
+  // ADS Tab Settings
+  copyPrimaryCrosshairADS?: boolean;
+  overrideFiringErrorOffsetADS?: boolean;
+
   color: string;
   outlines: boolean;
   outlineOpacity: number;
@@ -70,6 +74,8 @@ export const DEFAULT_CONFIG: CrosshairConfig = {
   showSpectatedPlayerCrosshair: false,
   fadeWithFiringError: false,
   hideCrosshair: false,
+  copyPrimaryCrosshairADS: true,
+  overrideFiringErrorOffsetADS: false,
 
   color: "#00FFB3",
   outlines: false,

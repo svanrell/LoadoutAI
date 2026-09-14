@@ -14,7 +14,8 @@ import {
 
 interface CrosshairSettingsTableProps {
   config: CrosshairConfig;
-  onChangeConfig: (newConfig: CrosshairConfig) => void;
+  onChangeConfig?: (newConfig: CrosshairConfig) => void;
+  onUpdateSetting?: (propiedad: keyof CrosshairConfig, valor: any) => void;
   currentCode: string;
   onOpenImport: () => void;
   onCopyCode: () => void;
@@ -29,6 +30,7 @@ type SubTabId = "General" | "Primary" | "Aim Down Sights" | "Sniper";
 export function CrosshairSettingsTable({
   config,
   onChangeConfig,
+  onUpdateSetting,
   currentCode,
   onOpenImport,
   onCopyCode,
@@ -54,11 +56,15 @@ export function CrosshairSettingsTable({
     );
   }
 
-  // Función para actualizar cualquier ajuste de forma limpia y directa
+  // Delegar la actualización de propiedades a la lógica central o actualizar la copia
   function updateConfig(propiedad: keyof CrosshairConfig, valor: any) {
-    const nuevaConfig = Object.assign({}, config);
-    (nuevaConfig as any)[propiedad] = valor;
-    onChangeConfig(nuevaConfig);
+    if (onUpdateSetting) {
+      onUpdateSetting(propiedad, valor);
+    } else if (onChangeConfig) {
+      const nuevaConfig = Object.assign({}, config);
+      (nuevaConfig as any)[propiedad] = valor;
+      onChangeConfig(nuevaConfig);
+    }
   }
 
   return (
@@ -618,34 +624,65 @@ export function CrosshairSettingsTable({
 
           {/* AIM DOWN SIGHTS TAB */}
           {activeSubTab === "Aim Down Sights" && (
-            <>
-              <SectionHeader title="Aim Down Sights (ADS)" />
-              <SettingRow label="Copy Primary Crosshair" isOdd={false}>
-                <SegmentedToggle value={true} onChange={() => {}} />
+            <div style={{ display: "flex", flexDirection: "column", paddingBottom: "16px" }}>
+              <SectionHeader title={language === "es" ? "MIRA AL APUNTAR (ADS)" : "Aim Down Sights (ADS)"} />
+              <SettingRow
+                label={language === "es" ? "Copiar retícula principal" : "Copy Primary Crosshair"}
+                isOdd={false}
+              >
+                <SegmentedToggle
+                  value={config.copyPrimaryCrosshairADS ?? true}
+                  onChange={(v) => updateConfig("copyPrimaryCrosshairADS", v)}
+                  activeLabel="ACTIVADO"
+                  inactiveLabel="DESACTIVADO"
+                />
               </SettingRow>
-              <SettingRow label="Override Firing Error Offset With ADS Crosshair Offset" isOdd={true}>
-                <SegmentedToggle value={false} onChange={() => {}} />
+              <SettingRow
+                label={
+                  language === "es"
+                    ? "Sustituir desfase por error de disparo por el de la mira al apuntar"
+                    : "Override Firing Error Offset With ADS Crosshair Offset"
+                }
+                isOdd={true}
+              >
+                <SegmentedToggle
+                  value={config.overrideFiringErrorOffsetADS ?? false}
+                  onChange={(v) => updateConfig("overrideFiringErrorOffsetADS", v)}
+                  activeLabel="ACTIVADO"
+                  inactiveLabel="DESACTIVADO"
+                />
               </SettingRow>
-            </>
+            </div>
           )}
 
           {/* SNIPER TAB */}
           {activeSubTab === "Sniper" && (
-            <>
-              <SectionHeader title="Sniper Scope" />
-              <SettingRow label="Display Center Dot" isOdd={false}>
+            <div style={{ display: "flex", flexDirection: "column", paddingBottom: "16px" }}>
+              <SectionHeader title={language === "es" ? "MIRA DE FRANCOTIRADOR" : "Sniper Scope"} />
+              <SettingRow
+                label={language === "es" ? "Mostrar punto central" : "Display Center Dot"}
+                isOdd={false}
+              >
                 <SegmentedToggle
                   value={config.centerDot}
                   onChange={(v) => updateConfig("centerDot", v)}
+                  activeLabel="ACTIVADO"
+                  inactiveLabel="DESACTIVADO"
                 />
               </SettingRow>
-              <SettingRow label="Center Dot Color" isOdd={true}>
+              <SettingRow
+                label={language === "es" ? "Color del punto central" : "Center Dot Color"}
+                isOdd={true}
+              >
                 <ColorPickerRow
                   color={config.color}
                   onChange={(c) => updateConfig("color", c)}
                 />
               </SettingRow>
-              <SettingRow label="Center Dot Opacity" isOdd={false}>
+              <SettingRow
+                label={language === "es" ? "Opacidad del punto central" : "Center Dot Opacity"}
+                isOdd={false}
+              >
                 <SettingSlider
                   value={config.centerDotOpacity}
                   min={0}
@@ -654,7 +691,10 @@ export function CrosshairSettingsTable({
                   onChange={(v) => updateConfig("centerDotOpacity", v)}
                 />
               </SettingRow>
-              <SettingRow label="Center Dot Thickness" isOdd={true}>
+              <SettingRow
+                label={language === "es" ? "Grosor del punto central" : "Center Dot Thickness"}
+                isOdd={true}
+              >
                 <SettingSlider
                   value={config.centerDotSize}
                   min={1}
@@ -663,7 +703,7 @@ export function CrosshairSettingsTable({
                   onChange={(v) => updateConfig("centerDotSize", v)}
                 />
               </SettingRow>
-            </>
+            </div>
           )}
         </div>
       </div>
