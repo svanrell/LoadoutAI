@@ -143,7 +143,17 @@ export const BACKGROUNDS: BackgroundMap[] = [
  * Serializes CrosshairConfig into a standard Valorant profile code
  */
 export function serializeValorantCode(c: CrosshairConfig): string {
-  const parts: string[] = ["0", "P"];
+  const parts: string[] = ["0"];
+
+  // Global Header Settings (before P)
+  if (c.overrideAllPrimary) {
+    parts.push("c;1");
+  }
+  if (c.advancedOptions !== false) {
+    parts.push("s;1");
+  }
+
+  parts.push("P");
 
   // Color
   const cleanHex = c.color.replace("#", "").toUpperCase();
@@ -174,7 +184,6 @@ export function serializeValorantCode(c: CrosshairConfig): string {
 
   // Overrides
   if (c.overrideFiringError) parts.push("m;1");
-  if (c.overrideAllPrimary) parts.push("b;1");
 
   // Inner lines
   if (!c.innerLines) {
@@ -232,119 +241,143 @@ export function parseValorantCode(code: string): Partial<CrosshairConfig> | null
   if (tokens.length < 2) return null;
 
   const result: Partial<CrosshairConfig> = {};
+  const hasPSection = tokens.includes("P");
+  let currentSection = hasPSection ? "" : "P"; // Si tiene 'P', empieza en cabecera global; si no, directamente en Primaria
+  let colorPresetIdx = -1;
+  let customHex = "";
 
-  for (let i = 0; i < tokens.length; i++) {
-    const key = tokens[i];
+  let i = 0;
+  // Omitir versión si el primer token es "0"
+  if (tokens[0] === "0") {
+    i = 1;
+  }
+
+  while (i < tokens.length) {
+    const token = tokens[i];
+
+    // Detectar marcadores de sección oficiales de Valorant
+    if (token === "P" || token === "A" || token === "S") {
+      currentSection = token;
+      i++;
+      continue;
+    }
+
+    const key = token;
     const val = tokens[i + 1];
+    if (val === undefined) break;
 
-    if (key === "c" && val !== undefined) {
-      const idx = parseInt(val, 10);
-      if (idx >= 0 && idx < COLOR_PRESETS.length) {
-        result.color = COLOR_PRESETS[idx].hex;
+    // Ajustes globales (en la cabecera antes de la sección P)
+    if (currentSection === "") {
+      if (key === "c") {
+        // En la cabecera antes de P, c;1 es "Sustituir todas las miras principales por mi mira principal"
+        result.overrideAllPrimary = val === "1";
+      } else if (key === "s") {
+        result.advancedOptions = val === "1";
+      } else if (key === "f") {
+        result.fadeWithFiringError = val === "1";
       }
-      i++;
-    } else if (key === "u" && val !== undefined) {
-      result.color = `#${val.replace("#", "")}`;
-      i++;
-    } else if (key === "h" && val !== undefined) {
-      result.outlines = val === "1";
-      i++;
-    } else if (key === "t" && val !== undefined) {
-      result.outlineThickness = parseInt(val, 10);
-      i++;
-    } else if (key === "o" && val !== undefined) {
-      result.outlineOpacity = parseFloat(val);
-      i++;
-    } else if (key === "d" && val !== undefined) {
-      result.centerDot = val === "1";
-      i++;
-    } else if (key === "z" && val !== undefined) {
-      result.centerDotSize = parseInt(val, 10);
-      i++;
-    } else if (key === "a" && val !== undefined) {
-      result.centerDotOpacity = parseFloat(val);
-      i++;
-    } else if (key === "m" && val !== undefined) {
-      result.overrideFiringError = val === "1";
-      i++;
-    } else if (key === "b" && val !== undefined) {
-      result.overrideAllPrimary = val === "1";
-      i++;
     }
-    // Inner lines
-    else if (key === "0b" && val !== undefined) {
-      result.innerLines = val === "1";
-      i++;
-    } else if (key === "0t" && val !== undefined) {
-      result.innerLines = val === "1";
-      i++;
-    } else if (key === "0l" && val !== undefined) {
-      result.innerLineLength = parseInt(val, 10);
-      result.innerLineLengthVertical = parseInt(val, 10);
-      i++;
-    } else if (key === "0v" && val !== undefined) {
-      result.innerLineLengthVertical = parseInt(val, 10);
-      result.innerLineLinked = false;
-      i++;
-    } else if (key === "0o" && val !== undefined) {
-      result.innerLineOffset = parseInt(val, 10);
-      i++;
-    } else if (key === "0a" && val !== undefined) {
-      result.innerLineOpacity = parseFloat(val);
-      i++;
-    } else if (key === "0w" && val !== undefined) {
-      result.innerLineThickness = parseInt(val, 10);
-      i++;
-    } else if (key === "0m" && val !== undefined) {
-      result.innerMovementError = val === "1";
-      i++;
-    } else if (key === "0s" && val !== undefined) {
-      result.innerMovementErrorMult = parseFloat(val);
-      i++;
-    } else if (key === "0e" && val !== undefined) {
-      result.innerFiringError = val === "1";
-      i++;
-    } else if (key === "0f" && val !== undefined) {
-      result.innerFiringErrorMult = parseFloat(val);
-      i++;
+
+    // RETÍCULA PRINCIPAL (Sección 'P')
+    if (currentSection === "P") {
+      if (key === "c") {
+        colorPresetIdx = parseInt(val, 10);
+      } else if (key === "u") {
+        customHex = val.replace("#", "");
+      } else if (key === "h") {
+        result.outlines = val === "1";
+      } else if (key === "t") {
+        result.outlineThickness = parseInt(val, 10);
+      } else if (key === "o") {
+        result.outlineOpacity = parseFloat(val);
+        if (result.outlines === undefined) result.outlines = true;
+      } else if (key === "d") {
+        result.centerDot = val === "1";
+      } else if (key === "z") {
+        result.centerDotSize = parseInt(val, 10);
+      } else if (key === "a") {
+        result.centerDotOpacity = parseFloat(val);
+      } else if (key === "m") {
+        result.overrideFiringError = val === "1";
+      } else if (key === "b") {
+        result.overrideAllPrimary = val === "1";
+      } else if (key === "f") {
+        result.fadeWithFiringError = val === "1";
+      } else if (key === "s") {
+        result.advancedOptions = val === "1";
+      }
+      // Líneas internas
+      else if (key === "0b") {
+        result.innerLines = val === "1";
+      } else if (key === "0t" || key === "0g") {
+        result.innerLines = val === "1";
+      } else if (key === "0l") {
+        result.innerLineLength = parseInt(val, 10);
+        if (result.innerLineLengthVertical === undefined) {
+          result.innerLineLengthVertical = parseInt(val, 10);
+        }
+      } else if (key === "0v") {
+        result.innerLineLengthVertical = parseInt(val, 10);
+        result.innerLineLinked = false;
+      } else if (key === "0o") {
+        result.innerLineOffset = parseInt(val, 10);
+      } else if (key === "0a") {
+        result.innerLineOpacity = parseFloat(val);
+      } else if (key === "0w") {
+        result.innerLineThickness = parseInt(val, 10);
+      } else if (key === "0m") {
+        result.innerMovementError = val === "1";
+      } else if (key === "0s") {
+        result.innerMovementErrorMult = parseFloat(val);
+      } else if (key === "0e") {
+        result.innerFiringError = val === "1";
+      } else if (key === "0f") {
+        result.innerFiringErrorMult = parseFloat(val);
+      }
+      // Líneas externas
+      else if (key === "1b") {
+        result.outerLines = val === "1";
+      } else if (key === "1t" || key === "1g") {
+        result.outerLines = val === "1";
+      } else if (key === "1l") {
+        result.outerLineLength = parseInt(val, 10);
+        if (result.outerLineLengthVertical === undefined) {
+          result.outerLineLengthVertical = parseInt(val, 10);
+        }
+      } else if (key === "1v") {
+        result.outerLineLengthVertical = parseInt(val, 10);
+        result.outerLineLinked = false;
+      } else if (key === "1o") {
+        result.outerLineOffset = parseInt(val, 10);
+      } else if (key === "1a") {
+        result.outerLineOpacity = parseFloat(val);
+      } else if (key === "1w") {
+        result.outerLineThickness = parseInt(val, 10);
+      } else if (key === "1m") {
+        result.outerMovementError = val === "1";
+      } else if (key === "1s") {
+        result.outerMovementErrorMult = parseFloat(val);
+      } else if (key === "1e") {
+        result.outerFiringError = val === "1";
+      } else if (key === "1f") {
+        result.outerFiringErrorMult = parseFloat(val);
+      }
     }
-    // Outer lines
-    else if (key === "1b" && val !== undefined) {
-      result.outerLines = val === "1";
-      i++;
-    } else if (key === "1t" && val !== undefined) {
-      result.outerLines = val === "1";
-      i++;
-    } else if (key === "1l" && val !== undefined) {
-      result.outerLineLength = parseInt(val, 10);
-      result.outerLineLengthVertical = parseInt(val, 10);
-      i++;
-    } else if (key === "1v" && val !== undefined) {
-      result.outerLineLengthVertical = parseInt(val, 10);
-      result.outerLineLinked = false;
-      i++;
-    } else if (key === "1o" && val !== undefined) {
-      result.outerLineOffset = parseInt(val, 10);
-      i++;
-    } else if (key === "1a" && val !== undefined) {
-      result.outerLineOpacity = parseFloat(val);
-      i++;
-    } else if (key === "1w" && val !== undefined) {
-      result.outerLineThickness = parseInt(val, 10);
-      i++;
-    } else if (key === "1m" && val !== undefined) {
-      result.outerMovementError = val === "1";
-      i++;
-    } else if (key === "1s" && val !== undefined) {
-      result.outerMovementErrorMult = parseFloat(val);
-      i++;
-    } else if (key === "1e" && val !== undefined) {
-      result.outerFiringError = val === "1";
-      i++;
-    } else if (key === "1f" && val !== undefined) {
-      result.outerFiringErrorMult = parseFloat(val);
-      i++;
-    }
+
+    // Avanzar clave y valor
+    i += 2;
+  }
+
+  // Resolver color prioritario de Valorant:
+  // Si c es 8 (Custom), se usa el hex personalizado de 'u'.
+  // Si c es 0-7, se usa obligatoriamente el preset de Valorant (ignorando 'u' residual).
+  // Si no hay 'c' pero sí 'u', se usa 'u'.
+  if (colorPresetIdx === 8 && customHex) {
+    result.color = "#" + (customHex.length > 6 ? customHex.substring(0, 6) : customHex);
+  } else if (colorPresetIdx >= 0 && colorPresetIdx < COLOR_PRESETS.length) {
+    result.color = COLOR_PRESETS[colorPresetIdx].hex;
+  } else if (customHex) {
+    result.color = "#" + (customHex.length > 6 ? customHex.substring(0, 6) : customHex);
   }
 
   return result;

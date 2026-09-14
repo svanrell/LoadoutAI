@@ -40,6 +40,7 @@ export function CrosshairSettingsTable({
   onSave,
 }: CrosshairSettingsTableProps) {
   const { language } = useLanguage();
+  const isEs = language === "es";
   const [activeSubTab, setActiveSubTab] = useState<SubTabId>("General");
 
   const isAdvanced = config.advancedOptions !== false;
@@ -287,10 +288,10 @@ export function CrosshairSettingsTable({
           {activeSubTab === "Primary" && (
             <>
               {/* CROSSHAIR SECTION */}
-              <SectionHeader title="Crosshair" />
+              <SectionHeader title={isEs ? "RETÍCULA" : "CROSSHAIR"} />
 
               {/* Crosshair Color */}
-              <SettingRow label="Crosshair Color" isOdd={false}>
+              <SettingRow label={isEs ? "Color de la retícula" : "Crosshair Color"} isOdd={false}>
                 <ColorPickerRow
                   color={config.color}
                   onChange={(c) => updateConfig("color", c)}
@@ -298,7 +299,7 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Outlines */}
-              <SettingRow label="Outlines" isOdd={true}>
+              <SettingRow label={isEs ? "Contornos" : "Outlines"} isOdd={true}>
                 <SegmentedToggle
                   value={config.outlines}
                   onChange={(v) => updateConfig("outlines", v)}
@@ -306,29 +307,41 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Outline Opacity */}
-              <SettingRow label="Outline Opacity" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Opacidad de contorno" : "Outline Opacity"}
+                isOdd={false}
+                level={1}
+                disabled={!config.outlines}
+              >
                 <SettingSlider
                   value={config.outlineOpacity}
                   min={0}
                   max={1}
                   step={0.05}
+                  disabled={!config.outlines}
                   onChange={(v) => updateConfig("outlineOpacity", v)}
                 />
               </SettingRow>
 
               {/* Outline Thickness */}
-              <SettingRow label="Outline Thickness" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Grosor de contorno" : "Outline Thickness"}
+                isOdd={true}
+                level={1}
+                disabled={!config.outlines}
+              >
                 <SettingSlider
                   value={config.outlineThickness}
                   min={1}
                   max={6}
                   step={1}
+                  disabled={!config.outlines}
                   onChange={(v) => updateConfig("outlineThickness", v)}
                 />
               </SettingRow>
 
               {/* Center Dot */}
-              <SettingRow label="Center Dot" isOdd={false}>
+              <SettingRow label={isEs ? "Punto central" : "Center Dot"} isOdd={false}>
                 <SegmentedToggle
                   value={config.centerDot}
                   onChange={(v) => updateConfig("centerDot", v)}
@@ -336,29 +349,48 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Center Dot Opacity */}
-              <SettingRow label="Center Dot Opacity" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Opacidad del punto central" : "Center Dot Opacity"}
+                isOdd={true}
+                level={1}
+                disabled={!config.centerDot}
+              >
                 <SettingSlider
                   value={config.centerDotOpacity}
                   min={0}
                   max={1}
                   step={0.05}
+                  disabled={!config.centerDot}
                   onChange={(v) => updateConfig("centerDotOpacity", v)}
                 />
               </SettingRow>
 
               {/* Center Dot Thickness */}
-              <SettingRow label="Center Dot Thickness" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Grosor del punto central" : "Center Dot Thickness"}
+                isOdd={false}
+                level={1}
+                disabled={!config.centerDot}
+              >
                 <SettingSlider
                   value={config.centerDotSize}
                   min={1}
                   max={6}
                   step={1}
+                  disabled={!config.centerDot}
                   onChange={(v) => updateConfig("centerDotSize", v)}
                 />
               </SettingRow>
 
               {/* Override Firing Error */}
-              <SettingRow label="Override Firing Error Offset With Crosshair Offset" isOdd={true}>
+              <SettingRow
+                label={
+                  isEs
+                    ? "Sustituir desfase por error de disparo por el de la retícula"
+                    : "Override Firing Error Offset With Crosshair Offset"
+                }
+                isOdd={true}
+              >
                 <SegmentedToggle
                   value={config.overrideFiringError}
                   onChange={(v) => updateConfig("overrideFiringError", v)}
@@ -366,7 +398,14 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Override All Primary */}
-              <SettingRow label="Override All Primary Crosshairs With My Primary Crosshair" isOdd={false}>
+              <SettingRow
+                label={
+                  isEs
+                    ? "Sustituir todas las retículas principales por mi retícula principal"
+                    : "Override All Primary Crosshairs With My Primary Crosshair"
+                }
+                isOdd={false}
+              >
                 <SegmentedToggle
                   value={config.overrideAllPrimary}
                   onChange={(v) => updateConfig("overrideAllPrimary", v)}
@@ -374,10 +413,10 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* INNER LINES SECTION */}
-              <SectionHeader title="Inner Lines" />
+              <SectionHeader title={isEs ? "LÍNEAS INTERIORES" : "INNER LINES"} />
 
               {/* Show Inner Lines */}
-              <SettingRow label="Show Inner Lines" isOdd={false}>
+              <SettingRow label={isEs ? "Mostrar líneas interiores" : "Show Inner Lines"} isOdd={false}>
                 <SegmentedToggle
                   value={config.innerLines}
                   onChange={(v) => updateConfig("innerLines", v)}
@@ -385,22 +424,34 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Inner Line Opacity */}
-              <SettingRow label="Inner Line Opacity" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Opacidad de la línea interior" : "Inner Line Opacity"}
+                isOdd={true}
+                level={1}
+                disabled={!config.innerLines}
+              >
                 <SettingSlider
                   value={config.innerLineOpacity}
                   min={0}
                   max={1}
                   step={0.05}
+                  disabled={!config.innerLines}
                   onChange={(v) => updateConfig("innerLineOpacity", v)}
                 />
               </SettingRow>
 
               {/* Inner Line Length */}
-              <SettingRow label="Inner Line Length" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Longitud de la línea interior" : "Inner Line Length"}
+                isOdd={false}
+                level={1}
+                disabled={!config.innerLines}
+              >
                 <LinkedLengthSlider
                   valH={config.innerLineLength}
                   valV={config.innerLineLengthVertical ?? config.innerLineLength}
                   isLinked={config.innerLineLinked}
+                  disabled={!config.innerLines}
                   onToggleLink={() =>
                     updateConfig("innerLineLinked", !config.innerLineLinked)
                   }
@@ -410,70 +461,106 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Inner Line Thickness */}
-              <SettingRow label="Inner Line Thickness" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Grosor de la línea interior" : "Inner Line Thickness"}
+                isOdd={true}
+                level={1}
+                disabled={!config.innerLines}
+              >
                 <SettingSlider
                   value={config.innerLineThickness}
                   min={1}
                   max={10}
                   step={1}
+                  disabled={!config.innerLines}
                   onChange={(v) => updateConfig("innerLineThickness", v)}
                 />
               </SettingRow>
 
               {/* Inner Line Offset */}
-              <SettingRow label="Inner Line Offset" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Desplazamiento de la línea interior" : "Inner Line Offset"}
+                isOdd={false}
+                level={1}
+                disabled={!config.innerLines}
+              >
                 <SettingSlider
                   value={config.innerLineOffset}
                   min={0}
                   max={20}
                   step={1}
+                  disabled={!config.innerLines}
                   onChange={(v) => updateConfig("innerLineOffset", v)}
                 />
               </SettingRow>
 
               {/* Movement Error */}
-              <SettingRow label="Movement Error" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Error de movimiento" : "Movement Error"}
+                isOdd={true}
+                level={1}
+                disabled={!config.innerLines}
+              >
                 <SegmentedToggle
                   value={config.innerMovementError}
+                  disabled={!config.innerLines}
                   onChange={(v) => updateConfig("innerMovementError", v)}
                 />
               </SettingRow>
 
               {/* Movement Error Multiplier */}
-              <SettingRow label="Movement Error Multiplier" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Multiplicador de error de movimiento" : "Movement Error Multiplier"}
+                isOdd={false}
+                level={2}
+                disabled={!config.innerLines || !config.innerMovementError}
+              >
                 <SettingSlider
                   value={config.innerMovementErrorMult}
                   min={0}
                   max={3}
                   step={0.1}
+                  disabled={!config.innerLines || !config.innerMovementError}
                   onChange={(v) => updateConfig("innerMovementErrorMult", v)}
                 />
               </SettingRow>
 
               {/* Firing Error */}
-              <SettingRow label="Firing Error" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Error de disparo" : "Firing Error"}
+                isOdd={true}
+                level={1}
+                disabled={!config.innerLines}
+              >
                 <SegmentedToggle
                   value={config.innerFiringError}
+                  disabled={!config.innerLines}
                   onChange={(v) => updateConfig("innerFiringError", v)}
                 />
               </SettingRow>
 
               {/* Firing Error Multiplier */}
-              <SettingRow label="Firing Error Multiplier" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Multiplicador de error de disparo" : "Firing Error Multiplier"}
+                isOdd={false}
+                level={2}
+                disabled={!config.innerLines || !config.innerFiringError}
+              >
                 <SettingSlider
                   value={config.innerFiringErrorMult}
                   min={0}
                   max={3}
                   step={0.1}
+                  disabled={!config.innerLines || !config.innerFiringError}
                   onChange={(v) => updateConfig("innerFiringErrorMult", v)}
                 />
               </SettingRow>
 
               {/* OUTER LINES SECTION */}
-              <SectionHeader title="Outer Lines" />
+              <SectionHeader title={isEs ? "LÍNEAS EXTERIORES" : "OUTER LINES"} />
 
               {/* Show Outer Lines */}
-              <SettingRow label="Show Outer Lines" isOdd={false}>
+              <SettingRow label={isEs ? "Mostrar líneas exteriores" : "Show Outer Lines"} isOdd={false}>
                 <SegmentedToggle
                   value={config.outerLines}
                   onChange={(v) => updateConfig("outerLines", v)}
@@ -481,22 +568,34 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Outer Line Opacity */}
-              <SettingRow label="Outer Line Opacity" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Opacidad de la línea exterior" : "Outer Line Opacity"}
+                isOdd={true}
+                level={1}
+                disabled={!config.outerLines}
+              >
                 <SettingSlider
                   value={config.outerLineOpacity}
                   min={0}
                   max={1}
                   step={0.05}
+                  disabled={!config.outerLines}
                   onChange={(v) => updateConfig("outerLineOpacity", v)}
                 />
               </SettingRow>
 
               {/* Outer Line Length */}
-              <SettingRow label="Outer Line Length" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Longitud de la línea exterior" : "Outer Line Length"}
+                isOdd={false}
+                level={1}
+                disabled={!config.outerLines}
+              >
                 <LinkedLengthSlider
                   valH={config.outerLineLength}
                   valV={config.outerLineLengthVertical ?? config.outerLineLength}
                   isLinked={config.outerLineLinked}
+                  disabled={!config.outerLines}
                   onToggleLink={() =>
                     updateConfig("outerLineLinked", !config.outerLineLinked)
                   }
@@ -506,61 +605,97 @@ export function CrosshairSettingsTable({
               </SettingRow>
 
               {/* Outer Line Thickness */}
-              <SettingRow label="Outer Line Thickness" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Grosor de la línea exterior" : "Outer Line Thickness"}
+                isOdd={true}
+                level={1}
+                disabled={!config.outerLines}
+              >
                 <SettingSlider
                   value={config.outerLineThickness}
                   min={1}
                   max={10}
                   step={1}
+                  disabled={!config.outerLines}
                   onChange={(v) => updateConfig("outerLineThickness", v)}
                 />
               </SettingRow>
 
               {/* Outer Line Offset */}
-              <SettingRow label="Outer Line Offset" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Desplazamiento de la línea exterior" : "Outer Line Offset"}
+                isOdd={false}
+                level={1}
+                disabled={!config.outerLines}
+              >
                 <SettingSlider
                   value={config.outerLineOffset}
                   min={0}
                   max={40}
                   step={1}
+                  disabled={!config.outerLines}
                   onChange={(v) => updateConfig("outerLineOffset", v)}
                 />
               </SettingRow>
 
               {/* Movement Error */}
-              <SettingRow label="Movement Error" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Error de movimiento" : "Movement Error"}
+                isOdd={true}
+                level={1}
+                disabled={!config.outerLines}
+              >
                 <SegmentedToggle
                   value={config.outerMovementError}
+                  disabled={!config.outerLines}
                   onChange={(v) => updateConfig("outerMovementError", v)}
                 />
               </SettingRow>
 
               {/* Movement Error Multiplier */}
-              <SettingRow label="Movement Error Multiplier" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Multiplicador de error de movimiento" : "Movement Error Multiplier"}
+                isOdd={false}
+                level={2}
+                disabled={!config.outerLines || !config.outerMovementError}
+              >
                 <SettingSlider
                   value={config.outerMovementErrorMult}
                   min={0}
                   max={3}
                   step={0.1}
+                  disabled={!config.outerLines || !config.outerMovementError}
                   onChange={(v) => updateConfig("outerMovementErrorMult", v)}
                 />
               </SettingRow>
 
               {/* Firing Error */}
-              <SettingRow label="Firing Error" isOdd={true}>
+              <SettingRow
+                label={isEs ? "Error de disparo" : "Firing Error"}
+                isOdd={true}
+                level={1}
+                disabled={!config.outerLines}
+              >
                 <SegmentedToggle
                   value={config.outerFiringError}
+                  disabled={!config.outerLines}
                   onChange={(v) => updateConfig("outerFiringError", v)}
                 />
               </SettingRow>
 
               {/* Firing Error Multiplier */}
-              <SettingRow label="Firing Error Multiplier" isOdd={false}>
+              <SettingRow
+                label={isEs ? "Multiplicador de error de disparo" : "Firing Error Multiplier"}
+                isOdd={false}
+                level={2}
+                disabled={!config.outerLines || !config.outerFiringError}
+              >
                 <SettingSlider
                   value={config.outerFiringErrorMult}
                   min={0}
                   max={3}
                   step={0.1}
+                  disabled={!config.outerLines || !config.outerFiringError}
                   onChange={(v) => updateConfig("outerFiringErrorMult", v)}
                 />
               </SettingRow>
@@ -644,9 +779,12 @@ export function CrosshairSettingsTable({
                     : "Override Firing Error Offset With ADS Crosshair Offset"
                 }
                 isOdd={true}
+                level={1}
+                disabled={config.copyPrimaryCrosshairADS !== false}
               >
                 <SegmentedToggle
                   value={config.overrideFiringErrorOffsetADS ?? false}
+                  disabled={config.copyPrimaryCrosshairADS !== false}
                   onChange={(v) => updateConfig("overrideFiringErrorOffsetADS", v)}
                   activeLabel="ACTIVADO"
                   inactiveLabel="DESACTIVADO"
@@ -673,33 +811,42 @@ export function CrosshairSettingsTable({
               <SettingRow
                 label={language === "es" ? "Color del punto central" : "Center Dot Color"}
                 isOdd={true}
+                level={1}
+                disabled={!config.centerDot}
               >
                 <ColorPickerRow
                   color={config.color}
+                  disabled={!config.centerDot}
                   onChange={(c) => updateConfig("color", c)}
                 />
               </SettingRow>
               <SettingRow
                 label={language === "es" ? "Opacidad del punto central" : "Center Dot Opacity"}
                 isOdd={false}
+                level={1}
+                disabled={!config.centerDot}
               >
                 <SettingSlider
                   value={config.centerDotOpacity}
                   min={0}
                   max={1}
                   step={0.05}
+                  disabled={!config.centerDot}
                   onChange={(v) => updateConfig("centerDotOpacity", v)}
                 />
               </SettingRow>
               <SettingRow
                 label={language === "es" ? "Grosor del punto central" : "Center Dot Thickness"}
                 isOdd={true}
+                level={1}
+                disabled={!config.centerDot}
               >
                 <SettingSlider
                   value={config.centerDotSize}
                   min={1}
                   max={6}
                   step={1}
+                  disabled={!config.centerDot}
                   onChange={(v) => updateConfig("centerDotSize", v)}
                 />
               </SettingRow>
@@ -818,20 +965,32 @@ export function CrosshairSettingsTable({
         input[type="range"]::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
-          width: 13px;
-          height: 13px;
-          border-radius: 50%;
+          width: 10px;
+          height: 10px;
+          border-radius: 1px;
+          transform: rotate(45deg);
           background: #0084ff;
           cursor: pointer;
-          box-shadow: 0 0 5px rgba(0, 132, 255, 0.7);
+          box-shadow: 0 0 6px rgba(0, 132, 255, 0.7);
+        }
+        input[type="range"]:disabled::-webkit-slider-thumb {
+          background: #475569 !important;
+          box-shadow: none !important;
+          cursor: not-allowed !important;
         }
         input[type="range"]::-moz-range-thumb {
-          width: 13px;
-          height: 13px;
-          border-radius: 50%;
+          width: 10px;
+          height: 10px;
+          border-radius: 1px;
+          transform: rotate(45deg);
           background: #0084ff;
           border: none;
           cursor: pointer;
+        }
+        input[type="range"]:disabled::-moz-range-thumb {
+          background: #475569 !important;
+          box-shadow: none !important;
+          cursor: not-allowed !important;
         }
         .linked-secondary-slider::-webkit-slider-thumb {
           background: #cbd5e1 !important;

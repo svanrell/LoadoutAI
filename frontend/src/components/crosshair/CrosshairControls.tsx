@@ -80,33 +80,46 @@ export function SettingRow({
   children,
   isOdd = false,
   tooltip,
+  level = 0,
+  disabled = false,
 }: {
   label: string;
   children: ReactNode;
   isOdd?: boolean;
   tooltip?: string;
+  level?: number;
+  disabled?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
+  const paddingLeft = level === 2 ? "52px" : level === 1 ? "36px" : "22px";
+
   return (
     <div
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => !disabled && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "8px 22px",
-        background: isHovered
+        padding: `8px 22px 8px ${paddingLeft}`,
+        background: disabled
+          ? isOdd
+            ? "rgba(18, 26, 34, 0.2)"
+            : "rgba(14, 20, 26, 0.15)"
+          : isHovered
           ? "rgba(35, 52, 68, 0.35)"
           : isOdd
           ? "rgba(22, 32, 42, 0.35)"
           : "rgba(16, 24, 32, 0.25)",
         minHeight: "50px",
         boxSizing: "border-box",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
         gap: "14px",
-        transition: "background 0.12s ease",
+        transition: "background 0.12s ease, opacity 0.2s ease",
+        opacity: disabled ? 0.35 : 1,
+        pointerEvents: disabled ? "none" : "auto",
+        filter: disabled ? "grayscale(0.6)" : "none",
       }}
     >
       <div
@@ -117,11 +130,25 @@ export function SettingRow({
           paddingRight: "8px",
         }}
       >
+        {level > 0 && (
+          <span
+            style={{
+              color: disabled ? "#4b5563" : "#7a91a4",
+              fontWeight: 700,
+              fontSize: "14px",
+              marginRight: "8px",
+              userSelect: "none",
+              fontFamily: "monospace",
+            }}
+          >
+            ─
+          </span>
+        )}
         <span
           style={{
             fontSize: "13px",
             fontWeight: 600,
-            color: "#e2e8f0",
+            color: disabled ? "#64748b" : "#e2e8f0",
             letterSpacing: "0.2px",
             userSelect: "none",
             lineHeight: 1.35,
@@ -129,7 +156,7 @@ export function SettingRow({
         >
           {label}
         </span>
-        {tooltip && <InfoTooltip text={tooltip} />}
+        {tooltip && !disabled && <InfoTooltip text={tooltip} />}
       </div>
       <div style={{ width: "270px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
         {children}
@@ -162,11 +189,13 @@ export function SegmentedToggle({
   onChange,
   activeLabel = "ACTIVADO",
   inactiveLabel = "DESACTIVADO",
+  disabled = false,
 }: {
   value: boolean;
   onChange: (val: boolean) => void;
   activeLabel?: string;
   inactiveLabel?: string;
+  disabled?: boolean;
 }) {
   const [hoverLeft, setHoverLeft] = useState(false);
   const [hoverRight, setHoverRight] = useState(false);
@@ -179,37 +208,53 @@ export function SegmentedToggle({
         width: "270px",
         height: "36px",
         boxSizing: "border-box",
+        opacity: disabled ? 0.45 : 1,
       }}
     >
       {/* Left button: ACTIVE (true) */}
       <button
         type="button"
-        onClick={() => onChange(true)}
-        onMouseEnter={() => setHoverLeft(true)}
+        disabled={disabled}
+        onClick={() => !disabled && onChange(true)}
+        onMouseEnter={() => !disabled && setHoverLeft(true)}
         onMouseLeave={() => setHoverLeft(false)}
         style={{
           flex: 1,
           borderRadius: "2px",
-          border: value
+          border: disabled
+            ? "1px solid rgba(60, 85, 105, 0.15)"
+            : value
             ? "1px solid rgba(135, 175, 205, 0.45)"
             : hoverLeft
             ? "1px solid rgba(80, 110, 135, 0.4)"
             : "1px solid rgba(60, 85, 105, 0.25)",
-          background: value
+          background: disabled
+            ? value
+              ? "rgba(62, 90, 114, 0.25)"
+              : "rgba(16, 26, 36, 0.25)"
+            : value
             ? "rgba(62, 90, 114, 0.45)"
             : hoverLeft
             ? "rgba(28, 44, 58, 0.65)"
             : "rgba(16, 26, 36, 0.5)",
-          color: value ? "#ffffff" : hoverLeft ? "#b8c8d6" : "#7a91a4",
+          color: disabled
+            ? value
+              ? "#8ea6be"
+              : "#4f6375"
+            : value
+            ? "#ffffff"
+            : hoverLeft
+            ? "#b8c8d6"
+            : "#7a91a4",
           fontSize: "11.5px",
           fontWeight: 700,
           letterSpacing: "0.8px",
-          cursor: "pointer",
+          cursor: disabled ? "not-allowed" : "pointer",
           transition: "all 0.15s ease",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: value ? "inset 0 0 10px rgba(80, 130, 170, 0.15)" : "none",
+          boxShadow: value && !disabled ? "inset 0 0 10px rgba(80, 130, 170, 0.15)" : "none",
           textTransform: "uppercase",
         }}
       >
@@ -219,32 +264,47 @@ export function SegmentedToggle({
       {/* Right button: INACTIVE (false) */}
       <button
         type="button"
-        onClick={() => onChange(false)}
-        onMouseEnter={() => setHoverRight(true)}
+        disabled={disabled}
+        onClick={() => !disabled && onChange(false)}
+        onMouseEnter={() => !disabled && setHoverRight(true)}
         onMouseLeave={() => setHoverRight(false)}
         style={{
           flex: 1,
           borderRadius: "2px",
-          border: !value
+          border: disabled
+            ? "1px solid rgba(60, 85, 105, 0.15)"
+            : !value
             ? "1px solid rgba(135, 175, 205, 0.45)"
             : hoverRight
             ? "1px solid rgba(80, 110, 135, 0.4)"
             : "1px solid rgba(60, 85, 105, 0.25)",
-          background: !value
+          background: disabled
+            ? !value
+              ? "rgba(62, 90, 114, 0.25)"
+              : "rgba(16, 26, 36, 0.25)"
+            : !value
             ? "rgba(62, 90, 114, 0.45)"
             : hoverRight
             ? "rgba(28, 44, 58, 0.65)"
             : "rgba(16, 26, 36, 0.5)",
-          color: !value ? "#ffffff" : hoverRight ? "#b8c8d6" : "#7a91a4",
+          color: disabled
+            ? !value
+              ? "#8ea6be"
+              : "#4f6375"
+            : !value
+            ? "#ffffff"
+            : hoverRight
+            ? "#b8c8d6"
+            : "#7a91a4",
           fontSize: "11.5px",
           fontWeight: 700,
           letterSpacing: "0.8px",
-          cursor: "pointer",
+          cursor: disabled ? "not-allowed" : "pointer",
           transition: "all 0.15s ease",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: !value ? "inset 0 0 10px rgba(80, 130, 170, 0.15)" : "none",
+          boxShadow: !value && !disabled ? "inset 0 0 10px rgba(80, 130, 170, 0.15)" : "none",
           textTransform: "uppercase",
         }}
       >
@@ -260,17 +320,28 @@ export function SettingSlider({
   max,
   step = 1,
   onChange,
+  disabled = false,
 }: {
   value: number;
   min: number;
   max: number;
   step?: number;
   onChange: (val: number) => void;
+  disabled?: boolean;
 }) {
   const percent = Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "280px", boxSizing: "border-box" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        width: "280px",
+        boxSizing: "border-box",
+        opacity: disabled ? 0.45 : 1,
+      }}
+    >
       <span
         style={{
           width: "36px",
@@ -278,7 +349,7 @@ export function SettingSlider({
           fontFamily: "monospace",
           fontSize: "12px",
           fontWeight: 700,
-          color: "#ffffff",
+          color: disabled ? "#64748b" : "#ffffff",
           flexShrink: 0,
         }}
       >
@@ -291,16 +362,19 @@ export function SettingSlider({
           max={max}
           step={step}
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
+          disabled={disabled}
+          onChange={(e) => !disabled && onChange(parseFloat(e.target.value))}
           style={{
             width: "100%",
             appearance: "none",
             WebkitAppearance: "none",
             height: "3px",
             borderRadius: "2px",
-            background: `linear-gradient(to right, #0084ff 0%, #0084ff ${percent}%, #d1d5db ${percent}%, #d1d5db 100%)`,
+            background: disabled
+              ? `linear-gradient(to right, #475569 0%, #475569 ${percent}%, #232c3d ${percent}%, #232c3d 100%)`
+              : `linear-gradient(to right, #0084ff 0%, #0084ff ${percent}%, #d1d5db ${percent}%, #d1d5db 100%)`,
             outline: "none",
-            cursor: "pointer",
+            cursor: disabled ? "not-allowed" : "pointer",
             margin: 0,
           }}
         />
@@ -318,6 +392,7 @@ export function LinkedLengthSlider({
   onChangeV,
   min = 0,
   max = 20,
+  disabled = false,
 }: {
   valH: number;
   valV: number;
@@ -327,13 +402,33 @@ export function LinkedLengthSlider({
   onChangeV: (v: number) => void;
   min?: number;
   max?: number;
+  disabled?: boolean;
 }) {
   const percentH = Math.min(100, Math.max(0, ((valH - min) / (max - min)) * 100));
   const percentV = Math.min(100, Math.max(0, ((valV - min) / (max - min)) * 100));
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "6px", width: "280px", boxSizing: "border-box" }}>
-      <span style={{ width: "16px", textAlign: "right", fontFamily: "monospace", fontSize: "12px", fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        width: "280px",
+        boxSizing: "border-box",
+        opacity: disabled ? 0.45 : 1,
+      }}
+    >
+      <span
+        style={{
+          width: "16px",
+          textAlign: "right",
+          fontFamily: "monospace",
+          fontSize: "12px",
+          fontWeight: 700,
+          color: disabled ? "#64748b" : "#fff",
+          flexShrink: 0,
+        }}
+      >
         {valH}
       </span>
       <input
@@ -341,7 +436,9 @@ export function LinkedLengthSlider({
         min={min}
         max={max}
         value={valH}
+        disabled={disabled}
         onChange={(e) => {
+          if (disabled) return;
           const v = parseInt(e.target.value, 10);
           onChangeH(v);
           if (isLinked) onChangeV(v);
@@ -352,15 +449,18 @@ export function LinkedLengthSlider({
           WebkitAppearance: "none",
           height: "3px",
           borderRadius: "2px",
-          background: `linear-gradient(to right, #0084ff 0%, #0084ff ${percentH}%, #d1d5db ${percentH}%, #d1d5db 100%)`,
+          background: disabled
+            ? `linear-gradient(to right, #475569 0%, #475569 ${percentH}%, #232c3d ${percentH}%, #232c3d 100%)`
+            : `linear-gradient(to right, #0084ff 0%, #0084ff ${percentH}%, #d1d5db ${percentH}%, #d1d5db 100%)`,
           outline: "none",
-          cursor: "pointer",
+          cursor: disabled ? "not-allowed" : "pointer",
           margin: 0,
         }}
       />
       <button
         type="button"
-        onClick={onToggleLink}
+        disabled={disabled}
+        onClick={() => !disabled && onToggleLink()}
         title={isLinked ? "Separar longitud vertical y horizontal" : "Vincular longitud"}
         style={{
           width: "28px",
@@ -368,13 +468,14 @@ export function LinkedLengthSlider({
           borderRadius: "3px",
           border: isLinked ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(255, 255, 255, 0.12)",
           background: isLinked ? "#2f3442" : "#222630",
-          color: isLinked ? "#e2e8f0" : "#64748b",
-          cursor: "pointer",
+          color: disabled ? "#4b5563" : isLinked ? "#e2e8f0" : "#64748b",
+          cursor: disabled ? "not-allowed" : "pointer",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
           padding: 0,
+          opacity: disabled ? 0.4 : 1,
         }}
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -382,7 +483,17 @@ export function LinkedLengthSlider({
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
         </svg>
       </button>
-      <span style={{ width: "16px", textAlign: "right", fontFamily: "monospace", fontSize: "12px", fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+      <span
+        style={{
+          width: "16px",
+          textAlign: "right",
+          fontFamily: "monospace",
+          fontSize: "12px",
+          fontWeight: 700,
+          color: disabled ? "#64748b" : "#fff",
+          flexShrink: 0,
+        }}
+      >
         {valV}
       </span>
       <input
@@ -390,8 +501,10 @@ export function LinkedLengthSlider({
         min={min}
         max={max}
         value={valV}
+        disabled={disabled}
         className={isLinked ? "linked-secondary-slider" : undefined}
         onChange={(e) => {
+          if (disabled) return;
           const v = parseInt(e.target.value, 10);
           onChangeV(v);
           if (isLinked) onChangeH(v);
@@ -402,11 +515,13 @@ export function LinkedLengthSlider({
           WebkitAppearance: "none",
           height: "3px",
           borderRadius: "2px",
-          background: isLinked
+          background: disabled
+            ? `linear-gradient(to right, #475569 0%, #475569 ${percentV}%, #232c3d ${percentV}%, #232c3d 100%)`
+            : isLinked
             ? `linear-gradient(to right, #94a3b8 0%, #94a3b8 ${percentV}%, #d1d5db ${percentV}%, #d1d5db 100%)`
             : `linear-gradient(to right, #0084ff 0%, #0084ff ${percentV}%, #d1d5db ${percentV}%, #d1d5db 100%)`,
           outline: "none",
-          cursor: "pointer",
+          cursor: disabled ? "not-allowed" : "pointer",
           margin: 0,
         }}
       />
@@ -417,14 +532,16 @@ export function LinkedLengthSlider({
 export function ColorPickerRow({
   color,
   onChange,
+  disabled = false,
 }: {
   color: string;
   onChange: (c: string) => void;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", opacity: disabled ? 0.45 : 1 }}>
       <div
         style={{
           display: "flex",
@@ -432,20 +549,20 @@ export function ColorPickerRow({
           height: "34px",
           borderRadius: "2px",
           overflow: "hidden",
-          border: "1px solid rgba(0, 0, 0, 0.5)",
+          border: disabled ? "1px solid rgba(0, 0, 0, 0.2)" : "1px solid rgba(0, 0, 0, 0.5)",
           boxSizing: "border-box",
         }}
       >
         {/* Color Swatch */}
         <div
-          onClick={() => setOpen(!open)}
+          onClick={() => !disabled && setOpen(!open)}
           style={{
             width: "55px",
             background: color,
-            cursor: "pointer",
+            cursor: disabled ? "not-allowed" : "pointer",
             borderRight: "1px solid rgba(0, 0, 0, 0.4)",
           }}
-          title="Click to select color"
+          title={disabled ? undefined : "Click to select color"}
         />
 
         {/* Hex Text Display */}
@@ -459,7 +576,7 @@ export function ColorPickerRow({
             fontFamily: "monospace",
             fontSize: "12px",
             fontWeight: 700,
-            color: "#ffffff",
+            color: disabled ? "#64748b" : "#ffffff",
             letterSpacing: "0.5px",
             borderRight: "1px solid rgba(255, 255, 255, 0.08)",
           }}
@@ -470,19 +587,20 @@ export function ColorPickerRow({
         {/* Dropdown Button */}
         <button
           type="button"
-          onClick={() => setOpen(!open)}
+          disabled={disabled}
+          onClick={() => !disabled && setOpen(!open)}
           style={{
             width: "110px",
             background: "#2f3442",
             border: "none",
-            color: "#ffffff",
+            color: disabled ? "#64748b" : "#ffffff",
             fontSize: "11px",
             fontWeight: 700,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             padding: "0 10px",
-            cursor: "pointer",
+            cursor: disabled ? "not-allowed" : "pointer",
           }}
         >
           <span>Custom</span>
@@ -493,7 +611,7 @@ export function ColorPickerRow({
       </div>
 
       {/* Popover Dropdown */}
-      {open && (
+      {open && !disabled && (
         <div
           style={{
             position: "absolute",
