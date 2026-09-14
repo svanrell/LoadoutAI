@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 import { CrosshairConfig } from "@/data/crosshairData";
 import {
   SettingRow,
@@ -23,6 +24,8 @@ interface CrosshairSettingsTableProps {
   onSave?: (config: CrosshairConfig, code: string) => void;
 }
 
+type SubTabId = "General" | "Primary" | "Aim Down Sights" | "Sniper";
+
 export function CrosshairSettingsTable({
   config,
   onChangeConfig,
@@ -34,7 +37,29 @@ export function CrosshairSettingsTable({
   onReset,
   onSave,
 }: CrosshairSettingsTableProps) {
-  const [activeSubTab, setActiveSubTab] = useState<"General" | "Primary" | "Aim Down Sights" | "Sniper">("Primary");
+  const { language } = useLanguage();
+  const [activeSubTab, setActiveSubTab] = useState<SubTabId>("General");
+
+  const isAdvanced = config.advancedOptions !== false;
+
+  const subTabs: { id: SubTabId; label: string }[] = [
+    { id: "General", label: "GENERAL" },
+    { id: "Primary", label: language === "es" ? "PRIMARIO" : "PRIMARY" },
+  ];
+
+  if (isAdvanced) {
+    subTabs.push(
+      { id: "Aim Down Sights", label: language === "es" ? "CON LA MIRA" : "AIM DOWN SIGHTS" },
+      { id: "Sniper", label: language === "es" ? "FRANCOTIRADOR" : "SNIPER" },
+    );
+  }
+
+  // Función para actualizar cualquier ajuste de forma limpia y directa
+  function updateConfig(propiedad: keyof CrosshairConfig, valor: any) {
+    const nuevaConfig = Object.assign({}, config);
+    (nuevaConfig as any)[propiedad] = valor;
+    onChangeConfig(nuevaConfig);
+  }
 
   return (
     <div
@@ -140,33 +165,69 @@ export function CrosshairSettingsTable({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          padding: "8px 14px",
-          background: "#1b1f28",
+          justifyContent: !isAdvanced ? "center" : "space-between",
+          gap: !isAdvanced ? "14px" : "4px",
+          padding: !isAdvanced ? "10px 16px" : "8px 14px",
+          background: !isAdvanced
+            ? "linear-gradient(180deg, #1b202c 0%, #151822 100%)"
+            : "#1b1f28",
           borderBottom: "1px solid #282d38",
+          transition: "all 0.2s ease",
         }}
       >
-        {(["General", "Primary", "Aim Down Sights", "Sniper"] as const).map((tab) => {
-          const isActive = activeSubTab === tab;
+        {subTabs.map((tab) => {
+          const isActive = activeSubTab === tab.id;
           return (
             <button
-              key={tab}
+              key={tab.id}
               type="button"
-              onClick={() => setActiveSubTab(tab)}
+              onClick={() => setActiveSubTab(tab.id)}
               style={{
-                padding: "6px clamp(12px, 2vw, 36px)",
+                minWidth: !isAdvanced ? "150px" : undefined,
+                padding: !isAdvanced ? "8px 26px" : "6px clamp(12px, 2vw, 36px)",
                 borderRadius: "4px",
-                border: "none",
-                background: isActive ? "#ff4655" : "transparent",
+                border: !isAdvanced
+                  ? isActive
+                    ? "1px solid rgba(255, 70, 85, 0.6)"
+                    : "1px solid rgba(255, 255, 255, 0.08)"
+                  : "none",
+                background: isActive
+                  ? !isAdvanced
+                    ? "linear-gradient(135deg, #ff4655 0%, #e03241 100%)"
+                    : "#ff4655"
+                  : !isAdvanced
+                  ? "rgba(255, 255, 255, 0.03)"
+                  : "transparent",
                 color: isActive ? "#ffffff" : "#8a92a0",
-                fontSize: "11.5px",
+                fontSize: !isAdvanced ? "12px" : "11.5px",
                 fontWeight: 700,
-                letterSpacing: "0.5px",
+                letterSpacing: "0.6px",
                 cursor: "pointer",
-                transition: "all 0.15s ease",
+                boxShadow: isActive && !isAdvanced
+                  ? "0 3px 12px rgba(255, 70, 85, 0.35)"
+                  : "none",
+                transition: "all 0.18s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = "#ffffff";
+                  if (!isAdvanced) {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
+                  }
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = "#8a92a0";
+                  if (!isAdvanced) {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                  }
+                }
               }}
             >
-              {tab}
+              {tab.label}
             </button>
           );
         })}
@@ -226,7 +287,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Crosshair Color" isOdd={false}>
                 <ColorPickerRow
                   color={config.color}
-                  onChange={(c) => onChangeConfig({ ...config, color: c })}
+                  onChange={(c) => updateConfig("color", c)}
                 />
               </SettingRow>
 
@@ -234,7 +295,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Outlines" isOdd={true}>
                 <SegmentedToggle
                   value={config.outlines}
-                  onChange={(v) => onChangeConfig({ ...config, outlines: v })}
+                  onChange={(v) => updateConfig("outlines", v)}
                 />
               </SettingRow>
 
@@ -245,7 +306,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={1}
                   step={0.05}
-                  onChange={(v) => onChangeConfig({ ...config, outlineOpacity: v })}
+                  onChange={(v) => updateConfig("outlineOpacity", v)}
                 />
               </SettingRow>
 
@@ -256,7 +317,7 @@ export function CrosshairSettingsTable({
                   min={1}
                   max={6}
                   step={1}
-                  onChange={(v) => onChangeConfig({ ...config, outlineThickness: v })}
+                  onChange={(v) => updateConfig("outlineThickness", v)}
                 />
               </SettingRow>
 
@@ -264,7 +325,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Center Dot" isOdd={false}>
                 <SegmentedToggle
                   value={config.centerDot}
-                  onChange={(v) => onChangeConfig({ ...config, centerDot: v })}
+                  onChange={(v) => updateConfig("centerDot", v)}
                 />
               </SettingRow>
 
@@ -275,7 +336,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={1}
                   step={0.05}
-                  onChange={(v) => onChangeConfig({ ...config, centerDotOpacity: v })}
+                  onChange={(v) => updateConfig("centerDotOpacity", v)}
                 />
               </SettingRow>
 
@@ -286,7 +347,7 @@ export function CrosshairSettingsTable({
                   min={1}
                   max={6}
                   step={1}
-                  onChange={(v) => onChangeConfig({ ...config, centerDotSize: v })}
+                  onChange={(v) => updateConfig("centerDotSize", v)}
                 />
               </SettingRow>
 
@@ -294,7 +355,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Override Firing Error Offset With Crosshair Offset" isOdd={true}>
                 <SegmentedToggle
                   value={config.overrideFiringError}
-                  onChange={(v) => onChangeConfig({ ...config, overrideFiringError: v })}
+                  onChange={(v) => updateConfig("overrideFiringError", v)}
                 />
               </SettingRow>
 
@@ -302,7 +363,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Override All Primary Crosshairs With My Primary Crosshair" isOdd={false}>
                 <SegmentedToggle
                   value={config.overrideAllPrimary}
-                  onChange={(v) => onChangeConfig({ ...config, overrideAllPrimary: v })}
+                  onChange={(v) => updateConfig("overrideAllPrimary", v)}
                 />
               </SettingRow>
 
@@ -313,7 +374,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Show Inner Lines" isOdd={false}>
                 <SegmentedToggle
                   value={config.innerLines}
-                  onChange={(v) => onChangeConfig({ ...config, innerLines: v })}
+                  onChange={(v) => updateConfig("innerLines", v)}
                 />
               </SettingRow>
 
@@ -324,7 +385,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={1}
                   step={0.05}
-                  onChange={(v) => onChangeConfig({ ...config, innerLineOpacity: v })}
+                  onChange={(v) => updateConfig("innerLineOpacity", v)}
                 />
               </SettingRow>
 
@@ -335,10 +396,10 @@ export function CrosshairSettingsTable({
                   valV={config.innerLineLengthVertical ?? config.innerLineLength}
                   isLinked={config.innerLineLinked}
                   onToggleLink={() =>
-                    onChangeConfig({ ...config, innerLineLinked: !config.innerLineLinked })
+                    updateConfig("innerLineLinked", !config.innerLineLinked)
                   }
-                  onChangeH={(v) => onChangeConfig({ ...config, innerLineLength: v })}
-                  onChangeV={(v) => onChangeConfig({ ...config, innerLineLengthVertical: v })}
+                  onChangeH={(v) => updateConfig("innerLineLength", v)}
+                  onChangeV={(v) => updateConfig("innerLineLengthVertical", v)}
                 />
               </SettingRow>
 
@@ -349,7 +410,7 @@ export function CrosshairSettingsTable({
                   min={1}
                   max={10}
                   step={1}
-                  onChange={(v) => onChangeConfig({ ...config, innerLineThickness: v })}
+                  onChange={(v) => updateConfig("innerLineThickness", v)}
                 />
               </SettingRow>
 
@@ -360,7 +421,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={20}
                   step={1}
-                  onChange={(v) => onChangeConfig({ ...config, innerLineOffset: v })}
+                  onChange={(v) => updateConfig("innerLineOffset", v)}
                 />
               </SettingRow>
 
@@ -368,7 +429,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Movement Error" isOdd={true}>
                 <SegmentedToggle
                   value={config.innerMovementError}
-                  onChange={(v) => onChangeConfig({ ...config, innerMovementError: v })}
+                  onChange={(v) => updateConfig("innerMovementError", v)}
                 />
               </SettingRow>
 
@@ -379,7 +440,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={3}
                   step={0.1}
-                  onChange={(v) => onChangeConfig({ ...config, innerMovementErrorMult: v })}
+                  onChange={(v) => updateConfig("innerMovementErrorMult", v)}
                 />
               </SettingRow>
 
@@ -387,7 +448,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Firing Error" isOdd={true}>
                 <SegmentedToggle
                   value={config.innerFiringError}
-                  onChange={(v) => onChangeConfig({ ...config, innerFiringError: v })}
+                  onChange={(v) => updateConfig("innerFiringError", v)}
                 />
               </SettingRow>
 
@@ -398,7 +459,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={3}
                   step={0.1}
-                  onChange={(v) => onChangeConfig({ ...config, innerFiringErrorMult: v })}
+                  onChange={(v) => updateConfig("innerFiringErrorMult", v)}
                 />
               </SettingRow>
 
@@ -409,7 +470,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Show Outer Lines" isOdd={false}>
                 <SegmentedToggle
                   value={config.outerLines}
-                  onChange={(v) => onChangeConfig({ ...config, outerLines: v })}
+                  onChange={(v) => updateConfig("outerLines", v)}
                 />
               </SettingRow>
 
@@ -420,7 +481,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={1}
                   step={0.05}
-                  onChange={(v) => onChangeConfig({ ...config, outerLineOpacity: v })}
+                  onChange={(v) => updateConfig("outerLineOpacity", v)}
                 />
               </SettingRow>
 
@@ -431,10 +492,10 @@ export function CrosshairSettingsTable({
                   valV={config.outerLineLengthVertical ?? config.outerLineLength}
                   isLinked={config.outerLineLinked}
                   onToggleLink={() =>
-                    onChangeConfig({ ...config, outerLineLinked: !config.outerLineLinked })
+                    updateConfig("outerLineLinked", !config.outerLineLinked)
                   }
-                  onChangeH={(v) => onChangeConfig({ ...config, outerLineLength: v })}
-                  onChangeV={(v) => onChangeConfig({ ...config, outerLineLengthVertical: v })}
+                  onChangeH={(v) => updateConfig("outerLineLength", v)}
+                  onChangeV={(v) => updateConfig("outerLineLengthVertical", v)}
                 />
               </SettingRow>
 
@@ -445,7 +506,7 @@ export function CrosshairSettingsTable({
                   min={1}
                   max={10}
                   step={1}
-                  onChange={(v) => onChangeConfig({ ...config, outerLineThickness: v })}
+                  onChange={(v) => updateConfig("outerLineThickness", v)}
                 />
               </SettingRow>
 
@@ -456,7 +517,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={40}
                   step={1}
-                  onChange={(v) => onChangeConfig({ ...config, outerLineOffset: v })}
+                  onChange={(v) => updateConfig("outerLineOffset", v)}
                 />
               </SettingRow>
 
@@ -464,7 +525,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Movement Error" isOdd={true}>
                 <SegmentedToggle
                   value={config.outerMovementError}
-                  onChange={(v) => onChangeConfig({ ...config, outerMovementError: v })}
+                  onChange={(v) => updateConfig("outerMovementError", v)}
                 />
               </SettingRow>
 
@@ -475,7 +536,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={3}
                   step={0.1}
-                  onChange={(v) => onChangeConfig({ ...config, outerMovementErrorMult: v })}
+                  onChange={(v) => updateConfig("outerMovementErrorMult", v)}
                 />
               </SettingRow>
 
@@ -483,7 +544,7 @@ export function CrosshairSettingsTable({
               <SettingRow label="Firing Error" isOdd={true}>
                 <SegmentedToggle
                   value={config.outerFiringError}
-                  onChange={(v) => onChangeConfig({ ...config, outerFiringError: v })}
+                  onChange={(v) => updateConfig("outerFiringError", v)}
                 />
               </SettingRow>
 
@@ -494,7 +555,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={3}
                   step={0.1}
-                  onChange={(v) => onChangeConfig({ ...config, outerFiringErrorMult: v })}
+                  onChange={(v) => updateConfig("outerFiringErrorMult", v)}
                 />
               </SettingRow>
             </>
@@ -502,21 +563,57 @@ export function CrosshairSettingsTable({
 
           {/* GENERAL TAB */}
           {activeSubTab === "General" && (
-            <>
-              <SectionHeader title="Crosshair Profile" />
-              <SettingRow label="Use Advanced Options" isOdd={false}>
-                <SegmentedToggle value={true} onChange={() => {}} />
+            <div style={{ display: "flex", flexDirection: "column", paddingBottom: "16px" }}>
+              {/* PERSONALIZACIÓN */}
+              <SectionHeader title="PERSONALIZACIÓN" />
+              <SettingRow label="Usar opciones avanzadas" isOdd={false}>
+                <SegmentedToggle
+                  value={config.advancedOptions ?? true}
+                  onChange={(v) => updateConfig("advancedOptions", v)}
+                  activeLabel="ACTIVADO"
+                  inactiveLabel="DESACTIVADO"
+                />
               </SettingRow>
-              <SettingRow label="Hide Crosshair" isOdd={true}>
-                <SegmentedToggle value={false} onChange={() => {}} />
-              </SettingRow>
-              <SettingRow label="Fade Crosshair With Firing Error" isOdd={false}>
-                <SegmentedToggle value={false} onChange={() => {}} />
-              </SettingRow>
-              <SettingRow label="Show Spectated Player's Crosshair" isOdd={true}>
-                <SegmentedToggle value={true} onChange={() => {}} />
-              </SettingRow>
-            </>
+
+              {/* OTROS */}
+              <div style={{ marginTop: "14px" }}>
+                <SectionHeader title="OTROS" />
+                <SettingRow
+                  label="Mostrar la mira del jugador al que se especta"
+                  tooltip="Muestra la retícula del jugador que estás observando en lugar de la tuya."
+                  isOdd={false}
+                >
+                  <SegmentedToggle
+                    value={config.showSpectatedPlayerCrosshair ?? false}
+                    onChange={(v) => updateConfig("showSpectatedPlayerCrosshair", v)}
+                    activeLabel="ACTIVADO"
+                    inactiveLabel="DESACTIVADO"
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  label="Atenuar mira por error de disparo"
+                  tooltip="Las líneas superiores de la retícula se desvanecen cuando el arma pierde precisión por retroceso continuo."
+                  isOdd={true}
+                >
+                  <SegmentedToggle
+                    value={config.fadeWithFiringError ?? false}
+                    onChange={(v) => updateConfig("fadeWithFiringError", v)}
+                    activeLabel="ACTIVADO"
+                    inactiveLabel="DESACTIVADO"
+                  />
+                </SettingRow>
+
+                <SettingRow label="Desactivar mira" isOdd={false}>
+                  <SegmentedToggle
+                    value={config.hideCrosshair ?? false}
+                    onChange={(v) => updateConfig("hideCrosshair", v)}
+                    activeLabel="ACTIVADO"
+                    inactiveLabel="DESACTIVADO"
+                  />
+                </SettingRow>
+              </div>
+            </div>
           )}
 
           {/* AIM DOWN SIGHTS TAB */}
@@ -539,13 +636,13 @@ export function CrosshairSettingsTable({
               <SettingRow label="Display Center Dot" isOdd={false}>
                 <SegmentedToggle
                   value={config.centerDot}
-                  onChange={(v) => onChangeConfig({ ...config, centerDot: v })}
+                  onChange={(v) => updateConfig("centerDot", v)}
                 />
               </SettingRow>
               <SettingRow label="Center Dot Color" isOdd={true}>
                 <ColorPickerRow
                   color={config.color}
-                  onChange={(c) => onChangeConfig({ ...config, color: c })}
+                  onChange={(c) => updateConfig("color", c)}
                 />
               </SettingRow>
               <SettingRow label="Center Dot Opacity" isOdd={false}>
@@ -554,7 +651,7 @@ export function CrosshairSettingsTable({
                   min={0}
                   max={1}
                   step={0.05}
-                  onChange={(v) => onChangeConfig({ ...config, centerDotOpacity: v })}
+                  onChange={(v) => updateConfig("centerDotOpacity", v)}
                 />
               </SettingRow>
               <SettingRow label="Center Dot Thickness" isOdd={true}>
@@ -563,7 +660,7 @@ export function CrosshairSettingsTable({
                   min={1}
                   max={6}
                   step={1}
-                  onChange={(v) => onChangeConfig({ ...config, centerDotSize: v })}
+                  onChange={(v) => updateConfig("centerDotSize", v)}
                 />
               </SettingRow>
             </>

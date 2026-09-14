@@ -93,61 +93,89 @@ export function CrosshairPreview({
           />
 
           {/* SVG LIVE RETICLE RENDERING */}
-          <svg
-            width="200"
-            height="200"
-            viewBox="0 0 200 200"
-            style={{
-              position: "relative",
-              zIndex: 2,
-              overflow: "visible",
-            }}
-          >
-            <defs>
-              {config.outlines && (
-                <filter id="val-outline-filter" x="-50%" y="-50%" width="200%" height="200%">
-                  <feMorphology
-                    operator="dilate"
-                    radius={config.outlineThickness}
-                    in="SourceAlpha"
-                    result="dilated"
-                  />
-                  <feFlood floodColor="#000000" floodOpacity={config.outlineOpacity} result="color" />
-                  <feComposite in="color" in2="dilated" operator="in" result="outline" />
-                  <feMerge>
-                    <feMergeNode in="outline" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              )}
-            </defs>
+          {config.hideCrosshair ? (
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 18px",
+                borderRadius: "6px",
+                background: "rgba(15, 23, 35, 0.85)",
+                border: "1px solid rgba(255, 70, 85, 0.4)",
+                color: "#ff4655",
+                fontSize: "12px",
+                fontWeight: 800,
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                boxShadow: "0 6px 20px rgba(0, 0, 0, 0.5)",
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+              <span>{language === "es" ? "MIRA DESACTIVADA" : "CROSSHAIR DISABLED"}</span>
+            </div>
+          ) : (
+            <svg
+              width="200"
+              height="200"
+              viewBox="0 0 200 200"
+              style={{
+                position: "relative",
+                zIndex: 2,
+                overflow: "visible",
+              }}
+            >
+              <defs>
+                {config.outlines && (
+                  <filter id="val-outline-filter" x="-50%" y="-50%" width="200%" height="200%">
+                    <feMorphology
+                      operator="dilate"
+                      radius={config.outlineThickness}
+                      in="SourceAlpha"
+                      result="dilated"
+                    />
+                    <feFlood floodColor="#000000" floodOpacity={config.outlineOpacity} result="color" />
+                    <feComposite in="color" in2="dilated" operator="in" result="outline" />
+                    <feMerge>
+                      <feMergeNode in="outline" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                )}
+              </defs>
 
-            <g filter={config.outlines ? "url(#val-outline-filter)" : undefined}>
-              {/* Punto Central */}
-              {config.centerDot && (
-                <rect
-                  x={100 - config.centerDotSize / 2}
-                  y={100 - config.centerDotSize / 2}
-                  width={config.centerDotSize}
-                  height={config.centerDotSize}
-                  fill={config.color}
-                  opacity={config.centerDotOpacity}
-                />
-              )}
-
-              {/* Líneas Internas */}
-              {config.innerLines && (
-                <>
-                  {/* Top */}
+              <g filter={config.outlines ? "url(#val-outline-filter)" : undefined}>
+                {/* Punto Central */}
+                {config.centerDot && (
                   <rect
-                    x={100 - config.innerLineThickness / 2}
-                    y={100 - config.innerLineOffset - (config.innerLineLengthVertical ?? config.innerLineLength)}
-                    width={config.innerLineThickness}
-                    height={config.innerLineLengthVertical ?? config.innerLineLength}
+                    x={100 - config.centerDotSize / 2}
+                    y={100 - config.centerDotSize / 2}
+                    width={config.centerDotSize}
+                    height={config.centerDotSize}
                     fill={config.color}
-                    opacity={config.innerLineOpacity}
+                    opacity={config.centerDotOpacity}
                   />
-                  {/* Bottom */}
+                )}
+
+                {/* Líneas Internas */}
+                {config.innerLines && (
+                  <>
+                    {/* Top (faded if fadeWithFiringError is active) */}
+                    <rect
+                      x={100 - config.innerLineThickness / 2}
+                      y={100 - config.innerLineOffset - (config.innerLineLengthVertical ?? config.innerLineLength)}
+                      width={config.innerLineThickness}
+                      height={config.innerLineLengthVertical ?? config.innerLineLength}
+                      fill={config.color}
+                      opacity={config.fadeWithFiringError ? 0.15 : config.innerLineOpacity}
+                    />
+                    {/* Bottom */}
                   <rect
                     x={100 - config.innerLineThickness / 2}
                     y={100 + config.innerLineOffset}
@@ -220,7 +248,8 @@ export function CrosshairPreview({
               )}
             </g>
           </svg>
-        </div>
+        )}
+      </div>
 
         {/* Background Map Selector */}
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>

@@ -3,43 +3,135 @@
 import { useState, type ReactNode } from "react";
 import { COLOR_PRESETS } from "@/data/crosshairData";
 
+export function InfoTooltip({ text }: { text: string }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <span
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "15px",
+        height: "15px",
+        borderRadius: "50%",
+        border: hovered ? "1.5px solid #ffffff" : "1.5px solid rgba(148, 163, 184, 0.55)",
+        color: hovered ? "#ffffff" : "#94a3b8",
+        fontSize: "10px",
+        fontFamily: "system-ui, sans-serif",
+        fontWeight: 700,
+        cursor: "help",
+        marginLeft: "7px",
+        verticalAlign: "middle",
+        transition: "all 0.15s ease",
+        flexShrink: 0,
+      }}
+    >
+      i
+      {hovered && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "calc(100% + 8px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "#0d151c",
+            color: "#ece8e1",
+            border: "1px solid #2d4153",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.8)",
+            padding: "8px 12px",
+            borderRadius: "4px",
+            fontSize: "11px",
+            lineHeight: 1.4,
+            fontWeight: 500,
+            whiteSpace: "normal",
+            width: "max-content",
+            maxWidth: "260px",
+            zIndex: 9999,
+            pointerEvents: "none",
+            textAlign: "center",
+          }}
+        >
+          {text}
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 0,
+              height: 0,
+              borderLeft: "5px solid transparent",
+              borderRight: "5px solid transparent",
+              borderTop: "5px solid #2d4153",
+            }}
+          />
+        </div>
+      )}
+    </span>
+  );
+}
+
 export function SettingRow({
   label,
   children,
   isOdd = false,
+  tooltip,
 }: {
   label: string;
   children: ReactNode;
   isOdd?: boolean;
+  tooltip?: string;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "7px 18px",
-        background: isOdd ? "#1d2028" : "#252934",
-        minHeight: "44px",
+        padding: "8px 22px",
+        background: isHovered
+          ? "rgba(35, 52, 68, 0.35)"
+          : isOdd
+          ? "rgba(22, 32, 42, 0.35)"
+          : "rgba(16, 24, 32, 0.25)",
+        minHeight: "50px",
         boxSizing: "border-box",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
         gap: "14px",
+        transition: "background 0.12s ease",
       }}
     >
-      <span
+      <div
         style={{
-          fontSize: "12px",
-          fontWeight: 700,
-          color: "#f3f4f6",
-          letterSpacing: "0.2px",
-          userSelect: "none",
-          lineHeight: 1.35,
+          display: "flex",
+          alignItems: "center",
           flex: 1,
           paddingRight: "8px",
         }}
       >
-        {label}
-      </span>
-      <div style={{ width: "280px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+        <span
+          style={{
+            fontSize: "13px",
+            fontWeight: 600,
+            color: "#e2e8f0",
+            letterSpacing: "0.2px",
+            userSelect: "none",
+            lineHeight: 1.35,
+          }}
+        >
+          {label}
+        </span>
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </div>
+      <div style={{ width: "270px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
         {children}
       </div>
     </div>
@@ -50,12 +142,14 @@ export function SectionHeader({ title }: { title: string }) {
   return (
     <div
       style={{
-        padding: "16px 18px 8px 18px",
-        fontSize: "14px",
+        padding: "18px 22px 8px 22px",
+        fontSize: "12px",
         fontWeight: 800,
-        color: "#ffffff",
-        letterSpacing: "0.5px",
-        background: "#161922",
+        color: "#ece8e1",
+        letterSpacing: "1.2px",
+        textTransform: "uppercase",
+        background: "transparent",
+        userSelect: "none",
       }}
     >
       {title}
@@ -66,55 +160,95 @@ export function SectionHeader({ title }: { title: string }) {
 export function SegmentedToggle({
   value,
   onChange,
+  activeLabel = "ACTIVADO",
+  inactiveLabel = "DESACTIVADO",
 }: {
   value: boolean;
   onChange: (val: boolean) => void;
+  activeLabel?: string;
+  inactiveLabel?: string;
 }) {
+  const [hoverLeft, setHoverLeft] = useState(false);
+  const [hoverRight, setHoverRight] = useState(false);
+
   return (
     <div
       style={{
         display: "flex",
-        borderRadius: "2px",
-        overflow: "hidden",
-        width: "280px",
-        height: "34px",
-        border: "1px solid rgba(0, 0, 0, 0.4)",
+        gap: "3px",
+        width: "270px",
+        height: "36px",
         boxSizing: "border-box",
       }}
     >
+      {/* Left button: ACTIVE (true) */}
       <button
         type="button"
         onClick={() => onChange(true)}
+        onMouseEnter={() => setHoverLeft(true)}
+        onMouseLeave={() => setHoverLeft(false)}
         style={{
           flex: 1,
-          border: "none",
-          background: value ? "#707786" : "#2f3442",
-          color: value ? "#ffffff" : "#8e96a4",
-          fontSize: "11px",
+          borderRadius: "2px",
+          border: value
+            ? "1px solid rgba(135, 175, 205, 0.45)"
+            : hoverLeft
+            ? "1px solid rgba(80, 110, 135, 0.4)"
+            : "1px solid rgba(60, 85, 105, 0.25)",
+          background: value
+            ? "rgba(62, 90, 114, 0.45)"
+            : hoverLeft
+            ? "rgba(28, 44, 58, 0.65)"
+            : "rgba(16, 26, 36, 0.5)",
+          color: value ? "#ffffff" : hoverLeft ? "#b8c8d6" : "#7a91a4",
+          fontSize: "11.5px",
           fontWeight: 700,
-          letterSpacing: "0.5px",
+          letterSpacing: "0.8px",
           cursor: "pointer",
-          transition: "background 0.12s ease",
+          transition: "all 0.15s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: value ? "inset 0 0 10px rgba(80, 130, 170, 0.15)" : "none",
+          textTransform: "uppercase",
         }}
       >
-        ON
+        {activeLabel}
       </button>
+
+      {/* Right button: INACTIVE (false) */}
       <button
         type="button"
         onClick={() => onChange(false)}
+        onMouseEnter={() => setHoverRight(true)}
+        onMouseLeave={() => setHoverRight(false)}
         style={{
           flex: 1,
-          border: "none",
-          background: !value ? "#707786" : "#2f3442",
-          color: !value ? "#ffffff" : "#8e96a4",
-          fontSize: "11px",
+          borderRadius: "2px",
+          border: !value
+            ? "1px solid rgba(135, 175, 205, 0.45)"
+            : hoverRight
+            ? "1px solid rgba(80, 110, 135, 0.4)"
+            : "1px solid rgba(60, 85, 105, 0.25)",
+          background: !value
+            ? "rgba(62, 90, 114, 0.45)"
+            : hoverRight
+            ? "rgba(28, 44, 58, 0.65)"
+            : "rgba(16, 26, 36, 0.5)",
+          color: !value ? "#ffffff" : hoverRight ? "#b8c8d6" : "#7a91a4",
+          fontSize: "11.5px",
           fontWeight: 700,
-          letterSpacing: "0.5px",
+          letterSpacing: "0.8px",
           cursor: "pointer",
-          transition: "background 0.12s ease",
+          transition: "all 0.15s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: !value ? "inset 0 0 10px rgba(80, 130, 170, 0.15)" : "none",
+          textTransform: "uppercase",
         }}
       >
-        OFF
+        {inactiveLabel}
       </button>
     </div>
   );

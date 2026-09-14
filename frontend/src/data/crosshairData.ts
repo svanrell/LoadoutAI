@@ -3,6 +3,12 @@
  */
 
 export interface CrosshairConfig {
+  // General Tab Settings
+  advancedOptions?: boolean;
+  showSpectatedPlayerCrosshair?: boolean;
+  fadeWithFiringError?: boolean;
+  hideCrosshair?: boolean;
+
   color: string;
   outlines: boolean;
   outlineOpacity: number;
@@ -60,6 +66,11 @@ export interface BackgroundMap {
 }
 
 export const DEFAULT_CONFIG: CrosshairConfig = {
+  advancedOptions: true,
+  showSpectatedPlayerCrosshair: false,
+  fadeWithFiringError: false,
+  hideCrosshair: false,
+
   color: "#00FFB3",
   outlines: false,
   outlineOpacity: 0.5,
