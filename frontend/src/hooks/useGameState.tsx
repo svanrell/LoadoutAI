@@ -253,16 +253,14 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const selectAgent = useCallback((agentUuid: string) => {
-    // 1. Acciones reales SOLO si estamos en modo en vivo conectado al cliente Riot
-    if (isLiveModeRef.current && socketRef.current) {
+    // 1. Acciones reales SOLO si estamos en modo en vivo conectado al cliente Riot y hay match de pregame activo
+    if (isLiveModeRef.current && pregameMatchIdRef.current && socketRef.current) {
       socketRef.current.emit("pregame_select", {
         pregameMatchId: pregameMatchIdRef.current,
         agentUuid,
       });
-    }
-
-    // 2. Modo simulador / offline: actualizar estado local sin llamar nunca a la API de Riot
-    if (!isLiveModeRef.current) {
+    } else {
+      // 2. Modo simulador / offline: actualizar estado local sin llamar a la API de Riot
       setMyTeam((prevTeam) => {
         const teamCopy = [...prevTeam];
         const existingIndex = teamCopy.findIndex(
@@ -296,15 +294,13 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   }, [requestMlDraft]);
 
   const lockAgent = useCallback((agentUuid: string) => {
-    // Acciones reales SOLO en modo en vivo
-    if (isLiveModeRef.current && socketRef.current) {
+    // Acciones reales SOLO en modo en vivo con partida de pregame activa
+    if (isLiveModeRef.current && pregameMatchIdRef.current && socketRef.current) {
       socketRef.current.emit("pregame_lock", {
         pregameMatchId: pregameMatchIdRef.current,
         agentUuid,
       });
-    }
-
-    if (!isLiveModeRef.current) {
+    } else {
       setMyTeam((prevTeam) => {
         const teamCopy = [...prevTeam];
         const slot = teamCopy.findIndex(
@@ -425,11 +421,13 @@ interface MLBuyRecommendationsPayload {
         setConnectionText("Game Offline");
         setView("closed");
         setIsLiveMode(false);
+        setPregameMatchId(null);
       } else if (data.status === "MENU") {
         setConnectionStatus("menu-mode");
         setConnectionText("In Game Lobby");
         setView("menu");
         setIsLiveMode(false);
+        setPregameMatchId(null);
         requestPlayerProfile(data.myPuuid, true);
       } else if (data.status === "PREGAME") {
         setConnectionStatus("live");
@@ -462,6 +460,7 @@ interface MLBuyRecommendationsPayload {
         setConnectionText("In Game Match");
         setView("ingame");
         setIsLiveMode(true);
+        setPregameMatchId(null);
         if (data.mapName) setSelectedMap(data.mapName);
         if (data.mode) setSelectedMode(data.mode.toLowerCase());
         if (data.players) {
@@ -565,12 +564,12 @@ interface MLBuyRecommendationsPayload {
     };
   }, [requestPlayerProfile]);
 
-  // Solicitar cálculo de ML si se entra a la vista de draft o cambia el mapa
+  // Solicitar cálculo de ML si se entra a la vista de draft o si faltan recomendaciones
   useEffect(() => {
-    if (view === "pregame" && !isLiveMode) {
+    if (view === "pregame" && (!mlRecommendations || mlRecommendations.length === 0)) {
       requestMlDraft(selectedMap);
     }
-  }, [view, selectedMap, isLiveMode, requestMlDraft]);
+  }, [view, selectedMap, mlRecommendations, requestMlDraft]);
 
   useEffect(() => {
     if (isLiveMode && socketRef.current) {

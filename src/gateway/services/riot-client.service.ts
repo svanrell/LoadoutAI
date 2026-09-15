@@ -48,6 +48,8 @@ export class RiotClientService {
   private cachedRemoteConfig: {
     config: RiotRemoteConfig;
     expiresAt: number;
+    token: string;
+    puuid?: string;
   } | null = null;
 
   constructor(private readonly httpService: HttpService) {
@@ -189,22 +191,37 @@ export class RiotClientService {
   }
 
   /**
+   * Limpia explícitamente la caché de configuración remota (tokens y URLs).
+   */
+  public clearCache(): void {
+    this.cachedRemoteConfig = null;
+    this.logger.debug("Caché de configuración remota de Riot limpiada.");
+  }
+
+  /**
    * Obtiene o refresca la configuración remota de Riot (GLZ y PD URLs con tokens).
    */
   public async getRemoteConfig(
     forceRefresh = false,
   ): Promise<RiotRemoteConfig | null> {
+    const credentials = this.getCredentials();
+    if (!credentials) {
+      this.cachedRemoteConfig = null;
+      return null;
+    }
+
+    const currentPuuid = await this.getCurrentPlayerPuuid();
     const now = Date.now();
+
     if (
       !forceRefresh &&
       this.cachedRemoteConfig &&
-      this.cachedRemoteConfig.expiresAt > now
+      this.cachedRemoteConfig.expiresAt > now &&
+      this.cachedRemoteConfig.token === credentials.token &&
+      (!currentPuuid || this.cachedRemoteConfig.puuid === currentPuuid)
     ) {
       return this.cachedRemoteConfig.config;
     }
-
-    const credentials = this.getCredentials();
-    if (!credentials) return null;
 
     try {
       // 1. Token de entitlements del cliente local (127.0.0.1)
@@ -286,10 +303,12 @@ export class RiotClientService {
         },
       };
 
-      // Caché válida por 20 minutos
+      // Caché válida por 20 minutos vinculada a la sesión y token activos
       this.cachedRemoteConfig = {
         config,
         expiresAt: now + 20 * 60 * 1000,
+        token: credentials.token,
+        puuid: currentPuuid || undefined,
       };
 
       return config;

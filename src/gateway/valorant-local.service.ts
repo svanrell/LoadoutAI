@@ -38,6 +38,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private currentCredits: number = 800;
 
   private lastMlDraftKey: string = "";
+  private lastKnownPuuid: string | null = null;
   private lastMlDraftResult: {
     recommendations: AgentRecommendation[];
     currentSynergy: number;
@@ -217,7 +218,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     pregameMatchId: string,
     agentUuid: string,
   ): Promise<boolean> {
-    const remote = await this.riotClientService.getRemoteConfig();
+    let remote = await this.riotClientService.getRemoteConfig();
     if (!remote) {
       this.logger.warn(
         "selectAgent falló: configuración remota no disponible.",
@@ -295,15 +296,27 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     try {
       const credentials = this.riotClientService.getCredentials();
       if (!credentials) {
+        this.lastKnownPuuid = null;
+        this.riotClientService.clearCache();
         this.updateStatus("CLOSED");
         return;
       }
 
       const puuid = await this.riotClientService.getCurrentPlayerPuuid();
       if (!puuid) {
+        this.lastKnownPuuid = null;
+        this.riotClientService.clearCache();
         this.updateStatus("CLOSED");
         return;
       }
+
+      if (this.lastKnownPuuid && this.lastKnownPuuid !== puuid) {
+        this.logger.log(
+          `Cambio de cuenta detectado en cliente local (de ${this.lastKnownPuuid} a ${puuid}). Refrescando credenciales y caché.`,
+        );
+        this.riotClientService.clearCache();
+      }
+      this.lastKnownPuuid = puuid;
 
       const presence = await this.presenceService.getLocalPlayerPresence(puuid);
       if (!presence || !presence.sessionLoopState) {
@@ -316,7 +329,12 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       if (loopState === "PREGAME") {
         this.clearBuyPhase();
         const matchId = presence.partyId || "PRESENCE_LOBBY";
-        await this.handlePregameSession(puuid, matchId, presence.queueId);
+        await this.handlePregameSession(
+          puuid,
+          matchId,
+          presence.queueId,
+          presence.matchMap,
+        );
       } else if (loopState === "INGAME") {
         await this.handleIngameSession(puuid, presence);
       } else {
@@ -335,26 +353,40 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     puuid: string,
     matchId: string,
     rawQueueId?: string,
+    rawMatchMap?: string,
   ) {
     const mode = resolveQueueName(rawQueueId || "");
+    const fallbackMapName = resolveMapName(rawMatchMap || "") || "Ascent";
 
     try {
-      const remoteConfig = await this.riotClientService.getRemoteConfig();
+      let remoteConfig = await this.riotClientService.getRemoteConfig();
       if (!remoteConfig) {
         throw new Error("Configuración remota GLZ no disponible para pregame");
       }
 
-      const pregameData = await this.riotPregameService.getPregameMatch(
+      let pregameData = await this.riotPregameService.getPregameMatch(
         remoteConfig.glzUrl,
         remoteConfig.headers,
         puuid,
       );
 
+      // Si falló el primer intento (cambio de cuenta o token expirado), forzar refresco
+      if (!pregameData) {
+        remoteConfig = await this.riotClientService.getRemoteConfig(true);
+        if (remoteConfig) {
+          pregameData = await this.riotPregameService.getPregameMatch(
+            remoteConfig.glzUrl,
+            remoteConfig.headers,
+            puuid,
+          );
+        }
+      }
+
       if (pregameData) {
         const pregameMatch = pregameData.data;
         const pregameMatchId = pregameData.matchId;
         const mapPath = pregameMatch.MapID || "";
-        const mapName = resolveMapName(mapPath);
+        const mapName = resolveMapName(mapPath) || fallbackMapName;
 
         const players = pregameMatch.AllyTeam.Players.map((p) => ({
           puuid: p.Subject,
@@ -388,24 +420,30 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           mode,
         });
       } else {
+        const mlResult = this.getMLDraftRecommendations(fallbackMapName, []);
         this.updateStatus("PREGAME", {
           matchId,
+          mapName: fallbackMapName,
           myPuuid: puuid,
           mode,
-          mlDraftPicks: [],
-          mlSynergyWinRate: 50.0,
+          mlDraftPicks: mlResult.recommendations,
+          mlSynergyWinRate: mlResult.currentSynergy,
+          mlAgentImpacts: mlResult.agentImpacts || [],
         });
       }
     } catch (error) {
       this.logger.error(
         `Error en consulta pregame: ${error instanceof Error ? error.message : String(error)}`,
       );
+      const mlResult = this.getMLDraftRecommendations(fallbackMapName, []);
       this.updateStatus("PREGAME", {
         matchId,
+        mapName: fallbackMapName,
         myPuuid: puuid,
         mode,
-        mlDraftPicks: [],
-        mlSynergyWinRate: 50.0,
+        mlDraftPicks: mlResult.recommendations,
+        mlSynergyWinRate: mlResult.currentSynergy,
+        mlAgentImpacts: mlResult.agentImpacts || [],
       });
     }
   }
