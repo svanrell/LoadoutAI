@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback, Re
 import { io, Socket } from "socket.io-client";
 import { advanceRoundEconomy, getResetCreditsForRound, RoundOutcome } from "@/data/economyEngine";
 import { useLanguage } from "@/context/LanguageContext";
+import { clearPlayerSlot } from "@/lib/pregameLogic";
 
 export type ViewState = "closed" | "menu" | "pregame" | "ingame" | "crosshairs" | "lineups" | "tierlist" | "tools";
 
@@ -146,6 +147,8 @@ interface GameStateContextProps {
   pregameMatchId: string | null;
   selectAgent: (agentUuid: string) => void;
   lockAgent: (agentUuid: string) => void;
+  /** Simulador offline: vacía el pick de un hueco del equipo (en vivo no hace nada) */
+  clearAgentSlot: (playerIndex: number) => void;
   requestMlDraft: (mapName?: string, allies?: string[]) => void;
   playerProfile: SyncedPlayerProfile | null;
   isProfileLoading: boolean;
@@ -313,6 +316,18 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
       });
     }
   }, []);
+
+  const clearAgentSlot = useCallback((playerIndex: number) => {
+    // En vivo los picks los controla el cliente de Riot: solo se vacía en el simulador
+    if (isLiveModeRef.current) return;
+    const updatedTeam = clearPlayerSlot(myTeamRef.current, playerIndex);
+    if (!updatedTeam) return;
+    setMyTeam(updatedTeam);
+    requestMlDraft(
+      selectedMapRef.current,
+      updatedTeam.map((p) => p.agentId).filter((id): id is string => Boolean(id)),
+    );
+  }, [requestMlDraft]);
 
   useEffect(() => {
     const serverUrl =
@@ -539,6 +554,11 @@ interface MLBuyRecommendationsPayload {
       "error_response",
       (data: { event?: string; error: string; code?: string }) => {
         console.warn("Error recibido desde servidor WebSocket:", data);
+        // Una petición de perfil rechazada no llega a player_profile_result:
+        // sin esto, isProfileLoading se quedaría a true para siempre
+        if (data?.event === "request_player_profile") {
+          setIsProfileLoading(false);
+        }
         if (data && data.error) {
           setLastError(data);
         }
@@ -617,6 +637,7 @@ interface MLBuyRecommendationsPayload {
         pregameMatchId,
         selectAgent,
         lockAgent,
+        clearAgentSlot,
         requestMlDraft,
         playerProfile,
         isProfileLoading,

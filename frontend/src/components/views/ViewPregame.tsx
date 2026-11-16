@@ -7,11 +7,16 @@ import { useLanguage } from "@/context/LanguageContext";
 import { getScoreMeta } from "@/lib/scoreUtils";
 import {
   buildAgentByUuidMap,
+  buildAgentByNameKeyMap,
   buildRecommendationsMap,
   buildImpactMap,
+  findAgentForRecommendation,
+  getAgentImpact,
   getAgentRecommendation,
   filterAndSortAgents,
   getPickedPlayers,
+  getLockedPlayers,
+  getAgentTeamStatus,
   getPickedAgentsList,
   isDraftCompleted,
 } from "@/lib/pregameLogic";
@@ -30,6 +35,8 @@ export default function ViewPregame() {
     myTeam,
     selectAgent,
     lockAgent,
+    clearAgentSlot,
+    isLiveMode,
     mlRecommendations, // Lista de agentes recomendados por la IA con % de victoria
     mlSynergyWinRate,  // Sinergia global actual del equipo (0% a 100%)
     mlAgentImpacts,    // Aporte neto individual (Δ delta) de cada pick
@@ -45,6 +52,8 @@ export default function ViewPregame() {
 
   // useMemo (Mapa 1): Indexa los agentes por UUID para buscarlos en O(1) instantáneo
   const agentByUuidMap = useMemo(() => buildAgentByUuidMap(agents), [agents]);
+  // Y por nombre normalizado, para recomendaciones que llegan sin UUID
+  const agentByNameKeyMap = useMemo(() => buildAgentByNameKeyMap(agents), [agents]);
 
   // useMemo (Mapa 2): Indexa las recomendaciones de la IA por UUID y nombre para evitar búsquedas lentas
   const recMap = useMemo(() => buildRecommendationsMap(mlRecommendations), [mlRecommendations]);
@@ -52,11 +61,42 @@ export default function ViewPregame() {
   // useMemo (Mapa 3): Indexa los impactos individuales (deltas ▲/▼) de cada agente
   const impactMap = useMemo(() => buildImpactMap(mlAgentImpacts), [mlAgentImpacts]);
 
-  // Jugadores del equipo que ya han elegido un personaje
+  // Jugadores del equipo que ya han elegido un personaje (pre-pick o bloqueado)
   const pickedPlayers = useMemo(() => getPickedPlayers(myTeam), [myTeam]);
   const pickedAgentsCount = pickedPlayers.length;
-  // Cuando hay 5 agentes seleccionados, el draft se da por completado
-  const isDraftComplete = isDraftCompleted(pickedAgentsCount);
+  // Solo cuentan como bloqueados los que han fijado su agente
+  const lockedAgentsCount = useMemo(() => getLockedPlayers(myTeam).length, [myTeam]);
+  // El draft termina cuando los 5 han bloqueado (un pre-pick no basta)
+  const isDraftComplete = isDraftCompleted(lockedAgentsCount);
+
+  // Clic en un agente (tarjeta, cuadrícula o recomendación).
+  // - Bloqueado por alguien: no se puede elegir.
+  // - Ya en el equipo en pre-pick: solo se enfoca para poder fijarlo. No se llama a
+  //   selectAgent, que en modo offline lo quitaría del hueco de otro jugador.
+  // - Libre: se selecciona.
+  const handleAgentClick = (agentUuid: string) => {
+    const status = getAgentTeamStatus(myTeam, agentUuid);
+    if (status === "locked") return;
+    setSelectedAgentUuid(agentUuid);
+    if (status === "free") selectAgent(agentUuid);
+  };
+
+  // Simulador offline: vaciar el pick de un hueco (botón ✕ o clic derecho en la tarjeta)
+  const handleClearSlot = (playerIndex: number, agentId: string | null) => {
+    clearAgentSlot(playerIndex);
+    if (agentId && selectedAgentUuid?.toLowerCase() === agentId.toLowerCase()) {
+      setSelectedAgentUuid(null);
+    }
+  };
+
+  // Botón PICK/LOCK de la tarjeta: selecciona si hace falta y fija el agente
+  const handlePickAndLock = (agentUuid: string) => {
+    const status = getAgentTeamStatus(myTeam, agentUuid);
+    if (status === "locked") return;
+    setSelectedAgentUuid(agentUuid);
+    if (status === "free") selectAgent(agentUuid);
+    lockAgent(agentUuid);
+  };
 
   // useMemo: Lista de agentes ya elegidos por el equipo para el resumen final
   const pickedAgentsList = useMemo(
@@ -110,7 +150,7 @@ export default function ViewPregame() {
           <span>{lastError.error}</span>
           <button
             onClick={clearError}
-            aria-label="Dismiss error"
+            aria-label={t.dismissError}
             style={{
               background: "transparent",
               border: "none",
@@ -156,12 +196,7 @@ export default function ViewPregame() {
             const displayAgentName = matchedAgent ? matchedAgent.displayName : t.selecting;
 
             const agentImpact = player.agentId
-              ? impactMap.get(player.agentId.toLowerCase()) ||
-                (matchedAgent
-                  ? impactMap.get(
-                      matchedAgent.displayName.toLowerCase().replace(/[^a-z0-9]/g, "")
-                    )
-                  : null)
+              ? getAgentImpact(impactMap, player.agentId, matchedAgent?.displayName ?? "")
               : null;
 
             let playerStatusLabel = t.openStatus;
@@ -178,10 +213,22 @@ export default function ViewPregame() {
             const displayPlayerName =
               player.name === "You" ? t.you : player.name.replace(/^Ally\s*/i, `${t.ally} `);
 
+            // Solo en el simulador offline y si el hueco tiene agente
+            const canClearSlot = !isLiveMode && Boolean(player.agentId);
+
             return (
               <div
                 key={player.puuid || playerIndex}
                 className={`player-card ${player.state === "locked" ? "locked" : ""} ${player.state === "selected" ? "selecting" : ""}`}
+                title={canClearSlot ? t.clearSlotHint : undefined}
+                onContextMenu={
+                  canClearSlot
+                    ? (event) => {
+                        event.preventDefault();
+                        handleClearSlot(playerIndex, player.agentId);
+                      }
+                    : undefined
+                }
                 style={{
                   flex: 1,
                   display: "flex",
@@ -309,7 +356,7 @@ export default function ViewPregame() {
                     </span>
                     {agentImpact && typeof agentImpact.impactDelta === "number" && (
                       <span
-                        title={`Aporte a la sinergia del equipo: ${agentImpact.impactDelta > 0 ? "+" : ""}${agentImpact.impactDelta.toFixed(1)}%`}
+                        title={t.synergyContributionTitle.replace("{delta}", `${agentImpact.impactDelta > 0 ? "+" : ""}${agentImpact.impactDelta.toFixed(1)}`)}
                         style={{
                           fontSize: "clamp(0.52rem, 0.68vw, 0.62rem)",
                           fontFamily: "'Orbitron', sans-serif",
@@ -347,6 +394,36 @@ export default function ViewPregame() {
                     )}
                   </div>
                 </div>
+                {canClearSlot && (
+                  <button
+                    type="button"
+                    title={t.clearSlotTitle}
+                    aria-label={t.clearSlotTitle}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleClearSlot(playerIndex, player.agentId);
+                    }}
+                    style={{
+                      marginLeft: "auto",
+                      flexShrink: 0,
+                      width: "1.5rem",
+                      height: "1.5rem",
+                      borderRadius: "0.25rem",
+                      border: "1px solid rgba(255, 70, 85, 0.45)",
+                      background: "rgba(255, 70, 85, 0.12)",
+                      color: "#ff4655",
+                      fontSize: "0.75rem",
+                      fontWeight: 900,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      lineHeight: 1,
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             );
           })}
@@ -374,7 +451,8 @@ export default function ViewPregame() {
             </div>
 
             {(() => {
-              const rawWinRate = mlSynergyWinRate || 50;
+              // 0 es una sinergia válida: solo se usa 50 si el dato no es un número
+              const rawWinRate = Number.isFinite(mlSynergyWinRate) ? mlSynergyWinRate : 50;
               const scoreMeta = getScoreMeta(rawWinRate, true, language);
               const synergyScorePercent = Math.min(100, Math.max(0, Math.round(rawWinRate)));
               const strokeOffsetValue = Math.max(
@@ -419,7 +497,7 @@ export default function ViewPregame() {
                       <div className="synergy-analysis-item" style={{ fontSize: "0.72rem" }}>
                         <strong className="strong-label" style={{ fontSize: "0.6rem", padding: "0.1rem 0.3rem" }}>{t.picksLocked}</strong>
                         <span className="synergy-analysis-text">
-                          {pickedAgentsCount} {t.of5Agents}
+                          {lockedAgentsCount} {t.of5Agents}
                         </span>
                       </div>
                       <div className="synergy-analysis-item" style={{ fontSize: "0.72rem" }}>
@@ -509,7 +587,7 @@ export default function ViewPregame() {
                           {agent.displayName}
                         </div>
                         <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", lineHeight: 1.1 }}>
-                          {agent.role?.displayName || "Agent"}
+                          {agent.role?.displayName || t.agentRoleFallback}
                         </div>
                       </div>
                     </div>
@@ -532,39 +610,28 @@ export default function ViewPregame() {
                 ))
               ) : mlRecommendations && mlRecommendations.length > 0 ? (
                 mlRecommendations.slice(0, 5).map((recommendation: MLDraftRecommendation, rankIndex: number) => {
-                  const targetAgent =
-                    typeof recommendation === "object" && recommendation.uuid
-                      ? agents.find(
-                          (agent) =>
-                            agent.uuid.toLowerCase() === recommendation.uuid.toLowerCase() ||
-                            agent.displayName.toLowerCase() === recommendation.agent.toLowerCase()
-                        )
-                      : agents.find(
-                          (agent) =>
-                            agent.displayName.toLowerCase() === String(recommendation).toLowerCase()
-                        );
+                  const targetAgent = findAgentForRecommendation(
+                    recommendation,
+                    agentByUuidMap,
+                    agentByNameKeyMap
+                  );
 
                   const targetAgentName = targetAgent
                     ? targetAgent.displayName
-                    : typeof recommendation === "object"
-                    ? recommendation.displayName || recommendation.agent
-                    : String(recommendation);
+                    : recommendation.displayName || recommendation.agent;
 
-                  const estimatedWinRate =
-                    typeof recommendation === "object" && recommendation.winRate
-                      ? recommendation.winRate
-                      : null;
+                  // 0 es un porcentaje válido: solo se oculta si no es un número
+                  const estimatedWinRate = Number.isFinite(recommendation.winRate)
+                    ? recommendation.winRate
+                    : null;
 
-                  const targetRoleName = targetAgent?.role?.displayName || "Agent";
+                  const targetRoleName = targetAgent?.role?.displayName || t.agentRoleFallback;
 
                   return (
                     <div
                       key={rankIndex}
                       onClick={() => {
-                        if (targetAgent) {
-                          setSelectedAgentUuid(targetAgent.uuid);
-                          selectAgent(targetAgent.uuid);
-                        }
+                        if (targetAgent) handleAgentClick(targetAgent.uuid);
                       }}
                       style={{
                         display: "flex",
@@ -816,9 +883,12 @@ export default function ViewPregame() {
                 const agentRecommendation = getAgentRecommendation(recMap, agent.uuid, agent.displayName);
                 const estimatedWinRate = agentRecommendation ? agentRecommendation.winRate : null;
                 const isCurrentAgentSelected = selectedAgentUuid === agent.uuid;
-                const isAgentPickedByTeam = myTeam.some(
-                  (p) => (p.agentId || "").toLowerCase() === agent.uuid.toLowerCase()
-                );
+                const agentTeamStatus = getAgentTeamStatus(myTeam, agent.uuid);
+                // En el equipo (pre-pick o bloqueado): se marca como "EQUIPO"
+                const isAgentPickedByTeam = agentTeamStatus !== "free";
+                // Solo un agente bloqueado deja de poder elegirse; un pre-pick (también
+                // el propio) se puede fijar con LOCK
+                const isAgentLockedByTeam = agentTeamStatus === "locked";
 
                 return (
                   <div
@@ -840,19 +910,14 @@ export default function ViewPregame() {
                         ? "1px solid rgba(0, 255, 136, 0.25)"
                         : "1px solid rgba(0, 243, 255, 0.18)",
                       borderRadius: "0.3rem",
-                      cursor: isAgentPickedByTeam ? "default" : "pointer",
+                      cursor: isAgentLockedByTeam ? "default" : "pointer",
                       transition: "all 0.18s ease",
                       gap: "0.4rem",
                       minWidth: 0,
                       height: "100%",
                       boxSizing: "border-box",
                     }}
-                    onClick={() => {
-                      if (!isAgentPickedByTeam) {
-                        setSelectedAgentUuid(agent.uuid);
-                        selectAgent(agent.uuid);
-                      }
-                    }}
+                    onClick={() => handleAgentClick(agent.uuid)}
                   >
                     {/* Foto + Nombre + Rol */}
                     <div
@@ -927,9 +992,9 @@ export default function ViewPregame() {
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                           }}
-                          title={agent.role?.displayName || "Agent"}
+                          title={agent.role?.displayName || t.agentRoleFallback}
                         >
-                          {agent.role?.displayName || "Agent"}
+                          {agent.role?.displayName || t.agentRoleFallback}
                         </div>
                       </div>
                     </div>
@@ -962,7 +1027,7 @@ export default function ViewPregame() {
                             lineHeight: 1.1,
                           }}
                         >
-                          EQUIPO
+                          {t.onTeamBadge}
                         </span>
                       ) : estimatedWinRate !== null ? (() => {
                         const scoreMeta = getScoreMeta(estimatedWinRate, true, language);
@@ -1010,7 +1075,7 @@ export default function ViewPregame() {
 
                       <button
                         type="button"
-                        disabled={isAgentPickedByTeam}
+                        disabled={isAgentLockedByTeam}
                         className={`synergy-pick-btn ${isCurrentAgentSelected ? "selected" : ""}`}
                         style={{
                           padding: "0.16rem 0.4rem",
@@ -1021,16 +1086,16 @@ export default function ViewPregame() {
                           letterSpacing: "0.03em",
                           borderRadius: "0.18rem",
                           border: "none",
-                          cursor: isAgentPickedByTeam ? "default" : "pointer",
+                          cursor: isAgentLockedByTeam ? "default" : "pointer",
                           whiteSpace: "nowrap",
                           width: "100%",
                           transition: "all 0.18s ease",
-                          background: isAgentPickedByTeam
+                          background: isAgentLockedByTeam
                             ? "rgba(255, 255, 255, 0.06)"
                             : isCurrentAgentSelected
                             ? "var(--color-red)"
                             : "rgba(255, 70, 85, 0.22)",
-                          color: isAgentPickedByTeam ? "var(--text-muted)" : "#ffffff",
+                          color: isAgentLockedByTeam ? "var(--text-muted)" : "#ffffff",
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1038,14 +1103,10 @@ export default function ViewPregame() {
                         }}
                         onClick={(event) => {
                           event.stopPropagation();
-                          if (!isAgentPickedByTeam) {
-                            setSelectedAgentUuid(agent.uuid);
-                            selectAgent(agent.uuid);
-                            lockAgent(agent.uuid);
-                          }
+                          handlePickAndLock(agent.uuid);
                         }}
                       >
-                        {isAgentPickedByTeam
+                        {isAgentLockedByTeam
                           ? t.fixed
                           : isCurrentAgentSelected
                           ? t.lock
@@ -1124,10 +1185,7 @@ export default function ViewPregame() {
               <div
                 key={agent.uuid}
                 className={`agent-grid-item ${selectedAgentUuid === agent.uuid ? "selected" : ""}`}
-                onClick={() => {
-                  setSelectedAgentUuid(agent.uuid);
-                  selectAgent(agent.uuid);
-                }}
+                onClick={() => handleAgentClick(agent.uuid)}
               >
                 <img
                   src={agent.displayIcon}
@@ -1279,7 +1337,7 @@ export default function ViewPregame() {
                 className="lock-btn"
                 disabled={!selectedAgent}
                 onClick={() => {
-                  if (selectedAgent) lockAgent(selectedAgent.uuid);
+                  if (selectedAgent) handlePickAndLock(selectedAgent.uuid);
                 }}
                 style={{
                   padding: "0 0.65rem",

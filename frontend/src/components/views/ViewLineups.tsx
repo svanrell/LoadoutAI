@@ -2,76 +2,140 @@
 
 import { useState, useMemo } from "react";
 import { useGameState } from "@/hooks/useGameState";
+import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
 import { LineupIcon } from "@/components/Icons";
-
-export interface LineupItem {
-  id: string;
-  title: string;
-  agent: string;
-  agentIcon?: string;
-  map: string;
-  side: "attack" | "defense";
-  site: "A" | "B" | "C" | "Mid";
-  ability: string;
-  abilityIcon?: string;
-  difficulty: "Fácil" | "Media" | "Avanzada";
-  throwType: string;
-  standPosition: string;
-  aimCue: string;
-  landingEffect: string;
-  mapSplash?: string;
-}
+import { LINEUP_SITES, LineupDifficulty, LineupItem, Side } from "@/data/lineupsData";
+import { DEFAULT_MAP_NAMES, getMapSplash } from "@/data/mapsData";
+import {
+  ALL_FILTER,
+  EMPTY_LINEUP_FILTERS,
+  LineupFilters,
+  buildFilterOptions,
+  filterLineups,
+  hasActiveLineupFilters,
+} from "@/lib/lineupsLogic";
 
 interface ViewLineupsProps {
-  /**
-   * Pasa aquí los lineups obtenidos de tu backend.
-   * Si está vacío, se muestra el estado visual vacío listo para recibir datos.
-   */
+  /** Lineups a mostrar (page.tsx pasa LINEUPS de data/lineupsData) */
   lineups?: LineupItem[];
 }
 
-const MAP_FILTERS = ["Todos", "Ascent", "Bind", "Haven", "Sunset", "Split", "Lotus", "Breeze", "Icebox"];
-const AGENT_FILTERS = ["Todos", "Sova", "Viper", "Brimstone", "Killjoy", "Fade", "Gekko"];
-
 export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
   const { setView } = useGameState();
-  const { t, language } = useLanguage();
+  const { agents } = useValorantData();
+  const { t } = useLanguage();
 
-  // Estados visuales de filtros
-  const [selectedMap, setSelectedMap] = useState<string>("Todos");
-  const [selectedAgent, setSelectedAgent] = useState<string>("Todos");
-  const [selectedSide, setSelectedSide] = useState<"all" | "attack" | "defense">("all");
-  const [selectedSite, setSelectedSite] = useState<string>("Todos");
-  const [searchQuery, setSearchQuery] = useState<string>("" );
+  const [filters, setFilters] = useState<LineupFilters>(EMPTY_LINEUP_FILTERS);
+  const updateFilters = (changes: Partial<LineupFilters>) =>
+    setFilters((current) => ({ ...current, ...changes }));
   const [activeLineupModal, setActiveLineupModal] = useState<LineupItem | null>(null);
 
-  // Filtrado visual sobre los datos que reciba del backend
-  const filteredLineups = useMemo(() => {
-    return lineups.filter((item) => {
-      if (selectedMap !== "Todos" && item.map.toLowerCase() !== selectedMap.toLowerCase()) {
-        return false;
-      }
-      if (selectedAgent !== "Todos" && item.agent.toLowerCase() !== selectedAgent.toLowerCase()) {
-        return false;
-      }
-      if (selectedSide !== "all" && item.side !== selectedSide) {
-        return false;
-      }
-      if (selectedSite !== "Todos" && item.site !== selectedSite) {
-        return false;
-      }
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        return (
-          item.title.toLowerCase().includes(q) ||
-          item.ability.toLowerCase().includes(q) ||
-          item.agent.toLowerCase().includes(q)
-        );
-      }
-      return true;
-    });
-  }, [lineups, selectedMap, selectedAgent, selectedSide, selectedSite, searchQuery]);
+  // Opciones de los filtros a partir de los datos (mapas de mapsData, agentes de la API)
+  const mapOptions = useMemo(() => buildFilterOptions(DEFAULT_MAP_NAMES), []);
+  const agentOptions = useMemo(
+    () => buildFilterOptions(agents.map((agent) => agent.displayName)),
+    [agents]
+  );
+
+  const filteredLineups = useMemo(() => filterLineups(lineups, filters), [lineups, filters]);
+  const isFiltering = hasActiveLineupFilters(filters);
+
+  const sideLabels: Record<Side, string> = { attack: t.lineupsAttack, defense: t.lineupsDefense };
+  const difficultyLabels: Record<LineupDifficulty, string> = {
+    easy: t.lineupsDifficultyEasy,
+    medium: t.lineupsDifficultyMedium,
+    advanced: t.lineupsDifficultyAdvanced,
+  };
+  const showingText = (
+    filteredLineups.length === 1 ? t.lineupsShowingOne : t.lineupsShowingMany
+  ).replace("{count}", String(filteredLineups.length));
+
+  // Sin lineups todavía: pantalla de "Próximamente" en lugar de filtros sobre una lista vacía
+  if (lineups.length === 0) {
+    return (
+      <div
+        className="state-view active"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          padding: "24px 20px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            background: "linear-gradient(135deg, rgba(16, 22, 34, 0.95), rgba(11, 18, 25, 0.9))",
+            border: "1px solid var(--border-cyber)",
+            borderRadius: "10px",
+            padding: "36px 28px",
+            maxWidth: "460px",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+            textAlign: "center",
+            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          <div
+            style={{
+              width: "52px",
+              height: "52px",
+              borderRadius: "10px",
+              background: "rgba(16, 185, 129, 0.12)",
+              border: "1.5px solid var(--color-green)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--color-green)",
+            }}
+          >
+            <LineupIcon size={26} />
+          </div>
+          <span
+            style={{
+              fontSize: "9.5px",
+              fontWeight: 800,
+              padding: "2px 8px",
+              borderRadius: "10px",
+              background: "rgba(16, 185, 129, 0.15)",
+              border: "1px solid rgba(16, 185, 129, 0.4)",
+              color: "var(--color-green)",
+              letterSpacing: "0.5px",
+            }}
+          >
+            {t.lineups.toUpperCase()}
+          </span>
+          <h1
+            style={{
+              fontFamily: "Orbitron, sans-serif",
+              fontSize: "20px",
+              fontWeight: 800,
+              color: "var(--text-main)",
+              letterSpacing: "1px",
+              margin: 0,
+            }}
+          >
+            {t.lineupsComingSoonTitle}
+          </h1>
+          <p style={{ fontSize: "12.5px", color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>
+            {t.lineupsComingSoonDesc}
+          </p>
+          <button
+            className="cyber-btn-secondary"
+            onClick={() => setView("menu")}
+            style={{ marginTop: "6px", padding: "7px 14px", fontSize: "11px", fontWeight: 700 }}
+          >
+            {t.backToProfile}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -145,7 +209,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                   letterSpacing: "0.5px",
                 }}
               >
-                TACTICAL VAULT
+                {t.lineupsBadge}
               </span>
             </div>
             <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px", marginBottom: 0 }}>
@@ -181,9 +245,9 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
           <div style={{ position: "relative", minWidth: "260px", flex: 1 }}>
             <input
               type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={language === "es" ? "Buscar por flecha, post-plant, molly..." : "Search recon, post-plant, molly..."}
+              value={filters.query}
+              onChange={(e) => updateFilters({ query: e.target.value })}
+              placeholder={t.lineupsSearchPlaceholder}
               style={{
                 width: "100%",
                 background: "rgba(0, 0, 0, 0.3)",
@@ -196,9 +260,9 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                 boxSizing: "border-box",
               }}
             />
-            {searchQuery && (
+            {filters.query && (
               <button
-                onClick={() => setSearchQuery("")}
+                onClick={() => updateFilters({ query: "" })}
                 style={{
                   position: "absolute",
                   right: "10px",
@@ -219,24 +283,24 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
           {/* Side Filter */}
           <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
             <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 700, marginRight: "4px" }}>
-              {language === "es" ? "BANDO:" : "SIDE:"}
+              {t.lineupsSideLabel}
             </span>
-            {[
-              { id: "all", label: language === "es" ? "TODOS" : "ALL" },
-              { id: "attack", label: language === "es" ? "ATAQUE" : "ATTACK", color: "var(--color-red)" },
-              { id: "defense", label: language === "es" ? "DEFENSA" : "DEFENSE", color: "var(--color-cyan)" },
-            ].map((s) => (
+            {([
+              { id: ALL_FILTER, label: t.lineupsAll },
+              { id: "attack", label: t.lineupsAttack, color: "var(--color-red)" },
+              { id: "defense", label: t.lineupsDefense, color: "var(--color-cyan)" },
+            ] as { id: LineupFilters["side"]; label: string; color?: string }[]).map((s) => (
               <button
                 key={s.id}
-                onClick={() => setSelectedSide(s.id as any)}
+                onClick={() => updateFilters({ side: s.id })}
                 style={{
                   padding: "4px 10px",
                   borderRadius: "4px",
                   fontSize: "10.5px",
                   fontWeight: 700,
-                  border: selectedSide === s.id ? `1px solid ${s.color || "var(--color-green)"}` : "1px solid rgba(255,255,255,0.08)",
-                  background: selectedSide === s.id ? (s.color ? `${s.color}22` : "rgba(16, 185, 129, 0.15)") : "rgba(0,0,0,0.2)",
-                  color: selectedSide === s.id ? (s.color || "var(--color-green)") : "var(--text-muted)",
+                  border: filters.side === s.id ? `1px solid ${s.color || "var(--color-green)"}` : "1px solid rgba(255,255,255,0.08)",
+                  background: filters.side === s.id ? (s.color ? `${s.color}22` : "rgba(16, 185, 129, 0.15)") : "rgba(0,0,0,0.2)",
+                  color: filters.side === s.id ? (s.color || "var(--color-green)") : "var(--text-muted)",
                   cursor: "pointer",
                 }}
               >
@@ -248,24 +312,24 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
           {/* Site Filter */}
           <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 700, marginRight: "4px" }}>
-              SITE:
+              {t.lineupsSiteLabel}
             </span>
-            {["Todos", "A", "B", "C", "Mid"].map((site) => (
+            {([ALL_FILTER, ...LINEUP_SITES] as LineupFilters["site"][]).map((site) => (
               <button
                 key={site}
-                onClick={() => setSelectedSite(site)}
+                onClick={() => updateFilters({ site })}
                 style={{
                   padding: "4px 10px",
                   borderRadius: "4px",
                   fontSize: "10.5px",
                   fontWeight: 700,
-                  border: selectedSite === site ? "1px solid var(--color-yellow)" : "1px solid rgba(255,255,255,0.08)",
-                  background: selectedSite === site ? "rgba(245, 158, 11, 0.15)" : "rgba(0,0,0,0.2)",
-                  color: selectedSite === site ? "var(--color-yellow)" : "var(--text-muted)",
+                  border: filters.site === site ? "1px solid var(--color-yellow)" : "1px solid rgba(255,255,255,0.08)",
+                  background: filters.site === site ? "rgba(245, 158, 11, 0.15)" : "rgba(0,0,0,0.2)",
+                  color: filters.site === site ? "var(--color-yellow)" : "var(--text-muted)",
                   cursor: "pointer",
                 }}
               >
-                {site}
+                {site === ALL_FILTER ? t.lineupsAll : site}
               </button>
             ))}
           </div>
@@ -274,25 +338,25 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
         {/* Row 2: Map Pills */}
         <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
           <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 700, minWidth: "60px" }}>
-            {language === "es" ? "MAPA:" : "MAP:"}
+            {t.lineupsMapLabel}
           </span>
-          {MAP_FILTERS.map((m) => (
+          {[ALL_FILTER, ...mapOptions].map((m) => (
             <button
               key={m}
-              onClick={() => setSelectedMap(m)}
+              onClick={() => updateFilters({ map: m })}
               style={{
                 padding: "3px 10px",
                 borderRadius: "4px",
                 fontSize: "10.5px",
                 fontWeight: 600,
-                border: selectedMap === m ? "1px solid var(--color-cyan)" : "1px solid rgba(255,255,255,0.08)",
-                background: selectedMap === m ? "rgba(56, 189, 248, 0.15)" : "rgba(255,255,255,0.02)",
-                color: selectedMap === m ? "var(--color-cyan)" : "var(--text-muted)",
+                border: filters.map === m ? "1px solid var(--color-cyan)" : "1px solid rgba(255,255,255,0.08)",
+                background: filters.map === m ? "rgba(56, 189, 248, 0.15)" : "rgba(255,255,255,0.02)",
+                color: filters.map === m ? "var(--color-cyan)" : "var(--text-muted)",
                 cursor: "pointer",
                 transition: "all 0.1s ease",
               }}
             >
-              {m}
+              {m === ALL_FILTER ? t.lineupsAll : m}
             </button>
           ))}
         </div>
@@ -300,25 +364,25 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
         {/* Row 3: Agent Pills */}
         <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
           <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 700, minWidth: "60px" }}>
-            {language === "es" ? "AGENTE:" : "AGENT:"}
+            {t.lineupsAgentLabel}
           </span>
-          {AGENT_FILTERS.map((ag) => (
+          {[ALL_FILTER, ...agentOptions].map((ag) => (
             <button
               key={ag}
-              onClick={() => setSelectedAgent(ag)}
+              onClick={() => updateFilters({ agent: ag })}
               style={{
                 padding: "3px 10px",
                 borderRadius: "4px",
                 fontSize: "10.5px",
                 fontWeight: 600,
-                border: selectedAgent === ag ? "1px solid var(--color-green)" : "1px solid rgba(255,255,255,0.08)",
-                background: selectedAgent === ag ? "rgba(16, 185, 129, 0.15)" : "rgba(255,255,255,0.02)",
-                color: selectedAgent === ag ? "var(--color-green)" : "var(--text-muted)",
+                border: filters.agent === ag ? "1px solid var(--color-green)" : "1px solid rgba(255,255,255,0.08)",
+                background: filters.agent === ag ? "rgba(16, 185, 129, 0.15)" : "rgba(255,255,255,0.02)",
+                color: filters.agent === ag ? "var(--color-green)" : "var(--text-muted)",
                 cursor: "pointer",
                 transition: "all 0.1s ease",
               }}
             >
-              {ag}
+              {ag === ALL_FILTER ? t.lineupsAll : ag}
             </button>
           ))}
         </div>
@@ -327,19 +391,11 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
       {/* Counter / Info */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px" }}>
         <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-          {language === "es"
-            ? `Mostrando ${filteredLineups.length} lineup${filteredLineups.length !== 1 ? "s" : ""}`
-            : `Showing ${filteredLineups.length} lineup${filteredLineups.length !== 1 ? "s" : ""}`}
+          {showingText}
         </span>
-        {(selectedMap !== "Todos" || selectedAgent !== "Todos" || selectedSide !== "all" || selectedSite !== "Todos" || searchQuery) && (
+        {isFiltering && (
           <button
-            onClick={() => {
-              setSelectedMap("Todos");
-              setSelectedAgent("Todos");
-              setSelectedSide("all");
-              setSelectedSite("Todos");
-              setSearchQuery("");
-            }}
+            onClick={() => setFilters(EMPTY_LINEUP_FILTERS)}
             style={{
               background: "transparent",
               border: "none",
@@ -349,7 +405,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
               cursor: "pointer",
             }}
           >
-            {language === "es" ? "LIMPIAR FILTROS ↺" : "CLEAR FILTERS ↺"}
+            {t.lineupsClearFilters}
           </button>
         )}
       </div>
@@ -373,12 +429,10 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
         >
           <div style={{ fontSize: "36px" }}>🎯</div>
           <div style={{ fontSize: "15px", fontWeight: 700, color: "#fff" }}>
-            {language === "es" ? "Sin lineups para mostrar" : "No lineups to display"}
+            {t.lineupsEmptyTitle}
           </div>
           <p style={{ fontSize: "12px", maxWidth: "450px", margin: 0, lineHeight: 1.5 }}>
-            {language === "es"
-              ? "Conecta tu backend pasando la lista de lineups al componente para visualizar tus jugadas tácticas."
-              : "Connect your backend by passing the lineup data list to this component to display your setups."}
+            {t.lineupsEmptyNoMatch}
           </p>
         </div>
       ) : (
@@ -414,18 +468,16 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
             >
               {/* Banner */}
               <div style={{ height: "110px", position: "relative", overflow: "hidden", background: "#0a0e14" }}>
-                {item.mapSplash && (
-                  <img
-                    src={item.mapSplash}
-                    alt={item.map}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      filter: "brightness(0.65) saturate(1.2)",
-                    }}
-                  />
-                )}
+                <img
+                  src={item.mapSplash || getMapSplash(item.map)}
+                  alt={item.map}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    filter: "brightness(0.65) saturate(1.2)",
+                  }}
+                />
                 <div
                   style={{
                     position: "absolute",
@@ -448,7 +500,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                       textTransform: "uppercase",
                     }}
                   >
-                    {item.map} • SITE {item.site}
+                    {item.map} • {t.lineupsSite} {item.site}
                   </span>
                   <span
                     style={{
@@ -462,7 +514,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                       textTransform: "uppercase",
                     }}
                   >
-                    {item.side}
+                    {sideLabels[item.side] ?? item.side}
                   </span>
                 </div>
 
@@ -478,7 +530,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                       border: "1px solid currentColor",
                     }}
                   >
-                    {item.difficulty}
+                    {difficultyLabels[item.difficulty] ?? item.difficulty}
                   </span>
                 </div>
 
@@ -556,7 +608,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                     color: "var(--color-green)",
                   }}
                 >
-                  <span>{language === "es" ? "VER GUÍA" : "VIEW GUIDE"}</span>
+                  <span>{t.lineupsViewGuide}</span>
                   <span>→</span>
                 </div>
               </div>
@@ -611,7 +663,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                   {activeLineupModal.title}
                 </h2>
                 <span style={{ fontSize: "10.5px", color: "var(--text-muted)" }}>
-                  {activeLineupModal.agent} • {activeLineupModal.map} • SITE {activeLineupModal.site}
+                  {activeLineupModal.agent} • {activeLineupModal.map} • {t.lineupsSite} {activeLineupModal.site}
                 </span>
               </div>
 
@@ -640,7 +692,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                 }}
               >
                 <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-cyan)", marginBottom: "4px" }}>
-                  1. POSICIÓN INICIAL
+                  {t.lineupsStandPosition}
                 </div>
                 <p style={{ fontSize: "12.5px", color: "#f8fafc", margin: 0 }}>
                   {activeLineupModal.standPosition}
@@ -656,7 +708,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                 }}
               >
                 <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-yellow)", marginBottom: "4px" }}>
-                  2. REFERENCIA DE MIRA / HUD
+                  {t.lineupsAimCue}
                 </div>
                 <p style={{ fontSize: "12.5px", color: "#f8fafc", margin: 0 }}>
                   {activeLineupModal.aimCue}
@@ -672,7 +724,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                 }}
               >
                 <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-green)", marginBottom: "4px" }}>
-                  3. IMPACTO TÁCTICO
+                  {t.lineupsTacticalImpact}
                 </div>
                 <p style={{ fontSize: "12.5px", color: "#f8fafc", margin: 0 }}>
                   {activeLineupModal.landingEffect}
@@ -684,7 +736,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
                 className="cyber-btn-secondary"
                 style={{ alignSelf: "flex-end", padding: "8px 16px", fontSize: "12px", fontWeight: 700 }}
               >
-                {language === "es" ? "CERRAR" : "CLOSE"}
+                {t.lineupsClose}
               </button>
             </div>
           </div>

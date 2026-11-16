@@ -5,8 +5,8 @@
  * Desacopladas de los componentes visuales de React para una arquitectura limpia.
  */
 
-import { Agent } from "@/hooks/useValorantData";
-import { Player, MLDraftRecommendation, MLAgentImpact } from "@/hooks/useGameState";
+import type { Agent } from "@/hooks/useValorantData";
+import type { Player, MLDraftRecommendation, MLAgentImpact } from "@/hooks/useGameState";
 
 /**
  * Normaliza nombres para comparación insensible a mayúsculas, espacios y caracteres especiales.
@@ -24,6 +24,49 @@ export function buildAgentByUuidMap(agents: Agent[]): Map<string, Agent> {
     map.set(agent.uuid.toLowerCase(), agent);
   }
   return map;
+}
+
+/**
+ * Construye un mapa en O(1) de agentes indexados por nombre normalizado
+ * (normalizeNameKey: "KAY/O" y "kayo" dan la misma clave).
+ */
+export function buildAgentByNameKeyMap(agents: Agent[]): Map<string, Agent> {
+  const map = new Map<string, Agent>();
+  for (const agent of agents) {
+    const key = normalizeNameKey(agent.displayName);
+    if (key) map.set(key, agent);
+  }
+  return map;
+}
+
+/**
+ * Agente del catálogo que corresponde a una recomendación de la IA:
+ * primero por UUID y, si no hay o no coincide, por nombre normalizado.
+ */
+export function findAgentForRecommendation(
+  recommendation: MLDraftRecommendation,
+  agentByUuidMap: Map<string, Agent>,
+  agentByNameKeyMap: Map<string, Agent>
+): Agent | undefined {
+  return (
+    (recommendation.uuid ? agentByUuidMap.get(recommendation.uuid.toLowerCase()) : undefined) ||
+    agentByNameKeyMap.get(normalizeNameKey(recommendation.agent || recommendation.displayName))
+  );
+}
+
+/**
+ * Busca el impacto (Δ) de un agente por UUID o por nombre normalizado en O(1).
+ */
+export function getAgentImpact(
+  impactMap: Map<string, MLAgentImpact>,
+  agentUuid: string,
+  agentDisplayName: string
+): MLAgentImpact | null {
+  return (
+    impactMap.get(agentUuid.toLowerCase()) ||
+    (agentDisplayName ? impactMap.get(normalizeNameKey(agentDisplayName)) : undefined) ||
+    null
+  );
 }
 
 /**
@@ -106,10 +149,45 @@ export function filterAndSortAgents(
 }
 
 /**
- * Obtiene los jugadores del equipo que ya han seleccionado un agente.
+ * Obtiene los jugadores del equipo que ya han seleccionado un agente
+ * (pre-pick o bloqueado).
  */
 export function getPickedPlayers(myTeam: Player[]): Player[] {
   return myTeam.filter((player) => Boolean(player.agentId && player.agentId.trim() !== ""));
+}
+
+/**
+ * Jugadores que han bloqueado su agente. Un pre-pick ("selected") no cuenta.
+ */
+export function getLockedPlayers(myTeam: Player[]): Player[] {
+  return getPickedPlayers(myTeam).filter((player) => player.state === "locked");
+}
+
+/**
+ * Situación de un agente en el equipo:
+ * - "free": nadie lo tiene.
+ * - "onTeam": alguien lo tiene en pre-pick (también puede ser el propio jugador);
+ *   todavía se puede bloquear.
+ * - "locked": alguien lo ha bloqueado; ya no se puede elegir.
+ */
+export type AgentTeamStatus = "free" | "onTeam" | "locked";
+
+export function getAgentTeamStatus(myTeam: Player[], agentUuid: string): AgentTeamStatus {
+  const uuid = agentUuid.toLowerCase();
+  const holders = myTeam.filter((player) => (player.agentId || "").toLowerCase() === uuid);
+  if (holders.length === 0) return "free";
+  return holders.some((player) => player.state === "locked") ? "locked" : "onTeam";
+}
+
+/**
+ * Equipo con el hueco playerIndex vaciado (sin agente y sin estado), o null si
+ * ese hueco no existe o ya estaba vacío. No modifica el equipo recibido.
+ */
+export function clearPlayerSlot(myTeam: Player[], playerIndex: number): Player[] | null {
+  if (!myTeam[playerIndex]?.agentId) return null;
+  return myTeam.map((player, index) =>
+    index === playerIndex ? { ...player, agentId: null, state: "" } : player
+  );
 }
 
 /**
@@ -125,8 +203,9 @@ export function getPickedAgentsList(
 }
 
 /**
- * Determina si el draft se ha completado (5 agentes fijados/seleccionados).
+ * Determina si el draft se ha completado: los 5 jugadores han bloqueado su agente.
+ * Recibe el número de jugadores bloqueados (getLockedPlayers), no el de pre-picks.
  */
-export function isDraftCompleted(pickedCount: number): boolean {
-  return pickedCount >= 5;
+export function isDraftCompleted(lockedCount: number): boolean {
+  return lockedCount >= 5;
 }

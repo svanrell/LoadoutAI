@@ -1,4 +1,5 @@
 export * from "./agentAbilitiesData";
+export * from "./agentDefaults";
 export * from "./weaponsData";
 export * from "./mapsData";
 export * from "./gameModesData";

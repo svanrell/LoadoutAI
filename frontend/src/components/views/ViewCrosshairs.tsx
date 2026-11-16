@@ -5,23 +5,13 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useCrosshair } from "@/hooks/useCrosshair";
 import { CrosshairIcon, RefreshIcon } from "@/components/Icons";
 import {
-  CrosshairConfig,
-  CrosshairPreset,
-} from "@/data";
-import {
   CrosshairPreview,
   CrosshairSettingsTable,
   CrosshairImportModal,
+  SavedCrosshairsPanel,
 } from "@/components/crosshair";
 
-export type { CrosshairConfig, CrosshairPreset };
-
-interface ViewCrosshairsProps {
-  presets?: CrosshairPreset[];
-  onSave?: (config: CrosshairConfig, code: string) => void;
-}
-
-export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
+export default function ViewCrosshairs() {
   const { setView } = useGameState();
   const { t, language } = useLanguage();
 
@@ -39,7 +29,11 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
     randomizeCrosshair,
     applyImportCode,
     copyCode,
+    savedCrosshairs,
+    saveStatus,
     saveCrosshair,
+    loadSavedCrosshair,
+    deleteSavedCrosshair,
   } = useCrosshair();
 
   return (
@@ -98,7 +92,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
                   color: "#ffffff",
                 }}
               >
-                {language === "es" ? "CREADOR DE MIRAS" : "CROSSHAIR CREATOR"}
+                {t.crosshairCreatorTitle}
               </h2>
               <span
                 style={{
@@ -112,7 +106,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
                   letterSpacing: "0.5px",
                 }}
               >
-                CUSTOM RETICLE
+                {t.crosshairCustomReticle}
               </span>
             </div>
             <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px", marginBottom: 0 }}>
@@ -135,7 +129,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
             }}
           >
             <RefreshIcon size={12} />
-            {language === "es" ? "RESTABLECER" : "RESET"}
+            {t.crosshairReset}
           </button>
           <button
             className="cyber-btn-secondary"
@@ -156,13 +150,21 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
           alignItems: "start",
         }}
       >
-        {/* LEFT COLUMN: Live preview with background selector */}
-        <CrosshairPreview
-          config={config}
-          selectedBg={selectedBg}
-          onSelectBg={setSelectedBg}
-          language={language}
-        />
+        {/* LEFT COLUMN: Live preview with background selector + saved crosshairs */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
+          <CrosshairPreview
+            config={config}
+            selectedBg={selectedBg}
+            onSelectBg={setSelectedBg}
+            language={language}
+          />
+          <SavedCrosshairsPanel
+            savedCrosshairs={savedCrosshairs}
+            currentCode={currentCode}
+            onLoad={loadSavedCrosshair}
+            onDelete={deleteSavedCrosshair}
+          />
+        </div>
 
         {/* RIGHT COLUMN: Authentic Valorant In-Game Settings Panel */}
         <CrosshairSettingsTable
@@ -174,7 +176,8 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
           copied={copied}
           onRandom={randomizeCrosshair}
           onReset={resetCrosshair}
-          onSave={onSave ? () => saveCrosshair(onSave) : undefined}
+          onSave={saveCrosshair}
+          saveStatus={saveStatus}
         />
       </div>
 

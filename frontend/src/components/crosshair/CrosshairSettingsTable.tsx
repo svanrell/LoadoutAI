@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { CrosshairConfig } from "@/data/crosshairData";
+import type { CrosshairSaveStatus } from "@/hooks/useCrosshair";
 import {
   SettingRow,
   SectionHeader,
@@ -22,7 +23,10 @@ interface CrosshairSettingsTableProps {
   copied: boolean;
   onRandom: () => void;
   onReset: () => void;
-  onSave?: (config: CrosshairConfig, code: string) => void;
+  /** Guarda la mira actual (useCrosshair.saveCrosshair) */
+  onSave?: () => void;
+  /** Resultado del último guardado, para el aviso del botón */
+  saveStatus?: CrosshairSaveStatus;
 }
 
 type SubTabId = "General" | "Primary" | "Aim Down Sights" | "Sniper";
@@ -38,8 +42,9 @@ export function CrosshairSettingsTable({
   onRandom,
   onReset,
   onSave,
+  saveStatus = "idle",
 }: CrosshairSettingsTableProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const isEs = language === "es";
   const [activeSubTab, setActiveSubTab] = useState<SubTabId>("General");
 
@@ -883,7 +888,7 @@ export function CrosshairSettingsTable({
             letterSpacing: "0.3px",
           }}
         >
-          Random
+          {t.crosshairRandom}
         </button>
 
         <button
@@ -901,7 +906,7 @@ export function CrosshairSettingsTable({
             letterSpacing: "0.3px",
           }}
         >
-          {copied ? "Copied!" : "Copy Code"}
+          {copied ? t.crosshairCopied : t.crosshairCopyCode}
         </button>
 
         <button
@@ -919,26 +924,30 @@ export function CrosshairSettingsTable({
             letterSpacing: "0.3px",
           }}
         >
-          Reset
+          {t.crosshairResetShort}
         </button>
 
         {onSave && (
           <button
             type="button"
-            onClick={() => onSave(config, currentCode)}
+            onClick={onSave}
             style={{
               padding: "7px 16px",
               borderRadius: "3px",
-              background: "var(--color-cyan)",
+              background: saveStatus === "error" ? "#dc2626" : "var(--color-cyan)",
               border: "none",
-              color: "#000",
+              color: saveStatus === "error" ? "#ffffff" : "#000",
               fontSize: "11px",
               fontWeight: 800,
               cursor: "pointer",
               letterSpacing: "0.3px",
             }}
           >
-            Save
+            {saveStatus === "saved"
+              ? t.crosshairSaved
+              : saveStatus === "error"
+              ? t.crosshairSaveError
+              : t.crosshairSave}
           </button>
         )}
       </div>

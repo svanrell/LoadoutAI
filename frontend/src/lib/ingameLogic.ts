@@ -6,15 +6,25 @@
  * y cálculo dinámico de costes para mantener ViewIngame limpio y enfocado a la UI.
  */
 
-import { Weapon } from "@/hooks/useValorantData";
-import { BuyRecommendation } from "@/hooks/useGameState";
+import type { Weapon, WeaponStats } from "@/hooks/useValorantData";
+import type { BuyRecommendation } from "@/hooks/useGameState";
 import { ARMORS_DATA } from "@/data/weaponsData";
-import { AGENT_ABILITIES_DATABASE } from "@/components/shop/AbilitiesShop";
+import { getAgentAbilityCatalog } from "@/data/agentAbilitiesData";
 
-export interface AiEquipmentResolution {
+/**
+ * Equipamiento de la tienda. primaryName y armorName a null significan
+ * "sin arma principal" y "sin escudo", que son elecciones válidas.
+ */
+export interface Loadout {
   sidearmName: string;
   primaryName: string | null;
   armorName: string | null;
+}
+
+const EMPTY_LOADOUT: Loadout = { sidearmName: "Classic", primaryName: null, armorName: null };
+
+function isSameName(a: string | null, b: string): boolean {
+  return Boolean(a) && (a as string).toUpperCase() === b.toUpperCase();
 }
 
 /**
@@ -24,13 +34,9 @@ export interface AiEquipmentResolution {
 export function resolveAiRecommendation(
   buyRecommendations: BuyRecommendation | null,
   allWeapons: Weapon[]
-): AiEquipmentResolution {
+): Loadout {
   if (!buyRecommendations) {
-    return {
-      sidearmName: "Classic",
-      primaryName: null,
-      armorName: null,
-    };
+    return EMPTY_LOADOUT;
   }
 
   let sidearmName = "Classic";
@@ -86,39 +92,48 @@ export function resolveAiRecommendation(
 }
 
 /**
- * Calcula el nuevo estado de equipamiento al hacer clic en un arma de la tienda.
+ * Nuevo equipamiento al hacer clic en un arma de la tienda.
+ *
+ * `shown` tiene que ser el equipamiento que se ve en pantalla: el de la IA si se
+ * sigue su recomendación, o el manual si no. Partir de una elección manual anterior
+ * hacía que, tras volver a la IA, pulsar un arma la quitara en vez de equiparla.
+ * Pulsar un arma ya equipada la quita (la pistola vuelve a la Classic).
  */
-export function computeToggleWeapon(
-  weapon: Weapon,
-  currentSidearmName: string,
-  currentPrimaryName: string | null
-): { newSidearmName: string; newPrimaryName: string | null } {
-  const isSidearm = weapon.category === "EEquippableCategory::Sidearm";
+export function computeToggleWeapon(weapon: Weapon, shown: Loadout): Loadout {
   const name = weapon.displayName;
-
-  if (isSidearm) {
-    const newSidearmName = currentSidearmName.toUpperCase() === name.toUpperCase() ? "Classic" : name;
-    return {
-      newSidearmName,
-      newPrimaryName: currentPrimaryName,
-    };
-  } else {
-    const newPrimaryName = currentPrimaryName && currentPrimaryName.toUpperCase() === name.toUpperCase() ? null : name;
-    return {
-      newSidearmName: currentSidearmName,
-      newPrimaryName,
-    };
+  if (weapon.category === "EEquippableCategory::Sidearm") {
+    return { ...shown, sidearmName: isSameName(shown.sidearmName, name) ? "Classic" : name };
   }
+  return { ...shown, primaryName: isSameName(shown.primaryName, name) ? null : name };
 }
 
 /**
- * Calcula el nuevo estado de armadura al hacer clic en un escudo.
+ * Nuevo equipamiento al hacer clic en un escudo, partiendo de lo que se ve en pantalla.
+ * Pulsar el escudo equipado lo quita.
  */
-export function computeToggleArmor(
-  currentArmorName: string | null,
-  targetArmorName: string
-): string | null {
-  return currentArmorName === targetArmorName ? null : targetArmorName;
+export function computeToggleArmor(shown: Loadout, targetArmorName: string): Loadout {
+  return { ...shown, armorName: shown.armorName === targetArmorName ? null : targetArmorName };
+}
+
+/** Velocidad corriendo de Valorant con el cuchillo (m/s); cada arma la multiplica por runSpeedMultiplier */
+export const BASE_RUN_SPEED_MPS = 6.75;
+
+/** Velocidad corriendo con el arma en m/s (2 decimales), o null si la API no da el multiplicador */
+export function getWeaponRunSpeed(stats: WeaponStats | null | undefined): number | null {
+  const multiplier = stats?.runSpeedMultiplier;
+  if (typeof multiplier !== "number" || !Number.isFinite(multiplier)) return null;
+  return Math.round(BASE_RUN_SPEED_MPS * multiplier * 100) / 100;
+}
+
+export type WeaponFireMode = "auto" | "semiAuto";
+
+/**
+ * Modo de disparo principal según la API: fireMode "SemiAutomatic" o null (automática).
+ * Devuelve null si el dato no viene (p. ej. armas añadidas a mano).
+ */
+export function getWeaponFireMode(stats: WeaponStats | null | undefined): WeaponFireMode | null {
+  if (!stats || stats.fireMode === undefined) return null;
+  return stats.fireMode === "EWeaponFireModeDisplayType::SemiAutomatic" ? "semiAuto" : "auto";
 }
 
 /**
@@ -180,9 +195,8 @@ export function calculateManualAbilitiesSpend(
   abilityChargesState: Record<string, number>
 ): number {
   let sum = 0;
-  const normKey = (agentName || "jett").toLowerCase().trim();
-  const list = AGENT_ABILITIES_DATABASE[normKey] || [];
-  for (const ab of list) {
+  // Misma lista que muestra la tienda (incluidas las habilidades genéricas de un agente nuevo)
+  for (const ab of getAgentAbilityCatalog(agentName)) {
     const current =
       abilityChargesState[ab.id] !== undefined
         ? abilityChargesState[ab.id]

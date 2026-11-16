@@ -9,8 +9,6 @@ export interface Translations {
   profile: string;
   draftCoach: string;
   tacticalRadar: string;
-  tierList: string;
-  tools: string;
   crosshairs: string;
   lineups: string;
   map: string;
@@ -55,7 +53,8 @@ export interface Translations {
   winRate: string;
   last10Matches: string;
   rrGraphTitle: string;
-  currentRank: string;
+  /** Texto cuando no hay perfil o rango (en lugar de un rango inventado) */
+  noRankLabel: string;
   liveRadarTitle: string;
   clientDetectedText: string;
   clientOfflineText: string;
@@ -85,13 +84,38 @@ export interface Translations {
   noMatchesFound6Months: string;
   playMatchesToSyncHistory: string;
 
-  inDevelopment: string;
-  inDevelopmentDesc: string;
-  tierListDesc: string;
-  toolsDesc: string;
   crosshairsDesc: string;
   lineupsDesc: string;
   backToProfile: string;
+
+  // Lineups
+  lineupsBadge: string;
+  lineupsSearchPlaceholder: string;
+  lineupsSideLabel: string;
+  lineupsSiteLabel: string;
+  lineupsMapLabel: string;
+  lineupsAgentLabel: string;
+  lineupsAll: string;
+  lineupsAttack: string;
+  lineupsDefense: string;
+  /** {count} = número de lineups */
+  lineupsShowingOne: string;
+  lineupsShowingMany: string;
+  lineupsClearFilters: string;
+  lineupsEmptyTitle: string;
+  lineupsComingSoonBadge: string;
+  lineupsComingSoonTitle: string;
+  lineupsComingSoonDesc: string;
+  lineupsEmptyNoMatch: string;
+  lineupsSite: string;
+  lineupsDifficultyEasy: string;
+  lineupsDifficultyMedium: string;
+  lineupsDifficultyAdvanced: string;
+  lineupsViewGuide: string;
+  lineupsStandPosition: string;
+  lineupsAimCue: string;
+  lineupsTacticalImpact: string;
+  lineupsClose: string;
 
   // Pregame & Draft Coach
   myTeamComposition: string;
@@ -159,6 +183,93 @@ export interface Translations {
   abilityPurchased: string;
   abilityNotPurchased: string;
   notDetectedDemo: string;
+
+  // Tienda In-Game ({name} = arma o escudo)
+  shopRoundInProgress: string;
+  shopViewBuyMenuOffline: string;
+  shopDefaultSidearmTitle: string;
+  shopUnequipSidearmTitle: string;
+  shopUnequipPrimaryTitle: string;
+  shopEquipTitle: string;
+  shopShields: string;
+  shopUnequipShieldTitle: string;
+  shopEquipShieldTitle: string;
+  shopAgentNotDetectedTitle: string;
+  shopPlayerFallback: string;
+  shopShieldEquippedTitle: string;
+  shopNoShieldTitle: string;
+  shopSidearmTitle: string;
+  shopPrimaryTitle: string;
+  shopNoPrimaryTitle: string;
+  shopPrimaryShort: string;
+  shopToggleModeTitle: string;
+  shopAiRecommendation: string;
+  shopManualBuy: string;
+  shopFollowing: string;
+  shopEdit: string;
+  shopAiPlan: string;
+  shopSave: string;
+  shopNoShield: string;
+  shopEstimatedCost: string;
+  shopBankCredits: string;
+  shopSpend: string;
+  shopRemaining: string;
+  shopMinNextRound: string;
+  shopIfYouWin: string;
+  shopCatSidearms: string;
+  shopCatSmgs: string;
+  shopCatShotguns: string;
+  shopCatRifles: string;
+  shopCatSnipers: string;
+  shopCatHeavy: string;
+  shopWeaponFallback: string;
+  shopPrimaryFire: string;
+  shopFireModeAuto: string;
+  shopFireModeSemiAuto: string;
+  shopStatRunSpeed: string;
+  shopStatEquip: string;
+  shopStatReload: string;
+  shopStatMagazine: string;
+  shopUnitRounds: string;
+  shopStatFireRate: string;
+  shopUnitFireRate: string;
+  shopStatAccuracy: string;
+  shopUnitAccuracy: string;
+  shopDamage: string;
+  shopStatsUnavailable: string;
+  shopHoverWeaponLine1: string;
+  shopHoverWeaponLine2: string;
+
+  // Pre-Game ({delta} = aporte en %)
+  dismissError: string;
+  synergyContributionTitle: string;
+  onTeamBadge: string;
+  clearSlotTitle: string;
+  clearSlotHint: string;
+  agentRoleFallback: string;
+
+  // Menú: bandas de rango del gráfico vacío
+  rankIconAlt: string;
+  rankBandPlatinum: string;
+  rankBandGold: string;
+  rankBandSilver: string;
+  rankBandBronze: string;
+
+  // Miras
+  crosshairCreatorTitle: string;
+  crosshairCustomReticle: string;
+  crosshairReset: string;
+  crosshairRandom: string;
+  crosshairCopyCode: string;
+  crosshairCopied: string;
+  crosshairResetShort: string;
+  crosshairSave: string;
+  crosshairSaved: string;
+  crosshairSaveError: string;
+  crosshairSavedTitle: string;
+  crosshairSavedEmpty: string;
+  crosshairLoad: string;
+  crosshairDelete: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -166,8 +277,6 @@ const translations: Record<Language, Translations> = {
     profile: "Perfil",
     draftCoach: "Selección de Agente",
     tacticalRadar: "Selección de Armas",
-    tierList: "Tier List",
-    tools: "Herramientas",
     crosshairs: "Creador de Miras",
     lineups: "Lineups",
     map: "MAPA",
@@ -207,7 +316,7 @@ const translations: Record<Language, Translations> = {
     winRate: "Porcentaje de victorias",
     last10Matches: "Últimas 10 Partidas",
     rrGraphTitle: "Gráfico de RR en Clasificatoria",
-    currentRank: "GOLD IV 23 RR",
+    noRankLabel: "SIN RANGO",
     liveRadarTitle: "Radar de Partida en Vivo",
     clientDetectedText: "Cliente de Riot detectado. Buscando sala o selección de agentes...",
     clientOfflineText: "Cliente de Valorant no detectado. Abre el juego para activar el radar.",
@@ -236,12 +345,34 @@ const translations: Record<Language, Translations> = {
     noMatchesFound6Months: "No se encontraron partidas en los últimos 6 meses en esta cuenta",
     playMatchesToSyncHistory: "Juega partidas en Valorant para sincronizar tu historial y estadísticas en tiempo real.",
 
-    inDevelopment: "Módulo en Desarrollo",
-    inDevelopmentDesc: "Esta funcionalidad está siendo desarrollada e integrada con los modelos de IA y la API de Valorant. Estará disponible próximamente.",
-    tierListDesc: "Tier list automática de agentes, winrates por mapa y combinaciones óptimas en el parche actual.",
-    toolsDesc: "Calculadora de economía táctica, visualizador de lineups y simulador de rondas de pistolas.",
     crosshairsDesc: "Diseña, personaliza y genera códigos oficiales de miras de Valorant en tiempo real.",
     lineupsDesc: "Aprende y domina los mejores lineups tácticos de dardos, molotovs y humos por mapa.",
+    lineupsBadge: "BÓVEDA TÁCTICA",
+    lineupsSearchPlaceholder: "Buscar por flecha, post-plant, molly...",
+    lineupsSideLabel: "BANDO:",
+    lineupsSiteLabel: "ZONA:",
+    lineupsMapLabel: "MAPA:",
+    lineupsAgentLabel: "AGENTE:",
+    lineupsAll: "TODOS",
+    lineupsAttack: "ATAQUE",
+    lineupsDefense: "DEFENSA",
+    lineupsShowingOne: "Mostrando {count} lineup",
+    lineupsShowingMany: "Mostrando {count} lineups",
+    lineupsClearFilters: "LIMPIAR FILTROS ↺",
+    lineupsEmptyTitle: "Sin lineups para mostrar",
+    lineupsComingSoonBadge: "PRONTO",
+    lineupsComingSoonTitle: "Próximamente",
+    lineupsComingSoonDesc: "Estamos preparando la colección de lineups tácticos. Estará disponible pronto.",
+    lineupsEmptyNoMatch: "Ningún lineup coincide con los filtros seleccionados.",
+    lineupsSite: "ZONA",
+    lineupsDifficultyEasy: "Fácil",
+    lineupsDifficultyMedium: "Media",
+    lineupsDifficultyAdvanced: "Avanzada",
+    lineupsViewGuide: "VER GUÍA",
+    lineupsStandPosition: "1. POSICIÓN INICIAL",
+    lineupsAimCue: "2. REFERENCIA DE MIRA / HUD",
+    lineupsTacticalImpact: "3. IMPACTO TÁCTICO",
+    lineupsClose: "CERRAR",
     backToProfile: "VOLVER AL PERFIL",
 
     // Pregame
@@ -310,13 +441,90 @@ const translations: Record<Language, Translations> = {
     abilityPurchased: "COMPRADO",
     abilityNotPurchased: "NO COMPRADO",
     notDetectedDemo: "NO DETECTADO (DEMO JETT)",
+    shopRoundInProgress: "Ronda en progreso...",
+    shopViewBuyMenuOffline: "VER MENÚ DE COMPRA (OFFLINE)",
+    shopDefaultSidearmTitle: "Pistola por defecto: {name}",
+    shopUnequipSidearmTitle: "Click para desequipar (volver a Classic): {name}",
+    shopUnequipPrimaryTitle: "Click para desequipar arma larga: {name}",
+    shopEquipTitle: "Click para equipar: {name}",
+    shopShields: "ESCUDOS",
+    shopUnequipShieldTitle: "Click para desequipar: {name}",
+    shopEquipShieldTitle: "Click para equipar (reemplaza cualquier otro escudo): {name}",
+    shopAgentNotDetectedTitle: "Agente no detectado en vivo",
+    shopPlayerFallback: "JUGADOR",
+    shopShieldEquippedTitle: "Escudo equipado: {name}",
+    shopNoShieldTitle: "Sin escudo equipado",
+    shopSidearmTitle: "Pistola: {name}",
+    shopPrimaryTitle: "Arma larga: {name}",
+    shopNoPrimaryTitle: "Sin arma larga equipada",
+    shopPrimaryShort: "ARMA LARGA",
+    shopToggleModeTitle: "Click para alternar entre seguir la recomendación de la IA o compra manual",
+    shopAiRecommendation: "RECOMENDACIÓN IA",
+    shopManualBuy: "COMPRA MANUAL",
+    shopFollowing: "SEGUIDA",
+    shopEdit: "EDITAR",
+    shopAiPlan: "Plan IA:",
+    shopSave: "Ahorrar",
+    shopNoShield: "Sin escudo",
+    shopEstimatedCost: "Coste estimado:",
+    shopBankCredits: "CRÉDITOS BANCO",
+    shopSpend: "Gasto:",
+    shopRemaining: "Restante:",
+    shopMinNextRound: "MÍN. PRÓXIMA RONDA:",
+    shopIfYouWin: "SI GANAS LA RONDA:",
+    shopCatSidearms: "ARMAS DE MANO",
+    shopCatSmgs: "SUBFUSILES",
+    shopCatShotguns: "ESCOPETAS",
+    shopCatRifles: "RIFLES",
+    shopCatSnipers: "FUSILES DE FRANCOTIRADOR",
+    shopCatHeavy: "AMETRALLADORAS",
+    shopWeaponFallback: "ARMA",
+    shopPrimaryFire: "DISPARO PRINCIPAL",
+    shopFireModeAuto: "Automático",
+    shopFireModeSemiAuto: "Semiautomático",
+    shopStatRunSpeed: "VELOCIDAD",
+    shopStatEquip: "EQUIPAR",
+    shopStatReload: "RECARGA",
+    shopStatMagazine: "CARGADOR",
+    shopUnitRounds: "BALAS",
+    shopStatFireRate: "CADENCIA",
+    shopUnitFireRate: "B/S",
+    shopStatAccuracy: "DISPERSIÓN",
+    shopUnitAccuracy: "MIRA",
+    shopDamage: "DAÑO",
+    shopStatsUnavailable: "Estadísticas no disponibles",
+    shopHoverWeaponLine1: "Pasa el ratón sobre un arma",
+    shopHoverWeaponLine2: "para ver sus estadísticas",
+    dismissError: "Cerrar aviso",
+    synergyContributionTitle: "Aporte a la sinergia del equipo: {delta}%",
+    onTeamBadge: "EQUIPO",
+    clearSlotTitle: "Vaciar hueco",
+    clearSlotHint: "Clic derecho o ✕ para vaciar el hueco",
+    agentRoleFallback: "Agente",
+    rankIconAlt: "Rango",
+    rankBandPlatinum: "PLATINO",
+    rankBandGold: "ORO",
+    rankBandSilver: "PLATA",
+    rankBandBronze: "BRONCE",
+    crosshairCreatorTitle: "CREADOR DE MIRAS",
+    crosshairCustomReticle: "RETÍCULA PERSONALIZADA",
+    crosshairReset: "RESTABLECER",
+    crosshairRandom: "Aleatoria",
+    crosshairCopyCode: "Copiar código",
+    crosshairCopied: "¡Copiado!",
+    crosshairResetShort: "Restablecer",
+    crosshairSave: "Guardar",
+    crosshairSaved: "¡Guardada!",
+    crosshairSaveError: "No se pudo guardar",
+    crosshairSavedTitle: "MIRAS GUARDADAS",
+    crosshairSavedEmpty: "Aún no has guardado ninguna mira. Pulsa Guardar para añadir la actual.",
+    crosshairLoad: "Cargar",
+    crosshairDelete: "Borrar",
   },
   en: {
     profile: "Profile",
     draftCoach: "Agent Selection",
     tacticalRadar: "Weapon Selection",
-    tierList: "Tier List",
-    tools: "Tools",
     crosshairs: "Crosshair Creator",
     lineups: "Lineups",
     map: "MAP",
@@ -356,7 +564,7 @@ const translations: Record<Language, Translations> = {
     winRate: "Win Rate",
     last10Matches: "Last 10 Matches",
     rrGraphTitle: "Competitive RR Chart",
-    currentRank: "GOLD IV 23 RR",
+    noRankLabel: "UNRANKED",
     liveRadarTitle: "Live Match Radar",
     clientDetectedText: "Riot Client detected. Searching for match or agent draft...",
     clientOfflineText: "Valorant Client not detected. Launch game to activate radar.",
@@ -385,12 +593,34 @@ const translations: Record<Language, Translations> = {
     noMatchesFound6Months: "No matches found in the last 6 months on this account",
     playMatchesToSyncHistory: "Play matches in Valorant to synchronize your history and real-time stats.",
 
-    inDevelopment: "Module In Development",
-    inDevelopmentDesc: "This feature is currently under development and being integrated with our AI models and the Valorant API. It will be available soon.",
-    tierListDesc: "Automated agent tier lists, win rates per map, and optimal team compositions for the current patch.",
-    toolsDesc: "Tactical economy calculator, lineup visualizer, and pistol round simulators.",
     crosshairsDesc: "Design, customize, and generate official Valorant crosshair codes in real time.",
     lineupsDesc: "Learn and master the best tactical recon, molly, and smoke lineups for each map.",
+    lineupsBadge: "TACTICAL VAULT",
+    lineupsSearchPlaceholder: "Search recon, post-plant, molly...",
+    lineupsSideLabel: "SIDE:",
+    lineupsSiteLabel: "SITE:",
+    lineupsMapLabel: "MAP:",
+    lineupsAgentLabel: "AGENT:",
+    lineupsAll: "ALL",
+    lineupsAttack: "ATTACK",
+    lineupsDefense: "DEFENSE",
+    lineupsShowingOne: "Showing {count} lineup",
+    lineupsShowingMany: "Showing {count} lineups",
+    lineupsClearFilters: "CLEAR FILTERS ↺",
+    lineupsEmptyTitle: "No lineups to display",
+    lineupsComingSoonBadge: "SOON",
+    lineupsComingSoonTitle: "Coming soon",
+    lineupsComingSoonDesc: "We are preparing the tactical lineup collection. It will be available soon.",
+    lineupsEmptyNoMatch: "No lineups match the selected filters.",
+    lineupsSite: "SITE",
+    lineupsDifficultyEasy: "Easy",
+    lineupsDifficultyMedium: "Medium",
+    lineupsDifficultyAdvanced: "Advanced",
+    lineupsViewGuide: "VIEW GUIDE",
+    lineupsStandPosition: "1. STARTING POSITION",
+    lineupsAimCue: "2. AIM / HUD REFERENCE",
+    lineupsTacticalImpact: "3. TACTICAL IMPACT",
+    lineupsClose: "CLOSE",
     backToProfile: "BACK TO PROFILE",
 
     // Pregame
@@ -459,6 +689,85 @@ const translations: Record<Language, Translations> = {
     abilityPurchased: "PURCHASED",
     abilityNotPurchased: "NOT PURCHASED",
     notDetectedDemo: "NOT DETECTED (DEMO JETT)",
+    shopRoundInProgress: "Round in progress...",
+    shopViewBuyMenuOffline: "VIEW BUY MENU (OFFLINE)",
+    shopDefaultSidearmTitle: "Default sidearm: {name}",
+    shopUnequipSidearmTitle: "Click to unequip (back to Classic): {name}",
+    shopUnequipPrimaryTitle: "Click to unequip primary weapon: {name}",
+    shopEquipTitle: "Click to equip: {name}",
+    shopShields: "SHIELDS",
+    shopUnequipShieldTitle: "Click to unequip: {name}",
+    shopEquipShieldTitle: "Click to equip (replaces any other shield): {name}",
+    shopAgentNotDetectedTitle: "Agent not detected live",
+    shopPlayerFallback: "PLAYER",
+    shopShieldEquippedTitle: "Equipped shield: {name}",
+    shopNoShieldTitle: "No shield equipped",
+    shopSidearmTitle: "Sidearm: {name}",
+    shopPrimaryTitle: "Primary weapon: {name}",
+    shopNoPrimaryTitle: "No primary weapon equipped",
+    shopPrimaryShort: "PRIMARY",
+    shopToggleModeTitle: "Click to switch between following the AI recommendation and manual buy",
+    shopAiRecommendation: "AI RECOMMENDATION",
+    shopManualBuy: "MANUAL BUY",
+    shopFollowing: "FOLLOWING",
+    shopEdit: "EDIT",
+    shopAiPlan: "AI plan:",
+    shopSave: "Save",
+    shopNoShield: "No shield",
+    shopEstimatedCost: "Estimated cost:",
+    shopBankCredits: "BANK CREDITS",
+    shopSpend: "Spend:",
+    shopRemaining: "Remaining:",
+    shopMinNextRound: "MIN. NEXT ROUND:",
+    shopIfYouWin: "IF YOU WIN THE ROUND:",
+    shopCatSidearms: "SIDEARMS",
+    shopCatSmgs: "SMGS",
+    shopCatShotguns: "SHOTGUNS",
+    shopCatRifles: "RIFLES",
+    shopCatSnipers: "SNIPER RIFLES",
+    shopCatHeavy: "MACHINE GUNS",
+    shopWeaponFallback: "WEAPON",
+    shopPrimaryFire: "PRIMARY FIRE",
+    shopFireModeAuto: "Automatic",
+    shopFireModeSemiAuto: "Semi-automatic",
+    shopStatRunSpeed: "RUN SPEED",
+    shopStatEquip: "EQUIP",
+    shopStatReload: "RELOAD",
+    shopStatMagazine: "MAGAZINE",
+    shopUnitRounds: "ROUNDS",
+    shopStatFireRate: "FIRE RATE",
+    shopUnitFireRate: "RDS/S",
+    shopStatAccuracy: "SPREAD",
+    shopUnitAccuracy: "AIM",
+    shopDamage: "DAMAGE",
+    shopStatsUnavailable: "Stats not available",
+    shopHoverWeaponLine1: "Hover over a weapon",
+    shopHoverWeaponLine2: "to see its stats",
+    dismissError: "Dismiss error",
+    synergyContributionTitle: "Contribution to team synergy: {delta}%",
+    onTeamBadge: "TEAM",
+    clearSlotTitle: "Clear slot",
+    clearSlotHint: "Right-click or ✕ to clear the slot",
+    agentRoleFallback: "Agent",
+    rankIconAlt: "Rank",
+    rankBandPlatinum: "PLATINUM",
+    rankBandGold: "GOLD",
+    rankBandSilver: "SILVER",
+    rankBandBronze: "BRONZE",
+    crosshairCreatorTitle: "CROSSHAIR CREATOR",
+    crosshairCustomReticle: "CUSTOM RETICLE",
+    crosshairReset: "RESET",
+    crosshairRandom: "Random",
+    crosshairCopyCode: "Copy Code",
+    crosshairCopied: "Copied!",
+    crosshairResetShort: "Reset",
+    crosshairSave: "Save",
+    crosshairSaved: "Saved!",
+    crosshairSaveError: "Could not save",
+    crosshairSavedTitle: "SAVED CROSSHAIRS",
+    crosshairSavedEmpty: "You have not saved any crosshair yet. Press Save to add the current one.",
+    crosshairLoad: "Load",
+    crosshairDelete: "Delete",
   },
 };
 

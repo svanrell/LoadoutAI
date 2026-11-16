@@ -8,6 +8,7 @@
 import { Agent } from "@/hooks/useValorantData";
 import { SyncedCompetitiveUpdate, SyncedMatchItem } from "@/hooks/useGameState";
 import { Translations } from "@/context/LanguageContext";
+import { DEMO_AGENT_ICON_URL } from "@/data/agentDefaults";
 import {
   resolveTierName,
   getTierColor,
@@ -77,12 +78,19 @@ export function getAgentIconUrl(agents: Agent[], name: string, fallbackUuid: str
 }
 
 /**
+ * Conversor de rem a px para coordenadas de SVG, con el tamaño de letra raíz dado.
+ */
+export function createRem(rootFontSize: number): (v: number) => number {
+  return (v: number) => v * rootFontSize;
+}
+
+/**
  * Obtiene el icono del agente por UUID oficial.
  */
 export function getAgentIconByIdUrl(agents: Agent[], uuid: string): string {
-  if (!uuid) return "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
+  if (!uuid) return DEMO_AGENT_ICON_URL;
   const found = agents.find((a) => a.uuid.toLowerCase() === uuid.toLowerCase());
-  return found?.displayIcon || found?.bustPortrait || "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
+  return found?.displayIcon || found?.bustPortrait || DEMO_AGENT_ICON_URL;
 }
 
 /**
@@ -153,15 +161,13 @@ export function calculateCompetitiveChartData(params: {
   competitiveUpdates: SyncedCompetitiveUpdate[];
   chartDimensions: { width: number; height: number };
   language: string;
+  /** Tamaño de letra raíz en px (useRootFontSize) */
+  rootFontSize: number;
 }): CompetitiveChartData | null {
-  const { competitiveUpdates, chartDimensions, language } = params;
+  const { competitiveUpdates, chartDimensions, language, rootFontSize } = params;
   if (competitiveUpdates.length === 0) return null;
 
-  const rootFontSize =
-    typeof window !== "undefined"
-      ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-      : 16;
-  const rem = (v: number) => v * rootFontSize;
+  const rem = createRem(rootFontSize);
 
   const padLeft = rem(7.5);   // ~120px en base 16px
   const padRight = rem(1.25); // ~20px
