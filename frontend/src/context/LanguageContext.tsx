@@ -93,6 +93,33 @@ export interface Translations {
   lineupsDesc: string;
   backToProfile: string;
 
+  // Lineups
+  lineupsBadge: string;
+  lineupsSearchPlaceholder: string;
+  lineupsSideLabel: string;
+  lineupsSiteLabel: string;
+  lineupsMapLabel: string;
+  lineupsAgentLabel: string;
+  lineupsAll: string;
+  lineupsAttack: string;
+  lineupsDefense: string;
+  /** {count} = número de lineups */
+  lineupsShowingOne: string;
+  lineupsShowingMany: string;
+  lineupsClearFilters: string;
+  lineupsEmptyTitle: string;
+  lineupsEmptyNoData: string;
+  lineupsEmptyNoMatch: string;
+  lineupsSite: string;
+  lineupsDifficultyEasy: string;
+  lineupsDifficultyMedium: string;
+  lineupsDifficultyAdvanced: string;
+  lineupsViewGuide: string;
+  lineupsStandPosition: string;
+  lineupsAimCue: string;
+  lineupsTacticalImpact: string;
+  lineupsClose: string;
+
   // Pregame & Draft Coach
   myTeamComposition: string;
   picked: string;
@@ -242,6 +269,30 @@ const translations: Record<Language, Translations> = {
     toolsDesc: "Calculadora de economía táctica, visualizador de lineups y simulador de rondas de pistolas.",
     crosshairsDesc: "Diseña, personaliza y genera códigos oficiales de miras de Valorant en tiempo real.",
     lineupsDesc: "Aprende y domina los mejores lineups tácticos de dardos, molotovs y humos por mapa.",
+    lineupsBadge: "BÓVEDA TÁCTICA",
+    lineupsSearchPlaceholder: "Buscar por flecha, post-plant, molly...",
+    lineupsSideLabel: "BANDO:",
+    lineupsSiteLabel: "ZONA:",
+    lineupsMapLabel: "MAPA:",
+    lineupsAgentLabel: "AGENTE:",
+    lineupsAll: "TODOS",
+    lineupsAttack: "ATAQUE",
+    lineupsDefense: "DEFENSA",
+    lineupsShowingOne: "Mostrando {count} lineup",
+    lineupsShowingMany: "Mostrando {count} lineups",
+    lineupsClearFilters: "LIMPIAR FILTROS ↺",
+    lineupsEmptyTitle: "Sin lineups para mostrar",
+    lineupsEmptyNoData: "Todavía no hay lineups disponibles.",
+    lineupsEmptyNoMatch: "Ningún lineup coincide con los filtros seleccionados.",
+    lineupsSite: "ZONA",
+    lineupsDifficultyEasy: "Fácil",
+    lineupsDifficultyMedium: "Media",
+    lineupsDifficultyAdvanced: "Avanzada",
+    lineupsViewGuide: "VER GUÍA",
+    lineupsStandPosition: "1. POSICIÓN INICIAL",
+    lineupsAimCue: "2. REFERENCIA DE MIRA / HUD",
+    lineupsTacticalImpact: "3. IMPACTO TÁCTICO",
+    lineupsClose: "CERRAR",
     backToProfile: "VOLVER AL PERFIL",
 
     // Pregame
@@ -391,6 +442,30 @@ const translations: Record<Language, Translations> = {
     toolsDesc: "Tactical economy calculator, lineup visualizer, and pistol round simulators.",
     crosshairsDesc: "Design, customize, and generate official Valorant crosshair codes in real time.",
     lineupsDesc: "Learn and master the best tactical recon, molly, and smoke lineups for each map.",
+    lineupsBadge: "TACTICAL VAULT",
+    lineupsSearchPlaceholder: "Search recon, post-plant, molly...",
+    lineupsSideLabel: "SIDE:",
+    lineupsSiteLabel: "SITE:",
+    lineupsMapLabel: "MAP:",
+    lineupsAgentLabel: "AGENT:",
+    lineupsAll: "ALL",
+    lineupsAttack: "ATTACK",
+    lineupsDefense: "DEFENSE",
+    lineupsShowingOne: "Showing {count} lineup",
+    lineupsShowingMany: "Showing {count} lineups",
+    lineupsClearFilters: "CLEAR FILTERS ↺",
+    lineupsEmptyTitle: "No lineups to display",
+    lineupsEmptyNoData: "There are no lineups available yet.",
+    lineupsEmptyNoMatch: "No lineups match the selected filters.",
+    lineupsSite: "SITE",
+    lineupsDifficultyEasy: "Easy",
+    lineupsDifficultyMedium: "Medium",
+    lineupsDifficultyAdvanced: "Advanced",
+    lineupsViewGuide: "VIEW GUIDE",
+    lineupsStandPosition: "1. STARTING POSITION",
+    lineupsAimCue: "2. AIM / HUD REFERENCE",
+    lineupsTacticalImpact: "3. TACTICAL IMPACT",
+    lineupsClose: "CLOSE",
     backToProfile: "BACK TO PROFILE",
 
     // Pregame
