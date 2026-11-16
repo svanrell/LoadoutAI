@@ -5,10 +5,13 @@ import { useGameState, SyncedCompetitiveUpdate } from "@/hooks/useGameState";
 import { useValorantData } from "@/hooks/useValorantData";
 import { useLanguage } from "@/context/LanguageContext";
 import { RefreshIcon } from "@/components/Icons";
+import { DEMO_AGENT_NAME, DEMO_AGENT_UUID } from "@/data/agentDefaults";
+import { useRootFontSize } from "@/hooks/useRootFontSize";
 import {
   getAgentIconUrl,
   getAgentIconByIdUrl,
   calculateCompetitiveChartData,
+  createRem,
   buildMatchGroups,
 } from "@/lib/menuLogic";
 import {
@@ -17,6 +20,9 @@ import {
   getBaseTierIconUrl,
   getTierColor,
 } from "@/lib/rankUtils";
+
+/** Tiempo mínimo entre dos clics en "Actualizar" */
+const REFRESH_COOLDOWN_MS = 3000;
 
 export default function ViewMenu() {
   const { connectionStatus, playerProfile, isProfileLoading, requestPlayerProfile } = useGameState();
@@ -52,10 +58,14 @@ export default function ViewMenu() {
     return () => observer.disconnect();
   }, []);
 
+  // Actualizar fuerza la recarga (se salta el límite de 3 s de useGameState), así que el
+  // botón se desactiva mientras carga y durante REFRESH_COOLDOWN_MS tras cada clic
+  const isRefreshBlocked = isRefreshing || isProfileLoading;
   const handleRefresh = () => {
+    if (isRefreshBlocked) return;
     setIsRefreshing(true);
     requestPlayerProfile(undefined, true);
-    setTimeout(() => setIsRefreshing(false), 1000);
+    setTimeout(() => setIsRefreshing(false), REFRESH_COOLDOWN_MS);
   };
 
   const getAgentIcon = (name: string, fallbackUuid: string) =>
@@ -64,7 +74,7 @@ export default function ViewMenu() {
   const getAgentIconById = (uuid: string) =>
     getAgentIconByIdUrl(agents, uuid);
 
-  const defaultAvatar = getAgentIcon("Jett", "add6443c-41c1-48b0-a04a-a71c8b3269a9");
+  const defaultAvatar = getAgentIcon(DEMO_AGENT_NAME, DEMO_AGENT_UUID);
 
   // Historial de puntos de RR
   const competitiveUpdates = useMemo(() => {
@@ -74,13 +84,16 @@ export default function ViewMenu() {
   }, [playerProfile?.competitiveUpdates]);
 
   // Gráfico de MMR competitivo (coordenadas, spline cúbico de Bézier y division bands)
+  const rootFontSize = useRootFontSize();
+  const rem = useMemo(() => createRem(rootFontSize), [rootFontSize]);
   const chartData = useMemo(() => {
     return calculateCompetitiveChartData({
       competitiveUpdates,
       chartDimensions,
       language,
+      rootFontSize,
     });
-  }, [competitiveUpdates, chartDimensions, language]);
+  }, [competitiveUpdates, chartDimensions, language, rootFontSize]);
 
   // Agrupación y medias diarias de las partidas sincronizadas de Riot
   const matchGroups = useMemo(() => {
@@ -105,7 +118,14 @@ export default function ViewMenu() {
           <button
             className="cyber-btn-secondary"
             onClick={handleRefresh}
-            style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}
+            disabled={isRefreshBlocked}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.375rem",
+              cursor: isRefreshBlocked ? "not-allowed" : "pointer",
+              opacity: isRefreshBlocked ? 0.6 : 1,
+            }}
           >
             <span style={{ display: "flex", transform: (isRefreshing || isProfileLoading) ? "rotate(360deg)" : "none", transition: "transform 0.5s ease" }}>
               <RefreshIcon size={12} />
@@ -474,11 +494,6 @@ export default function ViewMenu() {
                     { tierNum: 9, label: t.rankBandSilver, color: "#cbd5e1", topRatio: 0.50, heightRatio: 0.25 },
                     { tierNum: 6, label: t.rankBandBronze, color: "#b45309", topRatio: 0.75, heightRatio: 0.25 },
                   ].map((band, i) => {
-                    const rootFontSize =
-                      typeof window !== "undefined"
-                        ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-                        : 16;
-                    const rem = (v: number) => v * rootFontSize;
                     const topY = band.topRatio * chartDimensions.height;
                     const bandH = band.heightRatio * chartDimensions.height;
                     const pillY = topY + (bandH - rem(1.375)) / 2;

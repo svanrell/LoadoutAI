@@ -399,7 +399,8 @@ export default function ViewPregame() {
             </div>
 
             {(() => {
-              const rawWinRate = mlSynergyWinRate || 50;
+              // 0 es una sinergia válida: solo se usa 50 si el dato no es un número
+              const rawWinRate = Number.isFinite(mlSynergyWinRate) ? mlSynergyWinRate : 50;
               const scoreMeta = getScoreMeta(rawWinRate, true, language);
               const synergyScorePercent = Math.min(100, Math.max(0, Math.round(rawWinRate)));
               const strokeOffsetValue = Math.max(
@@ -567,10 +568,10 @@ export default function ViewPregame() {
                     ? targetAgent.displayName
                     : recommendation.displayName || recommendation.agent;
 
-                  const estimatedWinRate =
-                    typeof recommendation === "object" && recommendation.winRate
-                      ? recommendation.winRate
-                      : null;
+                  // 0 es un porcentaje válido: solo se oculta si no es un número
+                  const estimatedWinRate = Number.isFinite(recommendation.winRate)
+                    ? recommendation.winRate
+                    : null;
 
                   const targetRoleName = targetAgent?.role?.displayName || t.agentRoleFallback;
 

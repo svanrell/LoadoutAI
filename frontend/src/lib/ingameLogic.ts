@@ -6,7 +6,7 @@
  * y cálculo dinámico de costes para mantener ViewIngame limpio y enfocado a la UI.
  */
 
-import type { Weapon } from "@/hooks/useValorantData";
+import type { Weapon, WeaponStats } from "@/hooks/useValorantData";
 import type { BuyRecommendation } from "@/hooks/useGameState";
 import { ARMORS_DATA } from "@/data/weaponsData";
 import { getAgentAbilityCatalog } from "@/data/agentAbilitiesData";
@@ -113,6 +113,27 @@ export function computeToggleWeapon(weapon: Weapon, shown: Loadout): Loadout {
  */
 export function computeToggleArmor(shown: Loadout, targetArmorName: string): Loadout {
   return { ...shown, armorName: shown.armorName === targetArmorName ? null : targetArmorName };
+}
+
+/** Velocidad corriendo de Valorant con el cuchillo (m/s); cada arma la multiplica por runSpeedMultiplier */
+export const BASE_RUN_SPEED_MPS = 6.75;
+
+/** Velocidad corriendo con el arma en m/s (2 decimales), o null si la API no da el multiplicador */
+export function getWeaponRunSpeed(stats: WeaponStats | null | undefined): number | null {
+  const multiplier = stats?.runSpeedMultiplier;
+  if (typeof multiplier !== "number" || !Number.isFinite(multiplier)) return null;
+  return Math.round(BASE_RUN_SPEED_MPS * multiplier * 100) / 100;
+}
+
+export type WeaponFireMode = "auto" | "semiAuto";
+
+/**
+ * Modo de disparo principal según la API: fireMode "SemiAutomatic" o null (automática).
+ * Devuelve null si el dato no viene (p. ej. armas añadidas a mano).
+ */
+export function getWeaponFireMode(stats: WeaponStats | null | undefined): WeaponFireMode | null {
+  if (!stats || stats.fireMode === undefined) return null;
+  return stats.fireMode === "EWeaponFireModeDisplayType::SemiAutomatic" ? "semiAuto" : "auto";
 }
 
 /**

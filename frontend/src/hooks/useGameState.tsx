@@ -539,6 +539,11 @@ interface MLBuyRecommendationsPayload {
       "error_response",
       (data: { event?: string; error: string; code?: string }) => {
         console.warn("Error recibido desde servidor WebSocket:", data);
+        // Una petición de perfil rechazada no llega a player_profile_result:
+        // sin esto, isProfileLoading se quedaría a true para siempre
+        if (data?.event === "request_player_profile") {
+          setIsProfileLoading(false);
+        }
         if (data && data.error) {
           setLastError(data);
         }

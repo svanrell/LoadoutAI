@@ -4,6 +4,7 @@ import { useValorantData, Weapon } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 import { getMapSplash } from "@/data/mapsData";
+import { DEMO_AGENT_ICON_URL, DEMO_AGENT_NAME, DEMO_AGENT_UUID } from "@/data/agentDefaults";
 import { calculateNextRoundProjection } from "@/data/economyEngine";
 import AbilitiesShop from "@/components/shop/AbilitiesShop";
 import {
@@ -24,6 +25,8 @@ import {
   calculateManualArmorSpend,
   calculateManualAbilitiesSpend,
   calculateTotalSpend,
+  getWeaponRunSpeed,
+  getWeaponFireMode,
 } from "@/lib/ingameLogic";
 import { useState, useMemo, useCallback, useEffect } from "react";
 
@@ -62,17 +65,15 @@ export default function ViewIngame() {
   const rawAgentId = myPlayer?.agentId;
   const isAgentDetected = Boolean(rawAgentId && rawAgentId.trim() !== "");
   // Si estamos en modo demo (sin juego abierto ni agente seleccionado), usamos el UUID de Jett por defecto
-  const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : "add6443a-41bd-e414-f6ad-e58d267f4e95";
+  const myAgentId = isAgentDetected && rawAgentId ? rawAgentId : DEMO_AGENT_UUID;
 
   // useMemo: Busca al agente en la lista solo si 'agents' o 'myAgentId' cambian.
   const myAgent = useMemo(() => {
     return agents.find((a) => a.uuid.toLowerCase() === myAgentId.toLowerCase());
   }, [agents, myAgentId]);
 
-  const myAgentName = myAgent?.displayName || "Jett";
-  const myAgentIcon =
-    myAgent?.displayIcon ||
-    "https://media.valorant-api.com/agents/add6443c-41c1-48b0-a04a-a71c8b3269a9/displayicon.png";
+  const myAgentName = myAgent?.displayName || DEMO_AGENT_NAME;
+  const myAgentIcon = myAgent?.displayIcon || DEMO_AGENT_ICON_URL;
   const myAbilities = useMemo(() => myAgent?.abilities || [], [myAgent]);
 
   // useMemo: Filtra las 3 habilidades básicas (excluyendo la Ultimate que no se compra en tienda)
@@ -172,6 +173,10 @@ export default function ViewIngame() {
       null
     );
   }, [hoveredWeapon, equippedPrimaryName, equippedSidearmName, allWeapons]);
+
+  // Velocidad corriendo y modo de disparo del arma inspeccionada, según la API
+  const inspectedRunSpeed = getWeaponRunSpeed(activeWeaponToInspect?.weaponStats);
+  const inspectedFireMode = getWeaponFireMode(activeWeaponToInspect?.weaponStats);
 
   // Cálculo dinámico del gasto en armamento, blindaje y habilidades
   const manualSidearmSpend = useMemo(
@@ -1107,7 +1112,13 @@ export default function ViewIngame() {
                     }}
                   >
                     <span>{t.shopPrimaryFire}</span>
-                    <span style={{ color: "rgba(255,255,255,0.7)" }}>Auto / Semiauto</span>
+                    <span style={{ color: "rgba(255,255,255,0.7)" }}>
+                      {inspectedFireMode === "semiAuto"
+                        ? t.shopFireModeSemiAuto
+                        : inspectedFireMode === "auto"
+                        ? t.shopFireModeAuto
+                        : "—"}
+                    </span>
                   </div>
                 </div>
 
@@ -1141,7 +1152,8 @@ export default function ViewIngame() {
                           {t.shopStatRunSpeed}
                         </div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
-                          5.74 <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>M/S</span>
+                          {inspectedRunSpeed !== null ? inspectedRunSpeed.toFixed(2) : "—"}{" "}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>M/S</span>
                         </div>
                       </div>
 

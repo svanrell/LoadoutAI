@@ -26,6 +26,10 @@ export interface WeaponStats {
   equipTimeSeconds: number;
   reloadTimeSeconds: number;
   firstBulletAccuracy: number;
+  /** Multiplicador sobre la velocidad corriendo base (6,75 m/s) */
+  runSpeedMultiplier?: number;
+  /** "EWeaponFireModeDisplayType::SemiAutomatic" o null (automática) */
+  fireMode?: string | null;
   damageRanges: {
     rangeStartMeters: number;
     rangeEndMeters: number;

@@ -221,6 +221,8 @@ export interface Translations {
   shopCatHeavy: string;
   shopWeaponFallback: string;
   shopPrimaryFire: string;
+  shopFireModeAuto: string;
+  shopFireModeSemiAuto: string;
   shopStatRunSpeed: string;
   shopStatEquip: string;
   shopStatReload: string;
@@ -460,6 +462,8 @@ const translations: Record<Language, Translations> = {
     shopCatHeavy: "AMETRALLADORAS",
     shopWeaponFallback: "ARMA",
     shopPrimaryFire: "DISPARO PRINCIPAL",
+    shopFireModeAuto: "Automático",
+    shopFireModeSemiAuto: "Semiautomático",
     shopStatRunSpeed: "VELOCIDAD",
     shopStatEquip: "EQUIPAR",
     shopStatReload: "RECARGA",
@@ -691,6 +695,8 @@ const translations: Record<Language, Translations> = {
     shopCatHeavy: "MACHINE GUNS",
     shopWeaponFallback: "WEAPON",
     shopPrimaryFire: "PRIMARY FIRE",
+    shopFireModeAuto: "Automatic",
+    shopFireModeSemiAuto: "Semi-automatic",
     shopStatRunSpeed: "RUN SPEED",
     shopStatEquip: "EQUIP",
     shopStatReload: "RELOAD",
