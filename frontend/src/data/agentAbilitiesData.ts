@@ -1048,6 +1048,16 @@ export function getAbilityPrice(
   return { cost: 200, isSignature: false };
 }
 
+/**
+ * Habilidades de tienda de un agente. Un agente que no está en la base de datos
+ * (p. ej. uno recién lanzado) recibe DEFAULT_FALLBACK_ABILITIES. La tienda y el
+ * cálculo del gasto usan esta misma función para que siempre coincidan.
+ */
+export function getAgentAbilityCatalog(agentName: string): AgentAbilityDetail[] {
+  const normKey = (agentName || "jett").toLowerCase().trim();
+  return AGENT_ABILITIES_DATABASE[normKey] || DEFAULT_FALLBACK_ABILITIES;
+}
+
 export interface ResolvedShopAbility extends AgentAbilityDetail {
   displayName: string;
   displayIcon?: string | null;
@@ -1062,8 +1072,7 @@ export function resolveAgentShopAbilities(
   apiAbilities: Array<{ slot: string; displayName: string; displayIcon?: string | null }> = [],
   currentLang: "es" | "en" = "es"
 ): ResolvedShopAbility[] {
-  const normKey = (agentName || "jett").toLowerCase().trim();
-  const baseList = AGENT_ABILITIES_DATABASE[normKey] || DEFAULT_FALLBACK_ABILITIES;
+  const baseList = getAgentAbilityCatalog(agentName);
 
   return baseList.map((abilityDef) => {
     const matchedApiAbility = apiAbilities.find((a) => {

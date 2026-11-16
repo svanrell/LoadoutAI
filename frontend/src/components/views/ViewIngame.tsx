@@ -13,7 +13,9 @@ import {
   getWeaponAffordability,
 } from "@/data/weaponsData";
 import {
+  Loadout,
   resolveAiRecommendation,
+  computeToggleWeapon,
   computeToggleArmor,
   computeNextAbilityCharge,
   calculateManualSidearmSpend,
@@ -36,6 +38,7 @@ export default function ViewIngame() {
     myTeam,
     myCredits,
     buyPhaseAvailable,
+    currentIngameRound,
     selectedMap,
     playerProfile,
     lossStreak,
@@ -78,49 +81,51 @@ export default function ViewIngame() {
   const allWeapons = useMemo(() => getProcessedWeapons(rawWeapons), [rawWeapons]);
 
   // useMemo: Equipamiento derivado directamente de la recomendación de la IA (puro, sin efectos secundarios)
-  const aiEquipped = useMemo(() => {
-    if (!buyRecommendations) {
-      return { sidearmName: "Classic", primaryName: null as string | null, armorName: null as string | null };
-    }
-    return resolveAiRecommendation(buyRecommendations, allWeapons);
-  }, [buyRecommendations, allWeapons]);
+  const aiEquipped = useMemo(
+    () => resolveAiRecommendation(buyRecommendations, allWeapons),
+    [buyRecommendations, allWeapons]
+  );
 
-  // Estados locales para cuando el usuario realiza una compra manual o sobrescribe la IA
-  const [manualSidearmName, setManualSidearmName] = useState<string | null>(null);
-  const [manualPrimaryName, setManualPrimaryName] = useState<string | null>(null);
-  const [manualArmorName, setManualArmorName] = useState<string | null>(null);
+  // Equipamiento elegido a mano en esta ronda. null = el usuario aún no ha tocado nada.
+  // Dentro, primaryName/armorName a null significan "sin arma" / "sin escudo".
+  const [manualLoadout, setManualLoadout] = useState<Loadout | null>(null);
 
-  // Equipamiento efectivo según si el usuario sigue la IA o ha elegido manualmente
-  const equippedSidearmName = isFollowingAiRecommendation
-    ? aiEquipped.sidearmName
-    : (manualSidearmName ?? aiEquipped.sidearmName ?? "Classic");
+  // Equipamiento que se ve en pantalla: el de la IA si se sigue, si no el manual
+  const shownLoadout = useMemo(
+    () => (isFollowingAiRecommendation || !manualLoadout ? aiEquipped : manualLoadout),
+    [isFollowingAiRecommendation, manualLoadout, aiEquipped]
+  );
+  const {
+    sidearmName: equippedSidearmName,
+    primaryName: equippedPrimaryName,
+    armorName: equippedArmorName,
+  } = shownLoadout;
 
-  const equippedPrimaryName = isFollowingAiRecommendation
-    ? aiEquipped.primaryName
-    : (manualPrimaryName !== undefined && manualPrimaryName !== null ? manualPrimaryName : aiEquipped.primaryName);
+  // "Ronda en progreso": permite ver la tienda fuera de la fase de compra (modo offline)
+  const [forceShow, setForceShow] = useState(false);
 
-  const equippedArmorName = isFollowingAiRecommendation
-    ? aiEquipped.armorName
-    : (manualArmorName !== undefined && manualArmorName !== null ? manualArmorName : aiEquipped.armorName);
+  // Reinicio al empezar otra ronda: las compras de la ronda anterior no pasan a la siguiente.
+  // Se ajusta el estado durante el render (patrón de React para estado derivado de props).
+  const [trackedRound, setTrackedRound] = useState(currentIngameRound);
+  if (trackedRound !== currentIngameRound) {
+    setTrackedRound(currentIngameRound);
+    setAbilityChargesState({});
+    setManualLoadout(null);
+    setHoveredWeapon(null);
+    setForceShow(false);
+  }
+  // Al abrirse o cerrarse la fase de compra, deja de forzarse la tienda
+  const [trackedBuyPhase, setTrackedBuyPhase] = useState(buyPhaseAvailable);
+  if (trackedBuyPhase !== buyPhaseAvailable) {
+    setTrackedBuyPhase(buyPhaseAvailable);
+    setForceShow(false);
+  }
 
-  // useCallback: Función memorizada para alternar armas de forma independiente (pistola y arma larga)
+  // useCallback: alterna pistola o arma larga partiendo de lo que se ve en pantalla
   const toggleWeapon = useCallback((weapon: Weapon) => {
     setIsFollowingAiRecommendation(false);
-    const isSidearm = weapon.category === "EEquippableCategory::Sidearm";
-    if (isSidearm) {
-      setManualSidearmName((current) => {
-        const effective = current ?? equippedSidearmName;
-        return effective.toUpperCase() === weapon.displayName.toUpperCase() ? "Classic" : weapon.displayName;
-      });
-    } else {
-      setManualPrimaryName((current) => {
-        const effective = current ?? equippedPrimaryName;
-        return effective && effective.toUpperCase() === weapon.displayName.toUpperCase()
-          ? null
-          : weapon.displayName;
-      });
-    }
-  }, [setIsFollowingAiRecommendation, equippedSidearmName, equippedPrimaryName]);
+    setManualLoadout(computeToggleWeapon(weapon, shownLoadout));
+  }, [setIsFollowingAiRecommendation, shownLoadout]);
 
   // useCallback: Función memorizada para alternar/ciclar cargas de una habilidad
   const handleToggleAbilityCharge = useCallback(
@@ -134,14 +139,11 @@ export default function ViewIngame() {
     [setIsFollowingAiRecommendation]
   );
 
-  // useCallback: Función memorizada para equipar/desequipar un escudo al hacer clic
+  // useCallback: equipa/quita un escudo partiendo de lo que se ve en pantalla
   const toggleArmor = useCallback((armorName: string) => {
     setIsFollowingAiRecommendation(false);
-    setManualArmorName((current) => {
-      const effective = current ?? equippedArmorName;
-      return computeToggleArmor(effective, armorName);
-    });
-  }, [setIsFollowingAiRecommendation, equippedArmorName]);
+    setManualLoadout(computeToggleArmor(shownLoadout, armorName));
+  }, [setIsFollowingAiRecommendation, shownLoadout]);
 
   // useMemo: Arma activa para inspeccionar (si hay hover muestra la del hover; si no, muestra el arma principal o pistola equipada, o Vandal por defecto)
   const activeWeaponToInspect = useMemo(() => {
@@ -558,8 +560,6 @@ export default function ViewIngame() {
       </div>
     );
   };
-
-  const [forceShow, setForceShow] = useState(false);
 
   if (!buyPhaseAvailable && !forceShow) {
     return (
