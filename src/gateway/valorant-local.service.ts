@@ -12,7 +12,10 @@ import {
   AgentRecommendation,
   AgentMarginalImpact,
 } from "./valorant-ml-engine";
-import { RiotClientService } from "./services/riot-client.service";
+import {
+  RiotClientService,
+  RiotRemoteConfig,
+} from "./services/riot-client.service";
 import { RiotPregameService } from "./services/riot-pregame.service";
 import {
   RiotCoregameService,
@@ -21,6 +24,11 @@ import {
 import { RiotPresenceService } from "./services/riot-presence.service";
 import { EconomyAdvisorService } from "./services/economy-advisor.service";
 import { DiscordRpcService } from "./services/discord-rpc.service";
+
+/** Mapa usado solo internamente para el cálculo ML cuando el real es desconocido. */
+const DEFAULT_ML_MAP_NAME = "Ascent";
+/** Intervalo mínimo entre refrescos forzados de la config remota en pregame. */
+const PREGAME_FORCED_REFRESH_INTERVAL_MS = 30_000;
 
 @Injectable()
 export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
@@ -38,7 +46,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
   private currentCredits: number = 800;
 
   private lastMlDraftKey: string = "";
-  private lastKnownPuuid: string | null = null;
+  private lastForcedPregameRefreshAt: number = 0;
   private lastMlDraftResult: {
     recommendations: AgentRecommendation[];
     currentSynergy: number;
@@ -218,47 +226,50 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     pregameMatchId: string,
     agentUuid: string,
   ): Promise<boolean> {
-    let remote = await this.riotClientService.getRemoteConfig();
-    if (!remote) {
-      this.logger.warn(
-        "selectAgent falló: configuración remota no disponible.",
-      );
-      return false;
-    }
-
-    let matchId = pregameMatchId;
-    if (!matchId || matchId === "PRESENCE_LOBBY") {
-      const puuid = await this.riotClientService.getCurrentPlayerPuuid();
-      if (puuid) {
-        const pregameData = await this.riotPregameService.getPregameMatch(
-          remote.glzUrl,
-          remote.headers,
-          puuid,
-        );
-        if (pregameData) {
-          matchId = pregameData.matchId;
-        }
-      }
-    }
-
-    if (!matchId) {
-      this.logger.error("No se puede seleccionar agente: falta pregameMatchId");
-      return false;
-    }
+    const ctx = await this.resolvePregameContext(
+      pregameMatchId,
+      "selectAgent falló: configuración remota no disponible.",
+      "No se puede seleccionar agente: falta pregameMatchId",
+    );
+    if (!ctx) return false;
 
     return this.riotPregameService.selectAgent(
-      remote.glzUrl,
-      remote.headers,
-      matchId,
+      ctx.remote.glzUrl,
+      ctx.remote.headers,
+      ctx.matchId,
       agentUuid,
     );
   }
 
   async lockAgent(pregameMatchId: string, agentUuid: string): Promise<boolean> {
+    const ctx = await this.resolvePregameContext(
+      pregameMatchId,
+      "lockAgent falló: configuración remota no disponible.",
+      "No se puede bloquear agente: falta pregameMatchId",
+    );
+    if (!ctx) return false;
+
+    return this.riotPregameService.lockAgent(
+      ctx.remote.glzUrl,
+      ctx.remote.headers,
+      ctx.matchId,
+      agentUuid,
+    );
+  }
+
+  /**
+   * Obtiene la configuración remota y resuelve el matchId real de pregame
+   * (si llega vacío o como PRESENCE_LOBBY). Devuelve null si falta alguno.
+   */
+  private async resolvePregameContext(
+    pregameMatchId: string,
+    noRemoteMessage: string,
+    noMatchMessage: string,
+  ): Promise<{ remote: RiotRemoteConfig; matchId: string } | null> {
     const remote = await this.riotClientService.getRemoteConfig();
     if (!remote) {
-      this.logger.warn("lockAgent falló: configuración remota no disponible.");
-      return false;
+      this.logger.warn(noRemoteMessage);
+      return null;
     }
 
     let matchId = pregameMatchId;
@@ -277,16 +288,11 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (!matchId) {
-      this.logger.error("No se puede bloquear agente: falta pregameMatchId");
-      return false;
+      this.logger.error(noMatchMessage);
+      return null;
     }
 
-    return this.riotPregameService.lockAgent(
-      remote.glzUrl,
-      remote.headers,
-      matchId,
-      agentUuid,
-    );
+    return { remote, matchId };
   }
 
   private async checkStatus() {
@@ -296,27 +302,18 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     try {
       const credentials = this.riotClientService.getCredentials();
       if (!credentials) {
-        this.lastKnownPuuid = null;
         this.riotClientService.clearCache();
+        this.clearBuyPhase();
         this.updateStatus("CLOSED");
         return;
       }
 
       const puuid = await this.riotClientService.getCurrentPlayerPuuid();
       if (!puuid) {
-        this.lastKnownPuuid = null;
-        this.riotClientService.clearCache();
+        this.clearBuyPhase();
         this.updateStatus("CLOSED");
         return;
       }
-
-      if (this.lastKnownPuuid && this.lastKnownPuuid !== puuid) {
-        this.logger.log(
-          `Cambio de cuenta detectado en cliente local (de ${this.lastKnownPuuid} a ${puuid}). Refrescando credenciales y caché.`,
-        );
-        this.riotClientService.clearCache();
-      }
-      this.lastKnownPuuid = puuid;
 
       const presence = await this.presenceService.getLocalPlayerPresence(puuid);
       if (!presence || !presence.sessionLoopState) {
@@ -356,10 +353,14 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
     rawMatchMap?: string,
   ) {
     const mode = resolveQueueName(rawQueueId || "");
-    const fallbackMapName = resolveMapName(rawMatchMap || "") || "Ascent";
+    // "" si la presencia no trae un mapa reconocible: no se inventa ninguno
+    const presenceMapName = resolveMapName(rawMatchMap || "");
 
     try {
-      let remoteConfig = await this.riotClientService.getRemoteConfig();
+      let remoteConfig = await this.riotClientService.getRemoteConfig(
+        false,
+        puuid,
+      );
       if (!remoteConfig) {
         throw new Error("Configuración remota GLZ no disponible para pregame");
       }
@@ -370,9 +371,19 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         puuid,
       );
 
-      // Si falló el primer intento (cambio de cuenta o token expirado), forzar refresco
-      if (!pregameData) {
-        remoteConfig = await this.riotClientService.getRemoteConfig(true);
+      // Si falló el primer intento (cambio de cuenta o token expirado), forzar
+      // refresco como mucho una vez cada PREGAME_FORCED_REFRESH_INTERVAL_MS
+      const now = Date.now();
+      if (
+        !pregameData &&
+        now - this.lastForcedPregameRefreshAt >=
+          PREGAME_FORCED_REFRESH_INTERVAL_MS
+      ) {
+        this.lastForcedPregameRefreshAt = now;
+        remoteConfig = await this.riotClientService.getRemoteConfig(
+          true,
+          puuid,
+        );
         if (remoteConfig) {
           pregameData = await this.riotPregameService.getPregameMatch(
             remoteConfig.glzUrl,
@@ -386,7 +397,7 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
         const pregameMatch = pregameData.data;
         const pregameMatchId = pregameData.matchId;
         const mapPath = pregameMatch.MapID || "";
-        const mapName = resolveMapName(mapPath) || fallbackMapName;
+        const mapName = resolveMapName(mapPath) || presenceMapName;
 
         const players = pregameMatch.AllyTeam.Players.map((p) => ({
           puuid: p.Subject,
@@ -404,15 +415,16 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           .map((p) => p.agentId);
 
         const mlResult = this.getMLDraftRecommendations(
-          mapName,
+          mapName || DEFAULT_ML_MAP_NAME,
           alliesAgentUuids,
+          mode,
         );
 
         this.updateStatus("PREGAME", {
           matchId,
           pregameMatchId,
           players,
-          mapName,
+          mapName: mapName || undefined,
           myPuuid: puuid,
           mlDraftPicks: mlResult.recommendations,
           mlSynergyWinRate: mlResult.currentSynergy,
@@ -420,32 +432,41 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
           mode,
         });
       } else {
-        const mlResult = this.getMLDraftRecommendations(fallbackMapName, []);
-        this.updateStatus("PREGAME", {
-          matchId,
-          mapName: fallbackMapName,
-          myPuuid: puuid,
-          mode,
-          mlDraftPicks: mlResult.recommendations,
-          mlSynergyWinRate: mlResult.currentSynergy,
-          mlAgentImpacts: mlResult.agentImpacts || [],
-        });
+        this.emitPregameFallback(matchId, puuid, mode, presenceMapName);
       }
     } catch (error) {
       this.logger.error(
         `Error en consulta pregame: ${error instanceof Error ? error.message : String(error)}`,
       );
-      const mlResult = this.getMLDraftRecommendations(fallbackMapName, []);
-      this.updateStatus("PREGAME", {
-        matchId,
-        mapName: fallbackMapName,
-        myPuuid: puuid,
-        mode,
-        mlDraftPicks: mlResult.recommendations,
-        mlSynergyWinRate: mlResult.currentSynergy,
-        mlAgentImpacts: mlResult.agentImpacts || [],
-      });
+      this.emitPregameFallback(matchId, puuid, mode, presenceMapName);
     }
+  }
+
+  /**
+   * Emite el estado PREGAME sin datos de la partida. Si el mapa es desconocido
+   * (mapName vacío) no se envía mapName, para no sobrescribir el mapa elegido
+   * en el frontend; el cálculo ML usa internamente DEFAULT_ML_MAP_NAME.
+   */
+  private emitPregameFallback(
+    matchId: string,
+    puuid: string,
+    mode: string,
+    mapName: string,
+  ) {
+    const mlResult = this.getMLDraftRecommendations(
+      mapName || DEFAULT_ML_MAP_NAME,
+      [],
+      mode,
+    );
+    this.updateStatus("PREGAME", {
+      matchId,
+      mapName: mapName || undefined,
+      myPuuid: puuid,
+      mode,
+      mlDraftPicks: mlResult.recommendations,
+      mlSynergyWinRate: mlResult.currentSynergy,
+      mlAgentImpacts: mlResult.agentImpacts || [],
+    });
   }
 
   private async handleIngameSession(
@@ -462,7 +483,10 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
 
     let players: LocalPlayerInfo[] = [];
     try {
-      const remoteConfig = await this.riotClientService.getRemoteConfig();
+      const remoteConfig = await this.riotClientService.getRemoteConfig(
+        false,
+        puuid,
+      );
       if (remoteConfig) {
         const rawPresences = await this.presenceService.getRawPresences();
         const coreGameInfo =
@@ -691,6 +715,15 @@ export class ValorantLocalService implements OnModuleInit, OnModuleDestroy {
       );
     }
 
-    return this.lastMlDraftResult;
+    // Solo reutilizar el último resultado si corresponde a la misma consulta
+    if (this.lastMlDraftKey === cacheKey) {
+      return this.lastMlDraftResult;
+    }
+
+    return {
+      recommendations: [],
+      currentSynergy: 50.0,
+      agentImpacts: [],
+    };
   }
 }
