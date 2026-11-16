@@ -93,3 +93,10 @@ jobs:
           top = ", ".join(r["displayName"] for r in result["recommendations"][:3])
           print(f"Sinergia actual: {result['currentSynergy']} | Recomendados: {top}")
           EOF
+
+      # Entrena con los datos versionados y así usa de verdad pandas, numpy, scikit-learn
+      # y joblib de requirements.txt. Cualquier error del entrenamiento termina Python con
+      # código distinto de 0 y el paso falla. Va después del predictor para que este pruebe
+      # el draft_data.json versionado; que el entrenamiento lo regenere aquí no importa.
+      - name: Entrenamiento
+        run: python src/machine_learning/pregame/model.py
