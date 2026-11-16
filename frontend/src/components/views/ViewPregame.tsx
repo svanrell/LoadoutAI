@@ -35,6 +35,8 @@ export default function ViewPregame() {
     myTeam,
     selectAgent,
     lockAgent,
+    clearAgentSlot,
+    isLiveMode,
     mlRecommendations, // Lista de agentes recomendados por la IA con % de victoria
     mlSynergyWinRate,  // Sinergia global actual del equipo (0% a 100%)
     mlAgentImpacts,    // Aporte neto individual (Δ delta) de cada pick
@@ -77,6 +79,14 @@ export default function ViewPregame() {
     if (status === "locked") return;
     setSelectedAgentUuid(agentUuid);
     if (status === "free") selectAgent(agentUuid);
+  };
+
+  // Simulador offline: vaciar el pick de un hueco (botón ✕ o clic derecho en la tarjeta)
+  const handleClearSlot = (playerIndex: number, agentId: string | null) => {
+    clearAgentSlot(playerIndex);
+    if (agentId && selectedAgentUuid?.toLowerCase() === agentId.toLowerCase()) {
+      setSelectedAgentUuid(null);
+    }
   };
 
   // Botón PICK/LOCK de la tarjeta: selecciona si hace falta y fija el agente
@@ -203,10 +213,22 @@ export default function ViewPregame() {
             const displayPlayerName =
               player.name === "You" ? t.you : player.name.replace(/^Ally\s*/i, `${t.ally} `);
 
+            // Solo en el simulador offline y si el hueco tiene agente
+            const canClearSlot = !isLiveMode && Boolean(player.agentId);
+
             return (
               <div
                 key={player.puuid || playerIndex}
                 className={`player-card ${player.state === "locked" ? "locked" : ""} ${player.state === "selected" ? "selecting" : ""}`}
+                title={canClearSlot ? t.clearSlotHint : undefined}
+                onContextMenu={
+                  canClearSlot
+                    ? (event) => {
+                        event.preventDefault();
+                        handleClearSlot(playerIndex, player.agentId);
+                      }
+                    : undefined
+                }
                 style={{
                   flex: 1,
                   display: "flex",
@@ -372,6 +394,36 @@ export default function ViewPregame() {
                     )}
                   </div>
                 </div>
+                {canClearSlot && (
+                  <button
+                    type="button"
+                    title={t.clearSlotTitle}
+                    aria-label={t.clearSlotTitle}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleClearSlot(playerIndex, player.agentId);
+                    }}
+                    style={{
+                      marginLeft: "auto",
+                      flexShrink: 0,
+                      width: "1.5rem",
+                      height: "1.5rem",
+                      borderRadius: "0.25rem",
+                      border: "1px solid rgba(255, 70, 85, 0.45)",
+                      background: "rgba(255, 70, 85, 0.12)",
+                      color: "#ff4655",
+                      fontSize: "0.75rem",
+                      fontWeight: 900,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      lineHeight: 1,
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             );
           })}

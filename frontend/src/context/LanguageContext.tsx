@@ -244,6 +244,8 @@ export interface Translations {
   dismissError: string;
   synergyContributionTitle: string;
   onTeamBadge: string;
+  clearSlotTitle: string;
+  clearSlotHint: string;
   agentRoleFallback: string;
 
   // Menú: bandas de rango del gráfico vacío
@@ -496,6 +498,8 @@ const translations: Record<Language, Translations> = {
     dismissError: "Cerrar aviso",
     synergyContributionTitle: "Aporte a la sinergia del equipo: {delta}%",
     onTeamBadge: "EQUIPO",
+    clearSlotTitle: "Vaciar hueco",
+    clearSlotHint: "Clic derecho o ✕ para vaciar el hueco",
     agentRoleFallback: "Agente",
     rankIconAlt: "Rango",
     rankBandPlatinum: "PLATINO",
@@ -742,6 +746,8 @@ const translations: Record<Language, Translations> = {
     dismissError: "Dismiss error",
     synergyContributionTitle: "Contribution to team synergy: {delta}%",
     onTeamBadge: "TEAM",
+    clearSlotTitle: "Clear slot",
+    clearSlotHint: "Right-click or ✕ to clear the slot",
     agentRoleFallback: "Agent",
     rankIconAlt: "Rank",
     rankBandPlatinum: "PLATINUM",

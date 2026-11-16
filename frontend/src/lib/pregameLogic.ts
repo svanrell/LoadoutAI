@@ -5,8 +5,8 @@
  * Desacopladas de los componentes visuales de React para una arquitectura limpia.
  */
 
-import { Agent } from "@/hooks/useValorantData";
-import { Player, MLDraftRecommendation, MLAgentImpact } from "@/hooks/useGameState";
+import type { Agent } from "@/hooks/useValorantData";
+import type { Player, MLDraftRecommendation, MLAgentImpact } from "@/hooks/useGameState";
 
 /**
  * Normaliza nombres para comparación insensible a mayúsculas, espacios y caracteres especiales.
@@ -177,6 +177,17 @@ export function getAgentTeamStatus(myTeam: Player[], agentUuid: string): AgentTe
   const holders = myTeam.filter((player) => (player.agentId || "").toLowerCase() === uuid);
   if (holders.length === 0) return "free";
   return holders.some((player) => player.state === "locked") ? "locked" : "onTeam";
+}
+
+/**
+ * Equipo con el hueco playerIndex vaciado (sin agente y sin estado), o null si
+ * ese hueco no existe o ya estaba vacío. No modifica el equipo recibido.
+ */
+export function clearPlayerSlot(myTeam: Player[], playerIndex: number): Player[] | null {
+  if (!myTeam[playerIndex]?.agentId) return null;
+  return myTeam.map((player, index) =>
+    index === playerIndex ? { ...player, agentId: null, state: "" } : player
+  );
 }
 
 /**
