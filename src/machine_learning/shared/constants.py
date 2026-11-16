@@ -79,6 +79,10 @@ AGENT_ROLES_MAP: dict[str, str] = {
     "veto": "sentinel",
 }
 
+# Rol de un agente que no está en AGENT_ROLES_MAP (p. ej. uno recién lanzado)
+UNKNOWN_AGENT_ROLE = "unknown"
+KNOWN_AGENT_ROLES: tuple[str, ...] = ("duelist", "initiator", "controller", "sentinel")
+
 
 def normalize_agent_identifier(raw_identifier: str) -> str:
     """Convierte cualquier UUID o nombre al nombre canónico limpio en minúsculas."""
@@ -89,6 +93,9 @@ def normalize_agent_identifier(raw_identifier: str) -> str:
 
 
 def get_agent_role(agent_identifier: str) -> str:
-    """Obtiene el rol canónico de un agente ('duelist', 'initiator', 'controller', 'sentinel')."""
+    """
+    Obtiene el rol canónico de un agente ('duelist', 'initiator', 'controller', 'sentinel'),
+    o UNKNOWN_AGENT_ROLE si el agente no está en la tabla.
+    """
     canonical_name = normalize_agent_identifier(agent_identifier)
-    return AGENT_ROLES_MAP.get(canonical_name, "duelist")
+    return AGENT_ROLES_MAP.get(canonical_name, UNKNOWN_AGENT_ROLE)

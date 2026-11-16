@@ -52,6 +52,15 @@ export class RiotClientService {
     puuid?: string;
   } | null = null;
 
+  /**
+   * Refresco de configuración remota en curso, para que llamadas concurrentes
+   * con la misma sesión (token + PUUID) compartan una única petición.
+   */
+  private inFlightRefresh: {
+    key: string;
+    promise: Promise<RiotRemoteConfig | null>;
+  } | null = null;
+
   constructor(private readonly httpService: HttpService) {
     this.localHttpsAgent = new https.Agent({
       rejectUnauthorized: false,
@@ -195,6 +204,7 @@ export class RiotClientService {
    */
   public clearCache(): void {
     this.cachedRemoteConfig = null;
+    this.inFlightRefresh = null;
     this.logger.debug("Caché de configuración remota de Riot limpiada.");
   }
 
@@ -203,6 +213,7 @@ export class RiotClientService {
    */
   public async getRemoteConfig(
     forceRefresh = false,
+    knownPuuid?: string,
   ): Promise<RiotRemoteConfig | null> {
     const credentials = this.getCredentials();
     if (!credentials) {
@@ -210,18 +221,46 @@ export class RiotClientService {
       return null;
     }
 
-    const currentPuuid = await this.getCurrentPlayerPuuid();
-    const now = Date.now();
+    // Si el llamador ya conoce el PUUID se evita una petición extra a /chat/v1/session
+    const currentPuuid = knownPuuid || (await this.getCurrentPlayerPuuid());
 
+    // Sin PUUID no se puede verificar a qué cuenta pertenece la caché: se refresca
     if (
       !forceRefresh &&
+      currentPuuid &&
       this.cachedRemoteConfig &&
-      this.cachedRemoteConfig.expiresAt > now &&
+      this.cachedRemoteConfig.expiresAt > Date.now() &&
       this.cachedRemoteConfig.token === credentials.token &&
-      (!currentPuuid || this.cachedRemoteConfig.puuid === currentPuuid)
+      this.cachedRemoteConfig.puuid === currentPuuid
     ) {
       return this.cachedRemoteConfig.config;
     }
+
+    // Deduplicar refrescos concurrentes de la misma sesión
+    const key = `${credentials.token}|${currentPuuid ?? ""}`;
+    if (this.inFlightRefresh && this.inFlightRefresh.key === key) {
+      return this.inFlightRefresh.promise;
+    }
+
+    const promise = this.fetchRemoteConfig(credentials, currentPuuid).finally(
+      () => {
+        if (this.inFlightRefresh?.promise === promise) {
+          this.inFlightRefresh = null;
+        }
+      },
+    );
+    this.inFlightRefresh = { key, promise };
+    return promise;
+  }
+
+  /**
+   * Descarga la configuración remota (tokens, versión, región) y la guarda en caché.
+   */
+  private async fetchRemoteConfig(
+    credentials: RiotAuthCredentials,
+    currentPuuid: string | null,
+  ): Promise<RiotRemoteConfig | null> {
+    const now = Date.now();
 
     try {
       // 1. Token de entitlements del cliente local (127.0.0.1)
@@ -274,13 +313,28 @@ export class RiotClientService {
             ""
           ).toLowerCase();
           if (rawReg.includes("eu")) region = "eu";
+          else if (rawReg.includes("latam") || /^la\d/.test(rawReg))
+            region = "latam";
           else if (rawReg.includes("na")) region = "na";
-          else if (rawReg.includes("latam")) region = "latam";
           else if (rawReg.includes("br")) region = "br";
-          else if (rawReg.includes("ap")) region = "ap";
+          else if (
+            rawReg.includes("ap") ||
+            rawReg.startsWith("jp") ||
+            rawReg.startsWith("oc") ||
+            rawReg.includes("sea")
+          )
+            region = "ap";
           else if (rawReg.includes("kr")) region = "kr";
-          else region = "eu";
-        } catch {
+          else {
+            this.logger.warn(
+              `Región de Riot no reconocida ("${rawReg}"); usando "eu" por defecto. Define VALORANT_REGION para forzarla.`,
+            );
+            region = "eu";
+          }
+        } catch (error) {
+          this.logger.warn(
+            `No se pudo detectar la región de Riot (${error instanceof Error ? error.message : String(error)}); usando "eu" por defecto. Define VALORANT_REGION para forzarla.`,
+          );
           region = "eu";
         }
       }

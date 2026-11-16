@@ -112,8 +112,8 @@
     },
     "files": [
       "dist/**/*",
+      "!dist/machine_learning/**",
       "electron/**/*",
-      "public/**/*",
       "package.json"
     ],
     "extraResources": [

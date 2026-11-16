@@ -265,7 +265,7 @@ export class PlayerProfileTransformer {
         id: match.matchInfo.matchId,
         isWin,
         agentId,
-        mapName: resolveMapName(match.matchInfo.mapId),
+        mapName: resolveMapName(match.matchInfo.mapId) || "Unknown",
         modeName,
         placement,
         isMvp,
@@ -322,7 +322,7 @@ export class PlayerProfileTransformer {
 
       competitiveUpdates.push({
         matchId: cu.MatchID,
-        mapName: resolveMapName(cu.MapID),
+        mapName: resolveMapName(cu.MapID) || "Unknown",
         matchStartTime: cu.MatchStartTime || Date.now(),
         tier,
         tierName,

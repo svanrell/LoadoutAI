@@ -63,13 +63,15 @@ def recommend_buy_strategy(
 
     # Ronda pistol (1 y 13)
     if round_num == 1 or round_num == 13:
+        sidearm = "ghost" if credits >= WEAPON_PRICES["ghost"] else "classic"
+        spend = WEAPON_PRICES[sidearm]
         return {
             "strategy": "pistol",
             "recommended_primary": None,
-            "recommended_sidearm": "ghost",
+            "recommended_sidearm": sidearm,
             "recommended_armor": None,
-            "estimated_spend": WEAPON_PRICES["ghost"],
-            "leftover_credits": max(0, credits - WEAPON_PRICES["ghost"]),
+            "estimated_spend": spend,
+            "leftover_credits": credits - spend,
             "explanation": "Ronda inicial de pistolas: Ghost o Frenzy + utilidad.",
         }
 
@@ -92,8 +94,13 @@ def recommend_buy_strategy(
     min_loss_next = get_loss_reward(streak)
     credits_if_save = credits + min_loss_next
 
-    # Si ahorrando ahora garantizamos full buy la ronda siguiente
-    if credits_if_save >= full_buy_threshold and credits < half_buy_spend + 500:
+    # Eco si no llega para la compra forzada, o si ahorrando ahora
+    # garantizamos full buy la ronda siguiente
+    cannot_afford_force = credits < half_buy_spend
+    save_secures_full_buy = (
+        credits_if_save >= full_buy_threshold and credits < half_buy_spend + 500
+    )
+    if cannot_afford_force or save_secures_full_buy:
         # Eco / Save
         sidearm = "sheriff" if credits >= 800 + 1000 else "classic"
         spend = WEAPON_PRICES[sidearm]
@@ -114,7 +121,7 @@ def recommend_buy_strategy(
         "recommended_sidearm": "classic",
         "recommended_armor": "light_shields",
         "estimated_spend": half_buy_spend,
-        "leftover_credits": max(0, credits - half_buy_spend),
+        "leftover_credits": credits - half_buy_spend,
         "explanation": "Compra forzada de subfusil y blindaje ligero para competir la ronda.",
     }
 

@@ -9,6 +9,7 @@ import {
   AGENT_UUID_TO_NAME,
   AGENT_NAME_TO_UUID,
   AGENT_ROLES,
+  KNOWN_AGENT_ROLES,
   normalizeAgentIdentifier,
   getAgentRole,
 } from "../shared/agent-constants";
@@ -197,13 +198,17 @@ export class ValorantMlEngine {
    * Usa la distribución Multinomial con probabilidad equitativa p = 0.25 para cada rol:
    * P(n_d, n_i, n_c, n_s) = (k! / (n_d! * n_i! * n_c! * n_s!)) * (0.25^k)
    * Devuelve un valor normalizado entre 5% y 100%.
+   * Los agentes de rol desconocido no cuentan: el cálculo se hace como si no estuvieran.
    */
   public computeMultinomialRoleHarmony(teamAgents: string[]): number {
-    const cleaned = teamAgents.map(normalizeAgentName).filter(Boolean);
-    const k = cleaned.length;
+    const roles = teamAgents
+      .map(normalizeAgentName)
+      .filter(Boolean)
+      .map(getAgentRole)
+      .filter((role) => KNOWN_AGENT_ROLES.includes(role));
+    const k = roles.length;
     if (k === 0) return 50.0; // Valor neutro por defecto
 
-    const roles = cleaned.map(getAgentRole);
     const nd = roles.filter((r) => r === "duelist").length;
     const ni = roles.filter((r) => r === "initiator").length;
     const nc = roles.filter((r) => r === "controller").length;

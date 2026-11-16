@@ -81,9 +81,18 @@ export const TIER_NAMES: Record<number, string> = {
   27: "Radiant",
 };
 
+/**
+ * Resuelve la ruta interna de un mapa a su nombre visible.
+ * Devuelve "" si la ruta está vacía o no contiene ningún segmento (nunca un
+ * mapa inventado); los llamadores deben aplicar su propio fallback explícito.
+ * Una ruta no vacía pero desconocida devuelve su último segmento.
+ */
 export function resolveMapName(mapPath: string): string {
-  if (!mapPath) return "Ascent";
+  if (!mapPath) return "";
   if (MAPS_MAP[mapPath]) return MAPS_MAP[mapPath];
+
+  const parts = mapPath.split("/").filter(Boolean);
+  if (parts.length === 0) return "";
 
   const lower = mapPath.toLowerCase();
   for (const [key, name] of Object.entries(MAPS_MAP)) {
@@ -95,8 +104,7 @@ export function resolveMapName(mapPath: string): string {
     }
   }
 
-  const parts = mapPath.split("/").filter(Boolean);
-  const lastPart = parts.length > 0 ? parts[parts.length - 1] : "Ascent";
+  const lastPart = parts[parts.length - 1];
   const reconstructed = `/Game/Maps/${lastPart}/${lastPart}`;
   if (MAPS_MAP[reconstructed]) return MAPS_MAP[reconstructed];
 

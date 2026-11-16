@@ -8,10 +8,12 @@ const fs = require("fs");
 
 let nestApp = null;
 let mainWindow = null;
-let isCleaningUp = false;
+let cleanupPromise = null;
+let readyToQuit = false;
 
 const BACKEND_PORT = parseInt(process.env.PORT || "3000", 10);
 const BACKEND_HOST = process.env.HOST || "127.0.0.1";
+const CLEANUP_TIMEOUT_MS = 5000;
 
 /**
  * Verifica si el backend está activo realizando una comprobación HTTP
@@ -32,9 +34,9 @@ async function checkBackendHealth(port = BACKEND_PORT, host = BACKEND_HOST) {
             return;
           }
         } catch {
-          // Fallback si no es JSON pero devuelve 200
+          // No es JSON: no es el backend de LoadoutAI
         }
-        resolve(res.statusCode === 200);
+        resolve(false);
       });
     });
 
@@ -60,8 +62,6 @@ async function startBackendServer() {
   process.env.ELECTRON_RESOURCES_PATH = resourcesPath;
   process.env.PORT = String(BACKEND_PORT);
   process.env.HOST = BACKEND_HOST;
-  if (!process.env.VALORANT_REGION) process.env.VALORANT_REGION = "eu";
-  if (!process.env.DISCORD_CLIENT_ID) process.env.DISCORD_CLIENT_ID = "1546531760278605984";
 
   const possibleServerPaths = [
     path.join(appPath, "dist", "main.js"),
@@ -91,6 +91,18 @@ async function startBackendServer() {
   return false;
 }
 
+/**
+ * Ruta de un archivo de public/. En el paquete está en resources/public (extraResources;
+ * electron-builder no lo incluye en app.asar). En desarrollo, en la carpeta public del proyecto.
+ */
+function resolvePublicAsset(fileName) {
+  const candidates = [
+    process.resourcesPath ? path.join(process.resourcesPath, "public", fileName) : null,
+    path.join(__dirname, "..", "public", fileName),
+  ].filter(Boolean);
+  return candidates.find((p) => fs.existsSync(p)) || candidates[candidates.length - 1];
+}
+
 async function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
@@ -101,9 +113,7 @@ async function createWindow() {
     autoHideMenuBar: true,
     title: "LoadoutAI - Valorant Tactical AI Assistant",
     backgroundColor: "#05080c",
-    icon: process.platform === "win32"
-      ? path.join(__dirname, "..", "public", "app_icon.ico")
-      : path.join(__dirname, "..", "public", "favicon.png"),
+    icon: resolvePublicAsset(process.platform === "win32" ? "app_icon.ico" : "favicon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
@@ -127,8 +137,15 @@ async function createWindow() {
   const maxRetries = 20; // 10s máximo en intervalos de 500ms
   let reloadTimer = null;
 
-  // Si la carga inicial falla, reintentar con control de reintentos y limpieza de timers
-  win.webContents.on("did-fail-load", () => {
+  // Tras una carga correcta, una caída posterior vuelve a tener todos los reintentos
+  win.webContents.on("did-finish-load", () => {
+    retryCount = 0;
+  });
+
+  // Si la carga falla, reintentar con control de reintentos y limpieza de timers.
+  // Se ignoran los subframes y ERR_ABORTED (-3), que es una navegación cancelada.
+  win.webContents.on("did-fail-load", (_event, errorCode, _errorDescription, _validatedURL, isMainFrame) => {
+    if (!isMainFrame || errorCode === -3) return;
     if (retryCount >= maxRetries) {
       console.error(`Fallo persistente al conectar con el backend tras ${maxRetries} intentos.`);
       return;
@@ -161,47 +178,82 @@ async function createWindow() {
 }
 
 if (app && typeof app.whenReady === "function") {
-  app.whenReady().then(async () => {
-    if (Menu && typeof Menu.setApplicationMenu === "function") {
-      Menu.setApplicationMenu(null);
-    }
-    await startBackendServer();
-    await createWindow();
-
-    app.on("activate", () => {
-      if (BrowserWindow && BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
+  // Una sola instancia: si ya hay una abierta, se enfoca su ventana y esta se cierra
+  if (!app.requestSingleInstanceLock()) {
+    app.quit();
+  } else {
+    app.on("second-instance", () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
       }
     });
-  });
 
-  app.on("before-quit", async () => {
-    await cleanup();
-  });
+    app.whenReady().then(async () => {
+      if (Menu && typeof Menu.setApplicationMenu === "function") {
+        Menu.setApplicationMenu(null);
+      }
+      await startBackendServer();
+      await createWindow();
 
-  app.on("window-all-closed", async () => {
-    await cleanup();
-    if (process.platform !== "darwin") {
-      app.quit();
-    }
-  });
+      app.on("activate", () => {
+        if (BrowserWindow && BrowserWindow.getAllWindows().length === 0) {
+          createWindow();
+        }
+      });
+    });
+
+    // Electron no espera a los handlers async: se cancela la salida, se cierra
+    // el backend y después se vuelve a pedir la salida
+    app.on("before-quit", (event) => {
+      if (readyToQuit) return;
+      event.preventDefault();
+      cleanup().finally(() => {
+        readyToQuit = true;
+        app.quit();
+      });
+    });
+
+    // En macOS la app sigue abierta sin ventanas: el backend se mantiene para que
+    // "activate" pueda abrir otra ventana, y se cierra en before-quit
+    app.on("window-all-closed", () => {
+      if (process.platform !== "darwin") {
+        app.quit();
+      }
+    });
+  }
 }
 
 /**
- * Cierra NestJS de forma segura e idempotente para evitar llamadas dobles.
+ * Cierra NestJS una sola vez; las llamadas siguientes reciben la misma promesa.
+ * Si el cierre se bloquea, se abandona a los CLEANUP_TIMEOUT_MS para no impedir la salida.
  */
-async function cleanup() {
-  if (isCleaningUp) return;
-  isCleaningUp = true;
+function cleanup() {
+  if (!cleanupPromise) {
+    cleanupPromise = closeBackend();
+  }
+  return cleanupPromise;
+}
 
-  if (nestApp && typeof nestApp.close === "function") {
-    try {
-      await nestApp.close();
-      console.log("Servidor NestJS cerrado correctamente.");
-    } catch (e) {
-      console.warn("Aviso al cerrar NestJS:", e.message);
-    }
-    nestApp = null;
+async function closeBackend() {
+  if (!nestApp || typeof nestApp.close !== "function") return;
+  const appToClose = nestApp;
+  nestApp = null;
+
+  let timeoutId = null;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(
+      () => reject(new Error(`no terminó en ${CLEANUP_TIMEOUT_MS} ms`)),
+      CLEANUP_TIMEOUT_MS,
+    );
+  });
+  try {
+    await Promise.race([appToClose.close(), timeout]);
+    console.log("Servidor NestJS cerrado correctamente.");
+  } catch (e) {
+    console.warn("Aviso al cerrar NestJS:", e.message);
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -209,4 +261,5 @@ module.exports = {
   checkBackendHealth,
   startBackendServer,
   cleanup,
+  resolvePublicAsset,
 };
