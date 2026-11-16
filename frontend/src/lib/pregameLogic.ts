@@ -27,6 +27,49 @@ export function buildAgentByUuidMap(agents: Agent[]): Map<string, Agent> {
 }
 
 /**
+ * Construye un mapa en O(1) de agentes indexados por nombre normalizado
+ * (normalizeNameKey: "KAY/O" y "kayo" dan la misma clave).
+ */
+export function buildAgentByNameKeyMap(agents: Agent[]): Map<string, Agent> {
+  const map = new Map<string, Agent>();
+  for (const agent of agents) {
+    const key = normalizeNameKey(agent.displayName);
+    if (key) map.set(key, agent);
+  }
+  return map;
+}
+
+/**
+ * Agente del catálogo que corresponde a una recomendación de la IA:
+ * primero por UUID y, si no hay o no coincide, por nombre normalizado.
+ */
+export function findAgentForRecommendation(
+  recommendation: MLDraftRecommendation,
+  agentByUuidMap: Map<string, Agent>,
+  agentByNameKeyMap: Map<string, Agent>
+): Agent | undefined {
+  return (
+    (recommendation.uuid ? agentByUuidMap.get(recommendation.uuid.toLowerCase()) : undefined) ||
+    agentByNameKeyMap.get(normalizeNameKey(recommendation.agent || recommendation.displayName))
+  );
+}
+
+/**
+ * Busca el impacto (Δ) de un agente por UUID o por nombre normalizado en O(1).
+ */
+export function getAgentImpact(
+  impactMap: Map<string, MLAgentImpact>,
+  agentUuid: string,
+  agentDisplayName: string
+): MLAgentImpact | null {
+  return (
+    impactMap.get(agentUuid.toLowerCase()) ||
+    (agentDisplayName ? impactMap.get(normalizeNameKey(agentDisplayName)) : undefined) ||
+    null
+  );
+}
+
+/**
  * Construye un mapa de recomendaciones de IA indexado por UUID y por nombre normalizado.
  */
 export function buildRecommendationsMap(

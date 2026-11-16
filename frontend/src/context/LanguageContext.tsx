@@ -9,8 +9,6 @@ export interface Translations {
   profile: string;
   draftCoach: string;
   tacticalRadar: string;
-  tierList: string;
-  tools: string;
   crosshairs: string;
   lineups: string;
   map: string;
@@ -85,10 +83,6 @@ export interface Translations {
   noMatchesFound6Months: string;
   playMatchesToSyncHistory: string;
 
-  inDevelopment: string;
-  inDevelopmentDesc: string;
-  tierListDesc: string;
-  toolsDesc: string;
   crosshairsDesc: string;
   lineupsDesc: string;
   backToProfile: string;
@@ -265,8 +259,6 @@ const translations: Record<Language, Translations> = {
     profile: "Perfil",
     draftCoach: "Selección de Agente",
     tacticalRadar: "Selección de Armas",
-    tierList: "Tier List",
-    tools: "Herramientas",
     crosshairs: "Creador de Miras",
     lineups: "Lineups",
     map: "MAPA",
@@ -335,10 +327,6 @@ const translations: Record<Language, Translations> = {
     noMatchesFound6Months: "No se encontraron partidas en los últimos 6 meses en esta cuenta",
     playMatchesToSyncHistory: "Juega partidas en Valorant para sincronizar tu historial y estadísticas en tiempo real.",
 
-    inDevelopment: "Módulo en Desarrollo",
-    inDevelopmentDesc: "Esta funcionalidad está siendo desarrollada e integrada con los modelos de IA y la API de Valorant. Estará disponible próximamente.",
-    tierListDesc: "Tier list automática de agentes, winrates por mapa y combinaciones óptimas en el parche actual.",
-    toolsDesc: "Calculadora de economía táctica, visualizador de lineups y simulador de rondas de pistolas.",
     crosshairsDesc: "Diseña, personaliza y genera códigos oficiales de miras de Valorant en tiempo real.",
     lineupsDesc: "Aprende y domina los mejores lineups tácticos de dardos, molotovs y humos por mapa.",
     lineupsBadge: "BÓVEDA TÁCTICA",
@@ -502,8 +490,6 @@ const translations: Record<Language, Translations> = {
     profile: "Profile",
     draftCoach: "Agent Selection",
     tacticalRadar: "Weapon Selection",
-    tierList: "Tier List",
-    tools: "Tools",
     crosshairs: "Crosshair Creator",
     lineups: "Lineups",
     map: "MAP",
@@ -572,10 +558,6 @@ const translations: Record<Language, Translations> = {
     noMatchesFound6Months: "No matches found in the last 6 months on this account",
     playMatchesToSyncHistory: "Play matches in Valorant to synchronize your history and real-time stats.",
 
-    inDevelopment: "Module In Development",
-    inDevelopmentDesc: "This feature is currently under development and being integrated with our AI models and the Valorant API. It will be available soon.",
-    tierListDesc: "Automated agent tier lists, win rates per map, and optimal team compositions for the current patch.",
-    toolsDesc: "Tactical economy calculator, lineup visualizer, and pistol round simulators.",
     crosshairsDesc: "Design, customize, and generate official Valorant crosshair codes in real time.",
     lineupsDesc: "Learn and master the best tactical recon, molly, and smoke lineups for each map.",
     lineupsBadge: "TACTICAL VAULT",

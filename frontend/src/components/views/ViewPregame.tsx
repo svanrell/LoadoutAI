@@ -7,8 +7,11 @@ import { useLanguage } from "@/context/LanguageContext";
 import { getScoreMeta } from "@/lib/scoreUtils";
 import {
   buildAgentByUuidMap,
+  buildAgentByNameKeyMap,
   buildRecommendationsMap,
   buildImpactMap,
+  findAgentForRecommendation,
+  getAgentImpact,
   getAgentRecommendation,
   filterAndSortAgents,
   getPickedPlayers,
@@ -47,6 +50,8 @@ export default function ViewPregame() {
 
   // useMemo (Mapa 1): Indexa los agentes por UUID para buscarlos en O(1) instantáneo
   const agentByUuidMap = useMemo(() => buildAgentByUuidMap(agents), [agents]);
+  // Y por nombre normalizado, para recomendaciones que llegan sin UUID
+  const agentByNameKeyMap = useMemo(() => buildAgentByNameKeyMap(agents), [agents]);
 
   // useMemo (Mapa 2): Indexa las recomendaciones de la IA por UUID y nombre para evitar búsquedas lentas
   const recMap = useMemo(() => buildRecommendationsMap(mlRecommendations), [mlRecommendations]);
@@ -181,12 +186,7 @@ export default function ViewPregame() {
             const displayAgentName = matchedAgent ? matchedAgent.displayName : t.selecting;
 
             const agentImpact = player.agentId
-              ? impactMap.get(player.agentId.toLowerCase()) ||
-                (matchedAgent
-                  ? impactMap.get(
-                      matchedAgent.displayName.toLowerCase().replace(/[^a-z0-9]/g, "")
-                    )
-                  : null)
+              ? getAgentImpact(impactMap, player.agentId, matchedAgent?.displayName ?? "")
               : null;
 
             let playerStatusLabel = t.openStatus;
@@ -557,23 +557,15 @@ export default function ViewPregame() {
                 ))
               ) : mlRecommendations && mlRecommendations.length > 0 ? (
                 mlRecommendations.slice(0, 5).map((recommendation: MLDraftRecommendation, rankIndex: number) => {
-                  const targetAgent =
-                    typeof recommendation === "object" && recommendation.uuid
-                      ? agents.find(
-                          (agent) =>
-                            agent.uuid.toLowerCase() === recommendation.uuid.toLowerCase() ||
-                            agent.displayName.toLowerCase() === recommendation.agent.toLowerCase()
-                        )
-                      : agents.find(
-                          (agent) =>
-                            agent.displayName.toLowerCase() === String(recommendation).toLowerCase()
-                        );
+                  const targetAgent = findAgentForRecommendation(
+                    recommendation,
+                    agentByUuidMap,
+                    agentByNameKeyMap
+                  );
 
                   const targetAgentName = targetAgent
                     ? targetAgent.displayName
-                    : typeof recommendation === "object"
-                    ? recommendation.displayName || recommendation.agent
-                    : String(recommendation);
+                    : recommendation.displayName || recommendation.agent;
 
                   const estimatedWinRate =
                     typeof recommendation === "object" && recommendation.winRate

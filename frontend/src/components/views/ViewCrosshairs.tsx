@@ -5,23 +5,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useCrosshair } from "@/hooks/useCrosshair";
 import { CrosshairIcon, RefreshIcon } from "@/components/Icons";
 import {
-  CrosshairConfig,
-  CrosshairPreset,
-} from "@/data";
-import {
   CrosshairPreview,
   CrosshairSettingsTable,
   CrosshairImportModal,
 } from "@/components/crosshair";
 
-export type { CrosshairConfig, CrosshairPreset };
-
-interface ViewCrosshairsProps {
-  presets?: CrosshairPreset[];
-  onSave?: (config: CrosshairConfig, code: string) => void;
-}
-
-export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
+export default function ViewCrosshairs() {
   const { setView } = useGameState();
   const { t, language } = useLanguage();
 
@@ -39,7 +28,6 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
     randomizeCrosshair,
     applyImportCode,
     copyCode,
-    saveCrosshair,
   } = useCrosshair();
 
   return (
@@ -174,7 +162,6 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
           copied={copied}
           onRandom={randomizeCrosshair}
           onReset={resetCrosshair}
-          onSave={onSave ? () => saveCrosshair(onSave) : undefined}
         />
       </div>
 
