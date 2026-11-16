@@ -2,6 +2,9 @@ import os
 from collections import defaultdict
 import pandas as pd
 
+# Columnas mínimas de player_stats.csv en el dataset vct_2021_2026
+VCT_PLAYER_STATS_COLUMNS = {"match_id", "map", "team", "player", "agent", "year"}
+
 
 def load_dataset(csv_file_path: str) -> pd.DataFrame:
     """Carga un archivo CSV desde una ruta dada."""
@@ -125,8 +128,26 @@ def get_clean_draft_dataset(
     if csv_file_path is not None:
         if not os.path.exists(csv_file_path):
             raise FileNotFoundError(f"No se encontró el archivo CSV especificado: {csv_file_path}")
-        raw_df = pd.read_csv(csv_file_path)
-        return parse_and_flatten_compositions(raw_df)
+
+        # Detectar el formato leyendo solo la cabecera
+        columns = set(pd.read_csv(csv_file_path, nrows=0).columns)
+
+        # Formato champions_paris_2025 (detailed_matches_player_stats.csv)
+        if "stat_type" in columns:
+            raw_df = pd.read_csv(csv_file_path)
+            return parse_and_flatten_compositions(raw_df)
+
+        # Formato vct_2021_2026 (player_stats.csv + maps.csv en la misma carpeta)
+        if VCT_PLAYER_STATS_COLUMNS.issubset(columns):
+            return load_clean_vct_compositions(
+                vct_dir=os.path.dirname(os.path.abspath(csv_file_path)),
+                min_year=min_year,
+            )
+
+        raise ValueError(
+            f"Formato de CSV no reconocido en {csv_file_path}. Se esperaba la columna 'stat_type' "
+            f"(champions_paris_2025) o las columnas {sorted(VCT_PLAYER_STATS_COLUMNS)} (vct_2021_2026)."
+        )
 
     vct_df = load_clean_vct_compositions(vct_dir=vct_dir, min_year=min_year)
     if not vct_df.empty:

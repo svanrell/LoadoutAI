@@ -60,7 +60,6 @@ async function startBackendServer() {
   process.env.ELECTRON_RESOURCES_PATH = resourcesPath;
   process.env.PORT = String(BACKEND_PORT);
   process.env.HOST = BACKEND_HOST;
-  if (!process.env.VALORANT_REGION) process.env.VALORANT_REGION = "eu";
   if (!process.env.DISCORD_CLIENT_ID) process.env.DISCORD_CLIENT_ID = "1546531760278605984";
 
   const possibleServerPaths = [
