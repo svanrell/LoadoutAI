@@ -103,7 +103,9 @@ export interface Translations {
   lineupsShowingMany: string;
   lineupsClearFilters: string;
   lineupsEmptyTitle: string;
-  lineupsEmptyNoData: string;
+  lineupsComingSoonBadge: string;
+  lineupsComingSoonTitle: string;
+  lineupsComingSoonDesc: string;
   lineupsEmptyNoMatch: string;
   lineupsSite: string;
   lineupsDifficultyEasy: string;
@@ -345,7 +347,9 @@ const translations: Record<Language, Translations> = {
     lineupsShowingMany: "Mostrando {count} lineups",
     lineupsClearFilters: "LIMPIAR FILTROS ↺",
     lineupsEmptyTitle: "Sin lineups para mostrar",
-    lineupsEmptyNoData: "Todavía no hay lineups disponibles.",
+    lineupsComingSoonBadge: "PRONTO",
+    lineupsComingSoonTitle: "Próximamente",
+    lineupsComingSoonDesc: "Estamos preparando la colección de lineups tácticos. Estará disponible pronto.",
     lineupsEmptyNoMatch: "Ningún lineup coincide con los filtros seleccionados.",
     lineupsSite: "ZONA",
     lineupsDifficultyEasy: "Fácil",
@@ -578,7 +582,9 @@ const translations: Record<Language, Translations> = {
     lineupsShowingMany: "Showing {count} lineups",
     lineupsClearFilters: "CLEAR FILTERS ↺",
     lineupsEmptyTitle: "No lineups to display",
-    lineupsEmptyNoData: "There are no lineups available yet.",
+    lineupsComingSoonBadge: "SOON",
+    lineupsComingSoonTitle: "Coming soon",
+    lineupsComingSoonDesc: "We are preparing the tactical lineup collection. It will be available soon.",
     lineupsEmptyNoMatch: "No lineups match the selected filters.",
     lineupsSite: "SITE",
     lineupsDifficultyEasy: "Easy",

@@ -51,6 +51,92 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
     filteredLineups.length === 1 ? t.lineupsShowingOne : t.lineupsShowingMany
   ).replace("{count}", String(filteredLineups.length));
 
+  // Sin lineups todavía: pantalla de "Próximamente" en lugar de filtros sobre una lista vacía
+  if (lineups.length === 0) {
+    return (
+      <div
+        className="state-view active"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          padding: "24px 20px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            background: "linear-gradient(135deg, rgba(16, 22, 34, 0.95), rgba(11, 18, 25, 0.9))",
+            border: "1px solid var(--border-cyber)",
+            borderRadius: "10px",
+            padding: "36px 28px",
+            maxWidth: "460px",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+            textAlign: "center",
+            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          <div
+            style={{
+              width: "52px",
+              height: "52px",
+              borderRadius: "10px",
+              background: "rgba(16, 185, 129, 0.12)",
+              border: "1.5px solid var(--color-green)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--color-green)",
+            }}
+          >
+            <LineupIcon size={26} />
+          </div>
+          <span
+            style={{
+              fontSize: "9.5px",
+              fontWeight: 800,
+              padding: "2px 8px",
+              borderRadius: "10px",
+              background: "rgba(16, 185, 129, 0.15)",
+              border: "1px solid rgba(16, 185, 129, 0.4)",
+              color: "var(--color-green)",
+              letterSpacing: "0.5px",
+            }}
+          >
+            {t.lineups.toUpperCase()}
+          </span>
+          <h1
+            style={{
+              fontFamily: "Orbitron, sans-serif",
+              fontSize: "20px",
+              fontWeight: 800,
+              color: "var(--text-main)",
+              letterSpacing: "1px",
+              margin: 0,
+            }}
+          >
+            {t.lineupsComingSoonTitle}
+          </h1>
+          <p style={{ fontSize: "12.5px", color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>
+            {t.lineupsComingSoonDesc}
+          </p>
+          <button
+            className="cyber-btn-secondary"
+            onClick={() => setView("menu")}
+            style={{ marginTop: "6px", padding: "7px 14px", fontSize: "11px", fontWeight: 700 }}
+          >
+            {t.backToProfile}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="state-view active"
@@ -346,7 +432,7 @@ export default function ViewLineups({ lineups = [] }: ViewLineupsProps) {
             {t.lineupsEmptyTitle}
           </div>
           <p style={{ fontSize: "12px", maxWidth: "450px", margin: 0, lineHeight: 1.5 }}>
-            {lineups.length === 0 ? t.lineupsEmptyNoData : t.lineupsEmptyNoMatch}
+            {t.lineupsEmptyNoMatch}
           </p>
         </div>
       ) : (

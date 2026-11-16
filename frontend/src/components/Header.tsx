@@ -3,6 +3,7 @@
 import { useGameState } from "@/hooks/useGameState";
 import { useLanguage } from "@/context/LanguageContext";
 import { DEFAULT_MAP_NAMES } from "@/data/mapsData";
+import { LINEUPS } from "@/data/lineupsData";
 import { DEFAULT_GAME_MODES, getGameModeName } from "@/data/gameModesData";
 import {
   ProfileIcon,
@@ -101,10 +102,11 @@ export default function Header() {
         <button
           className={`nav-tab ${isLineupsActive ? "active" : ""}`}
           onClick={() => setView("lineups")}
-          title={t.lineups}
+          title={LINEUPS.length === 0 ? `${t.lineups} · ${t.lineupsComingSoonTitle}` : t.lineups}
         >
           <LineupIcon size={15} />
           <span className="nav-tab-label">{t.lineups}</span>
+          {LINEUPS.length === 0 && <span className="nav-tab-badge">{t.lineupsComingSoonBadge}</span>}
         </button>
       </nav>
 
