@@ -3,8 +3,10 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const packageJson = require("../package.json");
-const version = packageJson.version || "1.0.0";
+/** Espera sin ocupar la CPU (el script es síncrono) */
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
 
 const tempOut = path.join(os.tmpdir(), "loadout-build");
 console.log("Directorio temporal de compilación:", tempOut);
@@ -42,11 +44,7 @@ if (exeFiles.length > 0) {
       } catch (err) {
         if (err.code === "EBUSY" || err.code === "EPERM") {
           console.warn(`[Intento ${attempt}/5] Archivo ${exe} bloqueado (¿está LoadoutAI abierto?). Esperando 2s...`);
-          const sleep = (ms) => {
-            const end = Date.now() + ms;
-            while (Date.now() < end) {}
-          };
-          sleep(2000);
+          sleepSync(2000);
         } else {
           throw err;
         }

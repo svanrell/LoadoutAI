@@ -91,7 +91,17 @@ export function normalizeAgentIdentifier(raw: string): string {
   return AGENT_UUID_TO_NAME[cleaned] || cleaned;
 }
 
+/** Rol de un agente que no está en AGENT_ROLES (p. ej. uno recién lanzado) */
+export const UNKNOWN_AGENT_ROLE = "unknown";
+
+export const KNOWN_AGENT_ROLES: readonly string[] = [
+  "duelist",
+  "initiator",
+  "controller",
+  "sentinel",
+];
+
 export function getAgentRole(agentIdentifier: string): string {
   const canonical = normalizeAgentIdentifier(agentIdentifier);
-  return AGENT_ROLES[canonical] || "duelist";
+  return AGENT_ROLES[canonical] || UNKNOWN_AGENT_ROLE;
 }

@@ -13,16 +13,29 @@ def load_dataset(csv_file_path: str) -> pd.DataFrame:
     return pd.read_csv(csv_file_path)
 
 
-def get_year_weight(year: int | float) -> float:
+CURRENT_META_WEIGHT = 3.5
+
+
+def keep_valid_matchups(candidate_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Conserva solo las partidas/mapas con exactamente dos equipos y un único ganador.
+    Vectorizado con groupby().transform en lugar de recorrer fila a fila.
+    """
+    if candidate_df.empty:
+        return candidate_df
+
+    won_by_match = candidate_df.groupby(["match_id", "map_name"])["won"]
+    is_valid = (won_by_match.transform("size") == 2) & (won_by_match.transform("sum") == 1)
+    return candidate_df[is_valid].copy()
+
+
+def get_year_weight(year: int | float, current_meta_year: int) -> float:
     """
     Devuelve la importancia de la partida:
-    - 2026: peso 3.5x (meta actual)
-    - 2025: peso 1.0x (meta año pasado)
+    - Año del meta actual (el más reciente del dataset): peso 3.5x
+    - Años anteriores: peso 1.0x
     """
-    if year == 2026:
-        return 3.5
-    else:
-        return 1.0
+    return CURRENT_META_WEIGHT if year == current_meta_year else 1.0
 
 
 def load_clean_vct_compositions(
@@ -53,9 +66,14 @@ def load_clean_vct_compositions(
         usecols=["match_id", "map", "winner"],
     )
 
-    # Paso 2: Filtrar años recientes (>= 2025) y unir con el ganador del mapa
+    # Paso 2: Filtrar años recientes (>= min_year) y unir con el ganador del mapa
     recent_players = players_df[players_df["year"] >= min_year]
     merged_df = recent_players.merge(maps_df, on=["match_id", "map"])
+    if merged_df.empty:
+        return pd.DataFrame()
+
+    # El meta actual es el año más reciente que haya en los datos
+    current_meta_year = int(merged_df["year"].max())
 
     # Paso 3: Agrupar los 5 jugadores de cada equipo por partida y mapa con validaciones estrictas
     clean_rows = []
@@ -94,21 +112,13 @@ def load_clean_vct_compositions(
             "player_agent_map": dict(zip(player_list, agent_list)),
             "won": won,
             "year": year,
-            "weight": get_year_weight(year),
+            "weight": get_year_weight(year, current_meta_year),
         })
 
-    candidate_df = pd.DataFrame(clean_rows)
-    if candidate_df.empty:
-        return candidate_df
-
     # 4. Comprobar que cada partida/mapa tenga exactamente dos equipos y un solo ganador
-    valid_match_maps = []
-    for (match_id, map_name), match_group in candidate_df.groupby(["match_id", "map_name"]):
-        if len(match_group) == 2 and match_group["won"].sum() == 1:
-            valid_match_maps.append((match_id, map_name))
-
-    valid_keys = set(valid_match_maps)
-    final_df = candidate_df[candidate_df.apply(lambda r: (r["match_id"], r["map_name"]) in valid_keys, axis=1)].copy()
+    final_df = keep_valid_matchups(pd.DataFrame(clean_rows))
+    if final_df.empty:
+        return final_df
 
     print(f"Limpieza de composiciones VCT: {len(final_df)} equipos válidos ({len(final_df) // 2} partidas) de {total_raw_teams} candidatos evaluados.")
     return final_df
@@ -172,7 +182,8 @@ def load_agent_pick_rates(
     clean_df: pd.DataFrame | None = None,
 ) -> dict[str, dict[str, float]]:
     """
-    Calcula el % de uso (Pick Rate) de cada agente por mapa ponderando 2026 con 3.5x.
+    Calcula el % de uso (Pick Rate) de cada agente por mapa, con el peso de cada
+    partida (3.5x para el año del meta actual).
     Optimizado: itera por tuplas ultrarrápidas en memoria.
     """
     if clean_df is None:
@@ -269,17 +280,7 @@ def parse_and_flatten_compositions(raw_dataframe: pd.DataFrame) -> pd.DataFrame:
                 "weight": 1.0,
             })
 
-    candidate_df = pd.DataFrame(clean_records)
-    if candidate_df.empty:
-        return candidate_df
-
-    valid_match_maps = []
-    for (match_id, map_name), match_group in candidate_df.groupby(["match_id", "map_name"]):
-        if len(match_group) == 2 and match_group["won"].sum() == 1:
-            valid_match_maps.append((match_id, map_name))
-
-    valid_keys = set(valid_match_maps)
-    return candidate_df[candidate_df.apply(lambda r: (r["match_id"], r["map_name"]) in valid_keys, axis=1)].copy()
+    return keep_valid_matchups(pd.DataFrame(clean_records))
 
 
 

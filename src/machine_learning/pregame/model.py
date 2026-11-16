@@ -4,7 +4,7 @@ import json
 import joblib
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GroupKFold, cross_val_score
+from sklearn.model_selection import GroupKFold, cross_validate
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 if PROJECT_ROOT not in sys.path:
@@ -37,24 +37,18 @@ def train_draft_model(
         if sample_weights is not None:
             fit_params["sample_weight"] = sample_weights
 
-        auc_scores = cross_val_score(
+        # Una sola pasada de entrenamiento por partición para las dos métricas
+        cv_results = cross_validate(
             LogisticRegression(C=1.0, random_state=42),
             features_matrix_X,
             target_y,
             groups=groups,
             cv=cv,
-            scoring="roc_auc",
+            scoring=["roc_auc", "accuracy"],
             params=fit_params if fit_params else None,
         )
-        acc_scores = cross_val_score(
-            LogisticRegression(C=1.0, random_state=42),
-            features_matrix_X,
-            target_y,
-            groups=groups,
-            cv=cv,
-            scoring="accuracy",
-            params=fit_params if fit_params else None,
-        )
+        auc_scores = cv_results["test_roc_auc"]
+        acc_scores = cv_results["test_accuracy"]
 
         print(f"GroupKFold (n_splits={n_splits}) - Partidas agrupadas para evitar fuga de datos:")
         print(f"ROC-AUC Score (Capacidad predictiva): {auc_scores.mean():.4f} (+/- {auc_scores.std():.4f})")

@@ -67,7 +67,13 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 
   const host = process.env.HOST || "127.0.0.1";
   const port = process.env.PORT || 3000;
-  await app.listen(port, host);
+  try {
+    await app.listen(port, host);
+  } catch (error) {
+    // listen() ya ha ejecutado init(): cerrar para parar el poller y Discord RPC
+    await app.close().catch(() => undefined);
+    throw error;
+  }
   console.log(`Loadout AI Server running on http://${host}:${port}`);
 
   appInstance = app;

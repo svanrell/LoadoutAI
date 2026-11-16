@@ -17,6 +17,8 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
   private isConnected = false;
   private matchStartTimestamp: Date | null = null;
   private reconnectInterval: NodeJS.Timeout | null = null;
+  /** true tras destroy(): no se reconecta y se cierra cualquier conexión tardía */
+  private isShuttingDown = false;
 
   private lastActivity: LastRpcActivity = { type: "idle" };
   private currentLanguage: RpcLanguage = this.detectSystemLanguage();
@@ -84,6 +86,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
   }
 
   private connect() {
+    if (this.isShuttingDown) return;
     const clientId = this.getClientId();
     if (!clientId) {
       this.logger.warn(
@@ -92,9 +95,16 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
       return;
     }
     try {
-      this.client = new Client({ clientId });
+      const client = new Client({ clientId });
+      this.client = client;
 
-      this.client.on("ready", () => {
+      client.on("ready", () => {
+        // destroy() pudo llegar mientras login() estaba en curso: cerrar la
+        // conexión tardía para que no quede abierta tras apagar el backend
+        if (this.isShuttingDown || this.client !== client) {
+          client.destroy().catch(() => {});
+          return;
+        }
         this.isConnected = true;
         this.logger.log(
           `Conectado a DISCORD como ${this.client?.user?.username}`,
@@ -106,13 +116,15 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
         }
       });
 
-      this.client.on("disconnected", () => {
+      client.on("disconnected", () => {
+        if (this.isShuttingDown || this.client !== client) return;
         this.isConnected = false;
         this.logger.warn(`Desconectado de Discord. Reintentando...`);
         this.scheduleReconnect();
       });
 
-      this.client.login().catch((error) => {
+      client.login().catch((error) => {
+        if (this.isShuttingDown) return;
         this.logger.debug(
           `No se pudo conectar a Discord Local (¿está Discord abierto?): ${error.message}`,
         );
@@ -124,7 +136,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
   }
 
   private scheduleReconnect() {
-    if (this.reconnectInterval) return;
+    if (this.reconnectInterval || this.isShuttingDown) return;
     this.reconnectInterval = setInterval(() => {
       if (!this.isConnected) {
         if (this.client) {
@@ -274,6 +286,7 @@ export class DiscordRpcService implements OnModuleInit, OnModuleDestroy {
   }
 
   public destroy() {
+    this.isShuttingDown = true;
     if (this.reconnectInterval) {
       clearInterval(this.reconnectInterval);
       this.reconnectInterval = null;
