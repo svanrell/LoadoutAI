@@ -12,6 +12,8 @@ import {
   getAgentRecommendation,
   filterAndSortAgents,
   getPickedPlayers,
+  getLockedPlayers,
+  getAgentTeamStatus,
   getPickedAgentsList,
   isDraftCompleted,
 } from "@/lib/pregameLogic";
@@ -52,11 +54,34 @@ export default function ViewPregame() {
   // useMemo (Mapa 3): Indexa los impactos individuales (deltas ▲/▼) de cada agente
   const impactMap = useMemo(() => buildImpactMap(mlAgentImpacts), [mlAgentImpacts]);
 
-  // Jugadores del equipo que ya han elegido un personaje
+  // Jugadores del equipo que ya han elegido un personaje (pre-pick o bloqueado)
   const pickedPlayers = useMemo(() => getPickedPlayers(myTeam), [myTeam]);
   const pickedAgentsCount = pickedPlayers.length;
-  // Cuando hay 5 agentes seleccionados, el draft se da por completado
-  const isDraftComplete = isDraftCompleted(pickedAgentsCount);
+  // Solo cuentan como bloqueados los que han fijado su agente
+  const lockedAgentsCount = useMemo(() => getLockedPlayers(myTeam).length, [myTeam]);
+  // El draft termina cuando los 5 han bloqueado (un pre-pick no basta)
+  const isDraftComplete = isDraftCompleted(lockedAgentsCount);
+
+  // Clic en un agente (tarjeta, cuadrícula o recomendación).
+  // - Bloqueado por alguien: no se puede elegir.
+  // - Ya en el equipo en pre-pick: solo se enfoca para poder fijarlo. No se llama a
+  //   selectAgent, que en modo offline lo quitaría del hueco de otro jugador.
+  // - Libre: se selecciona.
+  const handleAgentClick = (agentUuid: string) => {
+    const status = getAgentTeamStatus(myTeam, agentUuid);
+    if (status === "locked") return;
+    setSelectedAgentUuid(agentUuid);
+    if (status === "free") selectAgent(agentUuid);
+  };
+
+  // Botón PICK/LOCK de la tarjeta: selecciona si hace falta y fija el agente
+  const handlePickAndLock = (agentUuid: string) => {
+    const status = getAgentTeamStatus(myTeam, agentUuid);
+    if (status === "locked") return;
+    setSelectedAgentUuid(agentUuid);
+    if (status === "free") selectAgent(agentUuid);
+    lockAgent(agentUuid);
+  };
 
   // useMemo: Lista de agentes ya elegidos por el equipo para el resumen final
   const pickedAgentsList = useMemo(
@@ -419,7 +444,7 @@ export default function ViewPregame() {
                       <div className="synergy-analysis-item" style={{ fontSize: "0.72rem" }}>
                         <strong className="strong-label" style={{ fontSize: "0.6rem", padding: "0.1rem 0.3rem" }}>{t.picksLocked}</strong>
                         <span className="synergy-analysis-text">
-                          {pickedAgentsCount} {t.of5Agents}
+                          {lockedAgentsCount} {t.of5Agents}
                         </span>
                       </div>
                       <div className="synergy-analysis-item" style={{ fontSize: "0.72rem" }}>
@@ -561,10 +586,7 @@ export default function ViewPregame() {
                     <div
                       key={rankIndex}
                       onClick={() => {
-                        if (targetAgent) {
-                          setSelectedAgentUuid(targetAgent.uuid);
-                          selectAgent(targetAgent.uuid);
-                        }
+                        if (targetAgent) handleAgentClick(targetAgent.uuid);
                       }}
                       style={{
                         display: "flex",
@@ -816,9 +838,12 @@ export default function ViewPregame() {
                 const agentRecommendation = getAgentRecommendation(recMap, agent.uuid, agent.displayName);
                 const estimatedWinRate = agentRecommendation ? agentRecommendation.winRate : null;
                 const isCurrentAgentSelected = selectedAgentUuid === agent.uuid;
-                const isAgentPickedByTeam = myTeam.some(
-                  (p) => (p.agentId || "").toLowerCase() === agent.uuid.toLowerCase()
-                );
+                const agentTeamStatus = getAgentTeamStatus(myTeam, agent.uuid);
+                // En el equipo (pre-pick o bloqueado): se marca como "EQUIPO"
+                const isAgentPickedByTeam = agentTeamStatus !== "free";
+                // Solo un agente bloqueado deja de poder elegirse; un pre-pick (también
+                // el propio) se puede fijar con LOCK
+                const isAgentLockedByTeam = agentTeamStatus === "locked";
 
                 return (
                   <div
@@ -840,19 +865,14 @@ export default function ViewPregame() {
                         ? "1px solid rgba(0, 255, 136, 0.25)"
                         : "1px solid rgba(0, 243, 255, 0.18)",
                       borderRadius: "0.3rem",
-                      cursor: isAgentPickedByTeam ? "default" : "pointer",
+                      cursor: isAgentLockedByTeam ? "default" : "pointer",
                       transition: "all 0.18s ease",
                       gap: "0.4rem",
                       minWidth: 0,
                       height: "100%",
                       boxSizing: "border-box",
                     }}
-                    onClick={() => {
-                      if (!isAgentPickedByTeam) {
-                        setSelectedAgentUuid(agent.uuid);
-                        selectAgent(agent.uuid);
-                      }
-                    }}
+                    onClick={() => handleAgentClick(agent.uuid)}
                   >
                     {/* Foto + Nombre + Rol */}
                     <div
@@ -1010,7 +1030,7 @@ export default function ViewPregame() {
 
                       <button
                         type="button"
-                        disabled={isAgentPickedByTeam}
+                        disabled={isAgentLockedByTeam}
                         className={`synergy-pick-btn ${isCurrentAgentSelected ? "selected" : ""}`}
                         style={{
                           padding: "0.16rem 0.4rem",
@@ -1021,16 +1041,16 @@ export default function ViewPregame() {
                           letterSpacing: "0.03em",
                           borderRadius: "0.18rem",
                           border: "none",
-                          cursor: isAgentPickedByTeam ? "default" : "pointer",
+                          cursor: isAgentLockedByTeam ? "default" : "pointer",
                           whiteSpace: "nowrap",
                           width: "100%",
                           transition: "all 0.18s ease",
-                          background: isAgentPickedByTeam
+                          background: isAgentLockedByTeam
                             ? "rgba(255, 255, 255, 0.06)"
                             : isCurrentAgentSelected
                             ? "var(--color-red)"
                             : "rgba(255, 70, 85, 0.22)",
-                          color: isAgentPickedByTeam ? "var(--text-muted)" : "#ffffff",
+                          color: isAgentLockedByTeam ? "var(--text-muted)" : "#ffffff",
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1038,14 +1058,10 @@ export default function ViewPregame() {
                         }}
                         onClick={(event) => {
                           event.stopPropagation();
-                          if (!isAgentPickedByTeam) {
-                            setSelectedAgentUuid(agent.uuid);
-                            selectAgent(agent.uuid);
-                            lockAgent(agent.uuid);
-                          }
+                          handlePickAndLock(agent.uuid);
                         }}
                       >
-                        {isAgentPickedByTeam
+                        {isAgentLockedByTeam
                           ? t.fixed
                           : isCurrentAgentSelected
                           ? t.lock
@@ -1124,10 +1140,7 @@ export default function ViewPregame() {
               <div
                 key={agent.uuid}
                 className={`agent-grid-item ${selectedAgentUuid === agent.uuid ? "selected" : ""}`}
-                onClick={() => {
-                  setSelectedAgentUuid(agent.uuid);
-                  selectAgent(agent.uuid);
-                }}
+                onClick={() => handleAgentClick(agent.uuid)}
               >
                 <img
                   src={agent.displayIcon}
@@ -1279,7 +1292,7 @@ export default function ViewPregame() {
                 className="lock-btn"
                 disabled={!selectedAgent}
                 onClick={() => {
-                  if (selectedAgent) lockAgent(selectedAgent.uuid);
+                  if (selectedAgent) handlePickAndLock(selectedAgent.uuid);
                 }}
                 style={{
                   padding: "0 0.65rem",

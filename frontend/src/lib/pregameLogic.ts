@@ -106,10 +106,34 @@ export function filterAndSortAgents(
 }
 
 /**
- * Obtiene los jugadores del equipo que ya han seleccionado un agente.
+ * Obtiene los jugadores del equipo que ya han seleccionado un agente
+ * (pre-pick o bloqueado).
  */
 export function getPickedPlayers(myTeam: Player[]): Player[] {
   return myTeam.filter((player) => Boolean(player.agentId && player.agentId.trim() !== ""));
+}
+
+/**
+ * Jugadores que han bloqueado su agente. Un pre-pick ("selected") no cuenta.
+ */
+export function getLockedPlayers(myTeam: Player[]): Player[] {
+  return getPickedPlayers(myTeam).filter((player) => player.state === "locked");
+}
+
+/**
+ * Situación de un agente en el equipo:
+ * - "free": nadie lo tiene.
+ * - "onTeam": alguien lo tiene en pre-pick (también puede ser el propio jugador);
+ *   todavía se puede bloquear.
+ * - "locked": alguien lo ha bloqueado; ya no se puede elegir.
+ */
+export type AgentTeamStatus = "free" | "onTeam" | "locked";
+
+export function getAgentTeamStatus(myTeam: Player[], agentUuid: string): AgentTeamStatus {
+  const uuid = agentUuid.toLowerCase();
+  const holders = myTeam.filter((player) => (player.agentId || "").toLowerCase() === uuid);
+  if (holders.length === 0) return "free";
+  return holders.some((player) => player.state === "locked") ? "locked" : "onTeam";
 }
 
 /**
@@ -125,8 +149,9 @@ export function getPickedAgentsList(
 }
 
 /**
- * Determina si el draft se ha completado (5 agentes fijados/seleccionados).
+ * Determina si el draft se ha completado: los 5 jugadores han bloqueado su agente.
+ * Recibe el número de jugadores bloqueados (getLockedPlayers), no el de pre-picks.
  */
-export function isDraftCompleted(pickedCount: number): boolean {
-  return pickedCount >= 5;
+export function isDraftCompleted(lockedCount: number): boolean {
+  return lockedCount >= 5;
 }
