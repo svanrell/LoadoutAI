@@ -98,7 +98,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
                   color: "#ffffff",
                 }}
               >
-                {language === "es" ? "CREADOR DE MIRAS" : "CROSSHAIR CREATOR"}
+                {t.crosshairCreatorTitle}
               </h2>
               <span
                 style={{
@@ -112,7 +112,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
                   letterSpacing: "0.5px",
                 }}
               >
-                CUSTOM RETICLE
+                {t.crosshairCustomReticle}
               </span>
             </div>
             <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px", marginBottom: 0 }}>
@@ -135,7 +135,7 @@ export default function ViewCrosshairs({ onSave }: ViewCrosshairsProps) {
             }}
           >
             <RefreshIcon size={12} />
-            {language === "es" ? "RESTABLECER" : "RESET"}
+            {t.crosshairReset}
           </button>
           <button
             className="cyber-btn-secondary"

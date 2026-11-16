@@ -167,7 +167,7 @@ export default function ViewMenu() {
                   <div key={ag.agentId} className="agent-mini-item">
                     <img
                       src={icon}
-                      alt={found?.displayName || "Agent"}
+                      alt={found?.displayName || t.agentRoleFallback}
                       className="agent-mini-img"
                     />
                     <div className="agent-mini-text">
@@ -194,7 +194,7 @@ export default function ViewMenu() {
             <div className="rank-header-badge">
               <img
                 src={getRankIconUrl(playerProfile?.currentTier ?? 0)}
-                alt={playerProfile?.rankName || "Rank"}
+                alt={playerProfile?.rankName || t.rankIconAlt}
                 className="rank-header-icon"
               />
               <div className="rank-header-text-group">
@@ -469,10 +469,10 @@ export default function ViewMenu() {
                   height={chartDimensions.height}
                 >
                   {[
-                    { tierNum: 15, label: language === "es" ? "PLATINO" : "PLATINUM", color: "#06b6d4", topRatio: 0.00, heightRatio: 0.25 },
-                    { tierNum: 12, label: language === "es" ? "ORO" : "GOLD", color: "#eab308", topRatio: 0.25, heightRatio: 0.25 },
-                    { tierNum: 9, label: language === "es" ? "PLATA" : "SILVER", color: "#cbd5e1", topRatio: 0.50, heightRatio: 0.25 },
-                    { tierNum: 6, label: language === "es" ? "BRONCE" : "BRONZE", color: "#b45309", topRatio: 0.75, heightRatio: 0.25 },
+                    { tierNum: 15, label: t.rankBandPlatinum, color: "#06b6d4", topRatio: 0.00, heightRatio: 0.25 },
+                    { tierNum: 12, label: t.rankBandGold, color: "#eab308", topRatio: 0.25, heightRatio: 0.25 },
+                    { tierNum: 9, label: t.rankBandSilver, color: "#cbd5e1", topRatio: 0.50, heightRatio: 0.25 },
+                    { tierNum: 6, label: t.rankBandBronze, color: "#b45309", topRatio: 0.75, heightRatio: 0.25 },
                   ].map((band, i) => {
                     const rootFontSize =
                       typeof window !== "undefined"

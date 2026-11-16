@@ -135,7 +135,7 @@ export default function ViewPregame() {
           <span>{lastError.error}</span>
           <button
             onClick={clearError}
-            aria-label="Dismiss error"
+            aria-label={t.dismissError}
             style={{
               background: "transparent",
               border: "none",
@@ -334,7 +334,7 @@ export default function ViewPregame() {
                     </span>
                     {agentImpact && typeof agentImpact.impactDelta === "number" && (
                       <span
-                        title={`Aporte a la sinergia del equipo: ${agentImpact.impactDelta > 0 ? "+" : ""}${agentImpact.impactDelta.toFixed(1)}%`}
+                        title={t.synergyContributionTitle.replace("{delta}", `${agentImpact.impactDelta > 0 ? "+" : ""}${agentImpact.impactDelta.toFixed(1)}`)}
                         style={{
                           fontSize: "clamp(0.52rem, 0.68vw, 0.62rem)",
                           fontFamily: "'Orbitron', sans-serif",
@@ -534,7 +534,7 @@ export default function ViewPregame() {
                           {agent.displayName}
                         </div>
                         <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", lineHeight: 1.1 }}>
-                          {agent.role?.displayName || "Agent"}
+                          {agent.role?.displayName || t.agentRoleFallback}
                         </div>
                       </div>
                     </div>
@@ -580,7 +580,7 @@ export default function ViewPregame() {
                       ? recommendation.winRate
                       : null;
 
-                  const targetRoleName = targetAgent?.role?.displayName || "Agent";
+                  const targetRoleName = targetAgent?.role?.displayName || t.agentRoleFallback;
 
                   return (
                     <div
@@ -947,9 +947,9 @@ export default function ViewPregame() {
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                           }}
-                          title={agent.role?.displayName || "Agent"}
+                          title={agent.role?.displayName || t.agentRoleFallback}
                         >
-                          {agent.role?.displayName || "Agent"}
+                          {agent.role?.displayName || t.agentRoleFallback}
                         </div>
                       </div>
                     </div>
@@ -982,7 +982,7 @@ export default function ViewPregame() {
                             lineHeight: 1.1,
                           }}
                         >
-                          EQUIPO
+                          {t.onTeamBadge}
                         </span>
                       ) : estimatedWinRate !== null ? (() => {
                         const scoreMeta = getScoreMeta(estimatedWinRate, true, language);

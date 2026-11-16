@@ -2,6 +2,7 @@
 
 import { useValorantData, Weapon } from "@/hooks/useValorantData";
 import { useGameState } from "@/hooks/useGameState";
+import { useLanguage } from "@/context/LanguageContext";
 import { getMapSplash } from "@/data/mapsData";
 import { calculateNextRoundProjection } from "@/data/economyEngine";
 import AbilitiesShop from "@/components/shop/AbilitiesShop";
@@ -29,7 +30,12 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 // Estado de compra de cada habilidad: 'owned' (ya comprada/en posesión) o 'buy' (disponible para comprar)
 export type AbilityStatus = "owned" | "buy";
 
+/** Sustituye {name} en un texto traducido */
+const withName = (text: string, name: string) => text.replace("{name}", name);
+
 export default function ViewIngame() {
+  const { t } = useLanguage();
+
   // 1. Hook para obtener datos estáticos (agentes, catálogo de armas de Riot API)
   const { agents, weapons: rawWeapons } = useValorantData();
 
@@ -282,9 +288,9 @@ export default function ViewIngame() {
                 const color = status === "unaffordable" && !isEquipped ? "var(--color-red)" : "#f8fafc";
 
                 const isClassic = w.displayName.toUpperCase() === "CLASSIC";
-                const costDisplay = isClassic ? "GRATIS" : `¤${w.shopData.cost}`;
+                const costDisplay = isClassic ? t.abilityFree : `¤${w.shopData.cost}`;
                 const nameDisplay = w.displayName;
-                const statusLabel = isEquipped ? "COMPRADO" : "";
+                const statusLabel = isEquipped ? t.abilityPurchased : "";
 
                 return (
                   <div
@@ -319,15 +325,16 @@ export default function ViewIngame() {
                         e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
                       }
                     }}
-                    title={
+                    title={withName(
                       isEquipped
                         ? isSidearm
                           ? isClassic
-                            ? `Pistola por defecto: ${w.displayName}`
-                            : `Click para desequipar (volver a Classic): ${w.displayName}`
-                          : `Click para desequipar arma larga: ${w.displayName}`
-                        : `Click para equipar: ${w.displayName}`
-                    }
+                            ? t.shopDefaultSidearmTitle
+                            : t.shopUnequipSidearmTitle
+                          : t.shopUnequipPrimaryTitle
+                        : t.shopEquipTitle,
+                      w.displayName
+                    )}
                   >
                     {statusLabel && (
                       <div
@@ -420,7 +427,7 @@ export default function ViewIngame() {
             marginBottom: "0.15rem",
           }}
         >
-          ESCUDOS
+          {t.shopShields}
         </div>
         <div
           style={{
@@ -475,11 +482,7 @@ export default function ViewIngame() {
                     e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.16)";
                   }
                 }}
-                title={
-                  isOwned
-                    ? `Click para desequipar: ${a.name}`
-                    : `Click para equipar (reemplaza cualquier otro escudo): ${a.name}`
-                }
+                title={withName(isOwned ? t.shopUnequipShieldTitle : t.shopEquipShieldTitle, a.name)}
               >
                 {/* Badge COMPRADO */}
                 {isOwned && (
@@ -495,7 +498,7 @@ export default function ViewIngame() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    COMPRADO
+                    {t.abilityPurchased}
                   </div>
                 )}
 
@@ -578,7 +581,7 @@ export default function ViewIngame() {
         }}
       >
         <h2 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "clamp(1.2rem, 2.2vh, 1.8rem)" }}>
-          Ronda en progreso...
+          {t.shopRoundInProgress}
         </h2>
         <button
           onClick={() => setForceShow(true)}
@@ -597,7 +600,7 @@ export default function ViewIngame() {
             boxShadow: "0 0 15px rgba(56, 189, 248, 0.3)",
           }}
         >
-          VER MENÚ DE COMPRA (OFFLINE)
+          {t.shopViewBuyMenuOffline}
         </button>
       </div>
     );
@@ -706,7 +709,7 @@ export default function ViewIngame() {
                       fontSize: "9px",
                       fontWeight: 900,
                     }}
-                    title="Agente no detectado en vivo"
+                    title={t.shopAgentNotDetectedTitle}
                   >
                     !
                   </div>
@@ -726,7 +729,7 @@ export default function ViewIngame() {
                     letterSpacing: "0.04em",
                   }}
                 >
-                  {playerProfile?.gameName ? playerProfile.gameName : "PLAYER"}
+                  {playerProfile?.gameName ? playerProfile.gameName : t.shopPlayerFallback}
                 </div>
 
                 {/* Status indicator: Shows whether agent is live or fallback demo */}
@@ -743,7 +746,7 @@ export default function ViewIngame() {
                       letterSpacing: "0.02em",
                     }}
                   >
-                    NO DETECTADO (DEMO)
+                    {t.notDetectedDemo}
                   </div>
                 ) : (
                   <div
@@ -775,7 +778,7 @@ export default function ViewIngame() {
                         flexShrink: 0,
                         filter: "drop-shadow(0 0 3px var(--color-cyan))",
                       }}
-                      title={`Escudo Equipado: ${equippedArmorName}`}
+                      title={withName(t.shopShieldEquippedTitle, equippedArmorName)}
                     />
                   ) : (
                     <div
@@ -786,7 +789,7 @@ export default function ViewIngame() {
                         borderRadius: "50%",
                         flexShrink: 0,
                       }}
-                      title="Sin escudo equipado"
+                      title={t.shopNoShieldTitle}
                     ></div>
                   )}
 
@@ -798,7 +801,7 @@ export default function ViewIngame() {
                     }
                     alt={equippedSidearmName}
                     style={{ width: "1.2rem", height: "0.65rem", objectFit: "contain", flexShrink: 0 }}
-                    title={`Pistola: ${equippedSidearmName}`}
+                    title={withName(t.shopSidearmTitle, equippedSidearmName)}
                   />
 
                   {/* Arma Larga */}
@@ -810,7 +813,7 @@ export default function ViewIngame() {
                       }
                       alt={equippedPrimaryName}
                       style={{ width: "1.6rem", height: "0.65rem", objectFit: "contain", flexShrink: 0 }}
-                      title={`Arma larga: ${equippedPrimaryName}`}
+                      title={withName(t.shopPrimaryTitle, equippedPrimaryName)}
                     />
                   ) : (
                     <div
@@ -826,9 +829,9 @@ export default function ViewIngame() {
                         flexShrink: 0,
                         fontWeight: 700,
                       }}
-                      title="Sin arma larga equipada"
+                      title={t.shopNoPrimaryTitle}
                     >
-                      ARMA LARGA
+                      {t.shopPrimaryShort}
                     </div>
                   )}
                 </div>
@@ -854,7 +857,7 @@ export default function ViewIngame() {
                 gap: "0.25rem",
                 backdropFilter: "blur(8px)",
               }}
-              title="Click para alternar entre seguir la recomendación de la IA o compra manual"
+              title={t.shopToggleModeTitle}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span
@@ -866,7 +869,7 @@ export default function ViewIngame() {
                     textTransform: "uppercase",
                   }}
                 >
-                  {isFollowingAiRecommendation ? "RECOMENDACIÓN IA" : "COMPRA MANUAL"}
+                  {isFollowingAiRecommendation ? t.shopAiRecommendation : t.shopManualBuy}
                 </span>
                 <span
                   style={{
@@ -878,7 +881,7 @@ export default function ViewIngame() {
                     color: isFollowingAiRecommendation ? "#000" : "#94a3b8",
                   }}
                 >
-                  {isFollowingAiRecommendation ? "SEGUIDA" : "EDITAR"}
+                  {isFollowingAiRecommendation ? t.shopFollowing : t.shopEdit}
                 </span>
               </div>
 
@@ -894,11 +897,11 @@ export default function ViewIngame() {
                   }}
                 >
                   <div>
-                    <span style={{ color: "#f8fafc", fontWeight: 700 }}>Plan IA:</span>{" "}
-                    {buyRecommendations.weapon || "Save"} + {buyRecommendations.shield || "Sin escudo"}
+                    <span style={{ color: "#f8fafc", fontWeight: 700 }}>{t.shopAiPlan}</span>{" "}
+                    {buyRecommendations.weapon || t.shopSave} + {buyRecommendations.shield || t.shopNoShield}
                   </div>
                   <div style={{ color: "var(--color-cyan)", fontWeight: 800 }}>
-                    Coste estimado: ¤ {buyRecommendations.cost?.toLocaleString() || 0}
+                    {t.shopEstimatedCost} ¤ {buyRecommendations.cost?.toLocaleString() || 0}
                   </div>
                 </div>
               )}
@@ -919,7 +922,7 @@ export default function ViewIngame() {
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: "clamp(0.52rem, 0.8vh, 0.62rem)", color: "var(--text-muted)", fontWeight: 800 }}>
-                  CRÉDITOS BANCO
+                  {t.shopBankCredits}
                 </span>
                 <span
                   style={{
@@ -949,10 +952,10 @@ export default function ViewIngame() {
                 }}
               >
                 <span style={{ color: "var(--color-red)" }}>
-                  Gasto: -¤ {totalCalculatedSpend.toLocaleString()}
+                  {t.shopSpend} -¤ {totalCalculatedSpend.toLocaleString()}
                 </span>
                 <span style={{ color: "var(--color-green)" }}>
-                  Restante: ¤ {projection.leftoverCredits.toLocaleString()}
+                  {t.shopRemaining} ¤ {projection.leftoverCredits.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -980,7 +983,7 @@ export default function ViewIngame() {
                   justifyContent: "space-between",
                 }}
               >
-                <span>MÍN. PRÓXIMA RONDA:</span>
+                <span>{t.shopMinNextRound}</span>
                 <span style={{ color: "var(--text-main)", fontWeight: 900 }}>
                   ¤ {projection.minNextRoundLoss.toLocaleString()}
                 </span>
@@ -994,7 +997,7 @@ export default function ViewIngame() {
                   justifyContent: "space-between",
                 }}
               >
-                <span>SI GANAS LA RONDA:</span>
+                <span>{t.shopIfYouWin}</span>
                 <span style={{ color: "var(--color-cyan)", fontWeight: 800 }}>
                   ¤ {projection.minNextRoundWin.toLocaleString()}
                 </span>
@@ -1013,19 +1016,19 @@ export default function ViewIngame() {
             }}
           >
             {renderWeaponCol([
-              { title: "ARMAS DE MANO", id: "EEquippableCategory::Sidearm" },
+              { title: t.shopCatSidearms, id: "EEquippableCategory::Sidearm" },
             ])}
             {renderWeaponCol([
-              { title: "SUBFUSILES", id: "EEquippableCategory::SMG" },
-              { title: "ESCOPETAS", id: "EEquippableCategory::Shotgun" },
+              { title: t.shopCatSmgs, id: "EEquippableCategory::SMG" },
+              { title: t.shopCatShotguns, id: "EEquippableCategory::Shotgun" },
             ])}
-            {renderWeaponCol([{ title: "RIFLES", id: "EEquippableCategory::Rifle" }])}
+            {renderWeaponCol([{ title: t.shopCatRifles, id: "EEquippableCategory::Rifle" }])}
             {renderWeaponCol([
               {
-                title: "FUSILES DE FRANCOTIRADOR",
+                title: t.shopCatSnipers,
                 id: "EEquippableCategory::Sniper",
               },
-              { title: "AMETRALLADORAS", id: "EEquippableCategory::Heavy" },
+              { title: t.shopCatHeavy, id: "EEquippableCategory::Heavy" },
             ])}
             {renderArmorCol()}
           </div>
@@ -1090,7 +1093,7 @@ export default function ViewIngame() {
                         letterSpacing: "0.08em",
                       }}
                     >
-                      {activeWeaponToInspect.shopData?.categoryText.toUpperCase() || "ARMA"}
+                      {activeWeaponToInspect.shopData?.categoryText.toUpperCase() || t.shopWeaponFallback}
                     </span>
                   </div>
                   <div
@@ -1103,7 +1106,7 @@ export default function ViewIngame() {
                       letterSpacing: "0.04em",
                     }}
                   >
-                    <span>DISPARO PRINCIPAL</span>
+                    <span>{t.shopPrimaryFire}</span>
                     <span style={{ color: "rgba(255,255,255,0.7)" }}>Auto / Semiauto</span>
                   </div>
                 </div>
@@ -1135,7 +1138,7 @@ export default function ViewIngame() {
                         }}
                       >
                         <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
-                          VELOCIDAD
+                          {t.shopStatRunSpeed}
                         </div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
                           5.74 <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>M/S</span>
@@ -1151,7 +1154,7 @@ export default function ViewIngame() {
                         }}
                       >
                         <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
-                          EQUIPAR
+                          {t.shopStatEquip}
                         </div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
                           {activeWeaponToInspect.weaponStats.equipTimeSeconds}{" "}
@@ -1168,7 +1171,7 @@ export default function ViewIngame() {
                         }}
                       >
                         <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
-                          RECARGA
+                          {t.shopStatReload}
                         </div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
                           {activeWeaponToInspect.weaponStats.reloadTimeSeconds}{" "}
@@ -1185,11 +1188,11 @@ export default function ViewIngame() {
                         }}
                       >
                         <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
-                          CARGADOR
+                          {t.shopStatMagazine}
                         </div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
                           {activeWeaponToInspect.weaponStats.magazineSize}{" "}
-                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>BALAS</span>
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>{t.shopUnitRounds}</span>
                         </div>
                       </div>
 
@@ -1202,11 +1205,11 @@ export default function ViewIngame() {
                         }}
                       >
                         <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
-                          CADENCIA
+                          {t.shopStatFireRate}
                         </div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
                           {activeWeaponToInspect.weaponStats.fireRate}{" "}
-                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>B/S</span>
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>{t.shopUnitFireRate}</span>
                         </div>
                       </div>
 
@@ -1219,11 +1222,11 @@ export default function ViewIngame() {
                         }}
                       >
                         <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.06em" }}>
-                          DISPERSIÓN
+                          {t.shopStatAccuracy}
                         </div>
                         <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#F8FAFC" }}>
                           {activeWeaponToInspect.weaponStats.firstBulletAccuracy}{" "}
-                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>MIRA</span>
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-muted)", fontWeight: 700 }}>{t.shopUnitAccuracy}</span>
                         </div>
                       </div>
                     </div>
@@ -1255,7 +1258,7 @@ export default function ViewIngame() {
                             }}
                           >
                             <div style={{ fontSize: "clamp(0.62rem, 0.85vw, 0.72rem)", fontWeight: 900, letterSpacing: "0.08em", color: "#FFFFFF" }}>
-                              DAÑO
+                              {t.shopDamage}
                             </div>
                             <div
                               style={{
@@ -1448,7 +1451,7 @@ export default function ViewIngame() {
                       textAlign: "center",
                     }}
                   >
-                    Estadísticas no disponibles
+                    {t.shopStatsUnavailable}
                   </div>
                 )}
               </div>
@@ -1465,9 +1468,9 @@ export default function ViewIngame() {
                   lineHeight: "1.4",
                 }}
               >
-                Pasa el ratón sobre un arma
+                {t.shopHoverWeaponLine1}
                 <br />
-                para ver sus estadísticas
+                {t.shopHoverWeaponLine2}
               </div>
             )}
           </div>

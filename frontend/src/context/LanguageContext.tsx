@@ -186,6 +186,78 @@ export interface Translations {
   abilityPurchased: string;
   abilityNotPurchased: string;
   notDetectedDemo: string;
+
+  // Tienda In-Game ({name} = arma o escudo)
+  shopRoundInProgress: string;
+  shopViewBuyMenuOffline: string;
+  shopDefaultSidearmTitle: string;
+  shopUnequipSidearmTitle: string;
+  shopUnequipPrimaryTitle: string;
+  shopEquipTitle: string;
+  shopShields: string;
+  shopUnequipShieldTitle: string;
+  shopEquipShieldTitle: string;
+  shopAgentNotDetectedTitle: string;
+  shopPlayerFallback: string;
+  shopShieldEquippedTitle: string;
+  shopNoShieldTitle: string;
+  shopSidearmTitle: string;
+  shopPrimaryTitle: string;
+  shopNoPrimaryTitle: string;
+  shopPrimaryShort: string;
+  shopToggleModeTitle: string;
+  shopAiRecommendation: string;
+  shopManualBuy: string;
+  shopFollowing: string;
+  shopEdit: string;
+  shopAiPlan: string;
+  shopSave: string;
+  shopNoShield: string;
+  shopEstimatedCost: string;
+  shopBankCredits: string;
+  shopSpend: string;
+  shopRemaining: string;
+  shopMinNextRound: string;
+  shopIfYouWin: string;
+  shopCatSidearms: string;
+  shopCatSmgs: string;
+  shopCatShotguns: string;
+  shopCatRifles: string;
+  shopCatSnipers: string;
+  shopCatHeavy: string;
+  shopWeaponFallback: string;
+  shopPrimaryFire: string;
+  shopStatRunSpeed: string;
+  shopStatEquip: string;
+  shopStatReload: string;
+  shopStatMagazine: string;
+  shopUnitRounds: string;
+  shopStatFireRate: string;
+  shopUnitFireRate: string;
+  shopStatAccuracy: string;
+  shopUnitAccuracy: string;
+  shopDamage: string;
+  shopStatsUnavailable: string;
+  shopHoverWeaponLine1: string;
+  shopHoverWeaponLine2: string;
+
+  // Pre-Game ({delta} = aporte en %)
+  dismissError: string;
+  synergyContributionTitle: string;
+  onTeamBadge: string;
+  agentRoleFallback: string;
+
+  // Menú: bandas de rango del gráfico vacío
+  rankIconAlt: string;
+  rankBandPlatinum: string;
+  rankBandGold: string;
+  rankBandSilver: string;
+  rankBandBronze: string;
+
+  // Miras
+  crosshairCreatorTitle: string;
+  crosshairCustomReticle: string;
+  crosshairReset: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -361,6 +433,70 @@ const translations: Record<Language, Translations> = {
     abilityPurchased: "COMPRADO",
     abilityNotPurchased: "NO COMPRADO",
     notDetectedDemo: "NO DETECTADO (DEMO JETT)",
+    shopRoundInProgress: "Ronda en progreso...",
+    shopViewBuyMenuOffline: "VER MENÚ DE COMPRA (OFFLINE)",
+    shopDefaultSidearmTitle: "Pistola por defecto: {name}",
+    shopUnequipSidearmTitle: "Click para desequipar (volver a Classic): {name}",
+    shopUnequipPrimaryTitle: "Click para desequipar arma larga: {name}",
+    shopEquipTitle: "Click para equipar: {name}",
+    shopShields: "ESCUDOS",
+    shopUnequipShieldTitle: "Click para desequipar: {name}",
+    shopEquipShieldTitle: "Click para equipar (reemplaza cualquier otro escudo): {name}",
+    shopAgentNotDetectedTitle: "Agente no detectado en vivo",
+    shopPlayerFallback: "JUGADOR",
+    shopShieldEquippedTitle: "Escudo equipado: {name}",
+    shopNoShieldTitle: "Sin escudo equipado",
+    shopSidearmTitle: "Pistola: {name}",
+    shopPrimaryTitle: "Arma larga: {name}",
+    shopNoPrimaryTitle: "Sin arma larga equipada",
+    shopPrimaryShort: "ARMA LARGA",
+    shopToggleModeTitle: "Click para alternar entre seguir la recomendación de la IA o compra manual",
+    shopAiRecommendation: "RECOMENDACIÓN IA",
+    shopManualBuy: "COMPRA MANUAL",
+    shopFollowing: "SEGUIDA",
+    shopEdit: "EDITAR",
+    shopAiPlan: "Plan IA:",
+    shopSave: "Ahorrar",
+    shopNoShield: "Sin escudo",
+    shopEstimatedCost: "Coste estimado:",
+    shopBankCredits: "CRÉDITOS BANCO",
+    shopSpend: "Gasto:",
+    shopRemaining: "Restante:",
+    shopMinNextRound: "MÍN. PRÓXIMA RONDA:",
+    shopIfYouWin: "SI GANAS LA RONDA:",
+    shopCatSidearms: "ARMAS DE MANO",
+    shopCatSmgs: "SUBFUSILES",
+    shopCatShotguns: "ESCOPETAS",
+    shopCatRifles: "RIFLES",
+    shopCatSnipers: "FUSILES DE FRANCOTIRADOR",
+    shopCatHeavy: "AMETRALLADORAS",
+    shopWeaponFallback: "ARMA",
+    shopPrimaryFire: "DISPARO PRINCIPAL",
+    shopStatRunSpeed: "VELOCIDAD",
+    shopStatEquip: "EQUIPAR",
+    shopStatReload: "RECARGA",
+    shopStatMagazine: "CARGADOR",
+    shopUnitRounds: "BALAS",
+    shopStatFireRate: "CADENCIA",
+    shopUnitFireRate: "B/S",
+    shopStatAccuracy: "DISPERSIÓN",
+    shopUnitAccuracy: "MIRA",
+    shopDamage: "DAÑO",
+    shopStatsUnavailable: "Estadísticas no disponibles",
+    shopHoverWeaponLine1: "Pasa el ratón sobre un arma",
+    shopHoverWeaponLine2: "para ver sus estadísticas",
+    dismissError: "Cerrar aviso",
+    synergyContributionTitle: "Aporte a la sinergia del equipo: {delta}%",
+    onTeamBadge: "EQUIPO",
+    agentRoleFallback: "Agente",
+    rankIconAlt: "Rango",
+    rankBandPlatinum: "PLATINO",
+    rankBandGold: "ORO",
+    rankBandSilver: "PLATA",
+    rankBandBronze: "BRONCE",
+    crosshairCreatorTitle: "CREADOR DE MIRAS",
+    crosshairCustomReticle: "RETÍCULA PERSONALIZADA",
+    crosshairReset: "RESTABLECER",
   },
   en: {
     profile: "Profile",
@@ -534,6 +670,70 @@ const translations: Record<Language, Translations> = {
     abilityPurchased: "PURCHASED",
     abilityNotPurchased: "NOT PURCHASED",
     notDetectedDemo: "NOT DETECTED (DEMO JETT)",
+    shopRoundInProgress: "Round in progress...",
+    shopViewBuyMenuOffline: "VIEW BUY MENU (OFFLINE)",
+    shopDefaultSidearmTitle: "Default sidearm: {name}",
+    shopUnequipSidearmTitle: "Click to unequip (back to Classic): {name}",
+    shopUnequipPrimaryTitle: "Click to unequip primary weapon: {name}",
+    shopEquipTitle: "Click to equip: {name}",
+    shopShields: "SHIELDS",
+    shopUnequipShieldTitle: "Click to unequip: {name}",
+    shopEquipShieldTitle: "Click to equip (replaces any other shield): {name}",
+    shopAgentNotDetectedTitle: "Agent not detected live",
+    shopPlayerFallback: "PLAYER",
+    shopShieldEquippedTitle: "Equipped shield: {name}",
+    shopNoShieldTitle: "No shield equipped",
+    shopSidearmTitle: "Sidearm: {name}",
+    shopPrimaryTitle: "Primary weapon: {name}",
+    shopNoPrimaryTitle: "No primary weapon equipped",
+    shopPrimaryShort: "PRIMARY",
+    shopToggleModeTitle: "Click to switch between following the AI recommendation and manual buy",
+    shopAiRecommendation: "AI RECOMMENDATION",
+    shopManualBuy: "MANUAL BUY",
+    shopFollowing: "FOLLOWING",
+    shopEdit: "EDIT",
+    shopAiPlan: "AI plan:",
+    shopSave: "Save",
+    shopNoShield: "No shield",
+    shopEstimatedCost: "Estimated cost:",
+    shopBankCredits: "BANK CREDITS",
+    shopSpend: "Spend:",
+    shopRemaining: "Remaining:",
+    shopMinNextRound: "MIN. NEXT ROUND:",
+    shopIfYouWin: "IF YOU WIN THE ROUND:",
+    shopCatSidearms: "SIDEARMS",
+    shopCatSmgs: "SMGS",
+    shopCatShotguns: "SHOTGUNS",
+    shopCatRifles: "RIFLES",
+    shopCatSnipers: "SNIPER RIFLES",
+    shopCatHeavy: "MACHINE GUNS",
+    shopWeaponFallback: "WEAPON",
+    shopPrimaryFire: "PRIMARY FIRE",
+    shopStatRunSpeed: "RUN SPEED",
+    shopStatEquip: "EQUIP",
+    shopStatReload: "RELOAD",
+    shopStatMagazine: "MAGAZINE",
+    shopUnitRounds: "ROUNDS",
+    shopStatFireRate: "FIRE RATE",
+    shopUnitFireRate: "RDS/S",
+    shopStatAccuracy: "SPREAD",
+    shopUnitAccuracy: "AIM",
+    shopDamage: "DAMAGE",
+    shopStatsUnavailable: "Stats not available",
+    shopHoverWeaponLine1: "Hover over a weapon",
+    shopHoverWeaponLine2: "to see its stats",
+    dismissError: "Dismiss error",
+    synergyContributionTitle: "Contribution to team synergy: {delta}%",
+    onTeamBadge: "TEAM",
+    agentRoleFallback: "Agent",
+    rankIconAlt: "Rank",
+    rankBandPlatinum: "PLATINUM",
+    rankBandGold: "GOLD",
+    rankBandSilver: "SILVER",
+    rankBandBronze: "BRONZE",
+    crosshairCreatorTitle: "CROSSHAIR CREATOR",
+    crosshairCustomReticle: "CUSTOM RETICLE",
+    crosshairReset: "RESET",
   },
 };
 
