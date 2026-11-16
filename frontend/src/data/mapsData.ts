@@ -1,9 +1,13 @@
+export type MapCategory = "standard" | "teamDeathmatch" | "range";
+
 export interface MapData {
   uuid: string;
   displayName: string;
   splash: string;
   displayIcon?: string;
   coordinates?: string;
+  /** Sin indicar = "standard" */
+  category?: MapCategory;
 }
 
 export const VALORANT_MAPS: MapData[] = [
@@ -84,9 +88,69 @@ export const VALORANT_MAPS: MapData[] = [
     displayIcon: "https://media.valorant-api.com/maps/b529448b-4d60-346e-e89e-00a4c527a405/displayicon.png",
     coordinates: "35°48'N 106°08'W",
   },
+  {
+    uuid: "1c18ab1f-420d-0d8b-71d0-77ad3c439115",
+    displayName: "Corrode",
+    splash: "https://media.valorant-api.com/maps/1c18ab1f-420d-0d8b-71d0-77ad3c439115/splash.png",
+    displayIcon: "https://media.valorant-api.com/maps/1c18ab1f-420d-0d8b-71d0-77ad3c439115/displayicon.png",
+    coordinates: "48° 38' FH\" N8, 1° 33' YV\" W8",
+  },
+  {
+    uuid: "756da597-416b-c0f2-f47b-afbdf28670bc",
+    displayName: "Summit",
+    splash: "https://media.valorant-api.com/maps/756da597-416b-c0f2-f47b-afbdf28670bc/splash.png",
+    displayIcon: "https://media.valorant-api.com/maps/756da597-416b-c0f2-f47b-afbdf28670bc/displayicon.png",
+    coordinates: "29° 18' FC\" N, 110° 25' ZQ\" E",
+  },
+  // Duelo a muerte por equipos (no aparecen en los selectores de mapas estándar)
+  {
+    uuid: "12452a9d-48c3-0b02-e7eb-0381c3520404",
+    displayName: "Kasbah",
+    splash: "https://media.valorant-api.com/maps/12452a9d-48c3-0b02-e7eb-0381c3520404/splash.png",
+    displayIcon: "https://media.valorant-api.com/maps/12452a9d-48c3-0b02-e7eb-0381c3520404/displayicon.png",
+    category: "teamDeathmatch",
+  },
+  {
+    uuid: "de28aa9b-4cbe-1003-320e-6cb3ec309557",
+    displayName: "Piazza",
+    splash: "https://media.valorant-api.com/maps/de28aa9b-4cbe-1003-320e-6cb3ec309557/splash.png",
+    displayIcon: "https://media.valorant-api.com/maps/de28aa9b-4cbe-1003-320e-6cb3ec309557/displayicon.png",
+    category: "teamDeathmatch",
+  },
+  {
+    uuid: "690b3ed2-4dff-945b-8223-6da834e30d24",
+    displayName: "District",
+    splash: "https://media.valorant-api.com/maps/690b3ed2-4dff-945b-8223-6da834e30d24/splash.png",
+    displayIcon: "https://media.valorant-api.com/maps/690b3ed2-4dff-945b-8223-6da834e30d24/displayicon.png",
+    category: "teamDeathmatch",
+  },
+  {
+    uuid: "2c09d728-42d5-30d8-43dc-96a05cc7ee9d",
+    displayName: "Drift",
+    splash: "https://media.valorant-api.com/maps/2c09d728-42d5-30d8-43dc-96a05cc7ee9d/splash.png",
+    displayIcon: "https://media.valorant-api.com/maps/2c09d728-42d5-30d8-43dc-96a05cc7ee9d/displayicon.png",
+    category: "teamDeathmatch",
+  },
+  {
+    uuid: "d6336a5a-428f-c591-98db-c8a291159134",
+    displayName: "Glitch",
+    splash: "https://media.valorant-api.com/maps/d6336a5a-428f-c591-98db-c8a291159134/splash.png",
+    displayIcon: "https://media.valorant-api.com/maps/d6336a5a-428f-c591-98db-c8a291159134/displayicon.png",
+    category: "teamDeathmatch",
+  },
+  // Campo de tiro
+  {
+    uuid: "5914d1e0-40c4-cfdd-6b88-eba06347686c",
+    displayName: "The Range",
+    splash: "https://media.valorant-api.com/maps/5914d1e0-40c4-cfdd-6b88-eba06347686c/splash.png",
+    category: "range",
+  },
 ];
 
-export const DEFAULT_MAP_NAMES = VALORANT_MAPS.map((m) => m.displayName);
+/** Mapas de las colas estándar (competitivo, no competitivo...), sin duelo a muerte ni campo de tiro */
+export const STANDARD_MAPS = VALORANT_MAPS.filter((m) => (m.category ?? "standard") === "standard");
+
+export const DEFAULT_MAP_NAMES = STANDARD_MAPS.map((m) => m.displayName);
 
 export const DEFAULT_MAP_SPLASH =
   "https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/splash.png";
