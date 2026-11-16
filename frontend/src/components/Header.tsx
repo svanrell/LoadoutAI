@@ -182,7 +182,7 @@ export default function Header() {
                 style={{ width: "13px", height: "13px", objectFit: "contain", filter: "drop-shadow(0 0 2px rgba(255,255,255,0.2))" }}
               />
               <span style={{ color: getTierColor(playerProfile?.currentTier || 0), fontWeight: 700 }}>
-                {playerProfile?.rankName ? `${playerProfile.rankName.toUpperCase()} • ${playerProfile.rankedRating} RR` : t.currentRank}
+                {playerProfile?.rankName ? `${playerProfile.rankName.toUpperCase()} • ${playerProfile.rankedRating} RR` : t.noRankLabel}
               </span>
             </span>
           </div>

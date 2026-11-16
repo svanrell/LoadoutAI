@@ -224,11 +224,13 @@ export default function ViewMenu() {
                     color: getTierColor(playerProfile?.currentTier ?? 0),
                   }}
                 >
-                  {playerProfile?.rankName ? playerProfile.rankName.toUpperCase() : t.currentRank}
+                  {playerProfile?.rankName ? playerProfile.rankName.toUpperCase() : t.noRankLabel}
                 </span>
-                <span className="rank-header-rr">
-                  • {playerProfile?.rankedRating ?? 0} RR
-                </span>
+                {playerProfile?.rankName && (
+                  <span className="rank-header-rr">
+                    • {playerProfile.rankedRating ?? 0} RR
+                  </span>
+                )}
               </div>
             </div>
           </div>

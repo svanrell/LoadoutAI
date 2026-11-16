@@ -53,7 +53,8 @@ export interface Translations {
   winRate: string;
   last10Matches: string;
   rrGraphTitle: string;
-  currentRank: string;
+  /** Texto cuando no hay perfil o rango (en lugar de un rango inventado) */
+  noRankLabel: string;
   liveRadarTitle: string;
   clientDetectedText: string;
   clientOfflineText: string;
@@ -300,7 +301,7 @@ const translations: Record<Language, Translations> = {
     winRate: "Porcentaje de victorias",
     last10Matches: "Últimas 10 Partidas",
     rrGraphTitle: "Gráfico de RR en Clasificatoria",
-    currentRank: "GOLD IV 23 RR",
+    noRankLabel: "SIN RANGO",
     liveRadarTitle: "Radar de Partida en Vivo",
     clientDetectedText: "Cliente de Riot detectado. Buscando sala o selección de agentes...",
     clientOfflineText: "Cliente de Valorant no detectado. Abre el juego para activar el radar.",
@@ -533,7 +534,7 @@ const translations: Record<Language, Translations> = {
     winRate: "Win Rate",
     last10Matches: "Last 10 Matches",
     rrGraphTitle: "Competitive RR Chart",
-    currentRank: "GOLD IV 23 RR",
+    noRankLabel: "UNRANKED",
     liveRadarTitle: "Live Match Radar",
     clientDetectedText: "Riot Client detected. Searching for match or agent draft...",
     clientOfflineText: "Valorant Client not detected. Launch game to activate radar.",
