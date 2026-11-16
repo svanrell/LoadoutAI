@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useSyncExternalStore } from "react";
 import {
   CrosshairConfig,
   DEFAULT_CONFIG,
@@ -8,6 +8,16 @@ import {
   serializeValorantCode,
   parseValorantCode,
 } from "@/data/crosshairData";
+import {
+  deleteSavedCrosshairById,
+  getSavedCrosshairsServerSnapshot,
+  getSavedCrosshairsSnapshot,
+  saveCrosshairCode,
+  subscribeSavedCrosshairs,
+} from "@/lib/savedCrosshairs";
+
+/** Resultado del último guardado, para el aviso del botón Guardar */
+export type CrosshairSaveStatus = "idle" | "saved" | "error";
 
 /**
  * Hook personalizado para aislar TODA la lógica de la mira.
@@ -98,20 +108,35 @@ export function useCrosshair(initialConfig: CrosshairConfig = DEFAULT_CONFIG) {
     }
   }, [currentCode]);
 
-  /**
-   * Punto de conexión para backend/guardado:
-   * Si en el futuro quieres enviar la mira al backend o a la API local de Valorant,
-   * puedes llamarlo aquí sin tocar los botones de la interfaz.
-   */
-  const saveCrosshair = useCallback(
-    (onSaveExternal?: (config: CrosshairConfig, code: string) => void) => {
-      if (onSaveExternal) {
-        onSaveExternal(config, currentCode);
-      }
-      // Aquí se puede añadir comunicación con el backend (ej: socket o fetch)
-    },
-    [config, currentCode]
+  // Miras guardadas en localStorage (vacío en el servidor y en la hidratación)
+  const savedCrosshairs = useSyncExternalStore(
+    subscribeSavedCrosshairs,
+    getSavedCrosshairsSnapshot,
+    getSavedCrosshairsServerSnapshot
   );
+
+  // Aviso temporal tras pulsar Guardar ("saved" o "error")
+  const [saveStatus, setSaveStatus] = useState<CrosshairSaveStatus>("idle");
+
+  /**
+   * Guarda la mira actual en localStorage. Si no se puede (localStorage no
+   * disponible o lleno) lo indica con saveStatus "error".
+   */
+  const saveCrosshair = useCallback(() => {
+    const ok = saveCrosshairCode(currentCode);
+    setSaveStatus(ok ? "saved" : "error");
+    setTimeout(() => setSaveStatus("idle"), 2000);
+    return ok;
+  }, [currentCode]);
+
+  /** Carga una mira guardada (por su código) en el editor */
+  const loadSavedCrosshair = useCallback(
+    (code: string) => applyImportCode(code),
+    [applyImportCode]
+  );
+
+  /** Borra una mira guardada */
+  const deleteSavedCrosshair = useCallback((id: string) => deleteSavedCrosshairById(id), []);
 
   return {
     // Estado y datos
@@ -130,6 +155,12 @@ export function useCrosshair(initialConfig: CrosshairConfig = DEFAULT_CONFIG) {
     randomizeCrosshair,
     applyImportCode,
     copyCode,
+
+    // Miras guardadas (localStorage)
+    savedCrosshairs,
+    saveStatus,
     saveCrosshair,
+    loadSavedCrosshair,
+    deleteSavedCrosshair,
   };
 }

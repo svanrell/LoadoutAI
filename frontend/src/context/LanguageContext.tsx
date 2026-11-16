@@ -257,6 +257,17 @@ export interface Translations {
   crosshairCreatorTitle: string;
   crosshairCustomReticle: string;
   crosshairReset: string;
+  crosshairRandom: string;
+  crosshairCopyCode: string;
+  crosshairCopied: string;
+  crosshairResetShort: string;
+  crosshairSave: string;
+  crosshairSaved: string;
+  crosshairSaveError: string;
+  crosshairSavedTitle: string;
+  crosshairSavedEmpty: string;
+  crosshairLoad: string;
+  crosshairDelete: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -494,6 +505,17 @@ const translations: Record<Language, Translations> = {
     crosshairCreatorTitle: "CREADOR DE MIRAS",
     crosshairCustomReticle: "RETÍCULA PERSONALIZADA",
     crosshairReset: "RESTABLECER",
+    crosshairRandom: "Aleatoria",
+    crosshairCopyCode: "Copiar código",
+    crosshairCopied: "¡Copiado!",
+    crosshairResetShort: "Restablecer",
+    crosshairSave: "Guardar",
+    crosshairSaved: "¡Guardada!",
+    crosshairSaveError: "No se pudo guardar",
+    crosshairSavedTitle: "MIRAS GUARDADAS",
+    crosshairSavedEmpty: "Aún no has guardado ninguna mira. Pulsa Guardar para añadir la actual.",
+    crosshairLoad: "Cargar",
+    crosshairDelete: "Borrar",
   },
   en: {
     profile: "Profile",
@@ -729,6 +751,17 @@ const translations: Record<Language, Translations> = {
     crosshairCreatorTitle: "CROSSHAIR CREATOR",
     crosshairCustomReticle: "CUSTOM RETICLE",
     crosshairReset: "RESET",
+    crosshairRandom: "Random",
+    crosshairCopyCode: "Copy Code",
+    crosshairCopied: "Copied!",
+    crosshairResetShort: "Reset",
+    crosshairSave: "Save",
+    crosshairSaved: "Saved!",
+    crosshairSaveError: "Could not save",
+    crosshairSavedTitle: "SAVED CROSSHAIRS",
+    crosshairSavedEmpty: "You have not saved any crosshair yet. Press Save to add the current one.",
+    crosshairLoad: "Load",
+    crosshairDelete: "Delete",
   },
 };
 

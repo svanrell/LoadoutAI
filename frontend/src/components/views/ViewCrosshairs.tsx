@@ -8,6 +8,7 @@ import {
   CrosshairPreview,
   CrosshairSettingsTable,
   CrosshairImportModal,
+  SavedCrosshairsPanel,
 } from "@/components/crosshair";
 
 export default function ViewCrosshairs() {
@@ -28,6 +29,11 @@ export default function ViewCrosshairs() {
     randomizeCrosshair,
     applyImportCode,
     copyCode,
+    savedCrosshairs,
+    saveStatus,
+    saveCrosshair,
+    loadSavedCrosshair,
+    deleteSavedCrosshair,
   } = useCrosshair();
 
   return (
@@ -144,13 +150,21 @@ export default function ViewCrosshairs() {
           alignItems: "start",
         }}
       >
-        {/* LEFT COLUMN: Live preview with background selector */}
-        <CrosshairPreview
-          config={config}
-          selectedBg={selectedBg}
-          onSelectBg={setSelectedBg}
-          language={language}
-        />
+        {/* LEFT COLUMN: Live preview with background selector + saved crosshairs */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
+          <CrosshairPreview
+            config={config}
+            selectedBg={selectedBg}
+            onSelectBg={setSelectedBg}
+            language={language}
+          />
+          <SavedCrosshairsPanel
+            savedCrosshairs={savedCrosshairs}
+            currentCode={currentCode}
+            onLoad={loadSavedCrosshair}
+            onDelete={deleteSavedCrosshair}
+          />
+        </div>
 
         {/* RIGHT COLUMN: Authentic Valorant In-Game Settings Panel */}
         <CrosshairSettingsTable
@@ -162,6 +176,8 @@ export default function ViewCrosshairs() {
           copied={copied}
           onRandom={randomizeCrosshair}
           onReset={resetCrosshair}
+          onSave={saveCrosshair}
+          saveStatus={saveStatus}
         />
       </div>
 
