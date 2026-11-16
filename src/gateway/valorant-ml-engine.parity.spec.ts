@@ -27,6 +27,10 @@ function findPython(): string | null {
 }
 
 const PYTHON = findPython();
+// En local se salta si no hay Python; en CI (CI=true) tiene que ejecutarse siempre
+if (!PYTHON && process.env.CI) {
+  throw new Error("El test de paridad Node ↔ Python necesita Python en CI");
+}
 const describeWithPython = PYTHON ? describe : describe.skip;
 
 // Ejecuta el predictor de Python una sola vez para todos los drafts
