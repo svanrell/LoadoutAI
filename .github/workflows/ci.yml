@@ -1,7 +1,9 @@
 name: CI
 
+# push solo en main; el resto de ramas se comprueban en su PR (así no se ejecuta dos veces)
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
